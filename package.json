@@ -1,0 +1,22 @@
+{
+  "name": "unleash-client-node",
+  "version": "1.0.0",
+  "description": "Unleash Client for Node",
+  "main": "unleash.js",
+  "scripts": {
+    "test": "echo 'No tests implemented jet'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:finn-no/unleash-client-node.git"
+  },
+  "keywords": [
+    "unleash",
+    "client",
+    "feature toggle"
+  ],
+  "bugs": {
+    "url": "https://github.com/finn-no/unleash-client-node/issues"
+  },
+  "homepage": "https://github.com/finn-no/unleash-client-node"
+}
