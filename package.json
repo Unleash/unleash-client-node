@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/finn-no/unleash-client-node/issues"
   },
-  "homepage": "https://github.com/finn-no/unleash-client-node"
+  "homepage": "https://github.com/finn-no/unleash-client-node",
+  "dependencies": {
+    "request": "^2.53.0"
+  }
 }
