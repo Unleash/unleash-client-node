@@ -1,15 +1,15 @@
-var UnleashClient = require('./lib/unleash-client');
+var UnleashClient = require('./lib/client');
 var Repository = require('./lib/repository');
 var options = {};
 var client;
 
-function init(opt) {
-  if(!opt || !opt.url) {
+function init(url, strategies, refreshIntervall) {
+  if(!url) {
     throw new Error("You must specify the Unleash api url");
   }
 
-  options.refreshIntervall = opt.refreshIntervall || 15000;
-  options.url = opt.url;
+  options.url = url;
+  options.refreshIntervall = refreshIntervall || 15000;
 
   repository = new Repository(options);
   client = new UnleashClient(repository);
