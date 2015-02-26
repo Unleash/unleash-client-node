@@ -16,6 +16,9 @@ function init(opt) {
 }
 
 function getClient() {
+  if(!client) {
+    throw new Error("Did you initalize unleash via the init-method?");
+  }
   return client;
 }
 
