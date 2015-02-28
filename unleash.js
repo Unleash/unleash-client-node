@@ -3,13 +3,13 @@ var Repository = require('./lib/repository');
 var options = {};
 var client;
 
-function init(url, strategies, refreshIntervall) {
-  if(!url) {
+function initialize(opt) {
+  if(!opt || !opt.url) {
     throw new Error("You must specify the Unleash api url");
   }
 
-  options.url = url;
-  options.refreshIntervall = refreshIntervall || 15000;
+  options.url = opt.url;
+  options.refreshIntervall = opt.refreshIntervall || 15000;
 
   repository = new Repository(options);
   client = new UnleashClient(repository);
@@ -17,12 +17,12 @@ function init(url, strategies, refreshIntervall) {
 
 function getClient() {
   if(!client) {
-    throw new Error("Did you initalize unleash via the init-method?");
+    throw new Error("Did you initalize unleash via the inititalize-method?");
   }
   return client;
 }
 
 module.exports = {
-  init: init,
+  initialize: initialize,
   getClient: getClient
 };

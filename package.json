@@ -4,7 +4,7 @@
   "description": "Unleash Client for Node",
   "main": "unleash.js",
   "scripts": {
-    "test": "echo 'No tests implemented jet'"
+    "test": "mocha test test/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,9 @@
     "request": "^2.53.0"
   },
   "devDependencies": {
-    "mocha": "^2.1.0"
+    "chai": "^2.1.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.1.0",
+    "nock": "^0.59.1"
   }
 }
