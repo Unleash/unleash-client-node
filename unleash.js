@@ -1,7 +1,11 @@
 var UnleashClient = require('./lib/client');
 var Repository = require('./lib/repository');
+var DefaultStrategy = require('./lib/default-strategy');
 var options = {};
 var client;
+var strategies = [
+  new DefaultStrategy()
+];
 
 function initialize(opt) {
   if(!opt || !opt.url) {
@@ -12,7 +16,8 @@ function initialize(opt) {
   options.refreshIntervall = opt.refreshIntervall || 15000;
 
   repository = new Repository(options);
-  client = new UnleashClient(repository);
+
+  client = new UnleashClient(repository, strategies);
 }
 
 function getClient() {
