@@ -1,21 +1,27 @@
 var UnleashClient = require('./lib/client');
-var Repository = require('./lib/repository');
+var repository = require('./lib/repository');
 var DefaultStrategy = require('./lib/default-strategy');
-var options = {};
+
 var client;
+
 var strategies = [
   new DefaultStrategy()
 ];
 
 function initialize(opt) {
+  if(client) {
+    console.log("You may only initalize unleash once.");
+    return;
+  }
+
   if(!opt || !opt.url) {
     throw new Error("You must specify the Unleash api url");
   }
 
-  options.url = opt.url;
-  options.refreshIntervall = opt.refreshIntervall || 15000;
-
-  repository = new Repository(options);
+  repository.initalize({
+    url: opt.url,
+    refreshIntervall: opt.refreshIntervall || 15000
+  });
 
   client = new UnleashClient(repository, strategies);
 }
