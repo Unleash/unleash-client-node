@@ -1,12 +1,11 @@
 var unleash = require('./unleash');
-var Strategy = require('./lib/strategy');
 var util = require('util');
 
 function ActiveForUserWithEmailStrategy() {
   this.name = 'ActiveForUserWithEmail';
 }
 
-util.inherits(ActiveForUserWithEmailStrategy, Strategy);
+util.inherits(ActiveForUserWithEmailStrategy, unleash.Strategy);
 
 ActiveForUserWithEmailStrategy.prototype.isEnabled = function(parameters, context) {
   return parameters.emails.indexOf(context.email) !== -1;

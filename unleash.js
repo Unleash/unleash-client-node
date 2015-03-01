@@ -1,5 +1,6 @@
 var UnleashClient   = require('./lib/client');
 var repository      = require('./lib/repository');
+var Strategy        = require('./lib/strategy');
 var DefaultStrategy = require('./lib/default-strategy');
 var backupPath      = require('os').tmpdir();
 
@@ -32,5 +33,6 @@ function getClient() {
 
 module.exports = {
   initialize: initialize,
-  getClient: getClient
+  getClient: getClient,
+  Strategy: Strategy
 };
