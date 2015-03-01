@@ -19,7 +19,13 @@ unleash.initialize({
 
 unleashClient = unleash.getClient();
 
-setInterval(function() {
+var t = setInterval(function() {
   console.log(unleashClient.isEnabled("featureX"));
-  //unleash.stop();
 }, 1000);
+
+
+/*
+setTimeout(function() {
+  unleash.destroy();
+}, 10*1000);
+*/

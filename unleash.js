@@ -24,6 +24,11 @@ function initialize(opt) {
   client = new UnleashClient(repository, strategies);
 }
 
+function destroy() {
+  repository.destroy();
+  client = undefined;
+}
+
 function getClient() {
   if(!client) {
     throw new Error("Did you initalize Unleash?");
@@ -33,6 +38,7 @@ function getClient() {
 
 module.exports = {
   initialize: initialize,
+  destroy: destroy,
   getClient: getClient,
   Strategy: Strategy
 };
