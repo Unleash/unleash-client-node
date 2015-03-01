@@ -4,7 +4,8 @@
   "description": "Unleash Client for Node",
   "main": "unleash.js",
   "scripts": {
-    "test": "mocha test test/*.js"
+    "test": "mocha test test/**/*.js",
+    "tdd": "mocha --watch test test/**/*.js"
   },
   "repository": {
     "type": "git",

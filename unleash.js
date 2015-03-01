@@ -13,7 +13,7 @@ function initialize(opt) {
 
   repository.initalize({
     url: opt.url,
-    refreshIntervall: opt.refreshIntervall || 15000,
+    refreshIntervall: opt.refreshIntervall || 15*1000,
     backupPath: opt.backupPath || backupPath
   });
 
