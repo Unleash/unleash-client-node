@@ -1,21 +1,23 @@
-var UnleashClient   = require('./lib/client');
-var repository      = require('./lib/repository');
-var Strategy        = require('./lib/strategy');
-var DefaultStrategy = require('./lib/default-strategy');
-var backupPath      = require('os').tmpdir();
+var UnleashClient     = require('./lib/client');
+var PollingRepository = require('./lib/polling-repository');
+var Strategy          = require('./lib/strategy');
+var DefaultStrategy   = require('./lib/default-strategy');
+var backupPath        = require('os').tmpdir();
 
 var client;
+var repository;
 
 function initialize(opt) {
   if(!opt || !opt.url) {
     throw new Error("You must specify the Unleash api url");
   }
 
-  repository.initalize({
+  repository = new PollingRepository({
     url: opt.url,
     refreshIntervall: opt.refreshIntervall || 15*1000,
     backupPath: opt.backupPath || backupPath
   });
+
 
   var strategies = [
     new DefaultStrategy()
@@ -25,7 +27,10 @@ function initialize(opt) {
 }
 
 function destroy() {
-  repository.destroy();
+  if(repository) {
+    repository.stop();
+  }
+  repository = undefined;
   client = undefined;
 }
 

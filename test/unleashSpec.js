@@ -4,13 +4,23 @@ var assert = require('assert');
 var nock = require('nock');
 var fs = require('fs');
 
+var backupPath = "/tmp/unleash-test";
+var backupFile = backupPath + '/unleash-repo.json';
+
 describe('The Unleash api', function () {
   beforeEach(function() {
+    if(!fs.existsSync(backupPath)) {
+      fs.mkdirSync(backupPath);
+    }
+
     setupToggles([{name: "feature",enabled: true,strategy: "default"}]);
   });
 
   afterEach(function() {
-    fs.unlink('/tmp/unleash-repo.json', function(err) {});
+    if(fs.existsSync(backupFile)) {
+      fs.unlinkSync(backupFile);
+    }
+
     unleash.destroy();
     nock.cleanAll();
   });
@@ -20,19 +30,22 @@ describe('The Unleash api', function () {
   });
 
   it('should return the unleash-client', function() {
-    unleash.initialize({url: 'http://unleash.app/features'});
+    unleash.initialize({url: 'http://unleash.app/features', backupPath: backupPath});
     assert.ok(unleash.getClient());
   });
 
   it('should consider toggle active', function(done) {
-    unleash.initialize({url: 'http://unleash.app/features'});
+    unleash.initialize({url: 'http://unleash.app/features', backupPath: backupPath});
 
     var client = unleash.getClient();
 
-    setTimeout(function() {
-      assert.ok(client.isEnabled('feature'));
-      done();
-    }, 40);
+    var t = setInterval(function() {
+      if(client.isEnabled('feature')) {
+        clearInterval(t);
+        assert.ok(client.isEnabled('feature'));
+        done();
+      }
+    }, 10);
   });
 });
 
