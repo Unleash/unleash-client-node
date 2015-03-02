@@ -1,4 +1,5 @@
 var UnleashClient     = require('./lib/client');
+var Repository        = require('./lib/repository');
 var PollingRepository = require('./lib/polling-repository');
 var Strategy          = require('./lib/strategy');
 var DefaultStrategy   = require('./lib/default-strategy');
@@ -41,9 +42,21 @@ function getClient() {
   return client;
 }
 
+function isEnabled(name, context) {
+  if(client) {
+    return client.isEnabled(name, context);
+  } else {
+    console.log("Unleash has not been initalized jet");
+  }
+
+}
+
 module.exports = {
   initialize: initialize,
   destroy: destroy,
   getClient: getClient,
-  Strategy: Strategy
+  isEnabled: isEnabled,
+  Client: UnleashClient,
+  Strategy: Strategy,
+  Repository: Repository
 };

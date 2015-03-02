@@ -17,10 +17,8 @@ unleash.initialize({
   strategies: [new ActiveForUserWithEmailStrategy()]
 });
 
-unleashClient = unleash.getClient();
-
 var t = setInterval(function() {
-  console.log(unleashClient.isEnabled("featureX"));
+  console.log(unleash.isEnabled("featureX"));
 }, 1000);
 
 

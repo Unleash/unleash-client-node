@@ -37,12 +37,10 @@ describe('The Unleash api', function () {
   it('should consider toggle active', function(done) {
     unleash.initialize({url: 'http://unleash.app/features', backupPath: backupPath});
 
-    var client = unleash.getClient();
-
     var t = setInterval(function() {
-      if(client.isEnabled('feature')) {
+      if(unleash.isEnabled('feature')) {
         clearInterval(t);
-        assert.ok(client.isEnabled('feature'));
+        assert.ok(unleash.isEnabled('feature'));
         done();
       }
     }, 10);
