@@ -4,7 +4,9 @@
   "description": "Unleash Client for Node",
   "main": "unleash.js",
   "scripts": {
-    "test": "echo 'No tests implemented jet'"
+    "test": "mocha test test/**/*.js",
+    "tdd": "mocha --watch test test/**/*.js",
+    "coverage": "istanbul cover _mocha --report lcovonly test test/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +20,15 @@
   "bugs": {
     "url": "https://github.com/finn-no/unleash-client-node/issues"
   },
-  "homepage": "https://github.com/finn-no/unleash-client-node"
+  "homepage": "https://github.com/finn-no/unleash-client-node",
+  "dependencies": {
+    "request": "^2.53.0"
+  },
+  "devDependencies": {
+    "chai": "^2.1.0",
+    "expect.js": "^0.3.1",
+    "istanbul": "^0.3.6",
+    "mocha": "^2.1.0",
+    "nock": "^0.59.1"
+  }
 }
