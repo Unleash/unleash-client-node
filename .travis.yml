@@ -1,0 +1,14 @@
+sudo: false
+language: node_js
+node_js:
+- "0.10"
+before_script:
+- echo '--timeout 10000' > test/mocha.opts
+script:
+- npm install
+- npm test
+- npm run coverage-report || true
+notifications:
+  hipchat:
+    rooms:
+      secure: GiIDk52xccnUKnevjLE+w6eUXg0jfV7oOmagw5VnOV5jXGUxdzMk/Q9um+oSClEPE51IvF76zoFEKPIX/CNdjgalEr+CZADy1gene/YRGrNgrXmYYmiU1/dNzelpla1WpKPrY2pkbOgKxrCR9ScID+pMs6vzvJnPwK9vu66W61U=
