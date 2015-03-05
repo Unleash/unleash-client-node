@@ -5,7 +5,8 @@
   "main": "unleash.js",
   "scripts": {
     "test": "mocha test test/**/*.js",
-    "tdd": "mocha --watch test test/**/*.js"
+    "tdd": "mocha --watch test test/**/*.js",
+    "coverage": "istanbul cover _mocha --report lcovonly test test/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "chai": "^2.1.0",
     "expect.js": "^0.3.1",
+    "istanbul": "^0.3.6",
     "mocha": "^2.1.0",
     "nock": "^0.59.1"
   }
