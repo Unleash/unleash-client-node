@@ -35,18 +35,12 @@ function destroy() {
     client = undefined;
 }
 
-function getClient() {
-    if(!client) {
-        throw new Error("Did you initalize Unleash?");
-    }
-    return client;
-}
-
 function isEnabled(name, context) {
     if(client) {
         return client.isEnabled(name, context);
     } else {
-        console.log("Unleash has not been initalized jet");
+        console.log("WARN: Unleash has not been initalized jet");
+        return false;
     }
 
 }
@@ -54,7 +48,6 @@ function isEnabled(name, context) {
 module.exports = {
     initialize: initialize,
     destroy: destroy,
-    getClient: getClient,
     isEnabled: isEnabled,
     Client: UnleashClient,
     Strategy: Strategy,

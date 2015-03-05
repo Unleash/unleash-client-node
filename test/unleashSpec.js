@@ -2,18 +2,15 @@ var unleash = require('../unleash');
 var assert = require('assert');
 var nock = require('nock');
 var fs = require('fs');
-var expect = require('expect.js');
 
 var backupPath = "/tmp/unleash-test";
 var backupFile = backupPath + '/unleash-repo.json';
 
 describe('The Unleash api', function () {
     beforeEach(function() {
-        if(!fs.existsSync(backupPath)) {
-            fs.mkdirSync(backupPath);
-        }
-
-        setupToggles([{name: "feature",enabled: true,strategy: "default"}]);
+        setupUnleashServerWithToggles([
+            {name: "feature",enabled: true,strategy: "default"}
+        ]);
     });
 
     afterEach(function() {
@@ -25,29 +22,43 @@ describe('The Unleash api', function () {
         nock.cleanAll();
     });
 
-    it('should require initialize to be called first', function() {
-        expect(unleash.getClient).to.throwError();
+    it('should allow request even before unleash is initialized', function() {
+        assert.equal(unleash.isEnabled("unknown"), false);
     });
 
-    it('should return the unleash-client', function() {
-        unleash.initialize({url: 'http://unleash.app/features', backupPath: backupPath});
-        assert.ok(unleash.getClient());
-    });
-
-    it('should consider toggle active', function(done) {
-        unleash.initialize({url: 'http://unleash.app/features', backupPath: backupPath});
+    it('should consider known feature-toggle as active', function(done) {
+        unleash.initialize({
+            url: 'http://unleash.app/features',
+            backupPath: backupPath
+        });
 
         var t = setInterval(function() {
             if(unleash.isEnabled('feature')) {
                 clearInterval(t);
-                assert.ok(unleash.isEnabled('feature'));
+                assert.equal(unleash.isEnabled('feature'), true);
+                done();
+            }
+        }, 10);
+    });
+
+    it('should consider unknown feature-toggle as disabled', function(done) {
+        unleash.initialize({
+            url: 'http://unleash.app/features',
+            backupPath: backupPath
+        });
+
+        var t = setInterval(function() {
+            //Wait for known active feature-toggle
+            if(unleash.isEnabled('feature')) {
+                clearInterval(t);
+                assert.equal(unleash.isEnabled('unknown'), false);
                 done();
             }
         }, 10);
     });
 });
 
-function setupToggles(toggles) {
+function setupUnleashServerWithToggles(toggles) {
     nock('http://unleash.app')
     .persist()
     .get('/features')
