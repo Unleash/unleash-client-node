@@ -9,54 +9,54 @@ var client;
 var repository;
 
 function initialize(opt) {
-  if(!opt || !opt.url) {
-    throw new Error("You must specify the Unleash api url");
-  }
+    if(!opt || !opt.url) {
+        throw new Error("You must specify the Unleash api url");
+    }
 
-  repository = new PollingRepository({
-    url: opt.url,
-    refreshIntervall: opt.refreshIntervall || 15*1000,
-    backupPath: opt.backupPath || backupPath
-  });
+    repository = new PollingRepository({
+        url: opt.url,
+        refreshIntervall: opt.refreshIntervall || 15*1000,
+        backupPath: opt.backupPath || backupPath
+    });
 
 
-  var strategies = [
-    new DefaultStrategy()
-  ].concat(opt.strategies || []);
+    var strategies = [
+        new DefaultStrategy()
+    ].concat(opt.strategies || []);
 
-  client = new UnleashClient(repository, strategies);
+    client = new UnleashClient(repository, strategies);
 }
 
 function destroy() {
-  if(repository) {
-    repository.stop();
-  }
-  repository = undefined;
-  client = undefined;
+    if(repository) {
+        repository.stop();
+    }
+    repository = undefined;
+    client = undefined;
 }
 
 function getClient() {
-  if(!client) {
-    throw new Error("Did you initalize Unleash?");
-  }
-  return client;
+    if(!client) {
+        throw new Error("Did you initalize Unleash?");
+    }
+    return client;
 }
 
 function isEnabled(name, context) {
-  if(client) {
-    return client.isEnabled(name, context);
-  } else {
-    console.log("Unleash has not been initalized jet");
-  }
+    if(client) {
+        return client.isEnabled(name, context);
+    } else {
+        console.log("Unleash has not been initalized jet");
+    }
 
 }
 
 module.exports = {
-  initialize: initialize,
-  destroy: destroy,
-  getClient: getClient,
-  isEnabled: isEnabled,
-  Client: UnleashClient,
-  Strategy: Strategy,
-  Repository: Repository
+    initialize: initialize,
+    destroy: destroy,
+    getClient: getClient,
+    isEnabled: isEnabled,
+    Client: UnleashClient,
+    Strategy: Strategy,
+    Repository: Repository
 };
