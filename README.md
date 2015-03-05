@@ -1,7 +1,5 @@
 # unleash-client-node
-This is the node client for Unleash Client for Node.
-
-Read more about the [Unleash project](https://github.com/finn-no/unleash)
+This is the node client for Unleash. Read more about the [Unleash project](https://github.com/finn-no/unleash)
 
 ## Getting started
 
