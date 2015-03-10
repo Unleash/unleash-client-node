@@ -1,10 +1,7 @@
 var unleash = require('../unleash');
 var assert = require('assert');
 var nock = require('nock');
-var fs = require('fs');
-
-var backupPath = "/tmp/unleash-test";
-var backupFile = backupPath + '/unleash-repo.json';
+var helper = require('./helper');
 
 describe('The Unleash api', function () {
     beforeEach(function() {
@@ -14,10 +11,7 @@ describe('The Unleash api', function () {
     });
 
     afterEach(function() {
-        if(fs.existsSync(backupFile)) {
-            fs.unlinkSync(backupFile);
-        }
-
+        helper.removeBackup();
         unleash.destroy();
         nock.cleanAll();
     });
@@ -29,7 +23,7 @@ describe('The Unleash api', function () {
     it('should consider known feature-toggle as active', function(done) {
         unleash.initialize({
             url: 'http://unleash.app/features',
-            backupPath: backupPath
+            backupPath: helper.backupPath
         });
 
         var t = setInterval(function() {
@@ -44,7 +38,7 @@ describe('The Unleash api', function () {
     it('should consider unknown feature-toggle as disabled', function(done) {
         unleash.initialize({
             url: 'http://unleash.app/features',
-            backupPath: backupPath
+            backupPath: helper.backupPath
         });
 
         var t = setInterval(function() {

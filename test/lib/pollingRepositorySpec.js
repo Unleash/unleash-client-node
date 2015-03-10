@@ -2,26 +2,22 @@ var fs = require('fs');
 var nock = require('nock');
 var assert = require('assert');
 var PollingRepository = require('../../lib/polling-repository');
+var helper = require('../helper');
 
-var backupPath = "/tmp/unleash-test";
-
-describe('Repository', function() {
+describe('PollingRepository', function() {
     var repository;
 
     beforeEach(function() {
-        if(!fs.existsSync(backupPath)) {
-            fs.mkdirSync(backupPath);
-        }
-
         repository = new PollingRepository({
             url: "http://unleash.app/features",
-            backupPath: backupPath
+            backupPath: helper.backupPath
         });
 
         setupToggles([{name: "feature",enabled: true,strategy: "default"}]);
     });
 
     afterEach(function() {
+        helper.removeBackup();
         repository.stop();
         nock.cleanAll();
     });
