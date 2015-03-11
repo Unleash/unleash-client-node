@@ -9,7 +9,7 @@ This is the node client for Unleash. Read more about the [Unleash project](https
 You should as early as possible in your node (web) app initialize the
 unleash-client.  The unleash-client will set-up a in-memory repository,
 and poll updates from the unleash-server at regular intervals.
-```
+```js
 var unleash = require('unleash-client-node');
 unleash.initialize({url: 'http://unleash.herokuapp.com/features'});
 ```
@@ -18,16 +18,16 @@ unleash.initialize({url: 'http://unleash.herokuapp.com/features'});
 After you have initialized the unleash-client you can easily check if a feature
 toggle is enabled or not.
 
-```
+```js
 var unleash = require('unleash-client-node');
-unleash.isEnabled("app.ToggleX");
+unleash.isEnabled('app.ToggleX');
 ```
 
 ### 3. Stop unleash
 To shut down the client (turn off the polling) you can simply call the
 destroy-method. This is typically not required.
 
-```
+```js
 unleash.destroy()
 ```
 
@@ -44,7 +44,7 @@ The initialize method takes the following arguments:
 ## Custom strategies
 
 ### 1. implement the custom strategy:
-```
+```js
 var unleash = require('unleash-client-node');
 function ActiveForUserWithEmailStrategy() {
     this.name = 'ActiveForUserWithEmail';
@@ -59,7 +59,7 @@ ActiveForUserWithEmailStrategy.prototype.isEnabled = function(parameters, contex
 
 ### 2. register your custom strategy:
 
-```
+```js
 unleash.initialize({
     url: 'http://unleash.herokuapp.com/features',
     strategies: [new ActiveForUserWithEmailStrategy()]
