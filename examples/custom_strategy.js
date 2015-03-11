@@ -10,7 +10,7 @@ unleash.initialize({
 console("Fetching toggles from: http://unleash.herokuapp.com");
 
 setInterval(function() {
-    console.log("featureX enabled: " + unleash.isEnabled("featureX"));
+    console.log("featureX enabled: " + unleash.isEnabled("featureX", {email: 'user@mail.com'}));
 }, 1000);
 
 
