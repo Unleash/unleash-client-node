@@ -39,7 +39,7 @@ The initialize method takes the following arguments:
 
 - **url** - the url to fetch toggles from. (required)
 - **refreshIntervall** - The poll-intervall to check for updates. Defaults to 15s.
-- **Strategies** - Custom activation strategies to be used.
+- **strategies** - Custom activation strategies to be used.
 
 ## Custom strategies
 
