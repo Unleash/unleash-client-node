@@ -4,6 +4,7 @@ var helper = require('../helper');
 
 describe('Repository', function() {
     beforeEach(function() {
+        helper.removeBackup();
         helper.saveBackup({
             "featureZ" : {name: "featureZ",enabled: true,strategy: "default"}
         });

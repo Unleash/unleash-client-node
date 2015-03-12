@@ -11,9 +11,9 @@ describe('The Unleash api', function () {
     });
 
     afterEach(function() {
-        helper.removeBackup();
-        unleash.destroy();
         nock.cleanAll();
+        unleash.destroy();
+        helper.removeBackup();
     });
 
     it('should allow request even before unleash is initialized', function() {
@@ -28,8 +28,9 @@ describe('The Unleash api', function () {
 
         var t = setInterval(function() {
             if(unleash.isEnabled('feature')) {
-                clearInterval(t);
                 assert.equal(unleash.isEnabled('feature'), true);
+                clearInterval(t);
+                unleash.destroy();
                 done();
             }
         }, 10);
@@ -44,8 +45,10 @@ describe('The Unleash api', function () {
         var t = setInterval(function() {
             //Wait for known active feature-toggle
             if(unleash.isEnabled('feature')) {
-                clearInterval(t);
                 assert.equal(unleash.isEnabled('unknown'), false);
+
+                clearInterval(t);
+                unleash.destroy();
                 done();
             }
         }, 10);

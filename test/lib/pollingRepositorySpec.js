@@ -13,7 +13,7 @@ describe('PollingRepository', function() {
             backupPath: helper.backupPath
         });
 
-        setupToggles([{name: "feature",enabled: true,strategy: "default"}]);
+        setupToggles([{name: "featureF",enabled: true,strategy: "default"}]);
     });
 
     afterEach(function() {
@@ -24,8 +24,8 @@ describe('PollingRepository', function() {
 
     it('should fetch toggles from server', function(done) {
         var t = setInterval(function() {
-            if(repository.getToggle('feature')) {
-                assert.ok(repository.getToggle('feature'));
+            if(repository.getToggle('featureF')) {
+                assert.ok(repository.getToggle('featureF'));
                 done();
                 clearInterval(t);
             }
