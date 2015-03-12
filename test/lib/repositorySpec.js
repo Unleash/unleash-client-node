@@ -1,22 +1,30 @@
 var Repository = require('../../lib/repository');
 var assert = require('assert');
-var helper = require('../helper');
+var fs = require('fs');
+
+var backupPath = "/tmp/unleash-repo-test";
+var backupFile = backupPath + '/unleash-repo.json';
+
+if(!fs.existsSync(backupPath)) {
+    fs.mkdirSync(backupPath);
+}
 
 describe('Repository', function() {
     beforeEach(function() {
-        helper.removeBackup();
-        helper.saveBackup({
+        saveBackup({
             "featureZ" : {name: "featureZ",enabled: true,strategy: "default"}
         });
 
     });
 
     afterEach(function() {
-        helper.removeBackup();
+        if(fs.existsSync(backupFile)) {
+            fs.unlinkSync(backupFile);
+        }
     });
 
     it('should read backup from file at startup', function(done) {
-        var repository = new Repository({backupPath: helper.backupPath});
+        var repository = new Repository({backupPath: backupPath});
 
         var t = setInterval(function() {
             if(repository.getToggle("featureZ")) {
@@ -29,8 +37,13 @@ describe('Repository', function() {
     });
 
     it('should not crash with foobar repo', function() {
-        helper.saveBackup({foo: "bar"});
-        var repository = new Repository({backupPath: helper.backupPath});
+        saveBackup({foo: "bar"});
+        var repository = new Repository({backupPath: backupPath});
         assert.ok(!repository.getToggle('featureZ'));
     });
 });
+
+
+function saveBackup(repo) {
+    fs.writeFileSync(backupFile, JSON.stringify(repo));
+}

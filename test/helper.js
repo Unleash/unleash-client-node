@@ -13,8 +13,5 @@ module.exports = {
         if(fs.existsSync(backupFile)) {
             fs.unlinkSync(backupFile);
         }
-    },
-    saveBackup: function(repo) {
-        fs.writeFileSync(backupFile, JSON.stringify(repo));
     }
 };
