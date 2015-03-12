@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/finn-no/unleash-client-node.svg)](https://travis-ci.org/finn-no/unleash-client-node)
 [![Code Climate](https://codeclimate.com/github/finn-no/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/finn-no/unleash-client-node)
 [![Test Coverage](https://codeclimate.com/github/finn-no/unleash-client-node/badges/coverage.svg)](https://codeclimate.com/github/finn-no/unleash-client-node)
+[![Dependency Status](https://david-dm.org/finn-no/unleash-client-node.svg)](https://david-dm.org/finn-no/unleash-client-node)
 
 This is the node client for Unleash. Read more about the [Unleash project](https://github.com/finn-no/unleash)
 
