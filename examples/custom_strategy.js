@@ -1,4 +1,4 @@
-var unleash = require('unleash-client-node');
+var unleash = require('unleash-client');
 var util = require('util');
 
 unleash.initialize({

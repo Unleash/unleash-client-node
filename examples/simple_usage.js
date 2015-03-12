@@ -1,4 +1,4 @@
-var unleash = require('unleash-client-node');
+var unleash = require('unleash-client');
 unleash.initialize({
     url: 'http://unleash.herokuapp.com/features'
 });
