@@ -10,7 +10,7 @@ You should as early as possible in your node (web) app initialize the
 unleash-client.  The unleash-client will set-up a in-memory repository,
 and poll updates from the unleash-server at regular intervals.
 ```js
-var unleash = require('unleash-client-node');
+var unleash = require('unleash-client');
 unleash.initialize({url: 'http://unleash.herokuapp.com/features'});
 ```
 
@@ -19,7 +19,7 @@ After you have initialized the unleash-client you can easily check if a feature
 toggle is enabled or not.
 
 ```js
-var unleash = require('unleash-client-node');
+var unleash = require('unleash-client');
 unleash.isEnabled('app.ToggleX');
 ```
 
@@ -45,7 +45,7 @@ The initialize method takes the following arguments:
 
 ### 1. implement the custom strategy:
 ```js
-var unleash = require('unleash-client-node');
+var unleash = require('unleash-client');
 function ActiveForUserWithEmailStrategy() {
     this.name = 'ActiveForUserWithEmail';
 }
