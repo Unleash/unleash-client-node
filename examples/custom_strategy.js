@@ -1,4 +1,4 @@
-var unleash = require('./unleash');
+var unleash = require('unleash-client-node');
 var util = require('util');
 
 unleash.initialize({
@@ -7,7 +7,7 @@ unleash.initialize({
     strategies: [new ActiveForUserWithEmailStrategy()]
 });
 
-console("Fetching toggles from: http://unleash.herokuapp.com");
+console.log("Fetching toggles from: http://unleash.herokuapp.com");
 
 setInterval(function() {
     console.log("featureX enabled: " + unleash.isEnabled("featureX", {email: 'user@mail.com'}));
