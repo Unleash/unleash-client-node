@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha test test/**/*.js",
     "tdd": "mocha --watch test test/**/*.js",
-    "coverage": "istanbul cover _mocha -- test test/**/*.js"
+    "coverage": "istanbul cover _mocha --report lcovonly -- test test/**/*.js",
+    "coverage-report": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -26,9 +27,11 @@
   },
   "devDependencies": {
     "chai": "^2.1.0",
+    "coveralls": "^2.11.2",
     "expect.js": "^0.3.1",
     "istanbul": "^0.3.6",
     "mocha": "^2.1.0",
+    "mocha-lcov-reporter": "0.0.2",
     "nock": "^0.59.1"
   }
 }
