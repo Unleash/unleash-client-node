@@ -13,3 +13,5 @@ notifications:
   hipchat:
     rooms:
       secure: GiIDk52xccnUKnevjLE+w6eUXg0jfV7oOmagw5VnOV5jXGUxdzMk/Q9um+oSClEPE51IvF76zoFEKPIX/CNdjgalEr+CZADy1gene/YRGrNgrXmYYmiU1/dNzelpla1WpKPrY2pkbOgKxrCR9ScID+pMs6vzvJnPwK9vu66W61U=
+  slack:
+    secure: BwaqTOBsNhGopuKDbYn14Zw9VELjQYnFTtOc22CPr926Ctc7+oGvg6KgukDEY4VTGOa+fI1nWOytia8Vl9/pL8dFBTc21oeelewltYOpPOPbqPyRVa4otIe5j5N3IoGSQtA1S/tJeUctVq6u4HnevnpqxdqB9QKT8nq0a7GcJx0=
