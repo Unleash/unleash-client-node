@@ -4,6 +4,7 @@
   "description": "Unleash Client for Node",
   "main": "unleash.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha test test/**/*.js",
     "tdd": "mocha --watch test test/**/*.js",
     "coverage": "istanbul cover _mocha --report lcovonly -- test test/**/*.js",
@@ -28,6 +29,8 @@
   "devDependencies": {
     "chai": "^2.1.0",
     "coveralls": "^2.11.2",
+    "eslint": "^3.3.1",
+    "eslint-config-finn": "^1.0.0-alpha.9",
     "expect.js": "^0.3.1",
     "istanbul": "^0.3.6",
     "mocha": "^2.1.0",

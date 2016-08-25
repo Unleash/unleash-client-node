@@ -1,30 +1,30 @@
-var fs = require('fs');
-var nock = require('nock');
-var assert = require('assert');
-var PollingRepository = require('../../lib/polling-repository');
-var helper = require('../helper');
+'use strict';
+const nock = require('nock');
+const assert = require('assert');
+const PollingRepository = require('../../lib/polling-repository');
+const helper = require('../helper');
 
-describe('PollingRepository', function() {
-    var repository;
+describe('PollingRepository', function () {
+    let repository;
 
-    beforeEach(function() {
+    beforeEach(function () {
         repository = new PollingRepository({
-            url: "http://unleash.app/features",
-            backupPath: helper.backupPath
+            url: 'http://unleash.app/features',
+            backupPath: helper.backupPath,
         });
 
-        setupToggles([{name: "featureF",enabled: true,strategy: "default"}]);
+        setupToggles([{ name: 'featureF', enabled: true, strategy: 'default' }]);
     });
 
-    afterEach(function() {
+    afterEach(function () {
         helper.removeBackup();
         repository.stop();
         nock.cleanAll();
     });
 
-    it('should fetch toggles from server', function(done) {
-        var t = setInterval(function() {
-            if(repository.getToggle('featureF')) {
+    it('should fetch toggles from server', function (done) {
+        const t = setInterval(function () {
+            if (repository.getToggle('featureF')) {
                 assert.ok(repository.getToggle('featureF'));
                 done();
                 clearInterval(t);
@@ -33,9 +33,9 @@ describe('PollingRepository', function() {
     });
 });
 
-function setupToggles(toggles) {
+function setupToggles (toggles) {
     nock('http://unleash.app')
     .persist()
     .get('/features')
-    .reply(200,  {features: toggles});
+    .reply(200,  { features: toggles });
 }

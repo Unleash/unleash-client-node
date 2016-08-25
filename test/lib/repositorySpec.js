@@ -1,49 +1,53 @@
-var Repository = require('../../lib/repository');
-var assert = require('assert');
-var fs = require('fs');
+'use strict';
+const Repository = require('../../lib/repository');
+const assert = require('assert');
+const fs = require('fs');
 
-var backupPath = "/tmp/unleash-repo-test";
-var backupFile = backupPath + '/unleash-repo.json';
+const backupPath = '/tmp/unleash-repo-test';
+const backupFile = `${backupPath}/unleash-repo.json`;
 
-if(!fs.existsSync(backupPath)) {
+if (!fs.existsSync(backupPath)) {
     fs.mkdirSync(backupPath);
 }
 
-describe('Repository', function() {
-    beforeEach(function() {
+describe('Repository', function () {
+    beforeEach(function () {
         saveBackup({
-            "featureZ" : {name: "featureZ",enabled: true,strategy: "default"}
+            featureZ: {
+                name: 'featureZ',
+                enabled: true,
+                strategy: 'default',
+            },
         });
-
     });
 
-    afterEach(function() {
-        if(fs.existsSync(backupFile)) {
+    afterEach(function () {
+        if (fs.existsSync(backupFile)) {
             fs.unlinkSync(backupFile);
         }
     });
 
-    it('should read backup from file at startup', function(done) {
-        var repository = new Repository({backupPath: backupPath});
+    it('should read backup from file at startup', function (done) {
+        const repository = new Repository({ backupPath });
 
-        var t = setInterval(function() {
-            if(repository.getToggle("featureZ")) {
+        const t = setInterval(function () {
+            if (repository.getToggle('featureZ')) {
                 clearInterval(t);
                 assert.ok(repository.getRepository());
-                assert.equal(repository.getToggle('featureZ').name, "featureZ");
+                assert.equal(repository.getToggle('featureZ').name, 'featureZ');
                 done();
             }
         }, 10);
     });
 
-    it('should not crash with foobar repo', function() {
-        saveBackup({foo: "bar"});
-        var repository = new Repository({backupPath: backupPath});
+    it('should not crash with foobar repo', function () {
+        saveBackup({ foo: 'bar' });
+        const repository = new Repository({ backupPath });
         assert.ok(!repository.getToggle('featureZ'));
     });
 });
 
 
-function saveBackup(repo) {
+function saveBackup (repo) {
     fs.writeFileSync(backupFile, JSON.stringify(repo));
 }
