@@ -1,11 +1,13 @@
 sudo: false
 language: node_js
 node_js:
-- "0.10"
+- "4"
+- "6"
 before_script:
 - echo '--timeout 10000' > test/mocha.opts
 script:
 - npm install
+- npm run lint
 - npm test
 - npm run coverage
 - npm run coverage-report || true
