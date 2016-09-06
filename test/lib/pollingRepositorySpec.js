@@ -4,26 +4,30 @@ const assert = require('assert');
 const PollingRepository = require('../../lib/polling-repository');
 const helper = require('../helper');
 
-describe('PollingRepository', function () {
+describe('PollingRepository', () => {
     let repository;
 
-    beforeEach(function () {
+    beforeEach(() => {
         repository = new PollingRepository({
             url: 'http://unleash.app/features',
             backupPath: helper.backupPath,
         });
 
-        setupToggles([{ name: 'featureF', enabled: true, strategy: 'default' }]);
+        setupToggles([{
+            name: 'featureF',
+            enabled: true,
+            strategy: 'default',
+        }]);
     });
 
-    afterEach(function () {
+    afterEach(() => {
         helper.removeBackup();
         repository.stop();
         nock.cleanAll();
     });
 
-    it('should fetch toggles from server', function (done) {
-        const t = setInterval(function () {
+    it('should fetch toggles from server', (done) => {
+        const t = setInterval(() => {
             if (repository.getToggle('featureF')) {
                 assert.ok(repository.getToggle('featureF'));
                 done();

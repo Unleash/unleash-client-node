@@ -2,13 +2,13 @@
 const Strategy = require('../../lib/strategy');
 const assert = require('assert');
 
-describe('Strategy', function () {
-    it('should be disabled', function () {
+describe('Strategy', () => {
+    it('should be disabled', () => {
         const strategy = new Strategy();
         assert.ok(!strategy.isEnabled());
     });
 
-    it('should consider as unknown strategy', function () {
+    it('should consider as unknown strategy', () => {
         const strategy = new Strategy();
         assert.equal(strategy.getName(), 'unknown');
     });

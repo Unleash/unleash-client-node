@@ -3,7 +3,6 @@ const Client = require('../../lib/client');
 const DefaultStrategy = require('../../lib/default-strategy');
 const Strategy = require('../../lib/strategy');
 const assert = require('assert');
-const util = require('util');
 
 function buildToggle (name, active, strategy) {
     return {
@@ -13,8 +12,19 @@ function buildToggle (name, active, strategy) {
     };
 }
 
-describe('Client implementation', function () {
-    it('should use provided repository', function () {
+class CustomStrategy extends Strategy {
+    constructor () {
+        super();
+        this.name = 'custom';
+    }
+
+    isEnabled () {
+        return true;
+    }
+}
+
+describe('Client implementation', () => {
+    it('should use provided repository', () => {
         const repo = {
             getToggle () {
                 return buildToggle('feature', true);
@@ -26,7 +36,7 @@ describe('Client implementation', function () {
         assert.ok(result);
     });
 
-    it('should consider toggle not active', function () {
+    it('should consider toggle not active', () => {
         const repo = {
             getToggle () {
                 return buildToggle('feature', false);
@@ -38,7 +48,7 @@ describe('Client implementation', function () {
         assert.ok(!result);
     });
 
-    it('should use custom strategy', function () {
+    it('should use custom strategy', () => {
         const repo = {
             getToggle () {
                 return buildToggle('feature', true, 'custom');
@@ -51,10 +61,4 @@ describe('Client implementation', function () {
     });
 });
 
-function CustomStrategy () {
-    this.name = 'custom';
-}
-util.inherits(CustomStrategy, Strategy);
-CustomStrategy.prototype.isEnabled = function () {
-    return true;
-};
+

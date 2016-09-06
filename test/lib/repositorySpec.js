@@ -10,8 +10,8 @@ if (!fs.existsSync(backupPath)) {
     fs.mkdirSync(backupPath);
 }
 
-describe('Repository', function () {
-    beforeEach(function () {
+describe('Repository', () => {
+    beforeEach(() => {
         saveBackup({
             featureZ: {
                 name: 'featureZ',
@@ -21,16 +21,16 @@ describe('Repository', function () {
         });
     });
 
-    afterEach(function () {
+    afterEach(() => {
         if (fs.existsSync(backupFile)) {
             fs.unlinkSync(backupFile);
         }
     });
 
-    it('should read backup from file at startup', function (done) {
+    it('should read backup from file at startup', (done) => {
         const repository = new Repository({ backupPath });
 
-        const t = setInterval(function () {
+        const t = setInterval(() => {
             if (repository.getToggle('featureZ')) {
                 clearInterval(t);
                 assert.ok(repository.getRepository());
@@ -40,7 +40,7 @@ describe('Repository', function () {
         }, 10);
     });
 
-    it('should not crash with foobar repo', function () {
+    it('should not crash with foobar repo', () => {
         saveBackup({ foo: 'bar' });
         const repository = new Repository({ backupPath });
         assert.ok(!repository.getToggle('featureZ'));

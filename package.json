@@ -2,7 +2,7 @@
   "name": "unleash-client",
   "version": "0.1.1",
   "description": "Unleash Client for Node",
-  "main": "unleash.js",
+  "main": "lib/unleash.js",
   "scripts": {
     "lint": "eslint .",
     "test": "mocha test test/**/*.js",
@@ -24,7 +24,10 @@
   },
   "homepage": "https://github.com/finn-no/unleash-client-node",
   "dependencies": {
-    "request": "^2.53.0"
+    "request": "^2.74.0"
+  },
+  "engines": {
+    "node": "6"
   },
   "devDependencies": {
     "chai": "^2.1.0",
