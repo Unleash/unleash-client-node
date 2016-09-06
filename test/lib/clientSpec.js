@@ -4,11 +4,11 @@ const DefaultStrategy = require('../../lib/default-strategy');
 const Strategy = require('../../lib/strategy');
 const assert = require('assert');
 
-function buildToggle (name, active, strategy) {
+function buildToggle (name, active, strategies) {
     return {
         name,
         enabled: active,
-        strategy: strategy || 'default',
+        strategies: strategies || [{ name: 'default' }],
     };
 }
 
@@ -23,7 +23,18 @@ class CustomStrategy extends Strategy {
     }
 }
 
-describe('Client implementation', () => {
+class CustomFalseStrategy extends Strategy {
+    constructor () {
+        super();
+        this.name = 'custom-false';
+    }
+
+    isEnabled () {
+        return false;
+    }
+}
+
+describe.only('Client implementation', () => {
     it('should use provided repository', () => {
         const repo = {
             getToggle () {
@@ -51,11 +62,50 @@ describe('Client implementation', () => {
     it('should use custom strategy', () => {
         const repo = {
             getToggle () {
-                return buildToggle('feature', true, 'custom');
+                return buildToggle('feature', true, [{ name: 'custom' }]);
             },
         };
         const client = new Client(repo, [new DefaultStrategy(), new CustomStrategy()]);
         const result = client.isEnabled('feature');
+
+        assert.ok(result);
+    });
+
+    it('should use a set of custom strategies', () => {
+        const repo = {
+            getToggle () {
+                return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom' }]);
+            },
+        };
+
+        const client = new Client(repo, [new CustomFalseStrategy(), new CustomStrategy()]);
+        const result = client.isEnabled('feature');
+
+        assert.ok(result);
+    });
+
+    it('should use a set of custom strategies', () => {
+        const repo = {
+            getToggle () {
+                return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false' }]);
+            },
+        };
+
+        const client = new Client(repo, [new CustomFalseStrategy(), new CustomStrategy()]);
+        const result = client.isEnabled('feature');
+
+        assert.ok(result);
+    });
+
+    it('should return false a set of custom-false strategies', () => {
+        const repo = {
+            getToggle () {
+                return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom-false' }]);
+            },
+        };
+
+        const client = new Client(repo, [new CustomFalseStrategy(), new CustomStrategy()]);
+        const result = !client.isEnabled('feature');
 
         assert.ok(result);
     });
