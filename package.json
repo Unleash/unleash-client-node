@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/finn-no/unleash-client-node",
   "dependencies": {
+    "debug": "^2.2.0",
     "request": "^2.74.0"
   },
   "engines": {

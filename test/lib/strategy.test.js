@@ -10,6 +10,6 @@ describe('Strategy', () => {
 
     it('should consider as unknown strategy', () => {
         const strategy = new Strategy();
-        assert.equal(strategy.getName(), 'unknown');
+        assert.equal(strategy.name, 'unknown');
     });
 });

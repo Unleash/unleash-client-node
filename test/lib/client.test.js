@@ -34,7 +34,7 @@ class CustomFalseStrategy extends Strategy {
     }
 }
 
-describe.only('Client implementation', () => {
+describe('Client implementation', () => {
     it('should use provided repository', () => {
         const repo = {
             getToggle () {
