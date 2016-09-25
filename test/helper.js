@@ -1,17 +1,18 @@
-var fs = require('fs');
+'use strict';
+const fs = require('fs');
 
-var backupPath = "/tmp/unleash-test";
-var backupFile = backupPath + '/unleash-repo.json';
+const backupPath = '/tmp/unleash-test';
+const backupFile = `${backupPath}/unleash-repo.json`;
 
-if(!fs.existsSync(backupPath)) {
+if (!fs.existsSync(backupPath)) {
     fs.mkdirSync(backupPath);
 }
 
 module.exports = {
-    backupPath: backupPath,
-    removeBackup: function() {
-        if(fs.existsSync(backupFile)) {
+    backupPath,
+    removeBackup () {
+        if (fs.existsSync(backupFile)) {
             fs.unlinkSync(backupFile);
         }
-    }
+    },
 };
