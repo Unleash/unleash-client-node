@@ -83,7 +83,7 @@ test('Repository should request with etag', (t) => new Promise((resolve) => {
     const url = 'http://unleash-test-3.app';   
     nock(url, {
         reqheaders: {
-            // TODO wip
+            // TODO wip...
             'etag': console.log.bind(console, 'etag'),
             'If-None-Match': console.log.bind(console, 'If-None-Match'),
         }
@@ -102,3 +102,8 @@ test('Repository should request with etag', (t) => new Promise((resolve) => {
         resolve();       
     });
 }));
+
+
+test.todo('should handle request error and emit error event');
+test.todo('should handle 304 as silent ok');
+test.todo('should handle invalid JSON response');

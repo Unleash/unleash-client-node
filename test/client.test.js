@@ -35,6 +35,35 @@ const errorHandler = (err) => {
     console.error(err);
 }
 
+test('invalid strategy should throw', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true);
+        },
+    }
+
+    t.throws(() => {
+        const c = new Client(repo, [true, null], errorHandler);
+    });
+
+    t.throws(() => {
+        const c = new Client(repo, [{}], errorHandler);
+    });
+
+    t.throws(() => {
+        const c = new Client(repo, [{name: 'invalid'}], errorHandler);
+    });
+
+    t.throws(() => {
+        const c = new Client(repo, [{isEnabled: 'invalid'}], errorHandler);
+    });
+
+     t.throws(() => {
+        const c = new Client(repo, [{name: 'valid', isEnabled: () => {}}, null], errorHandler);
+    });
+
+});
+
 test('should use provided repository', (t) => {
     const repo = {
         getToggle () {
@@ -114,3 +143,46 @@ test('should return false a set of custom-false strategies', (t) => {
 });
 
 
+test('should emit error when invalid feature runtime', (t) => {
+    t.plan(3);
+    const repo = {
+        getToggle () {
+            return {
+                name: 'feature-malformed-strategies',
+                enabled: true,
+                strategies: true,
+            };
+        },
+    };
+
+    const strategies = [];
+    const client = new Client(repo, strategies, (err) => {
+        t.truthy(err);
+        t.true(err.message.startsWith('Malformed feature'))
+    });
+
+
+    t.true(client.isEnabled('feature-malformed-strategies') === false);
+});
+
+test('should emit error when invalid feature runtime', (t) => {
+    t.plan(3);
+    const repo = {
+        getToggle () {
+            return {
+                name: 'feature-wrong-strategy',
+                enabled: true,
+                strategies: [{name: 'non-existant'}],
+            };
+        },
+    };
+
+    const strategies = [];
+    const client = new Client(repo, strategies, (err) => {
+        t.truthy(err);
+        t.true(err.message.startsWith('Missing strategy'));
+    });
+
+
+    t.true(client.isEnabled('feature-wrong-strategy') === false);
+});

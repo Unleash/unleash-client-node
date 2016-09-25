@@ -8,26 +8,7 @@ import { EventEmitter } from 'events';
 const BACKUP_PATH: string = tmpdir();
 
 
-/*
-    # Client.
 
-    * typescript
-    * starte umiddelbart
-        - backup fil leses async umiddelbart ( rask timeout / feilhåndtering )
-            - så lese/samtidig fra server (SERVER vinner alltid)
-                - lagre resultat
-            - polling
-    * ikke feile, MEN surface errors/logs til tester
-    * skal plukke data ut fra payload (ikke validere hele payload)
-
-    # Aggregate strategies:
-
-    * nytt og gammel format
-        * normalisere backupfil og server
-            * normalisere til nytt format
-                strategies: [{ name, parameters }]
-
-*/
 
 interface UnleashConfig {
     url: string,

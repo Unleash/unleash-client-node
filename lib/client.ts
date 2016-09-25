@@ -13,8 +13,13 @@ export default class UnleashClient {
         this.errorHandler   = errorHandler || function(){};
         this.strategies     = strategies || [];
 
-        strategies.forEach(strategy => {
-            if (!strategy || !strategy.name || !strategy.isEnabled) {
+        strategies.forEach((strategy: Strategy) => {
+            if (!strategy ||
+                !strategy.name || 
+                typeof strategy.name !== 'string' ||
+                !strategy.isEnabled || 
+                typeof strategy.isEnabled !== 'function'
+            ) {
                 throw new Error('Invalid strategy data / interface');
             }
         });
