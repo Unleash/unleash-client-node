@@ -54,24 +54,6 @@ test('Repository should fetch from endpoint', (t) => new Promise((resolve) => {
     })
 }));
 
-test('Repository emit errors on invalid features', (t) => new Promise((resolve) => {
-    const url = 'http://unleash-test-1.app';   
-    setup(url, [{
-        name: 'feature',
-        enabled: null,
-        strategies: false,
-    }]);
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
-    
-    repo.once('error2', (err) => {
-        // console.log('err', err);
-        t.truthy(err);
-        
-        return resolve(); 
-    });
-
-}));
-
 test('Repository should poll for changes', (t) => new Promise((resolve) => {
     const url = 'http://unleash-test-2.app';   
     setup(url, []);
@@ -160,4 +142,21 @@ test('should handle invalid JSON response', (t) => new Promise((resolve, reject)
         resolve();        
     });
     repo.on('data', reject);
+}));
+
+
+test('Repository emit errors on invalid features', (t) => new Promise((resolve) => {
+    const url = 'http://unleash-test-1.app';   
+    setup(url, [{
+        name: 'feature',
+        enabled: null,
+        strategies: false,
+    }]);
+    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    
+    repo.once('error', (err) => {
+        t.truthy(err);       
+        resolve(); 
+    });
+
 }));

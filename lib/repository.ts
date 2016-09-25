@@ -42,8 +42,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
         if (errors.length > 0) {
             const err = new Error(errors.join(', '));
-            // process.nextTick(() => this.emit('error', err));
-            this.emit('error2', err)
+            this.emit('error', err);
         }
     }
 
