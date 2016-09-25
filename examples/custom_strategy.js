@@ -1,11 +1,10 @@
 'use strict';
-const { Strategy, initialize, isEnabled } = require('unleash-client');
+const { Strategy, initialize, isEnabled } = require('../');
 
 // Define custom strategy:
 class ActiveForUserWithEmailStrategy extends Strategy {
     constructor () {
-        super();
-        this.name = 'ActiveForUserWithEmail';
+        super('ActiveForUserWithEmail');
     }
 
     isEnabled (parameters, context) {
@@ -13,7 +12,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
     }
 }
 
-initialize({
+const client = initialize({
     url: 'http://unleash.herokuapp.com/features',
     refreshIntervall: 10000,
     strategies: [new ActiveForUserWithEmailStrategy()],

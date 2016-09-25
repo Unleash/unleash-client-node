@@ -1,5 +1,6 @@
 'use strict';
-const { initialize, isEnabled } = require('unleash-client');
+const { initialize, isEnabled } = require('../');
+
 initialize({
     url: 'http://unleash.herokuapp.com/features',
 });

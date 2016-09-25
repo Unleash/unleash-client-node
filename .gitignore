@@ -24,3 +24,4 @@ build/Release
 
 # typescript only in src/lib
 lib/*.js
+lib/*.js.map
