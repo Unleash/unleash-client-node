@@ -18,7 +18,7 @@ const client = initialize({
     strategies: [new ActiveForUserWithEmailStrategy()],
 });
 
-console.log('Fetching toggles from: http://unleash.herokuapp.com');
+console.log('Fetching toggles from: http://unleash.herokuapp.com', client);
 
 setInterval(() => {
     console.log(`featureX enabled: ${isEnabled('featureX', { email: 'user@mail.com' })}`);
