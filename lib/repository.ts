@@ -10,8 +10,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private url: string;
     private storage: Storage;
     private etag: string;
-    // public on: (event: string) => void;
-    // private emit: () => void
     
     constructor (backupPath: string, url: string, refreshIntervall?: number, StorageImpl = Storage) {
         super();
@@ -36,15 +34,16 @@ export default class Repository extends EventEmitter implements EventEmitter {
         const errors = [];
         if (!Array.isArray(feature.strategies)) {
             errors.push(`feature.strategies should be an array, but was ${typeof feature.strategies}`);
-        }
+        } 
 
         if (typeof feature.enabled !== 'boolean') {
             errors.push(`feature.enabled should be an boolean, but was ${typeof feature.enabled}`);
         }
 
         if (errors.length > 0) {
-            const err = new Error(errors.join(','));
-            this.emit('error', err);
+            const err = new Error(errors.join(', '));
+            // process.nextTick(() => this.emit('error', err));
+            this.emit('error2', err)
         }
     }
 
