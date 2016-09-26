@@ -170,3 +170,51 @@ test('should emit error when invalid feature runtime', (t) => {
 
     t.true(client.isEnabled('feature-wrong-strategy') === false);
 });
+
+test('should pass context into strategy', (t) => {
+    const repo = {
+        getToggle () {
+            return {
+                name: 'feature-context-prop-is-zero',
+                enabled: true,
+                strategies: [{ name: 'zero' }],
+            };
+        },
+    };
+    class Zero extends Strategy {
+        isEnabled (parameters, context, defaultValue) {
+            return context.prop === 0;
+        }
+    }
+    const strategies = [new Zero('zero')];
+    const client = new Client(repo, strategies, errorHandler);
+
+    const result = client.isEnabled('feature-context-prop-is-zero', { prop: 1 });
+    t.true(result === false);
+    const result2 = client.isEnabled('feature-context-prop-is-zero', { prop: 0 });
+    t.true(result2 === true);
+});
+
+test('should pass defaultValue into strategy', (t) => {
+    const repo = {
+        getToggle () {
+            return {
+                name: 'feature-context-bool',
+                enabled: true,
+                strategies: [{ name: 'bool' }],
+            };
+        },
+    };
+    class Bool extends Strategy {
+        isEnabled (parameters, context, defaultValue) {
+            return defaultValue;
+        }
+    }
+    const strategies = [new Bool('bool')];
+    const client = new Client(repo, strategies, errorHandler);
+
+    const result = client.isEnabled('feature-context-bool', { bool: true }, false);
+    t.true(result === false);
+    const result2 = client.isEnabled('feature-context-bool', { bool: false }, true);
+    t.true(result2 === true);
+});

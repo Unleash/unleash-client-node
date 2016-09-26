@@ -37,7 +37,10 @@ export default class UnleashClient {
         return match;
     }
 
-    isEnabled (name: string, context: any) : boolean {
+    isEnabled (name: string, context: any) : boolean;
+    isEnabled (name: string, context: any, defaultValue: boolean) : boolean;
+
+    isEnabled (name: string, context: any, defaultValue?: boolean) : boolean {
         const feature: FeatureInterface = this.repository.getToggle(name);
 
         if (!feature || !feature.enabled) {
@@ -58,7 +61,7 @@ export default class UnleashClient {
                     this.errorHandler(new Error(`Missing strategy ${strategySelector.name}`));
                     return false;
                 }
-                return strategy.isEnabled(strategySelector.parameters, context);
+                return strategy.isEnabled(strategySelector.parameters, context, defaultValue);
             });
     }
 }
