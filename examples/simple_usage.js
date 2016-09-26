@@ -1,10 +1,11 @@
-var unleash = require('unleash-client');
-unleash.initialize({
-    url: 'http://unleash.herokuapp.com/features'
+const { initialize, isEnabled } = require('../lib');
+
+initialize({
+    url: 'http://unleash.herokuapp.com/features',
 });
 
-console.log("Fetching toggles from: http://unleash.herokuapp.com");
+console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
-setInterval(function() {
-    console.log("featureX enabled: " + unleash.isEnabled("featureX"));
+setInterval(() => {
+    console.log(`featureX enabled: ${isEnabled('featureX')}`);
 }, 1000);

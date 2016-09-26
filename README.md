@@ -13,9 +13,17 @@ This is the node client for Unleash. Read more about the [Unleash project](https
 You should as early as possible in your node (web) app initialize the
 unleash-client.  The unleash-client will set-up a in-memory repository,
 and poll updates from the unleash-server at regular intervals.
+
 ```js
-var unleash = require('unleash-client');
-unleash.initialize({url: 'http://unleash.herokuapp.com/features'});
+const { initialize } = require('unleash-client');
+const instance = initialize({
+    url: 'http://unleash.herokuapp.com/features'
+});
+
+// optional events
+instance.on('error', console.error.bind(console, 'error'));
+instance.on('warn', console.warn.bind(console, 'warn'));
+instance.on('ready', console.warn.bind(console, 'ready'));
 ```
 
 ### 2. Use unleash
@@ -23,8 +31,8 @@ After you have initialized the unleash-client you can easily check if a feature
 toggle is enabled or not.
 
 ```js
-var unleash = require('unleash-client');
-unleash.isEnabled('app.ToggleX');
+const { isEnabled } = require('unleash-client');
+isEnabled('app.ToggleX');
 ```
 
 ### 3. Stop unleash
@@ -32,7 +40,8 @@ To shut down the client (turn off the polling) you can simply call the
 destroy-method. This is typically not required.
 
 ```js
-unleash.destroy()
+const { destroy } = require('unleash-client');
+destroy();
 ```
 
 
@@ -49,23 +58,39 @@ The initialize method takes the following arguments:
 
 ### 1. implement the custom strategy:
 ```js
-var unleash = require('unleash-client');
-function ActiveForUserWithEmailStrategy() {
-    this.name = 'ActiveForUserWithEmail';
+const { Strategy, initialize } = require('unleash-client');
+class ActiveForUserWithEmailStrategy extends Strategy {
+    constructor() {
+        super('ActiveForUserWithEmail');
+    }
+
+    isEnabled (parameters, context) {
+        return parameters.emails.indexOf(context.email) !== -1;
+    }
 }
-
-util.inherits(ActiveForUserWithEmailStrategy, unleash.Strategy);
-
-ActiveForUserWithEmailStrategy.prototype.isEnabled = function(parameters, context) {
-    return parameters.emails.indexOf(context.email) !== -1;
-};
 ```
 
 ### 2. register your custom strategy:
 
 ```js
-unleash.initialize({
+initialize({
     url: 'http://unleash.herokuapp.com/features',
     strategies: [new ActiveForUserWithEmailStrategy()]
 });
+```
+
+## Alternative usage
+Its also possible to ship the unleash instance around yourself, instead of using on the default `require.cache` to have share one instance.
+
+```js
+const { Unleash } = require('unleash-client');
+
+
+const instance = new Unleash({
+    url: 'http://unleash.herokuapp.com/features'
+});
+
+instance.on('ready', console.log.bind(console, 'ready'));
+instance.on('error', console.log.bind(console, 'error'))
+
 ```

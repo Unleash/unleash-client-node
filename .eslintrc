@@ -1,0 +1,10 @@
+{
+    "extends": [
+        "finn",
+        "finn/node",
+        "finn/es-modules"
+    ],
+    "rules": {
+        "no-console": "off"
+    }
+}

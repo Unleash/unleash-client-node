@@ -1,0 +1,20 @@
+{
+    "features": [
+        {
+            "name": "featureX",
+            "description": "",
+            "enabled": true,
+            "strategy": "default",
+            "parameters": {}
+        },
+        {
+            "name": "featureY",
+            "description": "",
+            "enabled": true,
+            "strategy": "ActiveForUserWithEmail",
+            "parameters": {
+                "emails": "me@mail.com"
+            }
+        }
+    ]
+}
