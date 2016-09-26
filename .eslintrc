@@ -1,12 +1,9 @@
 {
     "extends": [
         "finn",
-        "finn/es6"
+        "finn/node",
+        "finn/es-modules"
     ],
-    "env": {
-        "node": true,
-        "commonjs": true
-    },
     "rules": {
         "no-console": "off"
     }

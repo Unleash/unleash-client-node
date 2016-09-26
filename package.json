@@ -2,13 +2,14 @@
   "name": "unleash-client",
   "version": "0.1.1",
   "description": "Unleash Client for Node",
-  "main": "lib/unleash.js",
+  "main": "lib/index",
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha test test/**/*.js",
-    "tdd": "mocha --watch test test/**/*.js",
-    "coverage": "istanbul cover _mocha --report lcovonly -- test test/**/*.js",
-    "coverage-report": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "build": "tsc src/*.ts -d --sourceMap --outdir ./lib --lib ES6,ES5",
+    "postinstall": "npm run build",
+    "test": "ava test",
+    "coverage": "nyc --check-coverage=true npm test",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -24,20 +25,36 @@
   },
   "homepage": "https://github.com/finn-no/unleash-client-node",
   "dependencies": {
+    "debug": "^2.2.0",
     "request": "^2.74.0"
   },
   "engines": {
     "node": "6"
   },
+  "files": [
+    "lib",
+    "examples"
+  ],
   "devDependencies": {
-    "chai": "^2.1.0",
+    "@types/node": "^6.0.41",
+    "@types/request": "0.0.31",
+    "ava": "^0.16.0",
     "coveralls": "^2.11.2",
     "eslint": "^3.3.1",
     "eslint-config-finn": "^1.0.0-alpha.9",
-    "expect.js": "^0.3.1",
-    "istanbul": "^0.3.6",
-    "mocha": "^2.1.0",
-    "mocha-lcov-reporter": "0.0.2",
-    "nock": "^1.2.1"
+    "mkdirp": "^0.5.1",
+    "nock": "^1.2.1",
+    "nyc": "^8.3.0",
+    "typescript": "^2.0.3"
+  },
+  "nyc": {
+    "lines": 95,
+    "statements": 95,
+    "functions": 95,
+    "branches": 80,
+    "include": [
+      "lib/**.js"
+    ],
+    "all": true
   }
 }

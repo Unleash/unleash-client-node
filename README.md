@@ -16,9 +16,14 @@ and poll updates from the unleash-server at regular intervals.
 
 ```js
 const { initialize } = require('unleash-client');
-initialize({
+const instance = initialize({
     url: 'http://unleash.herokuapp.com/features'
 });
+
+// optional events
+instance.on('error', console.error.bind(console, 'error'));
+instance.on('warn', console.warn.bind(console, 'warn'));
+instance.on('ready', console.warn.bind(console, 'ready'));
 ```
 
 ### 2. Use unleash
@@ -56,7 +61,7 @@ The initialize method takes the following arguments:
 const { Strategy, initialize } = require('unleash-client');
 class ActiveForUserWithEmailStrategy extends Strategy {
     constructor() {
-        this.name = 'ActiveForUserWithEmail';
+        super('ActiveForUserWithEmail');
     }
 
     isEnabled (parameters, context) {
@@ -72,4 +77,20 @@ initialize({
     url: 'http://unleash.herokuapp.com/features',
     strategies: [new ActiveForUserWithEmailStrategy()]
 });
+```
+
+## Alternative usage
+Its also possible to ship the unleash instance around yourself, instead of using on the default `require.cache` to have share one instance.
+
+```js
+const { Unleash } = require('unleash-client');
+
+
+const instance = new Unleash({
+    url: 'http://unleash.herokuapp.com/features'
+});
+
+instance.on('ready', console.log.bind(console, 'ready'));
+instance.on('error', console.log.bind(console, 'error'))
+
 ```
