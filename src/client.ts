@@ -37,8 +37,12 @@ export default class UnleashClient {
         return match;
     }
 
-    isEnabled (name: string, context: any) : boolean {
+    isEnabled (name: string, context: any, fallbackValue?: boolean) : boolean {
         const feature: FeatureInterface = this.repository.getToggle(name);
+
+        if (!feature && typeof fallbackValue === 'boolean') {
+            return fallbackValue;
+        }
 
         if (!feature || !feature.enabled) {
             return false;

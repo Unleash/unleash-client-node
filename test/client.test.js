@@ -60,6 +60,20 @@ test('should use provided repository', (t) => {
     t.true(result);
 });
 
+test('should fallback when missing feature', (t) => {
+    const repo = {
+        getToggle () {
+            return null;
+        },
+    };
+    const client = new Client(repo, [], errorHandler);
+    const result = client.isEnabled('feature-x', {});
+    t.true(result === false);
+
+    const result2 = client.isEnabled('feature-x', {}, true);
+    t.true(result2 === true);
+});
+
 test('should consider toggle not active', (t) => {
     const repo = {
         getToggle () {
