@@ -57,7 +57,7 @@ export class Unleash extends EventEmitter {
 
     isEnabled (name: string, context: any, fallbackValue?: boolean) {
         if (this.client) {
-            return this.client.isEnabled(name, context);
+            return this.client.isEnabled(name, context, fallbackValue);
         } else {
             const returnValue = typeof fallbackValue === 'boolean' ? fallbackValue : false;
             this.emit('warn', `Unleash has not been initalized yet. isEnabled(${name}) defaulted to ${returnValue}`);
