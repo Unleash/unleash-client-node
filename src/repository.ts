@@ -24,14 +24,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
         process.nextTick(() => this.fetch());
 
-        if (refreshIntervall > 0) {
+        if (refreshIntervall != null && refreshIntervall > 0) {
             this.timer = setInterval(() => this.fetch(), refreshIntervall);
             this.timer.unref();
         }
     }
 
     validateFeature (feature: FeatureInterface) {
-        const errors = [];
+        const errors : string[] = [];
         if (!Array.isArray(feature.strategies)) {
             errors.push(`feature.strategies should be an array, but was ${typeof feature.strategies}`);
         }
