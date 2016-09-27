@@ -55,12 +55,13 @@ export class Unleash extends EventEmitter {
         this.client = undefined;
     }
 
-    isEnabled (name: string, context: any) {
+    isEnabled (name: string, context: any, fallbackValue?: boolean) {
         if (this.client) {
             return this.client.isEnabled(name, context);
         } else {
-            this.emit('warn', `${Date.now()} WARN: Unleash has not been initalized yet. isEnabled(${name}) defaulted to false`);
-            return false;
+            const returnValue = typeof fallbackValue === 'boolean' ? fallbackValue : false;
+            this.emit('warn', `Unleash has not been initalized yet. isEnabled(${name}) defaulted to ${returnValue}`);
+            return returnValue;
         }
     }
 };

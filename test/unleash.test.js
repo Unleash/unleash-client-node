@@ -96,3 +96,33 @@ test('should consider unknown feature-toggle as disabled', (t) => new Promise((r
         resolve();
     });
 }));
+
+
+test('should return fallbackvalue until online', (t) => new Promise((resolve, reject) => {
+    mockNetwork();
+    const instance = new Unleash({
+        url: 'http://unleash.app/features',
+        backupPath: getRandomBackupPath(),
+        errorHandler (e) {
+            reject(e);
+        },
+    });
+
+    let warnCounter = 0;
+    instance.on('warn', () => {
+        warnCounter++;
+    });
+
+    t.true(instance.isEnabled('feature') === false);
+    t.true(warnCounter === 1);
+    t.true(instance.isEnabled('feature', {}, false) === false);
+    t.true(instance.isEnabled('feature', {}, true) === true);
+    t.true(warnCounter === 3);
+
+    instance.on('ready', () => {
+        t.true(instance.isEnabled('feature') === true);
+        t.true(instance.isEnabled('feature', {}, false) === true);
+        instance.destroy();
+        resolve();
+    });
+}));
