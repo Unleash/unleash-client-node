@@ -19,7 +19,7 @@ export interface UnleashConfig {
 export class Unleash extends EventEmitter {
 
     private repository: Repository;
-    private client: Client;
+    private client: Client | undefined;
 
     constructor({
         url,
@@ -49,14 +49,12 @@ export class Unleash extends EventEmitter {
     }
 
     destroy () {
-        if (this.repository) {
-            this.repository.stop();
-        }
+        this.repository.stop();
         this.client = undefined;
     }
 
     isEnabled (name: string, context: any, fallbackValue?: boolean) {
-        if (this.client) {
+        if (this.client !== undefined) {
             return this.client.isEnabled(name, context, fallbackValue);
         } else {
             const returnValue = typeof fallbackValue === 'boolean' ? fallbackValue : false;

@@ -5,7 +5,7 @@
   "main": "lib/index",
   "scripts": {
     "lint": "eslint .",
-    "build": "tsc src/*.ts -d --sourceMap --outdir ./lib --lib ES6,ES5",
+    "build": "tsc src/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
     "postinstall": "npm run build",
     "test": "ava test",
     "coverage": "nyc --check-coverage=true npm test",
