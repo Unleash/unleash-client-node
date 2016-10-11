@@ -16,7 +16,7 @@ function setup (name) {
     return storage;
 }
 
-test('should load content from backupfile', (t) => new Promise((resolve, reject) => {
+test('should load content from backup file', (t) => new Promise((resolve, reject) => {
     const tmp = join(tmpdir(), 'backup-file-test');
     mkdirp.sync(tmp);
     const storage = new Storage(tmp);
@@ -37,7 +37,7 @@ test('should load content from backupfile', (t) => new Promise((resolve, reject)
 }));
 
 
-test.cb('should emit error when non-existant target backupPath', (t) => {
+test.cb('should emit error when non-existent target backupPath', (t) => {
     const storage = new Storage(join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`));
     storage.reset({ random: Math.random() });
     storage.on('error', (err) => {
@@ -59,7 +59,7 @@ test.cb('should emit error when stored data is invalid', (t) => {
     });
 });
 
-test('should not write content from backupfile if ready has been fired', (t) => new Promise((resolve, reject) => {
+test('should not write content from backup file if ready has been fired', (t) => new Promise((resolve, reject) => {
     const tmp = join(tmpdir(), 'ignore-backup-file-test');
     mkdirp.sync(tmp);
     const storage = new Storage(tmp);

@@ -170,7 +170,7 @@ test('should emit error when invalid feature runtime', (t) => {
             return {
                 name: 'feature-wrong-strategy',
                 enabled: true,
-                strategies: [{ name: 'non-existant' }],
+                strategies: [{ name: 'non-existent' }],
             };
         },
     };

@@ -117,7 +117,7 @@ test.cb('should handle 404 request error and emit error event', (t) => {
 
     repo.on('error', (err) => {
         t.truthy(err);
-        t.true(err.message.startsWith('Reponse was not statusCode 200'));
+        t.true(err.message.startsWith('Response was not statusCode 200'));
         t.end();
     });
 });
@@ -138,7 +138,7 @@ test('should handle invalid JSON response', (t) => new Promise((resolve, reject)
     const url = 'http://unleash-test-7.app';
     nock(url).persist()
         .get('/features')
-        .reply(200, '{"INvalid payload');
+        .reply(200, '{"Invalid payload');
     const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
     repo.on('error', (err) => {
         t.truthy(err);
