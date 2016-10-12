@@ -10,7 +10,7 @@ const BACKUP_PATH: string = tmpdir();
 
 export interface UnleashConfig {
     url: string;
-    refreshIntervall?: number;
+    refreshInterval?: number;
     backupPath?: string;
     strategies: Strategy[];
     errorHandler?: (err: any) => any;
@@ -23,7 +23,7 @@ export class Unleash extends EventEmitter {
 
     constructor({
         url,
-        refreshIntervall = 15 * 1000,
+        refreshInterval = 15 * 1000,
         backupPath = BACKUP_PATH,
         strategies = [],
         errorHandler = () => {}
@@ -34,7 +34,7 @@ export class Unleash extends EventEmitter {
             throw new Error('Unleash server URL missing');
         }
 
-        this.repository = new Repository(backupPath, url, refreshIntervall);
+        this.repository = new Repository(backupPath, url, refreshInterval);
 
         this.repository.on('error', (err) => {
             this.emit('error', err);
@@ -58,7 +58,7 @@ export class Unleash extends EventEmitter {
             return this.client.isEnabled(name, context, fallbackValue);
         } else {
             const returnValue = typeof fallbackValue === 'boolean' ? fallbackValue : false;
-            this.emit('warn', `Unleash has not been initalized yet. isEnabled(${name}) defaulted to ${returnValue}`);
+            this.emit('warn', `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${returnValue}`);
             return returnValue;
         }
     }

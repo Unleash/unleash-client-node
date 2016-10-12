@@ -13,7 +13,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 
 const client = initialize({
     url: 'http://unleash.herokuapp.com/features',
-    refreshIntervall: 10000,
+    refreshInterval: 10000,
     strategies: [new ActiveForUserWithEmailStrategy()],
 });
 

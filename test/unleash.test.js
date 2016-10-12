@@ -98,7 +98,7 @@ test('should consider unknown feature-toggle as disabled', (t) => new Promise((r
 }));
 
 
-test('should return fallbackvalue until online', (t) => new Promise((resolve, reject) => {
+test('should return fallback value until online', (t) => new Promise((resolve, reject) => {
     mockNetwork();
     const instance = new Unleash({
         url: 'http://unleash.app/features',

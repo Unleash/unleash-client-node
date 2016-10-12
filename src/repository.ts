@@ -11,7 +11,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private storage: Storage;
     private etag: string;
 
-    constructor (backupPath: string, url: string, refreshIntervall?: number, StorageImpl = Storage) {
+    constructor (backupPath: string, url: string, refreshInterval?: number, StorageImpl = Storage) {
         super();
         if (!url.startsWith('http')) {
             throw new Error(`Wrong url: ${url}`);
@@ -24,8 +24,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
         process.nextTick(() => this.fetch());
 
-        if (refreshIntervall != null && refreshIntervall > 0) {
-            this.timer = setInterval(() => this.fetch(), refreshIntervall);
+        if (refreshInterval != null && refreshInterval > 0) {
+            this.timer = setInterval(() => this.fetch(), refreshInterval);
             this.timer.unref();
         }
     }
@@ -61,7 +61,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
             }
 
             if (res.statusCode !== 200) {
-                return this.emit('error', new Error('Reponse was not statusCode 200'));
+                return this.emit('error', new Error('Response was not statusCode 200'));
             }
 
             try {
