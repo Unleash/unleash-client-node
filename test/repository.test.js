@@ -28,14 +28,6 @@ function setup (url, toggles, headers = {}) {
         .reply(200,  { features: toggles }, headers);
 }
 
-test('should throw when invalid url', (t) => {
-    t.throws(() => new Repository('foo', null, 0, MockStorage));
-    t.throws(() => new Repository('foo', true, 0, MockStorage));
-    t.throws(() => new Repository('foo', '', 0, MockStorage));
-    t.throws(() => new Repository('foo', undefined, 0, MockStorage));
-    t.throws(() => new Repository('foo', 'domain.com', 0, MockStorage));
-});
-
 test.cb('should fetch from endpoint', (t) => {
     const url = 'http://unleash-test-0.app';
     const feature = {
