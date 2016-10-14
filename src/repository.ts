@@ -13,9 +13,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     constructor (backupPath: string, url: string, refreshInterval?: number, StorageImpl = Storage) {
         super();
-        if (!url.startsWith('http')) {
-            throw new Error(`Wrong url: ${url}`);
-        }
         this.url = url;
 
         this.storage = new StorageImpl(backupPath);
