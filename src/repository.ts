@@ -10,19 +10,23 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private url: string;
     private storage: Storage;
     private etag: string;
+    private refreshInterval?: number;
 
     constructor (backupPath: string, url: string, refreshInterval?: number, StorageImpl = Storage) {
         super();
         this.url = url;
+        this.refreshInterval = refreshInterval;
 
         this.storage = new StorageImpl(backupPath);
         this.storage.on('error', (err) => this.emit('error', err));
         this.storage.on('ready', () => this.emit('ready'));
 
         process.nextTick(() => this.fetch());
+    }
 
-        if (refreshInterval != null && refreshInterval > 0) {
-            this.timer = setInterval(() => this.fetch(), refreshInterval);
+    timedFetch() {
+        if (this.refreshInterval != null && this.refreshInterval > 0) {
+            this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
             this.timer.unref();
         }
     }
@@ -48,6 +52,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
             url: this.url,
             headers: { 'If-None-Match': this.etag },
         }, (error, res, body: string) => {
+            // start timer for next fetch
+            this.timedFetch();
+
             if (error) {
                 return this.emit('error', error);
             }
