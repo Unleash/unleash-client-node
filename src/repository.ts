@@ -80,6 +80,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     stop () {
         clearInterval(this.timer);
+        this.removeAllListeners();
+        this.storage.removeAllListeners();
     }
 
     getToggle (name: string) : FeatureInterface {
