@@ -21,6 +21,7 @@ const defaultToggles = [
 ];
 function mockNetwork (toggles = defaultToggles) {
     nock('http://unleash.app')
+        .persist()
         .get('/features')
         .reply(200,  { features: toggles });
 }
@@ -51,8 +52,8 @@ test.cb('should be able to call isEnabled eventually', (t) => {
     instance.on('ready', () => {
         t.true(isEnabled('feature') === true);
         t.end();
+        destroy();
     });
 
     t.true(isEnabled('feature') === false);
-    destroy();
 });
