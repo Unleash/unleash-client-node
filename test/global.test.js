@@ -21,7 +21,6 @@ const defaultToggles = [
 ];
 function mockNetwork (toggles = defaultToggles) {
     nock('http://unleash.app')
-        .persist()
         .get('/features')
         .reply(200,  { features: toggles });
 }
