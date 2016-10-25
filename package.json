@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:finn-no/unleash-client-node.git"
+    "url": "ssh://git@github.com:Unleash/unleash-client-node.git"
   },
   "keywords": [
     "unleash",
@@ -21,9 +21,9 @@
     "feature toggle"
   ],
   "bugs": {
-    "url": "https://github.com/finn-no/unleash-client-node/issues"
+    "url": "https://github.com/Unleash/unleash-client-node/issues"
   },
-  "homepage": "https://github.com/finn-no/unleash-client-node",
+  "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
     "debug": "^2.2.0",
     "request": "^2.74.0"
