@@ -9,7 +9,7 @@ export class Strategy {
         this.returnValue = returnValue;
     }
 
-    isEnabled (parameters: any, context: any) {
+    isEnabled (parameters: any, context: any) : boolean {
         return this.returnValue;
     }
 };

@@ -53,7 +53,7 @@ export class Unleash extends EventEmitter {
         this.client = undefined;
     }
 
-    isEnabled (name: string, context: any, fallbackValue?: boolean) {
+    isEnabled (name: string, context: any, fallbackValue?: boolean) : boolean {
         if (this.client !== undefined) {
             return this.client.isEnabled(name, context, fallbackValue);
         } else {
