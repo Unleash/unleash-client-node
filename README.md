@@ -1,7 +1,7 @@
 # unleash-client-node
 [![Build Status](https://travis-ci.org/Unleash/unleash-client-node.svg?branch=master)](https://travis-ci.org/Unleash/unleash-client-node)
 [![Code Climate](https://codeclimate.com/github/finn-no/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/finn-no/unleash-client-node)
-[![Coverage Status](https://coveralls.io/repos/finn-no/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/r/finn-no/unleash-client-node?branch=master)
+[![Coverage Status](https://coveralls.io/repos/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/r/Unleash/unleash-client-node?branch=master)
 [![Dependency Status](https://david-dm.org/finn-no/unleash-client-node.svg)](https://david-dm.org/finn-no/unleash-client-node)
 [![devDependency Status](https://david-dm.org/finn-no/unleash-client-node/dev-status.svg)](https://david-dm.org/finn-no/unleash-client-node#info=devDependencies)
 
