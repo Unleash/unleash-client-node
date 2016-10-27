@@ -17,7 +17,7 @@ and poll updates from the unleash-server at regular intervals.
 ```js
 const { initialize } = require('unleash-client');
 const instance = initialize({
-    url: 'http://unleash.herokuapp.com/features'
+    url: 'http://unleash.herokuapp.com'
 });
 
 // optional events
@@ -74,7 +74,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 
 ```js
 initialize({
-    url: 'http://unleash.herokuapp.com/features',
+    url: 'http://unleash.herokuapp.com',
     strategies: [new ActiveForUserWithEmailStrategy()]
 });
 ```
@@ -87,7 +87,7 @@ const { Unleash } = require('unleash-client');
 
 
 const instance = new Unleash({
-    url: 'http://unleash.herokuapp.com/features'
+    url: 'http://unleash.herokuapp.com'
 });
 
 instance.on('ready', console.log.bind(console, 'ready'));

@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import { toNewFormat, pickData } from './data-formatter';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
+import { resolve } from 'url';
 
 export default class Repository extends EventEmitter implements EventEmitter {
     private timer;
@@ -48,8 +49,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     fetch () {
+        const url = resolve(this.url, '/features');
         request({
-            url: this.url,
+            url,
             headers: { 'If-None-Match': this.etag },
         }, (error, res, body: string) => {
             // start timer for next fetch
