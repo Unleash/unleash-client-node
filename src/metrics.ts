@@ -115,8 +115,8 @@ export default class Metrics extends EventEmitter {
 
     toJSON () : string {
         return JSON.stringify({
-            metricsInterval: this.metricsInterval,
-            clientInitTime: this.started,
+            interval: this.metricsInterval,
+            started: this.started,
             appName: this.appName,
             instanceId: this.instanceId,
             strategies: this.strategies,
