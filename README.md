@@ -21,9 +21,9 @@ const instance = initialize({
 });
 
 // optional events
-instance.on('error', console.error.bind(console, 'error'));
-instance.on('warn', console.warn.bind(console, 'warn'));
-instance.on('ready', console.warn.bind(console, 'ready'));
+instance.on('error', console.error);
+instance.on('warn', console.warn);
+instance.on('ready', console.log);
 ```
 
 ### 2. Use unleash
@@ -91,6 +91,7 @@ const instance = new Unleash({
 });
 
 instance.on('ready', console.log.bind(console, 'ready'));
-instance.on('error', console.log.bind(console, 'error'))
+// required error handling when using instance directly
+instance.on('error', console.error);
 
 ```

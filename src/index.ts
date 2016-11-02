@@ -6,6 +6,7 @@ export { Unleash } from './unleash';
 let instance;
 export function initialize (options: UnleashConfig) {
     instance = new Unleash(options);
+    instance.on('error', () => {});
     return instance;
 };
 
