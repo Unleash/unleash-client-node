@@ -46,6 +46,7 @@ export default class Metrics extends EventEmitter {
         this.started = new Date();
         this.resetBucket();
         this.startTimer();
+        this.registerInstance();
     }
 
     private startTimer () {
@@ -57,10 +58,34 @@ export default class Metrics extends EventEmitter {
         }
     }
 
+    registerInstance () {
+        const url = resolve(this.url, '/client/register');
+        request.post({
+            url,
+            headers: {
+                'content-type': 'application/json',
+            },
+            json: this.getClientData(),
+        }, (err, res: ClientResponse, body) => {
+            if (err) {
+                this.emit('error', err);
+                return;
+            }
+
+            if (res.statusCode !== 200) {
+                this.emit('warn', `${url} returning ${res.statusCode}`);
+                return;
+            }
+        });
+    }
+
     sendMetrics () {
-        const url = resolve(this.url, '/metrics');
+        const url = resolve(this.url, '/client/metrics');
         request.post({
              url,
+             headers: {
+                'content-type': 'application/json',
+            },
              json: this.getPayload(),
         }, (err, res: ClientResponse, body) => {
             this.startTimer();
@@ -108,18 +133,26 @@ export default class Metrics extends EventEmitter {
 
     private getPayload () {
         this.closeBucket();
-        const payload = this.toJSON();
+        const payload = this.getMetricsData();
         this.resetBucket();
         return payload;
     }
 
-    toJSON () : string {
+    getClientData() {
         return JSON.stringify({
-            interval: this.metricsInterval,
-            started: this.started,
             appName: this.appName,
             instanceId: this.instanceId,
             strategies: this.strategies,
+            started: this.started,
+            interval: this.metricsInterval,
+        });
+    }
+
+
+    getMetricsData () : string {
+        return JSON.stringify({
+            appName: this.appName,
+            instanceId: this.instanceId,
             bucket: this.bucket,
         });
     }
