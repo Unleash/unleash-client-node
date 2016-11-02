@@ -47,7 +47,7 @@ export class Unleash extends EventEmitter {
         }
 
         if (!instanceId) {
-            instanceId = `${appName}-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+            instanceId = `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
         }
 
         this.repository = new Repository(backupPath, url, refreshInterval);
