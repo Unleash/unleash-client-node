@@ -31,7 +31,7 @@ export class Unleash extends EventEmitter {
         instanceId,
         url,
         refreshInterval = 15 * 1000,
-        metricsInterval = 15 * 1000,
+        metricsInterval = 60 * 1000,
         backupPath = BACKUP_PATH,
         strategies = [],
         errorHandler = () => {}
