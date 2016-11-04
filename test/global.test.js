@@ -28,6 +28,8 @@ function mockNetwork (toggles = defaultToggles) {
 test('should be able to call api', (t) => {
     mockNetwork();
     initialize({
+        appName: 'foo',
+        metricsInterval: 0,
         url: 'http://unleash.app/features',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
@@ -41,6 +43,8 @@ test('should be able to call api', (t) => {
 test.cb('should be able to call isEnabled eventually', (t) => {
     mockNetwork();
     const instance = initialize({
+        appName: 'foo',
+        metricsInterval: 0,
         url: 'http://unleash.app/features',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {

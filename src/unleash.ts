@@ -50,21 +50,14 @@ export class Unleash extends EventEmitter {
             instanceId = `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
         }
 
-        this.repository = new Repository(backupPath, url, refreshInterval);
+        const requestId: string = `${appName}:${instanceId}`;
+        this.repository = new Repository(backupPath, url, requestId, refreshInterval);
 
         strategies = [new Strategy('default', true)].concat(strategies);
 
         this.repository.on('ready', () => {
             this.client = new Client(this.repository, strategies, errorHandler);
             this.emit('ready');
-        });
-
-        this.metrics = new Metrics({
-            appName,
-            instanceId,
-            strategies: strategies.map((strategy: Strategy) => strategy.name),
-            metricsInterval,
-            url
         });
 
         this.repository.on('error', (err) => {
@@ -76,6 +69,14 @@ export class Unleash extends EventEmitter {
             this.emit('warn', msg);
         });
 
+        this.metrics = new Metrics({
+            appName,
+            instanceId,
+            strategies: strategies.map((strategy: Strategy) => strategy.name),
+            metricsInterval,
+            url
+        });
+
         this.metrics.on('error', (err) => {
             err.message = `Unleash Metrics error: ${err.message}`;
             this.emit('error', err);
@@ -84,6 +85,8 @@ export class Unleash extends EventEmitter {
         this.metrics.on('warn', (msg) => {
             this.emit('warn', msg);
         });
+
+
     }
 
     destroy () {

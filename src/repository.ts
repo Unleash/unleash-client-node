@@ -1,22 +1,25 @@
 'use strict';
-import * as request from 'request';
+
 import { EventEmitter } from 'events';
 import { toNewFormat, pickData } from './data-formatter';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { resolve } from 'url';
+import { get } from './request';
 
 export default class Repository extends EventEmitter implements EventEmitter {
-    private timer;
+    private timer: NodeJS.Timer;
     private url: string;
     private storage: Storage;
     private etag: string;
+    private requestId: string;
     private refreshInterval?: number;
 
-    constructor (backupPath: string, url: string, refreshInterval?: number, StorageImpl = Storage) {
+    constructor (backupPath: string, url: string, requestId: string, refreshInterval?: number, StorageImpl = Storage) {
         super();
         this.url = url;
         this.refreshInterval = refreshInterval;
+        this.requestId = requestId;
 
         this.storage = new StorageImpl(backupPath);
         this.storage.on('error', (err) => this.emit('error', err));
@@ -50,9 +53,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     fetch () {
         const url = resolve(this.url, '/features');
-        request({
+        get({
             url,
-            headers: { 'If-None-Match': this.etag },
+            etag: this.etag,
+            requestId: this.requestId,
         }, (error, res, body: string) => {
             // start timer for next fetch
             this.timedFetch();

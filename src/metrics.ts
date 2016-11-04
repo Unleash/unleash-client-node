@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import * as request from 'request';
 import { ClientResponse } from 'http';
 import { resolve } from 'url';
+import { post, Data } from './request';
 
 interface MetricsOptions {
     appName : string,
@@ -33,7 +33,7 @@ export default class Metrics extends EventEmitter {
         appName,
         instanceId,
         strategies,
-        metricsInterval,
+        metricsInterval = 0,
         url,
         } : MetricsOptions
     ) {
@@ -45,26 +45,25 @@ export default class Metrics extends EventEmitter {
         this.url = url;
         this.started = new Date();
         this.resetBucket();
-        this.startTimer();
-        this.registerInstance();
+        if (this.metricsInterval > 0) {
+            this.startTimer();
+            this.registerInstance();
+        }
     }
 
     private startTimer () {
-        if (this.metricsInterval) {
-            this.timer = setTimeout(() => {
-                this.sendMetrics();
-            }, this.metricsInterval);
-            this.timer.unref();
-        }
+
+        this.timer = setTimeout(() => {
+            this.sendMetrics();
+        }, this.metricsInterval);
+        this.timer.unref();
+
     }
 
     registerInstance () {
         const url = resolve(this.url, '/client/register');
-        request.post({
+        post({
             url,
-            headers: {
-                'content-type': 'application/json',
-            },
             json: this.getClientData(),
         }, (err, res: ClientResponse, body) => {
             if (err) {
@@ -80,12 +79,13 @@ export default class Metrics extends EventEmitter {
     }
 
     sendMetrics () {
+        if (this.bucketIsEmpty()) {
+            this.resetBucket();
+            return this.startTimer();
+        }
         const url = resolve(this.url, '/client/metrics');
-        request.post({
+        post({
              url,
-             headers: {
-                'content-type': 'application/json',
-            },
              json: this.getPayload(),
         }, (err, res: ClientResponse, body) => {
             this.startTimer();
@@ -118,6 +118,10 @@ export default class Metrics extends EventEmitter {
         this.bucket.toggles[name][enabled ? 'yes' : 'no'] += 1;
     }
 
+    private bucketIsEmpty () {
+        return Object.keys(this.bucket.toggles).length === 0;
+    }
+
     private resetBucket () {
         const bucket : Bucket = {
             start: new Date(),
@@ -131,29 +135,29 @@ export default class Metrics extends EventEmitter {
         this.bucket.stop = new Date();
     }
 
-    private getPayload () {
+    private getPayload () : Data {
         this.closeBucket();
         const payload = this.getMetricsData();
         this.resetBucket();
         return payload;
     }
 
-    getClientData() {
-        return JSON.stringify({
+    getClientData() : Data {
+        return {
             appName: this.appName,
             instanceId: this.instanceId,
             strategies: this.strategies,
             started: this.started,
             interval: this.metricsInterval,
-        });
+        };
     }
 
 
-    getMetricsData () : string {
-        return JSON.stringify({
+    getMetricsData () : Data {
+        return {
             appName: this.appName,
             instanceId: this.instanceId,
             bucket: this.bucket,
-        });
+        };
     }
 }

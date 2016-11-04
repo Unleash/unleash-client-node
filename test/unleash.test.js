@@ -35,7 +35,9 @@ test.cb('repository should surface error when invalid basePAth', (t) => {
     mockNetwork();
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const instance = new Unleash({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url: 'http://unleash.app/',
         backupPath,
         errorHandler (e) {
             throw e;
@@ -53,7 +55,9 @@ test.cb('repository should surface error when invalid basePAth', (t) => {
 test('should allow request even before unleash is initialized', (t) => {
     mockNetwork();
     const instance = new Unleash({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url: 'http://unleash.app/',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             throw e;
@@ -66,7 +70,9 @@ test('should allow request even before unleash is initialized', (t) => {
 test('should consider known feature-toggle as active', (t) => new Promise((resolve, reject) => {
     mockNetwork();
     const instance = new Unleash({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url: 'http://unleash.app/',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             reject(e);
@@ -83,7 +89,9 @@ test('should consider known feature-toggle as active', (t) => new Promise((resol
 test('should consider unknown feature-toggle as disabled', (t) => new Promise((resolve, reject) => {
     mockNetwork();
     const instance = new Unleash({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url: 'http://unleash.app/',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             reject(e);
@@ -101,7 +109,9 @@ test('should consider unknown feature-toggle as disabled', (t) => new Promise((r
 test('should return fallback value until online', (t) => new Promise((resolve, reject) => {
     mockNetwork();
     const instance = new Unleash({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url: 'http://unleash.app/',
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             reject(e);
