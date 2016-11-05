@@ -144,7 +144,7 @@ export default class Metrics extends EventEmitter {
                 no: 0,
             };
         }
-        this.bucket.toggles[name][enabled ? 'yes' : 'no'] += 1;
+        this.bucket.toggles[name][enabled ? 'yes' : 'no'] ++;
         return true;
     }
 
