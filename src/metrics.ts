@@ -3,7 +3,7 @@ import { ClientResponse } from 'http';
 import { resolve } from 'url';
 import { post, Data } from './request';
 
-interface MetricsOptions {
+export interface MetricsOptions {
     appName : string,
     instanceId : string,
     strategies : string [],
@@ -15,7 +15,7 @@ interface MetricsOptions {
 
 interface Bucket {
     start: Date,
-    stop: Date,
+    stop: Date | null,
     toggles: Object
 }
 

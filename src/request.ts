@@ -1,10 +1,10 @@
 import * as request from 'request';
 
-interface RequestOptions {
+export interface RequestOptions {
     url: string,
 }
 
-interface GetRequestOptions extends RequestOptions {
+export interface GetRequestOptions extends RequestOptions {
     etag?: string,
     requestId?: string,
 }
@@ -13,17 +13,15 @@ export interface Data {
     [key: string]: any,
 }
 
-interface PostRequestOptions extends RequestOptions {
+export interface PostRequestOptions extends RequestOptions {
     json?: Data,
 }
 
-// TODO headers
-
-export const post = (options : PostRequestOptions, cb: Function) => {
+export const post = (options : PostRequestOptions, cb) => {
     return request.post(options, cb);
 };
 
-export const get = ({ url, etag, requestId } : GetRequestOptions, cb: Function) => {
+export const get = ({ url, etag, requestId } : GetRequestOptions, cb) => {
     const options = {
         url,
         requestId,
