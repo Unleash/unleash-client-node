@@ -66,7 +66,6 @@ test('should re-emit warn from repository and metrics', (t) => {
     const instance = new Unleash({
         appName: 'foo',
         refreshInterval: 0,
-        metricsInterval: 0,
         disableMetrics: true,
         url,
         errorHandler (e) {
@@ -115,7 +114,7 @@ test('should allow request even before unleash is initialized', (t) => {
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
-        metricsInterval: 0,
+        disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
@@ -130,7 +129,7 @@ test('should consider known feature-toggle as active', (t) => new Promise((resol
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
-        metricsInterval: 0,
+        disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
@@ -149,7 +148,7 @@ test('should consider unknown feature-toggle as disabled', (t) => new Promise((r
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
-        metricsInterval: 0,
+        disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
@@ -169,7 +168,7 @@ test('should return fallback value until online', (t) => new Promise((resolve, r
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
-        metricsInterval: 0,
+        disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
