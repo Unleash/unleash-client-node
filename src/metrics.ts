@@ -69,7 +69,7 @@ export default class Metrics extends EventEmitter {
 
     stop () {
         clearInterval(this.timer);
-        this.timer = null;
+        delete this.timer;
         this.disabled = true;
     }
 
