@@ -17,7 +17,9 @@ and poll updates from the unleash-server at regular intervals.
 ```js
 const { initialize } = require('unleash-client');
 const instance = initialize({
-    url: 'http://unleash.herokuapp.com'
+    url: 'http://unleash.herokuapp.com',
+    appName: 'my-app-name',
+    instanceId: 'my-unique-instance-id',
 });
 
 // optional events
@@ -51,8 +53,12 @@ destroy();
 The initialize method takes the following arguments:
 
 - **url** - the url to fetch toggles from. (required)
+- **appName** - the application name / codebase name
+- **instanceId** - an unique identifier, should/could be somewhat unique
 - **refreshIntervall** - The poll-intervall to check for updates. Defaults to 15s.
 - **strategies** - Custom activation strategies to be used.
+- **disableMetrics** - disable metrics
+
 
 ## Custom strategies
 
@@ -87,6 +93,7 @@ const { Unleash } = require('unleash-client');
 
 
 const instance = new Unleash({
+    appName: 'my-app-name',
     url: 'http://unleash.herokuapp.com'
 });
 
