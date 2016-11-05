@@ -12,28 +12,24 @@ test.cb('should emit network errors', (t) => {
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const unleash = new Unleash({
         appName: 'network',
-        url: 'http://error.github.io',
-        refreshInterval: 10000,
-        metricsInterval: 80,
+        url: 'http://blocked.app',
+        refreshInterval: 20000,
+        metricsInterval: 20000,
         disableMetrics: false,
         backupPath,
     });
 
-    unleash.isEnabled('some-toggle');
-
     unleash.on('error', (e) => {
         t.truthy(e);
-        console.log(e.message);
     });
 
-    unleash.on('warn', (e) => {
-        t.falsy(e);
-    });
+    unleash.isEnabled('some-toggle');
+    unleash.metrics.sendMetrics();
 
-    return setTimeout(() => {
+    setTimeout(() => {
         unleash.destroy();
         process.nextTick(() => {
             t.end();
         });
-    }, 100);
+    }, 0);
 });
