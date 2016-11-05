@@ -50,28 +50,38 @@ export default class Metrics extends EventEmitter {
         this.started = new Date();
         this.resetBucket();
 
-        if (this.metricsInterval > 0) {
+        if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
             this.startTimer();
             this.registerInstance();
         }
     }
 
     private startTimer () {
+        if (this.disabled) {
+            return false;
+        }
         this.timer = setTimeout(() => {
             this.sendMetrics();
         }, this.metricsInterval);
         this.timer.unref();
-
+        return true;
     }
 
-    registerInstance () {
+    stop () {
+        clearInterval(this.timer);
+        this.timer = null;
+        this.disabled = true;
+    }
+
+    registerInstance () : boolean {
         if (this.disabled) {
-            return;
+            return false;
         }
         const url = resolve(this.url, '/client/register');
+        const payload = this.getClientData();
         post({
             url,
-            json: this.getClientData(),
+            json: payload,
         }, (err, res: ClientResponse, body) => {
             if (err) {
                 this.emit('error', err);
@@ -82,21 +92,25 @@ export default class Metrics extends EventEmitter {
                 this.emit('warn', `${url} returning ${res.statusCode}`);
                 return;
             }
+            this.emit('registered', payload);
         });
+        return true;
     }
 
-    sendMetrics () {
+    sendMetrics () : boolean {
         if (this.disabled) {
-            return;
+            return false;
         }
         if (this.bucketIsEmpty()) {
             this.resetBucket();
-            return this.startTimer();
+            this.startTimer();
+            return true;
         }
         const url = resolve(this.url, '/client/metrics');
+        const payload = this.getPayload();
         post({
              url,
-             json: this.getPayload(),
+             json: payload,
         }, (err, res: ClientResponse, body) => {
             this.startTimer();
             if (err) {
@@ -106,7 +120,7 @@ export default class Metrics extends EventEmitter {
 
             if (res.statusCode === 404) {
                 this.emit('warn', `${url} returning 404, stopping metrics`);
-                clearTimeout(this.timer);
+                this.stop();
                 return;
             }
 
@@ -114,13 +128,15 @@ export default class Metrics extends EventEmitter {
                 this.emit('warn', `${url} returning ${res.statusCode}`);
                 return;
             }
+            this.emit('sent', payload);
         });
+        return true;
     }
 
 
-    count (name: string, enabled: boolean) : void {
+    count (name: string, enabled: boolean) : boolean {
         if (this.disabled) {
-            return;
+            return false;
         }
         if (!this.bucket.toggles[name]) {
             this.bucket.toggles[name] = {
@@ -129,6 +145,7 @@ export default class Metrics extends EventEmitter {
             };
         }
         this.bucket.toggles[name][enabled ? 'yes' : 'no'] += 1;
+        return true;
     }
 
     private bucketIsEmpty () {

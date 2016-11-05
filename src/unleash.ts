@@ -92,6 +92,7 @@ export class Unleash extends EventEmitter {
 
     destroy () {
         this.repository.stop();
+        this.metrics.stop();
         this.client = undefined;
     }
 
