@@ -55,6 +55,10 @@ export default class UnleashClient {
             return false;
         }
 
+        if (feature.strategies.length === 0) {
+            return feature.enabled;
+        }
+
         return feature.strategies.length > 0 && feature.strategies
             .some((strategySelector) : boolean => {
                 const strategy: Strategy = this.getStrategy(strategySelector.name);

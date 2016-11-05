@@ -85,8 +85,6 @@ export class Unleash extends EventEmitter {
         this.metrics.on('warn', (msg) => {
             this.emit('warn', msg);
         });
-
-
     }
 
     destroy () {
