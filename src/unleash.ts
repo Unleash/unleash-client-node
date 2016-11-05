@@ -15,6 +15,7 @@ export interface UnleashConfig {
     url: string;
     refreshInterval?: number;
     metricsInterval?: number,
+    disableMetrics?: boolean,
     backupPath?: string;
     strategies: Strategy[];
     errorHandler?: (err: any) => any;
@@ -32,6 +33,7 @@ export class Unleash extends EventEmitter {
         url,
         refreshInterval = 15 * 1000,
         metricsInterval = 60 * 1000,
+        disableMetrics = false,
         backupPath = BACKUP_PATH,
         strategies = [],
         errorHandler = () => {}
@@ -70,6 +72,7 @@ export class Unleash extends EventEmitter {
         });
 
         this.metrics = new Metrics({
+            disableMetrics,
             appName,
             instanceId,
             strategies: strategies.map((strategy: Strategy) => strategy.name),

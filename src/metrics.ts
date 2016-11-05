@@ -8,6 +8,7 @@ interface MetricsOptions {
     instanceId : string,
     strategies : string [],
     metricsInterval : number,
+    disableMetrics?: boolean,
     bucketInterval?: number
     url : string,
 }
@@ -24,6 +25,7 @@ export default class Metrics extends EventEmitter {
     private instanceId : string;
     private strategies : string [];
     private metricsInterval: number;
+    private disabled: boolean;
     private bucketInterval: number;
     private url : string;
     private timer : NodeJS.Timer;
@@ -34,10 +36,12 @@ export default class Metrics extends EventEmitter {
         instanceId,
         strategies,
         metricsInterval = 0,
+        disableMetrics = false,
         url,
         } : MetricsOptions
     ) {
         super();
+        this.disabled = disableMetrics;
         this.metricsInterval = metricsInterval;
         this.appName = appName;
         this.instanceId = instanceId;
@@ -45,6 +49,7 @@ export default class Metrics extends EventEmitter {
         this.url = url;
         this.started = new Date();
         this.resetBucket();
+
         if (this.metricsInterval > 0) {
             this.startTimer();
             this.registerInstance();
@@ -52,7 +57,6 @@ export default class Metrics extends EventEmitter {
     }
 
     private startTimer () {
-
         this.timer = setTimeout(() => {
             this.sendMetrics();
         }, this.metricsInterval);
@@ -61,6 +65,9 @@ export default class Metrics extends EventEmitter {
     }
 
     registerInstance () {
+        if (this.disabled) {
+            return;
+        }
         const url = resolve(this.url, '/client/register');
         post({
             url,
@@ -79,6 +86,9 @@ export default class Metrics extends EventEmitter {
     }
 
     sendMetrics () {
+        if (this.disabled) {
+            return;
+        }
         if (this.bucketIsEmpty()) {
             this.resetBucket();
             return this.startTimer();
@@ -109,6 +119,9 @@ export default class Metrics extends EventEmitter {
 
 
     count (name: string, enabled: boolean) : void {
+        if (this.disabled) {
+            return;
+        }
         if (!this.bucket.toggles[name]) {
             this.bucket.toggles[name] = {
                 yes: 0,
