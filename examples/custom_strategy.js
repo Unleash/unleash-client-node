@@ -12,10 +12,14 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 }
 
 const client = initialize({
-    url: 'http://unleash.herokuapp.com/features',
+    appName: 'my-application',
+    url: 'http://unleash.herokuapp.com/',
     refreshInterval: 10000,
     strategies: [new ActiveForUserWithEmailStrategy()],
 });
+
+client.on('error', console.error);
+client.on('warn', console.log);
 
 console.log('Fetching toggles from: http://unleash.herokuapp.com', client);
 

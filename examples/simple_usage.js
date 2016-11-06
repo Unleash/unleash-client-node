@@ -1,8 +1,12 @@
 const { initialize, isEnabled } = require('../lib');
 
-initialize({
-    url: 'http://unleash.herokuapp.com/features',
+const client = initialize({
+    appName: 'my-application',
+    url: 'http://unleash.herokuapp.com/',
 });
+
+client.on('error', console.error);
+client.on('warn', console.log);
 
 console.log('Fetching toggles from: http://unleash.herokuapp.com');
 

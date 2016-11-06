@@ -10,25 +10,26 @@ app.listen(1234);
 
 const strategies: Strategy[] = [ new Strategy('default', true), new Strategy('ActiveForUserWithEmail', true), new Strategy('default') ];
 
-const unleashInstance = new Unleash({
+const client = new Unleash({
     appName: 'super-app',
     backupPath: __dirname,
     url: 'http://localhost:1234',
     strategies,
 });
 
-console.log('featureX', unleashInstance.isEnabled('feature-1', {}))
+client.on('error', console.error);
+client.on('warn', console.log);
 
-
-unleashInstance.on('ready', () => {
+client.on('ready', () => {
     setTimeout(() => {
-        console.log('featureX', unleashInstance.isEnabled('featureX', {}));
-        console.log('featureY', unleashInstance.isEnabled('featureY', {}));
+        console.log('featureX', client.isEnabled('featureX', {}));
+        console.log('featureY', client.isEnabled('featureY', {}));
     }, 100)
 });
 
+console.log('featureX', client.isEnabled('featureX', {}))
 
 setInterval(() => {
-    console.log('featureX', unleashInstance.isEnabled('featureX', {}));
-    console.log('featureY', unleashInstance.isEnabled('featureY', {}));
+    console.log('featureX', client.isEnabled('featureX', {}));
+    console.log('featureY', client.isEnabled('featureY', {}));
 }, 5000);
