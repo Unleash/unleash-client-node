@@ -10,7 +10,7 @@ import { EventEmitter } from 'events';
 const BACKUP_PATH: string = tmpdir();
 
 export interface UnleashConfig {
-    appName?: string,
+    appName: string,
     instanceId?: string,
     url: string;
     refreshInterval?: number;
@@ -87,6 +87,18 @@ export class Unleash extends EventEmitter {
 
         this.metrics.on('warn', (msg) => {
             this.emit('warn', msg);
+        });
+
+        this.metrics.on('count', (name, enabled) => {
+            this.emit('count', name, enabled);
+        });
+
+        this.metrics.on('sent', (payload) => {
+            this.emit('sent', payload);
+        });
+
+        this.metrics.on('registered', (payload) => {
+            this.emit('registered', payload);
         });
     }
 

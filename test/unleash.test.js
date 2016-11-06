@@ -61,7 +61,7 @@ test('should re-emit error from repository, storage and metrics', (t) => {
 });
 
 
-test('should re-emit warn from repository and metrics', (t) => {
+test('should re-emit events from repository and metrics', (t) => {
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
@@ -73,10 +73,17 @@ test('should re-emit warn from repository and metrics', (t) => {
         },
     });
 
-    t.plan(2);
+    t.plan(5);
     instance.on('warn', (e) => t.truthy(e));
-    instance.repository.emit('warn', new Error());
-    instance.metrics.emit('warn', new Error());
+    instance.on('sent', (e) => t.truthy(e));
+    instance.on('registered', (e) => t.truthy(e));
+    instance.on('count', (e) => t.truthy(e));
+
+    instance.repository.emit('warn', true);
+    instance.metrics.emit('warn', true);
+    instance.metrics.emit('sent', true);
+    instance.metrics.emit('registered', true);
+    instance.metrics.emit('count', true);
 
     instance.destroy();
 });

@@ -2,9 +2,8 @@ import test from 'ava';
 import Metrics from '../lib/metrics';
 import nock from 'nock';
 
-nock.disableNetConnect();
-
-
+test.before(() => nock.disableNetConnect());
+test.after(() => nock.enableNetConnect());
 
 test.cb('registerInstance should emit error when request error', (t) => {
     const url = 'http://metrics1.app/';
