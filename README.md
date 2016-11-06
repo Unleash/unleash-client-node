@@ -17,13 +17,20 @@ and poll updates from the unleash-server at regular intervals.
 ```js
 const { initialize } = require('unleash-client');
 const instance = initialize({
-    url: 'http://unleash.herokuapp.com/features'
+    url: 'http://unleash.herokuapp.com',
+    appName: 'my-app-name',
+    instanceId: 'my-unique-instance-id',
 });
 
 // optional events
-instance.on('error', console.error.bind(console, 'error'));
-instance.on('warn', console.warn.bind(console, 'warn'));
-instance.on('ready', console.warn.bind(console, 'ready'));
+instance.on('error', console.error);
+instance.on('warn', console.warn);
+instance.on('ready', console.log);
+
+// metrics hooks
+instance.on('registered', (clientData) => console.log('registered', clientData));
+instance.on('sent', (payload) => console.log('metrics bucket/payload sent', payload));
+instance.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
 ```
 
 ### 2. Use unleash
@@ -51,8 +58,12 @@ destroy();
 The initialize method takes the following arguments:
 
 - **url** - the url to fetch toggles from. (required)
+- **appName** - the application name / codebase name
+- **instanceId** - an unique identifier, should/could be somewhat unique
 - **refreshIntervall** - The poll-intervall to check for updates. Defaults to 15s.
 - **strategies** - Custom activation strategies to be used.
+- **disableMetrics** - disable metrics
+
 
 ## Custom strategies
 
@@ -74,7 +85,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 
 ```js
 initialize({
-    url: 'http://unleash.herokuapp.com/features',
+    url: 'http://unleash.herokuapp.com',
     strategies: [new ActiveForUserWithEmailStrategy()]
 });
 ```
@@ -87,10 +98,12 @@ const { Unleash } = require('unleash-client');
 
 
 const instance = new Unleash({
-    url: 'http://unleash.herokuapp.com/features'
+    appName: 'my-app-name',
+    url: 'http://unleash.herokuapp.com'
 });
 
 instance.on('ready', console.log.bind(console, 'ready'));
-instance.on('error', console.log.bind(console, 'error'))
+// required error handling when using instance directly
+instance.on('error', console.error);
 
 ```

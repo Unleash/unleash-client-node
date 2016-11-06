@@ -39,7 +39,7 @@ test.cb('should fetch from endpoint', (t) => {
     };
 
     setup(url, [feature]);
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}`, 'foo:bar', 0, MockStorage);
 
     repo.once('data', () => {
         const savedFeature = repo.storage.data[feature.name];
@@ -55,7 +55,7 @@ test.cb('should fetch from endpoint', (t) => {
 test('should poll for changes', () => new Promise((resolve) => {
     const url = 'http://unleash-test-2.app';
     setup(url, []);
-    const repo = new Repository('foo', `${url}/features`, 100, MockStorage);
+    const repo = new Repository('foo', `${url}`, 'foo:bar', 100, MockStorage);
 
     let assertCount = 5;
     repo.on('data', () => {
@@ -71,7 +71,7 @@ test('should poll for changes', () => new Promise((resolve) => {
 test('should store etag', (t) => new Promise((resolve) => {
     const url = 'http://unleash-test-3.app';
     setup(url, [], { Etag: '12345' });
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}`, 'foo:bar', 0, MockStorage);
 
     repo.once('data', () => {
         t.true(repo.etag === '12345');
@@ -88,7 +88,7 @@ test.cb('should request with etag', (t) => {
         .get('/features')
         .reply(200,  { features: [] }, { Etag: '12345-2' });
 
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}/features`, 'foo:bar', 0, MockStorage);
 
     repo.etag = '12345-1';
 
@@ -105,7 +105,7 @@ test.cb('should handle 404 request error and emit error event', (t) => {
         .get('/features')
         .reply(404, 'asd');
 
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}/features`, 'foo:bar', 0, MockStorage);
 
     repo.on('error', (err) => {
         t.truthy(err);
@@ -120,7 +120,7 @@ test('should handle 304 as silent ok', () => new Promise((resolve, reject) => {
         .get('/features')
         .reply(304, '');
 
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}/features`, 'foo:bar', 0, MockStorage);
     repo.on('error', reject);
     repo.on('data', reject);
     process.nextTick(resolve);
@@ -131,7 +131,7 @@ test('should handle invalid JSON response', (t) => new Promise((resolve, reject)
     nock(url).persist()
         .get('/features')
         .reply(200, '{"Invalid payload');
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}/features`, 'foo:bar', 0, MockStorage);
     repo.on('error', (err) => {
         t.truthy(err);
         t.true(err.message.indexOf('Unexpected token') > -1);
@@ -148,7 +148,7 @@ test.cb('should emit errors on invalid features', (t) => {
         enabled: null,
         strategies: false,
     }]);
-    const repo = new Repository('foo', `${url}/features`, 0, MockStorage);
+    const repo = new Repository('foo', `${url}/features`, 'foo:bar', 0, MockStorage);
 
     repo.once('error', (err) => {
         t.truthy(err);

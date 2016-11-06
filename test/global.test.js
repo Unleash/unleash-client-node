@@ -19,16 +19,22 @@ const defaultToggles = [
         strategy: 'default',
     },
 ];
+
+let counter = 0;
 function mockNetwork (toggles = defaultToggles) {
-    nock('http://unleash.app')
+    const url = `http://unleash-${counter++}.app`;
+    nock(url)
         .get('/features')
         .reply(200,  { features: toggles });
+    return url;
 }
 
 test('should be able to call api', (t) => {
-    mockNetwork();
+    const url = mockNetwork();
     initialize({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             throw e;
@@ -39,9 +45,11 @@ test('should be able to call api', (t) => {
 });
 
 test.cb('should be able to call isEnabled eventually', (t) => {
-    mockNetwork();
+    const url = mockNetwork();
     const instance = initialize({
-        url: 'http://unleash.app/features',
+        appName: 'foo',
+        metricsInterval: 0,
+        url,
         backupPath: getRandomBackupPath(),
         errorHandler (e) {
             throw e;
