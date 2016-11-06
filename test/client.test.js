@@ -30,7 +30,7 @@ class CustomFalseStrategy extends Strategy {
     }
 }
 
-const errorHandler = (err) => {
+const log = (err) => {
     console.error(err);
 };
 
@@ -41,11 +41,11 @@ test('invalid strategy should throw', (t) => {
         },
     };
 
-    t.throws(() => new Client(repo, [true, null], errorHandler));
-    t.throws(() => new Client(repo, [{}], errorHandler));
-    t.throws(() => new Client(repo, [{ name: 'invalid' }], errorHandler));
-    t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }], errorHandler));
-    t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null], errorHandler));
+    t.throws(() => new Client(repo, [true, null]));
+    t.throws(() => new Client(repo, [{}]));
+    t.throws(() => new Client(repo, [{ name: 'invalid' }]));
+    t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }]));
+    t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null]));
 });
 
 test('should use provided repository', (t) => {
@@ -54,7 +54,8 @@ test('should use provided repository', (t) => {
             return buildToggle('feature', true);
         },
     };
-    const client = new Client(repo, [new Strategy('default', true)], errorHandler);
+    const client = new Client(repo, [new Strategy('default', true)]);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(result);
@@ -66,7 +67,9 @@ test('should fallback when missing feature', (t) => {
             return null;
         },
     };
-    const client = new Client(repo, [], errorHandler);
+    const client = new Client(repo, []);
+    client.on('error', log).on('warn', log);
+
     const result = client.isEnabled('feature-x', {});
     t.true(result === false);
 
@@ -80,7 +83,8 @@ test('should consider toggle not active', (t) => {
             return buildToggle('feature', false);
         },
     };
-    const client = new Client(repo, [new Strategy('default', true)], errorHandler);
+    const client = new Client(repo, [new Strategy('default', true)]);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(!result);
@@ -92,7 +96,8 @@ test('should use custom strategy', (t) => {
             return buildToggle('feature', true, [{ name: 'custom' }]);
         },
     };
-    const client = new Client(repo, [new Strategy('default', true), new CustomStrategy()], errorHandler);
+    const client = new Client(repo, [new Strategy('default', true), new CustomStrategy()]);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(result);
@@ -106,7 +111,8 @@ test('should use a set of custom strategies', (t) => {
     };
 
     const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
-    const client = new Client(repo, strategies, errorHandler);
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(result);
@@ -120,7 +126,8 @@ test('should use a set of custom strategies', (t) => {
     };
 
     const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
-    const client = new Client(repo, strategies, errorHandler);
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(result);
@@ -134,7 +141,8 @@ test('should return false a set of custom-false strategies', (t) => {
     };
 
     const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
-    const client = new Client(repo, strategies, errorHandler);
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
     t.true(result === false);
@@ -154,11 +162,12 @@ test('should emit error when invalid feature runtime', (t) => {
     };
 
     const strategies = [];
-    const client = new Client(repo, strategies, (err) => {
+    const client = new Client(repo, strategies);
+    client.on('error', (err) => {
         t.truthy(err);
         t.true(err.message.startsWith('Malformed feature'));
     });
-
+    client.on('warn', log);
 
     t.true(client.isEnabled('feature-malformed-strategies') === false);
 });
@@ -176,9 +185,11 @@ test('should emit error when invalid feature runtime', (t) => {
     };
 
     const strategies = [];
-    const client = new Client(repo, strategies, (err) => {
-        t.truthy(err);
-        t.true(err.message.startsWith('Missing strategy'));
+    const client = new Client(repo, strategies);
+    client.on('error', log);
+    client.on('warn', (msg) => {
+        t.truthy(msg);
+        t.true(msg.startsWith('Missing strategy'));
     });
 
 

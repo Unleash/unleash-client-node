@@ -1,16 +1,16 @@
 'use strict';
+import { EventEmitter } from 'events';
 import { Strategy } from './strategy';
 import { FeatureInterface } from './feature';
 import Repository from './repository';
 
-export default class UnleashClient {
+export default class UnleashClient extends EventEmitter {
     private repository: Repository;
     private strategies: Strategy[];
-    private errorHandler: (error: Error) => void;
 
-    constructor (repository: Repository, strategies: Strategy[], errorHandler) {
+    constructor (repository: Repository, strategies: Strategy[]) {
+        super();
         this.repository     = repository;
-        this.errorHandler   = errorHandler || function(){};
         this.strategies     = strategies || [];
 
         strategies.forEach((strategy: Strategy) => {
@@ -49,7 +49,7 @@ export default class UnleashClient {
         }
 
         if (!Array.isArray(feature.strategies)) {
-            this.errorHandler(
+            this.emit('error',
                 new Error(`Malformed feature, strategies not an array, is a ${typeof feature.strategies}`)
             );
             return false;
@@ -63,7 +63,7 @@ export default class UnleashClient {
             .some((strategySelector) : boolean => {
                 const strategy: Strategy = this.getStrategy(strategySelector.name);
                 if (!strategy) {
-                    this.errorHandler(new Error(`Missing strategy ${strategySelector.name}`));
+                    this.emit('warn', `Missing strategy ${strategySelector.name}`);
                     return false;
                 }
                 return strategy.isEnabled(strategySelector.parameters, context);

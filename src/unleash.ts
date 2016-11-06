@@ -12,13 +12,12 @@ const BACKUP_PATH: string = tmpdir();
 export interface UnleashConfig {
     appName: string,
     instanceId?: string,
-    url: string;
-    refreshInterval?: number;
+    url: string,
+    refreshInterval?: number,
     metricsInterval?: number,
     disableMetrics?: boolean,
-    backupPath?: string;
-    strategies: Strategy[];
-    errorHandler?: (err: any) => any;
+    backupPath?: string,
+    strategies: Strategy[],
 };
 
 export class Unleash extends EventEmitter {
@@ -36,7 +35,6 @@ export class Unleash extends EventEmitter {
         disableMetrics = false,
         backupPath = BACKUP_PATH,
         strategies = [],
-        errorHandler = () => {}
     } : UnleashConfig) {
         super();
 
@@ -58,7 +56,9 @@ export class Unleash extends EventEmitter {
         strategies = [new Strategy('default', true)].concat(strategies);
 
         this.repository.on('ready', () => {
-            this.client = new Client(this.repository, strategies, errorHandler);
+            this.client = new Client(this.repository, strategies);
+            this.client.on('error', (err) => this.emit('error', err));
+            this.client.on('warn', (msg) => this.emit('warn', msg));
             this.emit('ready');
         });
 
