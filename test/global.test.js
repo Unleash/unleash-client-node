@@ -36,10 +36,7 @@ test('should be able to call api', (t) => {
         metricsInterval: 0,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            throw e;
-        },
-    });
+    }).on('error', (err) => { throw err; });
     t.true(isEnabled('unknown') === false);
     destroy();
 });
@@ -51,10 +48,7 @@ test.cb('should be able to call isEnabled eventually', (t) => {
         metricsInterval: 0,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            throw e;
-        },
-    });
+    }).on('error', (err) => { throw err; });
 
     instance.on('ready', () => {
         t.true(isEnabled('feature') === true);

@@ -11,10 +11,10 @@ app.listen(1234);
 const strategies: Strategy[] = [ new Strategy('default', true), new Strategy('ActiveForUserWithEmail', true), new Strategy('default') ];
 
 const unleashInstance = new Unleash({
+    appName: 'super-app',
     backupPath: __dirname,
     url: 'http://localhost:1234',
     strategies,
-    errorHandler: (err: Error) => console.error(err)
 });
 
 console.log('featureX', unleashInstance.isEnabled('feature-1', {}))

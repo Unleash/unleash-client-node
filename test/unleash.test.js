@@ -44,9 +44,6 @@ test('should re-emit error from repository, storage and metrics', (t) => {
         metricsInterval: 0,
         disableMetrics: true,
         url,
-        errorHandler (e) {
-            throw e;
-        },
     });
 
     t.plan(3);
@@ -68,9 +65,6 @@ test('should re-emit events from repository and metrics', (t) => {
         refreshInterval: 0,
         disableMetrics: true,
         url,
-        errorHandler (e) {
-            throw e;
-        },
     });
 
     t.plan(5);
@@ -101,9 +95,6 @@ test.cb('repository should surface error when invalid basePath', (t) => {
         refreshInterval: 0,
         url,
         backupPath,
-        errorHandler (e) {
-            throw e;
-        },
     });
 
     instance.once('error', (err) => {
@@ -124,10 +115,7 @@ test('should allow request even before unleash is initialized', (t) => {
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            throw e;
-        },
-    });
+    }).on('error', (err) => { throw err; });
     t.true(instance.isEnabled('unknown') === false);
     instance.destroy();
 });
@@ -139,10 +127,7 @@ test('should consider known feature-toggle as active', (t) => new Promise((resol
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            reject(e);
-        },
-    });
+    }).on('error', reject);
 
     instance.on('ready', () => {
         t.true(instance.isEnabled('feature') === true);
@@ -158,10 +143,7 @@ test('should consider unknown feature-toggle as disabled', (t) => new Promise((r
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            reject(e);
-        },
-    });
+    }).on('error', reject);
 
     instance.on('ready', () => {
         t.true(instance.isEnabled('unknown') === false);
@@ -178,10 +160,7 @@ test('should return fallback value until online', (t) => new Promise((resolve, r
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
-        errorHandler (e) {
-            reject(e);
-        },
-    });
+    }).on('error', reject);
 
     let warnCounter = 0;
     instance.on('warn', () => {
