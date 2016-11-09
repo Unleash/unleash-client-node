@@ -50,8 +50,13 @@ export class Unleash extends EventEmitter {
             instanceId = `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
         }
 
-        const requestId: string = `${appName}:${instanceId}`;
-        this.repository = new Repository(backupPath, url, requestId, refreshInterval);
+        this.repository = new Repository({
+            backupPath,
+            url,
+            appName,
+            instanceId,
+            refreshInterval,
+        });
 
         strategies = [new Strategy('default', true)].concat(strategies);
 

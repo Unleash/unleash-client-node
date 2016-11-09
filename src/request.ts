@@ -6,7 +6,8 @@ export interface RequestOptions {
 
 export interface GetRequestOptions extends RequestOptions {
     etag?: string,
-    requestId?: string,
+    appName?: string,
+    instanceId?: string,
 }
 
 export interface Data {
@@ -21,12 +22,12 @@ export const post = (options : PostRequestOptions, cb) => {
     return request.post(options, cb);
 };
 
-export const get = ({ url, etag, requestId } : GetRequestOptions, cb) => {
+export const get = ({ url, etag, appName, instanceId } : GetRequestOptions, cb) => {
     const options = {
         url,
-        requestId,
         headers: {
-            'UNLEASH-ID': requestId,
+            'UNLEASH-APPNAME': appName,
+            'UNLEASH-INSTANCEID': instanceId,
         },
     };
     if (etag) {

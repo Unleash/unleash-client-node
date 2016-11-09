@@ -7,19 +7,41 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 
+export interface StorageImpl {
+    new (Storage)
+}
+
+export interface RepositoryOptions {
+    backupPath: string,
+    url: string,
+    appName: string,
+    instanceId: string,
+    refreshInterval?: number,
+    StorageImpl?: StorageImpl;
+};
+
 export default class Repository extends EventEmitter implements EventEmitter {
     private timer: NodeJS.Timer;
     private url: string;
     private storage: Storage;
     private etag: string;
-    private requestId: string;
+    private appName: string;
+    private instanceId: string;
     private refreshInterval?: number;
 
-    constructor (backupPath: string, url: string, requestId: string, refreshInterval?: number, StorageImpl = Storage) {
+    constructor ({
+        backupPath,
+        url,
+        appName,
+        instanceId,
+        refreshInterval,
+        StorageImpl = Storage
+    } : RepositoryOptions) {
         super();
         this.url = url;
         this.refreshInterval = refreshInterval;
-        this.requestId = requestId;
+        this.instanceId = instanceId;
+        this.appName = appName;
 
         this.storage = new StorageImpl(backupPath);
         this.storage.on('error', (err) => this.emit('error', err));
@@ -36,7 +58,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     validateFeature (feature: FeatureInterface) {
-        const errors : string[] = [];
+        const errors : string [] = [];
         if (!Array.isArray(feature.strategies)) {
             errors.push(`feature.strategies should be an array, but was ${typeof feature.strategies}`);
         }
@@ -56,7 +78,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
         get({
             url,
             etag: this.etag,
-            requestId: this.requestId,
+            appName: this.appName,
+            instanceId: this.instanceId,
         }, (error, res, body: string) => {
             // start timer for next fetch
             this.timedFetch();
