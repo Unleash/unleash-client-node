@@ -106,7 +106,7 @@ export default class Metrics extends EventEmitter {
             this.startTimer();
             return true;
         }
-        const url = resolve(this.url, '/client/metrics');
+        const url = resolve(this.url, './client/metrics');
         const payload = this.getPayload();
         post({
              url,
