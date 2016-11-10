@@ -77,7 +77,7 @@ export default class Metrics extends EventEmitter {
         if (this.disabled) {
             return false;
         }
-        const url = resolve(this.url, '/client/register');
+        const url = resolve(this.url, './client/register');
         const payload = this.getClientData();
         post({
             url,
