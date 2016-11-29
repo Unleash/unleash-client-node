@@ -147,7 +147,7 @@ test.cb('should handle 404 request error and emit error event', (t) => {
 
     repo.on('error', (err) => {
         t.truthy(err);
-        t.true(err.message.startsWith('Response was not statusCode 200'));
+        t.true(err.message.startsWith('Response was not statusCode 2'));
         t.end();
     });
 });

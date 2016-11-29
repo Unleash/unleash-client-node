@@ -93,8 +93,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 return;
             }
 
-            if (res.statusCode !== 200) {
-                return this.emit('error', new Error('Response was not statusCode 200'));
+            if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+                return this.emit('error', new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`));
             }
 
             try {
