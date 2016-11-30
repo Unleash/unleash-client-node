@@ -25,6 +25,7 @@ export const post = (options : PostRequestOptions, cb) => {
 export const get = ({ url, etag, appName, instanceId } : GetRequestOptions, cb) => {
     const options = {
         url,
+        timeout: 10000,
         headers: {
             'UNLEASH-APPNAME': appName,
             'UNLEASH-INSTANCEID': instanceId,
