@@ -8,7 +8,7 @@ import * as mkdirp from 'mkdirp';
 function setup (name) {
     const tmp = join(tmpdir(), name + Math.round(10000 * Math.random()));
     mkdirp.sync(tmp);
-    const storage = new Storage(tmp);
+    const storage = new Storage({ backupPath: tmp, appName: 'test' });
 
     storage.on('error', (err) => {
         throw err;
@@ -19,14 +19,14 @@ function setup (name) {
 test('should load content from backup file', (t) => new Promise((resolve, reject) => {
     const tmp = join(tmpdir(), 'backup-file-test');
     mkdirp.sync(tmp);
-    const storage = new Storage(tmp);
+    const storage = new Storage({ backupPath: tmp, appName: 'test' });
     const data = { random: Math.random() };
     storage.on('error', reject);
 
     storage.once('persisted', () => {
         t.true(storage.get('random') === data.random);
 
-        const storage2 = new Storage(tmp);
+        const storage2 = new Storage({ backupPath: tmp, appName: 'test' });
         storage2.on('error', reject);
         storage2.on('ready', () => {
             t.true(storage2.get('random') === data.random);
@@ -38,7 +38,10 @@ test('should load content from backup file', (t) => new Promise((resolve, reject
 
 
 test.cb('should emit error when non-existent target backupPath', (t) => {
-    const storage = new Storage(join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`));
+    const storage = new Storage({
+        backupPath: join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`),
+        appName: 'test',
+    });
     storage.reset({ random: Math.random() });
     storage.on('error', (err) => {
         t.truthy(err);
@@ -48,11 +51,16 @@ test.cb('should emit error when non-existent target backupPath', (t) => {
 });
 
 test.cb('should emit error when stored data is invalid', (t) => {
-    const dir = join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`);
+    const dir = join(tmpdir(), `random-${Math.round(Math.random() * 10123000)}`);
     mkdirp.sync(dir);
-    writeFileSync(join(dir, 'unleash-repo-schema-v1.json'), '{invalid: json, asd}', 'utf8');
-    const storage = new Storage(dir);
+    writeFileSync(join(dir, 'unleash-repo-schema-v1-test.json'), '{invalid: json, asd}', 'utf8');
+    const storage = new Storage({
+        backupPath: dir,
+        appName: 'test',
+    });
+    storage.on('persisted', console.log);
     storage.on('error', (err) => {
+        console.log(err);
         t.truthy(err);
         t.regex(err.message, /Unexpected token/);
         t.end();
@@ -62,14 +70,20 @@ test.cb('should emit error when stored data is invalid', (t) => {
 test('should not write content from backup file if ready has been fired', (t) => new Promise((resolve, reject) => {
     const tmp = join(tmpdir(), 'ignore-backup-file-test');
     mkdirp.sync(tmp);
-    const storage = new Storage(tmp);
+    const storage = new Storage({
+        backupPath: tmp,
+        appName: 'test',
+    });
     const data = { random: Math.random() };
     storage.on('error', reject);
 
     storage.once('persisted', () => {
         t.true(storage.get('random') === data.random);
 
-        const storage2 = new Storage(tmp);
+        const storage2 = new Storage({
+            backupPath: tmp,
+            appName: 'test',
+        });
         const overwrite = { random: Math.random() };
 
         storage2.on('error', reject);

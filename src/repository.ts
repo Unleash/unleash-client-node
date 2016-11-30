@@ -43,7 +43,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.instanceId = instanceId;
         this.appName = appName;
 
-        this.storage = new StorageImpl(backupPath);
+        this.storage = new StorageImpl({ backupPath, appName });
         this.storage.on('error', (err) => this.emit('error', err));
         this.storage.on('ready', () => this.emit('ready'));
 

@@ -3,18 +3,22 @@ import { EventEmitter } from 'events';
 import { join } from 'path';
 import { writeFile, readFile } from 'fs';
 
-const REPO_VERSION: string = 'schema-v1';
-const BACKUP_FILENAME: string = `/unleash-repo-${REPO_VERSION}.json`;
+export interface StorageOptions {
+    backupPath: string
+    appName: string
+}
 
 export class Storage extends EventEmitter implements EventEmitter {
     // ready is a "ready"-flag to signal that storage is ready with data,
     // and to signal to backup not to store fetched backup
     private ready: boolean = false;
     private data: any;
+    private path: string;
 
-    constructor (private backupPath: string) {
+    constructor ({ backupPath, appName } : StorageOptions) {
         super();
         this.data = {};
+        this.path = join(backupPath, `/unleash-repo-schema-v1-${appName}.json`)
         this.load();
     }
 
@@ -37,7 +41,7 @@ export class Storage extends EventEmitter implements EventEmitter {
     }
 
     persist () : void {
-        writeFile(join(this.backupPath, BACKUP_FILENAME), JSON.stringify(this.data), (err) => {
+        writeFile(this.path, JSON.stringify(this.data), (err) => {
             if (err) {
                 return this.emit('error', err);
             }
@@ -46,7 +50,7 @@ export class Storage extends EventEmitter implements EventEmitter {
     }
 
     load () : void {
-        readFile(join(this.backupPath, BACKUP_FILENAME), 'utf8', (err, data: string) => {
+        readFile(this.path, 'utf8', (err, data: string) => {
             if (this.ready) {
                 return;
             }
@@ -61,6 +65,7 @@ export class Storage extends EventEmitter implements EventEmitter {
             try {
                 this.reset(JSON.parse(data), false);
             } catch (err) {
+                err.message = `Unleash storage failed parsing file ${this.path}: ${err.message}`;
                 this.emit('error', err);
             }
         });
