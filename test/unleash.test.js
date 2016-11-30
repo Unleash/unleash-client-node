@@ -35,7 +35,7 @@ test('should error when missing url', (t) => {
     t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
-test.cb.only('should handle old url', (t) => {
+test.cb('should handle old url', (t) => {
     const url = mockNetwork([]);
 
     const instance = new Unleash({
@@ -48,7 +48,6 @@ test.cb.only('should handle old url', (t) => {
 
     t.plan(1);
     instance.on('warn', (e) => {
-        console.log(e);
         t.truthy(e);
         t.end();
     });
