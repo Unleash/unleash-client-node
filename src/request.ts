@@ -2,6 +2,7 @@ import * as request from 'request';
 
 export interface RequestOptions {
     url: string,
+    timeout?: number,
 }
 
 export interface GetRequestOptions extends RequestOptions {
@@ -19,6 +20,9 @@ export interface PostRequestOptions extends RequestOptions {
 }
 
 export const post = (options : PostRequestOptions, cb) => {
+    if (!options.timeout) {
+        options.timeout = 10000;
+    }
     return request.post(options, cb);
 };
 
