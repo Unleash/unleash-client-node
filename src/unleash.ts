@@ -42,6 +42,12 @@ export class Unleash extends EventEmitter {
             throw new Error('Unleash server URL missing');
         }
 
+        if (url.endsWith('/features')) {
+            const oldUrl = url;
+            process.nextTick(() => this.emit('warn', `Unleash server URL "${oldUrl}" should no longer link directly to /features`));
+            url = url.replace(/\/features$/, '');
+        }
+
         if (!appName) {
             throw new Error('Unleash client appName missing');
         }

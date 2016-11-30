@@ -35,6 +35,28 @@ test('should error when missing url', (t) => {
     t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
+test.cb.only('should handle old url', (t) => {
+    const url = mockNetwork([]);
+
+    const instance = new Unleash({
+        appName: 'foo',
+        refreshInterval: 0,
+        metricsInterval: 0,
+        disableMetrics: true,
+        url: `${url}features`,
+    });
+
+    t.plan(1);
+    instance.on('warn', (e) => {
+        console.log(e);
+        t.truthy(e);
+        t.end();
+    });
+
+    instance.destroy();
+});
+
+
 test('should re-emit error from repository, storage and metrics', (t) => {
     const url = mockNetwork([]);;
 
