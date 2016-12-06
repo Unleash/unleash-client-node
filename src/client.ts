@@ -1,17 +1,23 @@
 'use strict';
 import { EventEmitter } from 'events';
-import { Strategy } from './strategy';
+import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import Repository from './repository';
+
+interface BooleanMap {
+    [key: string]: boolean;
+}
 
 export default class UnleashClient extends EventEmitter {
     private repository: Repository;
     private strategies: Strategy[];
+    private warned: BooleanMap;
 
     constructor (repository: Repository, strategies: Strategy[]) {
         super();
         this.repository     = repository;
         this.strategies     = strategies || [];
+        this.warned         = {};
 
         strategies.forEach((strategy: Strategy) => {
             if (!strategy ||
@@ -35,6 +41,15 @@ export default class UnleashClient extends EventEmitter {
             return false;
         });
         return match;
+    }
+
+    warnOnce (missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
+        if (!this.warned[missingStrategy + name]) {
+            this.warned[missingStrategy + name] = true;
+            this.emit('warn', `Missing strategy "${missingStrategy}" for toggle "${
+                name}". Ensure that "${
+                    strategies.map(({ name }) => name).join(', ')}" are supported before using this toggle`);
+        }
     }
 
     isEnabled (name: string, context: any, fallbackValue?: boolean) : boolean {
@@ -63,7 +78,7 @@ export default class UnleashClient extends EventEmitter {
             .some((strategySelector) : boolean => {
                 const strategy: Strategy = this.getStrategy(strategySelector.name);
                 if (!strategy) {
-                    this.emit('warn', `Missing strategy ${strategySelector.name}`);
+                    this.warnOnce(strategySelector.name, name, feature.strategies)
                     return false;
                 }
                 return strategy.isEnabled(strategySelector.parameters, context);
