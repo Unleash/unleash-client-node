@@ -6,6 +6,7 @@ import { Strategy } from './strategy';
 export { Strategy as Strategy } from './strategy';
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
+import { userInfo, hostname } from 'os';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -53,7 +54,9 @@ export class Unleash extends EventEmitter {
         }
 
         if (!instanceId) {
-            instanceId = `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+            const info = userInfo();
+            const prefix = info.username ?  info.username : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+            instanceId = `${prefix}-${hostname()}`;
         }
 
         this.repository = new Repository({
