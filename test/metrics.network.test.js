@@ -20,7 +20,6 @@ test.cb('registerInstance should emit error when request error', (t) => {
 });
 
 
-
 test.cb('sendMetrics should emit error when request error', (t) => {
     const url = 'http://metrics2.app/';
 
