@@ -28,7 +28,7 @@ function setup (url, toggles, headers = {}) {
     return nock(url)
         .persist()
         .get('/features')
-        .reply(200,  { features: toggles }, headers);
+        .reply(200, { features: toggles }, headers);
 }
 
 test.cb('should fetch from endpoint', (t) => {
@@ -110,7 +110,7 @@ test.cb('should request with etag', (t) => {
     nock(url).matchHeader('If-None-Match', (value) => value === '12345-1')
         .persist()
         .get('/features')
-        .reply(200,  { features: [] }, { Etag: '12345-2' });
+        .reply(200, { features: [] }, { Etag: '12345-2' });
 
     const repo = new Repository({
         backupPath: 'foo',

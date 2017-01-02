@@ -25,7 +25,7 @@ const defaultToggles = [
 function mockNetwork (toggles = defaultToggles, url = getUrl()) {
     nock(url)
         .get('/features')
-        .reply(200,  { features: toggles });
+        .reply(200, { features: toggles });
     return url;
 }
 
@@ -108,7 +108,7 @@ test.cb('repository should surface error when invalid basePath', (t) => {
     nock(url)
         .get('/features')
         .delay(100)
-        .reply(200,  { features: [] });
+        .reply(200, { features: [] });
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const instance = new Unleash({
         appName: 'foo',

@@ -25,7 +25,7 @@ function mockNetwork (toggles = defaultToggles) {
     const url = `http://unleash-${counter++}.app`;
     nock(url)
         .get('/features')
-        .reply(200,  { features: toggles });
+        .reply(200, { features: toggles });
     return url;
 }
 
