@@ -148,6 +148,24 @@ test('should return false a set of custom-false strategies', (t) => {
     t.true(result === false);
 });
 
+test('should return the group value for sub lists', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [
+                [{ name: 'custom' }, { name: 'custom-false' }],
+            ]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result === false);
+});
+
+
 
 test('should emit error when invalid feature runtime', (t) => {
     t.plan(3);

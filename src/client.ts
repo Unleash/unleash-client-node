@@ -74,14 +74,21 @@ export default class UnleashClient extends EventEmitter {
             return feature.enabled;
         }
 
+        const handler = (strategySelector) => {
+            const strategy: Strategy = this.getStrategy(strategySelector.name);
+            if (!strategy) {
+                this.warnOnce(strategySelector.name, name, feature.strategies)
+                return false;
+            }
+            return strategy.isEnabled(strategySelector.parameters, context);
+        }
+
         return feature.strategies.length > 0 && feature.strategies
             .some((strategySelector) : boolean => {
-                const strategy: Strategy = this.getStrategy(strategySelector.name);
-                if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies)
-                    return false;
+                if (Array.isArray(strategySelector)) {
+                    return strategySelector.every(handler);
                 }
-                return strategy.isEnabled(strategySelector.parameters, context);
+                return handler(strategySelector);
             });
     }
 }
