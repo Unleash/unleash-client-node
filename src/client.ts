@@ -131,10 +131,7 @@ export default class UnleashClient extends EventEmitter {
             }
 
             const nextIndex = getNextORIndex(i);
-            if (
-                typeof nextIndex === 'number' &&
-                hasNext(nextIndex - 1)
-            ) {
+            if (typeof nextIndex === 'number') {
                 i = nextIndex - 1;
                 continue;
             }
