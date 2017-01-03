@@ -118,7 +118,7 @@ test('should use a set of custom strategies', (t) => {
     t.true(result);
 });
 
-test('should use a set of custom strategies', (t) => {
+test('should use a set of custom strategies reversed', (t) => {
     const repo = {
         getToggle () {
             return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false' }]);
@@ -146,6 +146,89 @@ test('should return false a set of custom-false strategies', (t) => {
     const result = client.isEnabled('feature');
 
     t.true(result === false);
+});
+
+test('should handle AND strategies', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false', operator: 'AND' }]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result === false);
+});
+
+test('should handle complex AND strategies when all is false', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [
+                // TODO should track isEnabled calls
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'OR' },
+            ]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result === false);
+});
+
+test('should handle complex AND strategies ', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom', operator: 'OR' },
+                { name: 'custom', operator: 'AND' },
+                { name: 'custom-false', operator: 'OR' },
+            ]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result);
+});
+
+
+test('should handle complex AND when last is true ', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [
+                { name: 'custom-false', operator: 'OR' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom-false', operator: 'AND' },
+                { name: 'custom', operator: 'OR' },
+            ]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result);
 });
 
 

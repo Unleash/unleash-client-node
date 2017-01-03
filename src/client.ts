@@ -74,14 +74,77 @@ export default class UnleashClient extends EventEmitter {
             return feature.enabled;
         }
 
-        return feature.strategies.length > 0 && feature.strategies
-            .some((strategySelector) : boolean => {
-                const strategy: Strategy = this.getStrategy(strategySelector.name);
-                if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies)
-                    return false;
+        let missingStrategy;
+
+        function hasNext (currentIndex) {
+            if (feature.strategies[currentIndex + 1]) {
+                return true;
+            }
+        }
+
+        function nextIsAND (currentIndex) {
+            if (feature.strategies[currentIndex + 1].operator === 'AND') {
+                return true;
+            }
+        }
+
+        function nextIsOR (currentIndex) {
+            if (feature.strategies[currentIndex + 1].operator !== 'AND') {
+                return true;
+            }
+        }
+
+        function getNextORIndex (currentIndex) {
+            for (let i = currentIndex + 1; i < feature.strategies.length; i ++) {
+                if (feature.strategies[i].operator !== 'AND') {
+                    return i;
                 }
-                return strategy.isEnabled(strategySelector.parameters, context);
-            });
+            }
+            return null;
+        }
+
+        for (let i = 0; i < feature.strategies.length; i++) {
+            const strategySelector: StrategyTransportInterface = feature.strategies[i];
+            const strategy: Strategy = this.getStrategy(strategySelector.name);
+
+            if (!strategy) {
+                this.warnOnce(strategySelector.name, name, feature.strategies);
+                missingStrategy = true;
+                break;
+            }
+
+            const result = strategy.isEnabled(strategySelector.parameters, context);
+
+            if (!hasNext(i)) {
+                return result;
+            }
+
+            if (result === false && nextIsOR(i)) {
+                continue;
+            }
+
+            if (result === true) {
+                if (nextIsOR(i)) {
+                    return result;
+                }
+                continue;
+            }
+
+            const nextIndex = getNextORIndex(i);
+            if (
+                typeof nextIndex === 'number' &&
+                hasNext(nextIndex - 1)
+            ) {
+                i = nextIndex - 1;
+                continue;
+            }
+            return result;
+        }
+
+        if (missingStrategy) {
+            return false;
+        }
+
+        return false;
     }
 }
