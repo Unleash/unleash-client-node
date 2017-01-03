@@ -232,6 +232,25 @@ test('should handle complex AND when last is true ', (t) => {
 });
 
 
+test('should handle complex AND when last is true 2 ', (t) => {
+    const repo = {
+        getToggle () {
+            return buildToggle('feature', true, [
+                { name: 'custom', operator: 'OR' },
+                { name: 'custom', operator: 'OR' },
+                { name: 'custom-false', operator: 'AND' },
+            ]);
+        },
+    };
+
+    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    client.on('error', log).on('warn', log);
+    const result = client.isEnabled('feature');
+
+    t.true(result);
+});
+
 test('should emit error when invalid feature runtime', (t) => {
     t.plan(3);
     const repo = {
