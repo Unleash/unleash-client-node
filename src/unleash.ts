@@ -49,6 +49,10 @@ export class Unleash extends EventEmitter {
             url = url.replace(/\/features$/, '');
         }
 
+        if (!url.endsWith('/')) {
+            url += '/';
+        }
+
         if (!appName) {
             throw new Error('Unleash client appName missing');
         }

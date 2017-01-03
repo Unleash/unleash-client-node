@@ -55,6 +55,24 @@ test.cb('should handle old url', (t) => {
     instance.destroy();
 });
 
+test('should handle url without ending /', (t) => {
+    const baseUrl = `${getUrl()}api`;
+
+    mockNetwork([], baseUrl);
+
+    const instance = new Unleash({
+        appName: 'foo',
+        refreshInterval: 0,
+        metricsInterval: 0,
+        disableMetrics: true,
+        url: baseUrl,
+    });
+
+    t.true(`${baseUrl}/` === instance.repository.url);
+
+    instance.destroy();
+});
+
 
 test('should re-emit error from repository, storage and metrics', (t) => {
     const url = mockNetwork([]);;
