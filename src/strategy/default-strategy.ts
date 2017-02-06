@@ -1,6 +1,6 @@
 import { Strategy } from '../strategy';
 
-export class DefaultStrategy extends Strategy {
+export default class DefaultStrategy extends Strategy {
     constructor () {
         super('default');
     }
