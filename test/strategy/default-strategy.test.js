@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import DefaultStrategy from '../../lib/strategy/default-strategy';
+import { DefaultStrategy } from '../../lib/strategy/default-strategy';
 
 test('default strategy should be enabled', (t) => {
     const strategy = new DefaultStrategy();

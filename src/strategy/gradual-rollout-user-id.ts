@@ -1,7 +1,7 @@
 import { Strategy } from '../strategy';
 import { normalizedValue } from './util';
 
-export default class GradualRolloutUserIdStrategy extends Strategy {
+export class GradualRolloutUserIdStrategy extends Strategy {
     constructor () {
         super('gradualRolloutUserId');
     }
