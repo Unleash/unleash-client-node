@@ -62,6 +62,6 @@ test('should only at most miss by one percent', (t) => {
     }
     const acutalPercentage = (enabledCount / rounds) * 100;
 
-    t.true((percentage - 1) <  acutalPercentage);
+    t.true((percentage - 1) < acutalPercentage);
 });
 
