@@ -64,7 +64,7 @@ test('should only at most miss by one percent', (t) => {
     const highMark = percentage + 1;
     const lowMark = percentage - 1;
 
-    t.true(lowMark  <= actualPercentage);
+    t.true(lowMark <= actualPercentage);
     t.true(highMark >= actualPercentage);
 });
 
