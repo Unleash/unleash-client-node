@@ -5,7 +5,7 @@ export class DefaultStrategy extends Strategy {
         super('default');
     }
 
-    isEnabled (parameters, context) {
+    isEnabled () {
         return true;
     }
 }

@@ -1,4 +1,5 @@
 import { Strategy } from '../strategy';
+import { Context } from '../context';
 import { normalizedValue } from './util';
 
 export class GradualRolloutUserIdStrategy extends Strategy {
@@ -6,7 +7,7 @@ export class GradualRolloutUserIdStrategy extends Strategy {
         super('gradualRolloutUserId');
     }
 
-    isEnabled (parameters, context) {
+    isEnabled (parameters: any, context: Context) {
         const userId = context.userId;
         if(!userId) {
             return false;
@@ -14,7 +15,7 @@ export class GradualRolloutUserIdStrategy extends Strategy {
 
         const percentage = +parameters.percentage;
         const groupId = parameters.groupId || '';
-        
+
         const normalizedUserId = normalizedValue(userId, groupId);
 
         return percentage > 0 && normalizedUserId <= percentage;
