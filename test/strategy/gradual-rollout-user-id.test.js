@@ -60,11 +60,11 @@ test('should only at most miss by one percent', (t) => {
             enabledCount++;
         }
     }
-    const actualPercentage = (enabledCount / rounds) * 100;
-    const highMark = percentage + 2;
-    const lowMark = percentage - 2;
+    const actualPercentage = Math.round((enabledCount / rounds) * 100);
+    const highMark = percentage + 1;
+    const lowMark = percentage - 1;
 
-    t.true(lowMark < actualPercentage);
-    t.true(highMark > actualPercentage);
+    t.true(lowMark  <= actualPercentage);
+    t.true(highMark >= actualPercentage);
 });
 
