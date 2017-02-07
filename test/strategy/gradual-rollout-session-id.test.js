@@ -1,53 +1,53 @@
 import test from 'ava';
 
-import { GradualRolloutUserIdStrategy } from '../../lib/strategy/gradual-rollout-user-id';
+import { GradualRolloutSessionIdStrategy } from '../../lib/strategy/gradual-rollout-session-id';
 import { normalizedValue } from '../../lib/strategy/util';
 
 test('gradual-rollout-user-id strategy should have correct name', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
-    t.deepEqual(strategy.name, 'gradualRolloutUserId');
+    const strategy = new GradualRolloutSessionIdStrategy();
+    t.deepEqual(strategy.name, 'gradualRolloutSessionId');
 });
 
 test('should be enabled when percentage is 100', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
+    const strategy = new GradualRolloutSessionIdStrategy();
     const params = { percentage: '100', groupId: 'gr1' };
-    const context = { userId: '123' };
+    const context = { sessionId: '123' };
     t.true(strategy.isEnabled(params, context));
 });
 
 test('should be disabled when percentage is 0', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
+    const strategy = new GradualRolloutSessionIdStrategy();
     const params = { percentage: '0', groupId: 'gr1' };
-    const context = { userId: '123' };
+    const context = { sessionId: '123' };
     t.false(strategy.isEnabled(params, context));
 });
 
 test('should be enabled when percentage is exactly same', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
-    const userId = '123123';
+    const strategy = new GradualRolloutSessionIdStrategy();
+    const sessionId = '123123';
     const groupId = 'group1';
 
-    const percentage = normalizedValue(userId, groupId);
+    const percentage = normalizedValue(sessionId, groupId);
     const params = { percentage: `${percentage}`, groupId };
-    const context = { userId };
+    const context = { sessionId };
     t.true(strategy.isEnabled(params, context));
 });
 
 test('should be disabled when percentage is just below required value', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
-    const userId = '123123';
+    const strategy = new GradualRolloutSessionIdStrategy();
+    const sessionId = '123123';
     const groupId = 'group1';
 
-    const percentage = normalizedValue(userId, groupId) - 1;
+    const percentage = normalizedValue(sessionId, groupId) - 1;
     const params = { percentage: `${percentage}`, groupId };
-    const context = { userId };
+    const context = { sessionId };
     t.false(strategy.isEnabled(params, context));
 });
 
 test('should only at most miss by one percent', (t) => {
-    const strategy = new GradualRolloutUserIdStrategy();
+    const strategy = new GradualRolloutSessionIdStrategy();
 
-    const percentage = 10;
+    const percentage = 25;
     const groupId = 'groupId';
 
     const rounds = 200000;
@@ -55,7 +55,7 @@ test('should only at most miss by one percent', (t) => {
 
     for (let i = 0; i < rounds; i++) {
         let params = { percentage, groupId };
-        let context = { userId: i };
+        let context = { sessionId: i };
         if (strategy.isEnabled(params, context)) {
             enabledCount++;
         }
