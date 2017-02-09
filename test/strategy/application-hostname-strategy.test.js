@@ -32,3 +32,10 @@ test('strategy should be enabled when hostname is defined via env', (t) => {
     const context = { hostNames: 'localhost, some-random-name' };
     t.true(strategy.isEnabled(context));
 });
+
+test('strategy should handle wierd casing', (t) => {
+    process.env.HOSTNAME = 'some-random-NAME';
+    const strategy = new ApplicationHostnameStrategy();
+    const context = { hostNames: 'localhost, some-random-name' };
+    t.true(strategy.isEnabled(context));
+});
