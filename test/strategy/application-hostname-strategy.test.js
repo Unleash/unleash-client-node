@@ -3,8 +3,6 @@ import { hostname } from 'os';
 
 import { ApplicationHostnameStrategy } from '../../lib/strategy/application-hostname-strategy';
 
-
-
 test('strategy should have correct name', (t) => {
     const strategy = new ApplicationHostnameStrategy();
     t.deepEqual(strategy.name, 'applicationHostname');

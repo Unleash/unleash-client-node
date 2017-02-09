@@ -13,7 +13,7 @@ export class GradualRolloutUserIdStrategy extends Strategy {
             return false;
         }
 
-        const percentage = +parameters.percentage;
+        const percentage = Number(parameters.percentage);
         const groupId = parameters.groupId || '';
 
         const normalizedUserId = normalizedValue(userId, groupId);

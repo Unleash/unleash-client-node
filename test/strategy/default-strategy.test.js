@@ -9,5 +9,5 @@ test('default strategy should be enabled', (t) => {
 
 test('default strategy should have correct name', (t) => {
     const strategy = new DefaultStrategy();
-    t.deepEqual(strategy.name, 'default');
+    t.true(strategy.name === 'default');
 });

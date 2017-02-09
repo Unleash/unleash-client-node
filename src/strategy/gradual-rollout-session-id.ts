@@ -13,7 +13,7 @@ export class GradualRolloutSessionIdStrategy extends Strategy {
             return false;
         }
 
-        const percentage = +parameters.percentage;
+        const percentage = Number(parameters.percentage);
         const groupId = parameters.groupId || '';
 
         const normalizedId = normalizedValue(sessionId, groupId);
