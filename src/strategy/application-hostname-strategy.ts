@@ -10,7 +10,11 @@ export class ApplicationHostnameStrategy extends Strategy {
     }
 
     isEnabled (parameters: any) {
-        const hostNames = parameters.hostNames.split(/\s*,\s*/);
-        return hostNames.includes(this.hostname);
+        if(!parameters.hostNames) {
+            return false;
+        }
+        
+        return parameters.hostNames.split(/\s*,\s*/)
+            .includes(this.hostname);
     }
 }
