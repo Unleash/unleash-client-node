@@ -1,4 +1,4 @@
-import { Strategy } from '../strategy';
+import { Strategy } from './strategy';
 
 export class DefaultStrategy extends Strategy {
     constructor () {

@@ -1,4 +1,4 @@
-import { Strategy } from '../strategy';
+import { Strategy } from './strategy';
 import { Context } from '../context';
 
 export class UserWithIdStrategy extends Strategy {

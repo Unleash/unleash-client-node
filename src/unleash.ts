@@ -2,8 +2,8 @@
 import Client from './client';
 import Repository from './repository';
 import Metrics from './metrics';
-import { Strategy } from './strategy';
-export { Strategy as Strategy } from './strategy';
+import { Strategy, defaultStrategies } from './strategy/index';
+export { Strategy as Strategy } from './strategy/index';
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
@@ -71,7 +71,7 @@ export class Unleash extends EventEmitter {
             refreshInterval,
         });
 
-        strategies = [new Strategy('default', true)].concat(strategies);
+        strategies = defaultStrategies.concat(strategies);
 
         this.repository.on('ready', () => {
             this.client = new Client(this.repository, strategies);

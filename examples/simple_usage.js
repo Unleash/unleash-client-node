@@ -2,7 +2,7 @@ const { initialize, isEnabled } = require('../lib');
 
 const client = initialize({
     appName: 'my-application',
-    url: 'http://unleash.herokuapp.com/',
+    url: 'http://unleash.herokuapp.com/api/',
 });
 
 client.on('error', console.error);

@@ -1,4 +1,4 @@
-import { Strategy } from '../strategy';
+import { Strategy } from './strategy';
 import { normalizedValue } from './util';
 import { Context } from '../context';
 

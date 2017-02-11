@@ -1,6 +1,4 @@
-'use strict';
-
-import { Context } from './context';
+import { Context } from '../context';
 
 export class Strategy {
     public name: string;

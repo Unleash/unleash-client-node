@@ -1,4 +1,4 @@
-import { Strategy } from '../strategy';
+import { Strategy } from './strategy';
 import { hostname } from 'os';
 
 export class ApplicationHostnameStrategy extends Strategy {

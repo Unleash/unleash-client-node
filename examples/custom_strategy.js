@@ -1,7 +1,5 @@
 const { Strategy, initialize, isEnabled } = require('../lib');
 
-const { GradualRolloutUserIdStrategy } = require('../lib/strategy/gradual-rollout-user-id');
-
 // Define custom strategy:
 class ActiveForUserWithEmailStrategy extends Strategy {
     constructor () {
@@ -18,7 +16,7 @@ const client = initialize({
     url: 'https://unleash-new-ui.herokuapp.com/api/',
     refreshInterval: 5000,
     metricsInterval: 5000,
-    strategies: [new GradualRolloutUserIdStrategy(), new ActiveForUserWithEmailStrategy()],
+    strategies: [new ActiveForUserWithEmailStrategy()],
 });
 
 client.on('error', console.error);
