@@ -11,5 +11,11 @@ client.on('warn', console.log);
 console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
 setInterval(() => {
-    console.log(`featureX enabled: ${isEnabled('featureX')}`);
+    const context = {
+        userId: '123',
+        sessionId: Math.round(Math.random() * 1000),
+        remoteAddress: '127.0.0.1',
+    };
+    const toggleName = 'app.demo';
+    console.log(`${toggleName} enabled: ${isEnabled(toggleName, context)}`);
 }, 1000);

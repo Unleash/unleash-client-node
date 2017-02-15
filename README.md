@@ -49,8 +49,33 @@ const { destroy } = require('unleash-client');
 destroy();
 ```
 
+### Built in activation strategies
+The Java client comes with implementations for the built-in activation strategies 
+provided by unleash. 
 
+- DefaultStrategy
+- UserWithIdStrategy
+- GradualRolloutRandomStrategy
+- GradualRolloutUserWithIdStrategy
+- GradualRolloutSessionIdStrategy
+- RemoteAddressStrategy
+- ApplicationHostnameStrategy
 
+Read more about the strategies in [activation-strategy.md](https://github.com/Unleash/unleash/blob/master/docs/activation-strategies.md).
+
+### Unleash context
+
+In order to use some of the common activation strategies you must provide a [unleash-context](https://github.com/Unleash/unleash/blob/master/docs/unleash-context.md).
+This client SDK allows you to send in the unleash context as part of the `isEnabled` call: 
+
+```javascript
+const context = {
+    userId: '123',
+    sessionId: 'some-session-id',
+    remoteAddress: '127.0.0.1',
+};
+unleash.isEnabled("someToggle", unleashContext); 
+```
 
 ## Advanced usage
 The initialize method takes the following arguments:

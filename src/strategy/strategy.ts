@@ -1,4 +1,4 @@
-'use strict';
+import { Context } from '../context';
 
 export class Strategy {
     public name: string;
@@ -9,7 +9,7 @@ export class Strategy {
         this.returnValue = returnValue;
     }
 
-    isEnabled (parameters: any, context: any) : boolean {
+    isEnabled (parameters: any, context: Context) : boolean {
         return this.returnValue;
     }
 };

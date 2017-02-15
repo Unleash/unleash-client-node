@@ -6,7 +6,7 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "lint": "eslint .",
-    "build": "tsc src/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
+    "build": "tsc src/*.ts src/**/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
     "prepublish": "not-in-install && npm run build || in-install",
     "test": "ava test",
     "coverage": "nyc --check-coverage=true npm test",
