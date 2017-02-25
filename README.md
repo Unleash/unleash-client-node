@@ -15,7 +15,7 @@ and poll updates from the unleash-server at regular intervals.
 ```js
 const { initialize } = require('unleash-client');
 const instance = initialize({
-    url: 'http://unleash.herokuapp.com',
+    url: 'http://unleash.herokuapp.com/api/',
     appName: 'my-app-name',
     instanceId: 'my-unique-instance-id',
 });
@@ -84,6 +84,7 @@ The initialize method takes the following arguments:
 - **appName** - the application name / codebase name
 - **instanceId** - an unique identifier, should/could be somewhat unique
 - **refreshIntervall** - The poll-intervall to check for updates. Defaults to 15s.
+- **metricsInterval** - How often the client should send metrics to Unleash API
 - **strategies** - Custom activation strategies to be used.
 - **disableMetrics** - disable metrics
 
