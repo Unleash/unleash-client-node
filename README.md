@@ -54,10 +54,10 @@ The Java client comes with implementations for the built-in activation strategie
 provided by unleash. 
 
 - DefaultStrategy
-- UserWithIdStrategy
-- GradualRolloutRandomStrategy
-- GradualRolloutUserWithIdStrategy
+- UserIdStrategy
+- GradualRolloutUserIdStrategy
 - GradualRolloutSessionIdStrategy
+- GradualRolloutRandomStrategy
 - RemoteAddressStrategy
 - ApplicationHostnameStrategy
 
