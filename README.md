@@ -50,7 +50,7 @@ destroy();
 ```
 
 ### Built in activation strategies
-The Java client comes with implementations for the built-in activation strategies 
+The client comes with implementations for the built-in activation strategies 
 provided by unleash. 
 
 - DefaultStrategy
