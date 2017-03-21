@@ -88,7 +88,7 @@ export default class Metrics extends EventEmitter {
                 return;
             }
 
-            if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+            if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                 this.emit('warn', `${url} returning ${res.statusCode}`);
                 return;
             }
@@ -124,7 +124,7 @@ export default class Metrics extends EventEmitter {
                 return;
             }
 
-            if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+            if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                 this.emit('warn', `${url} returning ${res.statusCode}`);
                 return;
             }
