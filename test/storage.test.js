@@ -37,6 +37,27 @@ test('should load content from backup file', (t) => new Promise((resolve, reject
 }));
 
 
+test('should handle complex appNames', (t) => new Promise((resolve, reject) => {
+    const tmp = join(tmpdir(), 'backup-file-test');
+    mkdirp.sync(tmp);
+    const appName = '@namspace-dash/slash-some-app';
+    const storage = new Storage({ backupPath: tmp, appName });
+    const data = { random: Math.random() };
+    storage.on('error', reject);
+
+    storage.once('persisted', () => {
+        t.true(storage.get('random') === data.random);
+
+        const storage2 = new Storage({ backupPath: tmp, appName });
+        storage2.on('error', reject);
+        storage2.on('ready', () => {
+            t.true(storage2.get('random') === data.random);
+            resolve();
+        });
+    });
+    storage.reset(data);
+}));
+
 test.cb('should emit error when non-existent target backupPath', (t) => {
     const storage = new Storage({
         backupPath: join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`),

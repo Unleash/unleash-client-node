@@ -18,8 +18,12 @@ export class Storage extends EventEmitter implements EventEmitter {
     constructor ({ backupPath, appName } : StorageOptions) {
         super();
         this.data = {};
-        this.path = join(backupPath, `/unleash-repo-schema-v1-${appName}.json`)
+        this.path = join(backupPath, `/unleash-repo-schema-v1-${this.safeAppName(appName)}.json`)
         this.load();
+    }
+
+    safeAppName (appName: string = '') {
+        return appName.replace(/\//g, '_')
     }
 
     reset (data: any, doPersist: boolean = true) : void {

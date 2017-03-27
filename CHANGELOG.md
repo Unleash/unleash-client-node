@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.1 (March 2017)
+- allow appName to contain "/" when storing file backup
+
 ## 2.1.0 (February 2017)
 - Provide implementations of pre-defined activation strategies.
     - applicationHostname
