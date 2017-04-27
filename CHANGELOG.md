@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.3
+- Bugfix: Must export Strategy interface to allow custom implementations. 
+
 ## 2.1.2
 - Unleash should not throw if os.userInfo throws #35
 
