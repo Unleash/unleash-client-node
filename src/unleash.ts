@@ -58,7 +58,14 @@ export class Unleash extends EventEmitter {
         }
 
         if (!instanceId) {
-            const info = userInfo();
+            let info;
+            try {
+                info = userInfo();
+            } catch (e) {
+                //unable to read info;
+                info = {};
+            }
+
             const prefix = info.username ?  info.username : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
             instanceId = `${prefix}-${hostname()}`;
         }
