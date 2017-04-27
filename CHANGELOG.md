@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.2
+- Unleash should not throw if os.userInfo throws #35
+
 ## 2.1.1 (March 2017)
 - allow appName to contain "/" when storing file backup
 
