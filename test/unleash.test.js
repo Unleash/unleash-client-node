@@ -221,7 +221,7 @@ test('should return fallback value until online', (t) => new Promise((resolve, r
 }));
 
 test('should not throw when os.userInfo throws', () => new Promise((resolve, reject) => {
-    require('os').userInfo = () => { throw new Error('Test expecption'); };
+    require('os').userInfo = () => { throw new Error('Test exception'); };
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
