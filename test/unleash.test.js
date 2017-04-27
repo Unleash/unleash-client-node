@@ -219,3 +219,18 @@ test('should return fallback value until online', (t) => new Promise((resolve, r
         resolve();
     });
 }));
+
+test('should not throw when os.userInfo throws', () => new Promise((resolve, reject) => {
+    require('os').userInfo = () => { throw new Error('Test expecption'); };
+    const url = mockNetwork();
+    const instance = new Unleash({
+        appName: 'foo',
+        disableMetrics: true,
+        url,
+        backupPath: getRandomBackupPath(),
+    }).on('error', reject);
+
+    instance.on('ready', () => {
+        resolve();
+    });
+}));
