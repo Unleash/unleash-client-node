@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0
+- Add user-agent header to requests
+- Add appName and instanceId as headers to post requests
+
 ## 2.1.3
 - Bugfix: Must export Strategy interface to allow custom implementations. 
 

@@ -82,6 +82,8 @@ export default class Metrics extends EventEmitter {
             {
                 url,
                 json: payload,
+                appName: this.appName,
+                instanceId: this.instanceId,
             },
             (err, res: ClientResponse, body) => {
                 if (err) {
@@ -114,6 +116,8 @@ export default class Metrics extends EventEmitter {
             {
                 url,
                 json: payload,
+                appName: this.appName,
+                instanceId: this.instanceId,
             },
             (err, res: ClientResponse, body) => {
                 this.startTimer();
