@@ -33,6 +33,7 @@ export const get = ({ url, etag, appName, instanceId } : GetRequestOptions, cb) 
         headers: {
             'UNLEASH-APPNAME': appName,
             'UNLEASH-INSTANCEID': instanceId,
+            'User-Agent': appName,
         },
     };
     if (etag) {
