@@ -2,8 +2,7 @@ sudo: false
 language: node_js
 node_js:
 - 6
-# Nock is broken on node 8
-- 7
+- stable
 script:
 - yarn lint
 - yarn build
