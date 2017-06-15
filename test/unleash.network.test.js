@@ -7,7 +7,7 @@ import { Unleash } from '../lib/unleash';
 test.before(() => nock.disableNetConnect());
 test.after(() => nock.enableNetConnect());
 
-test.cb('should emit network errors', (t) => {
+test.cb('should emit network errors', t => {
     t.plan(3);
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const unleash = new Unleash({
@@ -19,7 +19,7 @@ test.cb('should emit network errors', (t) => {
         backupPath,
     });
 
-    unleash.on('error', (e) => {
+    unleash.on('error', e => {
         t.truthy(e);
     });
 

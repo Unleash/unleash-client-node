@@ -3,13 +3,13 @@ import { Context } from '../context';
 import { normalizedValue } from './util';
 
 export class GradualRolloutUserIdStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('gradualRolloutUserId');
     }
 
-    isEnabled (parameters: any, context: Context) {
+    isEnabled(parameters: any, context: Context) {
         const userId = context.userId;
-        if(!userId) {
+        if (!userId) {
             return false;
         }
 

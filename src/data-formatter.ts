@@ -1,5 +1,3 @@
-'use strict';
-
 import { FeatureInterface } from './feature';
 
 export interface FeaturesBase {
@@ -11,10 +9,10 @@ export interface Features extends FeaturesBase {
     features: FeatureInterface[];
 }
 
-export function toNewFormat (data: any) : Features {
+export function toNewFormat(data: any): Features {
     return {
         version: 1,
-        features: data.features.map((feature: any) : FeatureInterface => {
+        features: data.features.map((feature: any): FeatureInterface => {
             const copied: FeatureInterface = Object.assign({}, feature);
             if (!feature.strategies && feature.strategy) {
                 copied.strategies = [{ name: feature.strategy, parameters: feature.parameters }];
@@ -23,13 +21,11 @@ export function toNewFormat (data: any) : Features {
             return copied;
         }),
     };
-};
+}
 
-
-
-export function pickData (serverData: any) : FeaturesBase {
+export function pickData(serverData: any): FeaturesBase {
     const features: FeatureInterface[] = serverData.features;
     return {
         features: features.map(({ name, enabled, strategies }) => ({ name, enabled, strategies })),
     };
-};
+}

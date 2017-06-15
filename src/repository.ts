@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter } from 'events';
 import { toNewFormat, pickData } from './data-formatter';
 import { Storage } from './storage';
@@ -8,17 +6,17 @@ import { resolve } from 'url';
 import { get } from './request';
 
 export interface StorageImpl {
-    new (Storage)
+    new (Storage);
 }
 
 export interface RepositoryOptions {
-    backupPath: string,
-    url: string,
-    appName: string,
-    instanceId: string,
-    refreshInterval?: number,
+    backupPath: string;
+    url: string;
+    appName: string;
+    instanceId: string;
+    refreshInterval?: number;
     StorageImpl?: StorageImpl;
-};
+}
 
 export default class Repository extends EventEmitter implements EventEmitter {
     private timer: NodeJS.Timer;
@@ -29,14 +27,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private instanceId: string;
     private refreshInterval?: number;
 
-    constructor ({
+    constructor({
         backupPath,
         url,
         appName,
         instanceId,
         refreshInterval,
-        StorageImpl = Storage
-    } : RepositoryOptions) {
+        StorageImpl = Storage,
+    }: RepositoryOptions) {
         super();
         this.url = url;
         this.refreshInterval = refreshInterval;
@@ -44,7 +42,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.appName = appName;
 
         this.storage = new StorageImpl({ backupPath, appName });
-        this.storage.on('error', (err) => this.emit('error', err));
+        this.storage.on('error', err => this.emit('error', err));
         this.storage.on('ready', () => this.emit('ready'));
 
         process.nextTick(() => this.fetch());
@@ -57,10 +55,12 @@ export default class Repository extends EventEmitter implements EventEmitter {
         }
     }
 
-    validateFeature (feature: FeatureInterface) {
-        const errors : string [] = [];
+    validateFeature(feature: FeatureInterface) {
+        const errors: string[] = [];
         if (!Array.isArray(feature.strategies)) {
-            errors.push(`feature.strategies should be an array, but was ${typeof feature.strategies}`);
+            errors.push(
+                `feature.strategies should be an array, but was ${typeof feature.strategies}`,
+            );
         }
 
         if (typeof feature.enabled !== 'boolean') {
@@ -73,54 +73,60 @@ export default class Repository extends EventEmitter implements EventEmitter {
         }
     }
 
-    fetch () {
+    fetch() {
         const url = resolve(this.url, './features');
-        get({
-            url,
-            etag: this.etag,
-            appName: this.appName,
-            instanceId: this.instanceId,
-        }, (error, res, body: string) => {
-            // start timer for next fetch
-            this.timedFetch();
+        get(
+            {
+                url,
+                etag: this.etag,
+                appName: this.appName,
+                instanceId: this.instanceId,
+            },
+            (error, res, body: string) => {
+                // start timer for next fetch
+                this.timedFetch();
 
-            if (error) {
-                return this.emit('error', error);
-            }
+                if (error) {
+                    return this.emit('error', error);
+                }
 
-            if (res.statusCode === 304) {
-                // No new data
-                return;
-            }
+                if (res.statusCode === 304) {
+                    // No new data
+                    return;
+                }
 
-            if (!(res.statusCode >= 200 && res.statusCode < 300)) {
-                return this.emit('error', new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`));
-            }
+                if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+                    return this.emit(
+                        'error',
+                        new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`),
+                    );
+                }
 
-            try {
-                const payload: any = JSON.parse(body);
-                const data: any = pickData(toNewFormat(payload));
-                const obj = data.features.reduce((o: Object, feature: FeatureInterface) => {
-                    this.validateFeature(feature);
-                    o[feature.name] = feature;
-                    return o;
-                }, {} as Object);
-                this.storage.reset(obj);
-                this.etag = res.headers.etag;
-                this.emit('data');
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
+                try {
+                    const payload: any = JSON.parse(body);
+                    const data: any = pickData(toNewFormat(payload));
+                    const obj = data.features.reduce((o: Object, feature: FeatureInterface) => {
+                        this.validateFeature(feature);
+                        o[feature.name] = feature;
+                        return o;
+                    }, {} as Object);
+                    this.storage.reset(obj);
+                    this.etag = res.headers.etag;
+                    this.emit('data');
+                } catch (err) {
+                    this.emit('error', err);
+                }
+            },
+        );
     }
 
-    stop () {
+    stop() {
         clearInterval(this.timer);
         this.removeAllListeners();
         this.storage.removeAllListeners();
     }
 
-    getToggle (name: string) : FeatureInterface {
+    getToggle(name: string): FeatureInterface {
         return this.storage.get(name);
     }
-};
+}

@@ -1,11 +1,11 @@
 import { Strategy } from './strategy';
 
 export class DefaultStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('default');
     }
 
-    isEnabled () {
+    isEnabled() {
         return true;
     }
 }

@@ -1,6 +1,6 @@
 export interface Context {
-    userId?: string,
-    sessionId?: string,
-    remoteAddress?: string,
-    properties?: any,
+    userId?: string;
+    sessionId?: string;
+    remoteAddress?: string;
+    properties?: any;
 }

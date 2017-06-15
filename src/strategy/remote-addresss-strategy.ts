@@ -2,11 +2,11 @@ import { Strategy } from './strategy';
 import { Context } from '../context';
 
 export class RemoteAddressStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('remoteAddress');
     }
 
-    isEnabled (parameters: any, context: Context) {
+    isEnabled(parameters: any, context: Context) {
         if (!parameters.IPs) {
             return false;
         }

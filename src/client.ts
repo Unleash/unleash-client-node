@@ -1,4 +1,3 @@
-'use strict';
 import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
@@ -13,14 +12,15 @@ export default class UnleashClient extends EventEmitter {
     private strategies: Strategy[];
     private warned: BooleanMap;
 
-    constructor (repository: Repository, strategies: Strategy[]) {
+    constructor(repository: Repository, strategies: Strategy[]) {
         super();
-        this.repository     = repository;
-        this.strategies     = strategies || [];
-        this.warned         = {};
+        this.repository = repository;
+        this.strategies = strategies || [];
+        this.warned = {};
 
         strategies.forEach((strategy: Strategy) => {
-            if (!strategy ||
+            if (
+                !strategy ||
                 !strategy.name ||
                 typeof strategy.name !== 'string' ||
                 !strategy.isEnabled ||
@@ -31,9 +31,9 @@ export default class UnleashClient extends EventEmitter {
         });
     }
 
-    private getStrategy (name: string) : Strategy {
+    private getStrategy(name: string): Strategy {
         let match;
-        this.strategies.some((strategy: Strategy) : boolean => {
+        this.strategies.some((strategy: Strategy): boolean => {
             if (strategy.name === name) {
                 match = strategy;
                 return true;
@@ -43,16 +43,19 @@ export default class UnleashClient extends EventEmitter {
         return match;
     }
 
-    warnOnce (missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
+    warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
         if (!this.warned[missingStrategy + name]) {
             this.warned[missingStrategy + name] = true;
-            this.emit('warn', `Missing strategy "${missingStrategy}" for toggle "${
-                name}". Ensure that "${
-                    strategies.map(({ name }) => name).join(', ')}" are supported before using this toggle`);
+            this.emit(
+                'warn',
+                `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
+                    .map(({ name }) => name)
+                    .join(', ')}" are supported before using this toggle`,
+            );
         }
     }
 
-    isEnabled (name: string, context: any, fallbackValue?: boolean) : boolean {
+    isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
         const feature: FeatureInterface = this.repository.getToggle(name);
 
         if (!feature && typeof fallbackValue === 'boolean') {
@@ -64,8 +67,11 @@ export default class UnleashClient extends EventEmitter {
         }
 
         if (!Array.isArray(feature.strategies)) {
-            this.emit('error',
-                new Error(`Malformed feature, strategies not an array, is a ${typeof feature.strategies}`)
+            this.emit(
+                'error',
+                new Error(
+                    `Malformed feature, strategies not an array, is a ${typeof feature.strategies}`,
+                ),
             );
             return false;
         }
@@ -74,14 +80,16 @@ export default class UnleashClient extends EventEmitter {
             return feature.enabled;
         }
 
-        return feature.strategies.length > 0 && feature.strategies
-            .some((strategySelector) : boolean => {
+        return (
+            feature.strategies.length > 0 &&
+            feature.strategies.some((strategySelector): boolean => {
                 const strategy: Strategy = this.getStrategy(strategySelector.name);
                 if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies)
+                    this.warnOnce(strategySelector.name, name, feature.strategies);
                     return false;
                 }
                 return strategy.isEnabled(strategySelector.parameters, context);
-            });
+            })
+        );
     }
 }

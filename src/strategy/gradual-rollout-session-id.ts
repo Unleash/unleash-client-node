@@ -3,13 +3,13 @@ import { normalizedValue } from './util';
 import { Context } from '../context';
 
 export class GradualRolloutSessionIdStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('gradualRolloutSessionId');
     }
 
-    isEnabled (parameters: any, context: Context) {
+    isEnabled(parameters: any, context: Context) {
         const sessionId = context.sessionId;
-        if(!sessionId) {
+        if (!sessionId) {
             return false;
         }
 

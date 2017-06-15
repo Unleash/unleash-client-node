@@ -2,7 +2,7 @@ import test from 'ava';
 import Client from '../lib/client';
 import { Strategy } from '../lib/strategy';
 
-function buildToggle (name, active, strategies) {
+function buildToggle(name, active, strategies) {
     return {
         name,
         enabled: active,
@@ -11,32 +11,32 @@ function buildToggle (name, active, strategies) {
 }
 
 class CustomStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('custom');
     }
 
-    isEnabled () {
+    isEnabled() {
         return true;
     }
 }
 
 class CustomFalseStrategy extends Strategy {
-    constructor () {
+    constructor() {
         super('custom-false');
     }
 
-    isEnabled () {
+    isEnabled() {
         return false;
     }
 }
 
-const log = (err) => {
+const log = err => {
     console.error(err);
 };
 
-test('invalid strategy should throw', (t) => {
+test('invalid strategy should throw', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true);
         },
     };
@@ -48,9 +48,9 @@ test('invalid strategy should throw', (t) => {
     t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null]));
 });
 
-test('should use provided repository', (t) => {
+test('should use provided repository', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true);
         },
     };
@@ -61,9 +61,9 @@ test('should use provided repository', (t) => {
     t.true(result);
 });
 
-test('should fallback when missing feature', (t) => {
+test('should fallback when missing feature', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return null;
         },
     };
@@ -77,9 +77,9 @@ test('should fallback when missing feature', (t) => {
     t.true(result2 === true);
 });
 
-test('should consider toggle not active', (t) => {
+test('should consider toggle not active', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', false);
         },
     };
@@ -90,9 +90,9 @@ test('should consider toggle not active', (t) => {
     t.true(!result);
 });
 
-test('should use custom strategy', (t) => {
+test('should use custom strategy', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true, [{ name: 'custom' }]);
         },
     };
@@ -103,9 +103,9 @@ test('should use custom strategy', (t) => {
     t.true(result);
 });
 
-test('should use a set of custom strategies', (t) => {
+test('should use a set of custom strategies', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom' }]);
         },
     };
@@ -118,9 +118,9 @@ test('should use a set of custom strategies', (t) => {
     t.true(result);
 });
 
-test('should use a set of custom strategies', (t) => {
+test('should use a set of custom strategies', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false' }]);
         },
     };
@@ -133,9 +133,9 @@ test('should use a set of custom strategies', (t) => {
     t.true(result);
 });
 
-test('should return false a set of custom-false strategies', (t) => {
+test('should return false a set of custom-false strategies', t => {
     const repo = {
-        getToggle () {
+        getToggle() {
             return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom-false' }]);
         },
     };
@@ -148,11 +148,10 @@ test('should return false a set of custom-false strategies', (t) => {
     t.true(result === false);
 });
 
-
-test('should emit error when invalid feature runtime', (t) => {
+test('should emit error when invalid feature runtime', t => {
     t.plan(3);
     const repo = {
-        getToggle () {
+        getToggle() {
             return {
                 name: 'feature-malformed-strategies',
                 enabled: true,
@@ -163,7 +162,7 @@ test('should emit error when invalid feature runtime', (t) => {
 
     const strategies = [];
     const client = new Client(repo, strategies);
-    client.on('error', (err) => {
+    client.on('error', err => {
         t.truthy(err);
         t.true(err.message.startsWith('Malformed feature'));
     });
@@ -172,10 +171,10 @@ test('should emit error when invalid feature runtime', (t) => {
     t.true(client.isEnabled('feature-malformed-strategies') === false);
 });
 
-test('should emit error when invalid feature runtime', (t) => {
+test('should emit error when invalid feature runtime', t => {
     t.plan(3);
     const repo = {
-        getToggle () {
+        getToggle() {
             return {
                 name: 'feature-wrong-strategy',
                 enabled: true,
@@ -187,11 +186,10 @@ test('should emit error when invalid feature runtime', (t) => {
     const strategies = [];
     const client = new Client(repo, strategies);
     client.on('error', log);
-    client.on('warn', (msg) => {
+    client.on('warn', msg => {
         t.truthy(msg);
         t.true(msg.startsWith('Missing strategy'));
     });
-
 
     t.true(client.isEnabled('feature-wrong-strategy') === false);
 });
