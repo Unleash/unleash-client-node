@@ -2,7 +2,8 @@
     "extends": [
         "finn",
         "finn/node",
-        "finn/es-modules"
+        "finn/es-modules",
+        "finn-prettier"
     ],
     "rules": {
         "no-console": 0

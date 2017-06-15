@@ -9,13 +9,12 @@ import { Strategy } from './strategy';
 export { Strategy } from './strategy';
 export { StrategyTransportInterface } from './strategy';
 
-
-export const defaultStrategies : Array<Strategy> = [
+export const defaultStrategies: Array<Strategy> = [
     new DefaultStrategy(),
     new ApplicationHostnameStrategy(),
     new GradualRolloutRandomStrategy(),
     new GradualRolloutUserIdStrategy(),
     new GradualRolloutSessionIdStrategy(),
     new UserWithIdStrategy(),
-    new RemoteAddressStrategy()
+    new RemoteAddressStrategy(),
 ];

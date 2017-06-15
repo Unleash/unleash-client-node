@@ -1,9 +1,8 @@
-'use strict';
 import Client from './client';
 import Repository from './repository';
 import Metrics from './metrics';
 import { Strategy, defaultStrategies } from './strategy/index';
-export { Strategy as Strategy } from './strategy/index';
+export { Strategy } from './strategy/index';
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
@@ -11,18 +10,17 @@ import { userInfo, hostname } from 'os';
 const BACKUP_PATH: string = tmpdir();
 
 export interface UnleashConfig {
-    appName: string,
-    instanceId?: string,
-    url: string,
-    refreshInterval?: number,
-    metricsInterval?: number,
-    disableMetrics?: boolean,
-    backupPath?: string,
-    strategies: Strategy[],
-};
+    appName: string;
+    instanceId?: string;
+    url: string;
+    refreshInterval?: number;
+    metricsInterval?: number;
+    disableMetrics?: boolean;
+    backupPath?: string;
+    strategies: Strategy[];
+}
 
 export class Unleash extends EventEmitter {
-
     private repository: Repository;
     private client: Client | undefined;
     private metrics: Metrics;
@@ -36,7 +34,7 @@ export class Unleash extends EventEmitter {
         disableMetrics = false,
         backupPath = BACKUP_PATH,
         strategies = [],
-    } : UnleashConfig) {
+    }: UnleashConfig) {
         super();
 
         if (!url) {
@@ -45,7 +43,12 @@ export class Unleash extends EventEmitter {
 
         if (url.endsWith('/features')) {
             const oldUrl = url;
-            process.nextTick(() => this.emit('warn', `Unleash server URL "${oldUrl}" should no longer link directly to /features`));
+            process.nextTick(() =>
+                this.emit(
+                    'warn',
+                    `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
+                ),
+            );
             url = url.replace(/\/features$/, '');
         }
 
@@ -66,7 +69,9 @@ export class Unleash extends EventEmitter {
                 info = {};
             }
 
-            const prefix = info.username ?  info.username : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+            const prefix = info.username
+                ? info.username
+                : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
             instanceId = `${prefix}-${hostname()}`;
         }
 
@@ -82,17 +87,17 @@ export class Unleash extends EventEmitter {
 
         this.repository.on('ready', () => {
             this.client = new Client(this.repository, strategies);
-            this.client.on('error', (err) => this.emit('error', err));
-            this.client.on('warn', (msg) => this.emit('warn', msg));
+            this.client.on('error', err => this.emit('error', err));
+            this.client.on('warn', msg => this.emit('warn', msg));
             this.emit('ready');
         });
 
-        this.repository.on('error', (err) => {
+        this.repository.on('error', err => {
             err.message = `Unleash Repository error: ${err.message}`;
             this.emit('error', err);
         });
 
-        this.repository.on('warn', (msg) => {
+        this.repository.on('warn', msg => {
             this.emit('warn', msg);
         });
 
@@ -102,15 +107,15 @@ export class Unleash extends EventEmitter {
             instanceId,
             strategies: strategies.map((strategy: Strategy) => strategy.name),
             metricsInterval,
-            url
+            url,
         });
 
-        this.metrics.on('error', (err) => {
+        this.metrics.on('error', err => {
             err.message = `Unleash Metrics error: ${err.message}`;
             this.emit('error', err);
         });
 
-        this.metrics.on('warn', (msg) => {
+        this.metrics.on('warn', msg => {
             this.emit('warn', msg);
         });
 
@@ -118,30 +123,33 @@ export class Unleash extends EventEmitter {
             this.emit('count', name, enabled);
         });
 
-        this.metrics.on('sent', (payload) => {
+        this.metrics.on('sent', payload => {
             this.emit('sent', payload);
         });
 
-        this.metrics.on('registered', (payload) => {
+        this.metrics.on('registered', payload => {
             this.emit('registered', payload);
         });
     }
 
-    destroy () {
+    destroy() {
         this.repository.stop();
         this.metrics.stop();
         this.client = undefined;
     }
 
-    isEnabled (name: string, context: any, fallbackValue?: boolean) : boolean {
+    isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
         let result;
         if (this.client !== undefined) {
             result = this.client.isEnabled(name, context, fallbackValue);
         } else {
             result = typeof fallbackValue === 'boolean' ? fallbackValue : false;
-            this.emit('warn', `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`);
+            this.emit(
+                'warn',
+                `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
+            );
         }
         this.metrics.count(name, result);
         return result;
     }
-};
+}

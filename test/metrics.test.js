@@ -5,23 +5,18 @@ import nock from 'nock';
 let counter = 1;
 const getUrl = () => `http://test${counter++}.app/`;
 const metricsUrl = '/client/metrics';
-const nockMetrics = (url, code = 200) => nock(url)
-        .post(metricsUrl)
-        .reply(code, '');
+const nockMetrics = (url, code = 200) => nock(url).post(metricsUrl).reply(code, '');
 const registerUrl = '/client/register';
-const nockRegister = (url, code = 200) => nock(url)
-        .post(registerUrl)
-        .reply(code, '');
+const nockRegister = (url, code = 200) => nock(url).post(registerUrl).reply(code, '');
 
-
-test('should be disabled by flag disableMetrics', (t) => {
+test('should be disabled by flag disableMetrics', t => {
     const metrics = new Metrics({ disableMetrics: true });
     metrics.count('foo', true);
 
     t.true(Object.keys(metrics.bucket.toggles).length === 0);
 });
 
-test('registerInstance, sendMetrics, startTimer and count should respect disabled', (t) => {
+test('registerInstance, sendMetrics, startTimer and count should respect disabled', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
@@ -33,7 +28,7 @@ test('registerInstance, sendMetrics, startTimer and count should respect disable
     t.true(!metrics.sendMetrics());
 });
 
-test('should not start fetch/register when metricsInterval is 0', (t) => {
+test('should not start fetch/register when metricsInterval is 0', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
@@ -43,7 +38,7 @@ test('should not start fetch/register when metricsInterval is 0', (t) => {
     t.true(metrics.timer === undefined);
 });
 
-test.cb('should sendMetrics and register when metricsInterval is a positive number', (t) => {
+test.cb('should sendMetrics and register when metricsInterval is a positive number', t => {
     const url = getUrl();
     t.plan(2);
     const metricsEP = nockMetrics(url);
@@ -69,19 +64,18 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
     });
 });
 
-
-test.cb('registerInstance should warn when non 200 statusCode', (t) => {
+test.cb('registerInstance should warn when non 200 statusCode', t => {
     const url = getUrl();
     const regEP = nockRegister(url, 500);
 
     const metrics = new Metrics({
         url,
     });
-    metrics.on('error', (e) => {
+    metrics.on('error', e => {
         t.falsy(e);
     });
 
-    metrics.on('warn', (e) => {
+    metrics.on('warn', e => {
         t.true(regEP.isDone());
         t.truthy(e);
         t.end();
@@ -90,7 +84,7 @@ test.cb('registerInstance should warn when non 200 statusCode', (t) => {
     t.true(metrics.registerInstance());
 });
 
-test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', (t) => {
+test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', t => {
     const url = getUrl();
     const metEP = nockMetrics(url, 404);
     const metrics = new Metrics({
@@ -111,7 +105,7 @@ test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', (t) =
     t.false(metrics.disabled);
 });
 
-test.cb('sendMetrics should emit warn on non 200 statusCode', (t) => {
+test.cb('sendMetrics should emit warn on non 200 statusCode', t => {
     const url = getUrl();
     const metEP = nockMetrics(url, 500);
 
@@ -129,7 +123,7 @@ test.cb('sendMetrics should emit warn on non 200 statusCode', (t) => {
     metrics.sendMetrics();
 });
 
-test.cb('sendMetrics should not send empty buckets', (t) => {
+test.cb('sendMetrics should not send empty buckets', t => {
     const url = getUrl();
     const metEP = nockMetrics(url, 200);
 
@@ -145,8 +139,7 @@ test.cb('sendMetrics should not send empty buckets', (t) => {
     }, 10);
 });
 
-
-test('count should increment yes and no counters', (t) => {
+test('count should increment yes and no counters', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
@@ -174,7 +167,7 @@ test('count should increment yes and no counters', (t) => {
     t.true(toggleCount.no === 4);
 });
 
-test('getClientData should return a object', (t) => {
+test('getClientData should return a object', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
@@ -184,7 +177,7 @@ test('getClientData should return a object', (t) => {
     t.true(typeof result === 'object');
 });
 
-test('getMetricsData should return a bucket', (t) => {
+test('getMetricsData should return a bucket', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
@@ -194,4 +187,3 @@ test('getMetricsData should return a bucket', (t) => {
     t.true(typeof result === 'object');
     t.true(typeof result.bucket === 'object');
 });
-

@@ -4,42 +4,41 @@ import { resolve } from 'url';
 import { post, Data } from './request';
 
 export interface MetricsOptions {
-    appName : string,
-    instanceId : string,
-    strategies : string [],
-    metricsInterval : number,
-    disableMetrics?: boolean,
-    bucketInterval?: number
-    url : string,
+    appName: string;
+    instanceId: string;
+    strategies: string[];
+    metricsInterval: number;
+    disableMetrics?: boolean;
+    bucketInterval?: number;
+    url: string;
 }
 
 interface Bucket {
-    start: Date,
-    stop: Date | null,
-    toggles: Object
+    start: Date;
+    stop: Date | null;
+    toggles: Object;
 }
 
 export default class Metrics extends EventEmitter {
     private bucket: Bucket;
-    private appName : string;
-    private instanceId : string;
-    private strategies : string [];
+    private appName: string;
+    private instanceId: string;
+    private strategies: string[];
     private metricsInterval: number;
     private disabled: boolean;
     private bucketInterval: number;
-    private url : string;
-    private timer : NodeJS.Timer;
-    private started : Date;
+    private url: string;
+    private timer: NodeJS.Timer;
+    private started: Date;
 
-    constructor ({
+    constructor({
         appName,
         instanceId,
         strategies,
         metricsInterval = 0,
         disableMetrics = false,
         url,
-        } : MetricsOptions
-    ) {
+    }: MetricsOptions) {
         super();
         this.disabled = disableMetrics;
         this.metricsInterval = metricsInterval;
@@ -56,7 +55,7 @@ export default class Metrics extends EventEmitter {
         }
     }
 
-    private startTimer () {
+    private startTimer() {
         if (this.disabled) {
             return false;
         }
@@ -67,37 +66,40 @@ export default class Metrics extends EventEmitter {
         return true;
     }
 
-    stop () {
+    stop() {
         clearInterval(this.timer);
         delete this.timer;
         this.disabled = true;
     }
 
-    registerInstance () : boolean {
+    registerInstance(): boolean {
         if (this.disabled) {
             return false;
         }
         const url = resolve(this.url, './client/register');
         const payload = this.getClientData();
-        post({
-            url,
-            json: payload,
-        }, (err, res: ClientResponse, body) => {
-            if (err) {
-                this.emit('error', err);
-                return;
-            }
+        post(
+            {
+                url,
+                json: payload,
+            },
+            (err, res: ClientResponse, body) => {
+                if (err) {
+                    this.emit('error', err);
+                    return;
+                }
 
-            if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                this.emit('warn', `${url} returning ${res.statusCode}`);
-                return;
-            }
-            this.emit('registered', payload);
-        });
+                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
+                    this.emit('warn', `${url} returning ${res.statusCode}`);
+                    return;
+                }
+                this.emit('registered', payload);
+            },
+        );
         return true;
     }
 
-    sendMetrics () : boolean {
+    sendMetrics(): boolean {
         if (this.disabled) {
             return false;
         }
@@ -108,33 +110,35 @@ export default class Metrics extends EventEmitter {
         }
         const url = resolve(this.url, './client/metrics');
         const payload = this.getPayload();
-        post({
-             url,
-             json: payload,
-        }, (err, res: ClientResponse, body) => {
-            this.startTimer();
-            if (err) {
-                this.emit('error', err);
-                return;
-            }
+        post(
+            {
+                url,
+                json: payload,
+            },
+            (err, res: ClientResponse, body) => {
+                this.startTimer();
+                if (err) {
+                    this.emit('error', err);
+                    return;
+                }
 
-            if (res.statusCode === 404) {
-                this.emit('warn', `${url} returning 404, stopping metrics`);
-                this.stop();
-                return;
-            }
+                if (res.statusCode === 404) {
+                    this.emit('warn', `${url} returning 404, stopping metrics`);
+                    this.stop();
+                    return;
+                }
 
-            if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                this.emit('warn', `${url} returning ${res.statusCode}`);
-                return;
-            }
-            this.emit('sent', payload);
-        });
+                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
+                    this.emit('warn', `${url} returning ${res.statusCode}`);
+                    return;
+                }
+                this.emit('sent', payload);
+            },
+        );
         return true;
     }
 
-
-    count (name: string, enabled: boolean) : boolean {
+    count(name: string, enabled: boolean): boolean {
         if (this.disabled) {
             return false;
         }
@@ -149,31 +153,31 @@ export default class Metrics extends EventEmitter {
         return true;
     }
 
-    private bucketIsEmpty () {
+    private bucketIsEmpty() {
         return Object.keys(this.bucket.toggles).length === 0;
     }
 
-    private resetBucket () {
-        const bucket : Bucket = {
+    private resetBucket() {
+        const bucket: Bucket = {
             start: new Date(),
             stop: null,
-            toggles: {}
+            toggles: {},
         };
         this.bucket = bucket;
     }
 
-    private closeBucket () {
+    private closeBucket() {
         this.bucket.stop = new Date();
     }
 
-    private getPayload () : Data {
+    private getPayload(): Data {
         this.closeBucket();
         const payload = this.getMetricsData();
         this.resetBucket();
         return payload;
     }
 
-    getClientData() : Data {
+    getClientData(): Data {
         return {
             appName: this.appName,
             instanceId: this.instanceId,
@@ -183,8 +187,7 @@ export default class Metrics extends EventEmitter {
         };
     }
 
-
-    getMetricsData () : Data {
+    getMetricsData(): Data {
         return {
             appName: this.appName,
             instanceId: this.instanceId,

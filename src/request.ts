@@ -1,32 +1,32 @@
 import * as request from 'request';
 
 export interface RequestOptions {
-    url: string,
-    timeout?: number,
+    url: string;
+    timeout?: number;
 }
 
 export interface GetRequestOptions extends RequestOptions {
-    etag?: string,
-    appName?: string,
-    instanceId?: string,
+    etag?: string;
+    appName?: string;
+    instanceId?: string;
 }
 
 export interface Data {
-    [key: string]: any,
+    [key: string]: any;
 }
 
 export interface PostRequestOptions extends RequestOptions {
-    json?: Data,
+    json?: Data;
 }
 
-export const post = (options : PostRequestOptions, cb) => {
+export const post = (options: PostRequestOptions, cb) => {
     if (!options.timeout) {
         options.timeout = 10000;
     }
     return request.post(options, cb);
 };
 
-export const get = ({ url, etag, appName, instanceId } : GetRequestOptions, cb) => {
+export const get = ({ url, etag, appName, instanceId }: GetRequestOptions, cb) => {
     const options = {
         url,
         timeout: 10000,

@@ -1,11 +1,10 @@
-'use strict';
 import { EventEmitter } from 'events';
 import { join } from 'path';
 import { writeFile, readFile } from 'fs';
 
 export interface StorageOptions {
-    backupPath: string
-    appName: string
+    backupPath: string;
+    appName: string;
 }
 
 export class Storage extends EventEmitter implements EventEmitter {
@@ -15,18 +14,18 @@ export class Storage extends EventEmitter implements EventEmitter {
     private data: any;
     private path: string;
 
-    constructor ({ backupPath, appName } : StorageOptions) {
+    constructor({ backupPath, appName }: StorageOptions) {
         super();
         this.data = {};
-        this.path = join(backupPath, `/unleash-repo-schema-v1-${this.safeAppName(appName)}.json`)
+        this.path = join(backupPath, `/unleash-repo-schema-v1-${this.safeAppName(appName)}.json`);
         this.load();
     }
 
-    safeAppName (appName: string = '') {
-        return appName.replace(/\//g, '_')
+    safeAppName(appName: string = '') {
+        return appName.replace(/\//g, '_');
     }
 
-    reset (data: any, doPersist: boolean = true) : void {
+    reset(data: any, doPersist: boolean = true): void {
         const doEmitReady = this.ready === false;
         this.ready = true;
         this.data = data;
@@ -40,12 +39,12 @@ export class Storage extends EventEmitter implements EventEmitter {
         });
     }
 
-    get (key) : any {
+    get(key): any {
         return this.data[key];
     }
 
-    persist () : void {
-        writeFile(this.path, JSON.stringify(this.data), (err) => {
+    persist(): void {
+        writeFile(this.path, JSON.stringify(this.data), err => {
             if (err) {
                 return this.emit('error', err);
             }
@@ -53,7 +52,7 @@ export class Storage extends EventEmitter implements EventEmitter {
         });
     }
 
-    load () : void {
+    load(): void {
         readFile(this.path, 'utf8', (err, data: string) => {
             if (this.ready) {
                 return;
@@ -74,4 +73,4 @@ export class Storage extends EventEmitter implements EventEmitter {
             }
         });
     }
-};
+}

@@ -5,4 +5,4 @@ export interface FeatureInterface {
     description?: string;
     enabled: boolean;
     strategies: StrategyTransportInterface[];
-};
+}

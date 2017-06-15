@@ -9,7 +9,7 @@ import { Unleash } from '../lib/unleash';
 let counter = 1;
 const getUrl = () => `http://test2${counter++}.app/`;
 
-function getRandomBackupPath () {
+function getRandomBackupPath() {
     const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     mkdirp.sync(path);
     return path;
@@ -22,20 +22,18 @@ const defaultToggles = [
         strategy: 'default',
     },
 ];
-function mockNetwork (toggles = defaultToggles, url = getUrl()) {
-    nock(url)
-        .get('/features')
-        .reply(200, { features: toggles });
+function mockNetwork(toggles = defaultToggles, url = getUrl()) {
+    nock(url).get('/features').reply(200, { features: toggles });
     return url;
 }
 
-test('should error when missing url', (t) => {
+test('should error when missing url', t => {
     t.throws(() => new Unleash({}));
     t.throws(() => new Unleash({ url: false }));
     t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
-test.cb('should handle old url', (t) => {
+test.cb('should handle old url', t => {
     const url = mockNetwork([]);
 
     const instance = new Unleash({
@@ -47,7 +45,7 @@ test.cb('should handle old url', (t) => {
     });
 
     t.plan(1);
-    instance.on('warn', (e) => {
+    instance.on('warn', e => {
         t.truthy(e);
         t.end();
     });
@@ -55,7 +53,7 @@ test.cb('should handle old url', (t) => {
     instance.destroy();
 });
 
-test('should handle url without ending /', (t) => {
+test('should handle url without ending /', t => {
     const baseUrl = `${getUrl()}api`;
 
     mockNetwork([], baseUrl);
@@ -73,9 +71,8 @@ test('should handle url without ending /', (t) => {
     instance.destroy();
 });
 
-
-test('should re-emit error from repository, storage and metrics', (t) => {
-    const url = mockNetwork([]);;
+test('should re-emit error from repository, storage and metrics', t => {
+    const url = mockNetwork([]);
 
     const instance = new Unleash({
         appName: 'foo',
@@ -86,7 +83,7 @@ test('should re-emit error from repository, storage and metrics', (t) => {
     });
 
     t.plan(3);
-    instance.on('error', (e) => {
+    instance.on('error', e => {
         t.truthy(e);
     });
     instance.repository.emit('error', new Error());
@@ -96,8 +93,7 @@ test('should re-emit error from repository, storage and metrics', (t) => {
     instance.destroy();
 });
 
-
-test('should re-emit events from repository and metrics', (t) => {
+test('should re-emit events from repository and metrics', t => {
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
@@ -107,10 +103,10 @@ test('should re-emit events from repository and metrics', (t) => {
     });
 
     t.plan(5);
-    instance.on('warn', (e) => t.truthy(e));
-    instance.on('sent', (e) => t.truthy(e));
-    instance.on('registered', (e) => t.truthy(e));
-    instance.on('count', (e) => t.truthy(e));
+    instance.on('warn', e => t.truthy(e));
+    instance.on('sent', e => t.truthy(e));
+    instance.on('registered', e => t.truthy(e));
+    instance.on('count', e => t.truthy(e));
 
     instance.repository.emit('warn', true);
     instance.metrics.emit('warn', true);
@@ -121,12 +117,9 @@ test('should re-emit events from repository and metrics', (t) => {
     instance.destroy();
 });
 
-test.cb('repository should surface error when invalid basePath', (t) => {
+test.cb('repository should surface error when invalid basePath', t => {
     const url = 'http://unleash-surface.app/';
-    nock(url)
-        .get('/features')
-        .delay(100)
-        .reply(200, { features: [] });
+    nock(url).get('/features').delay(100).reply(200, { features: [] });
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const instance = new Unleash({
         appName: 'foo',
@@ -136,7 +129,7 @@ test.cb('repository should surface error when invalid basePath', (t) => {
         backupPath,
     });
 
-    instance.once('error', (err) => {
+    instance.once('error', err => {
         t.truthy(err);
         t.true(err.code === 'ENOENT');
 
@@ -146,91 +139,97 @@ test.cb('repository should surface error when invalid basePath', (t) => {
     });
 });
 
-
-test('should allow request even before unleash is initialized', (t) => {
+test('should allow request even before unleash is initialized', t => {
     const url = mockNetwork();
     const instance = new Unleash({
         appName: 'foo',
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
-    }).on('error', (err) => { throw err; });
+    }).on('error', err => {
+        throw err;
+    });
     t.true(instance.isEnabled('unknown') === false);
     instance.destroy();
 });
 
-test('should consider known feature-toggle as active', (t) => new Promise((resolve, reject) => {
-    const url = mockNetwork();
-    const instance = new Unleash({
-        appName: 'foo',
-        disableMetrics: true,
-        url,
-        backupPath: getRandomBackupPath(),
-    }).on('error', reject);
+test('should consider known feature-toggle as active', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
 
-    instance.on('ready', () => {
-        t.true(instance.isEnabled('feature') === true);
-        instance.destroy();
-        resolve();
-    });
-}));
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('feature') === true);
+            instance.destroy();
+            resolve();
+        });
+    }));
 
-test('should consider unknown feature-toggle as disabled', (t) => new Promise((resolve, reject) => {
-    const url = mockNetwork();
-    const instance = new Unleash({
-        appName: 'foo',
-        disableMetrics: true,
-        url,
-        backupPath: getRandomBackupPath(),
-    }).on('error', reject);
+test('should consider unknown feature-toggle as disabled', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
 
-    instance.on('ready', () => {
-        t.true(instance.isEnabled('unknown') === false);
-        instance.destroy();
-        resolve();
-    });
-}));
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('unknown') === false);
+            instance.destroy();
+            resolve();
+        });
+    }));
 
+test('should return fallback value until online', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
 
-test('should return fallback value until online', (t) => new Promise((resolve, reject) => {
-    const url = mockNetwork();
-    const instance = new Unleash({
-        appName: 'foo',
-        disableMetrics: true,
-        url,
-        backupPath: getRandomBackupPath(),
-    }).on('error', reject);
+        let warnCounter = 0;
+        instance.on('warn', () => {
+            warnCounter++;
+        });
 
-    let warnCounter = 0;
-    instance.on('warn', () => {
-        warnCounter++;
-    });
+        t.true(instance.isEnabled('feature') === false);
+        t.true(warnCounter === 1);
+        t.true(instance.isEnabled('feature', {}, false) === false);
+        t.true(instance.isEnabled('feature', {}, true) === true);
+        t.true(warnCounter === 3);
 
-    t.true(instance.isEnabled('feature') === false);
-    t.true(warnCounter === 1);
-    t.true(instance.isEnabled('feature', {}, false) === false);
-    t.true(instance.isEnabled('feature', {}, true) === true);
-    t.true(warnCounter === 3);
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('feature') === true);
+            t.true(instance.isEnabled('feature', {}, false) === true);
+            instance.destroy();
+            resolve();
+        });
+    }));
 
-    instance.on('ready', () => {
-        t.true(instance.isEnabled('feature') === true);
-        t.true(instance.isEnabled('feature', {}, false) === true);
-        instance.destroy();
-        resolve();
-    });
-}));
+test('should not throw when os.userInfo throws', () =>
+    new Promise((resolve, reject) => {
+        require('os').userInfo = () => {
+            throw new Error('Test exception');
+        };
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
 
-test('should not throw when os.userInfo throws', () => new Promise((resolve, reject) => {
-    require('os').userInfo = () => { throw new Error('Test exception'); };
-    const url = mockNetwork();
-    const instance = new Unleash({
-        appName: 'foo',
-        disableMetrics: true,
-        url,
-        backupPath: getRandomBackupPath(),
-    }).on('error', reject);
-
-    instance.on('ready', () => {
-        resolve();
-    });
-}));
+        instance.on('ready', () => {
+            resolve();
+        });
+    }));

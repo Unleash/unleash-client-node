@@ -1,4 +1,3 @@
-'use strict';
 import { Unleash, Strategy } from '../lib/unleash';
 import * as express from 'express';
 
@@ -8,7 +7,11 @@ const app = express();
 app.get('/', (req, res) => res.json(fixture));
 app.listen(1234);
 
-const strategies: Strategy[] = [ new Strategy('default', true), new Strategy('ActiveForUserWithEmail', true), new Strategy('default') ];
+const strategies: Strategy[] = [
+    new Strategy('default', true),
+    new Strategy('ActiveForUserWithEmail', true),
+    new Strategy('default'),
+];
 
 const client = new Unleash({
     appName: 'super-app',
@@ -24,10 +27,10 @@ client.on('ready', () => {
     setTimeout(() => {
         console.log('featureX', client.isEnabled('featureX', {}));
         console.log('featureY', client.isEnabled('featureY', {}));
-    }, 100)
+    }, 100);
 });
 
-console.log('featureX', client.isEnabled('featureX', {}))
+console.log('featureX', client.isEnabled('featureX', {}));
 
 setInterval(() => {
     console.log('featureX', client.isEnabled('featureX', {}));

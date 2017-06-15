@@ -6,6 +6,7 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts' --single-quote --tab-width 4 --print-width 100 --trailing-comma all --parser typescript",
     "build": "tsc src/*.ts src/**/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
     "prepublish": "not-in-install && npm run build || in-install",
     "test": "ava test",
@@ -42,10 +43,12 @@
     "coveralls": "^2.11.2",
     "eslint": "^3.3.1",
     "eslint-config-finn": "^1.0.0-alpha.9",
+    "eslint-config-finn-prettier": "^1.0.1",
     "in-publish": "^2.0.0",
     "mkdirp": "^0.5.1",
     "nock": "^9.0.0",
     "nyc": "^8.3.0",
+    "prettier": "^1.4.4",
     "typescript": "^2.2.1"
   },
   "nyc": {
