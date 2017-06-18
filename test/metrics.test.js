@@ -59,8 +59,8 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
 
     metrics.on('sent', () => {
         t.true(metricsEP.isDone());
-        t.end();
         metrics.stop();
+        t.end();
     });
 });
 
