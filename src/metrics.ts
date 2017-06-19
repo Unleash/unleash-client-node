@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ClientResponse } from 'http';
+import { IncomingMessage } from 'http';
 import { resolve } from 'url';
 import { post, Data } from './request';
 
@@ -85,14 +85,14 @@ export default class Metrics extends EventEmitter {
                 appName: this.appName,
                 instanceId: this.instanceId,
             },
-            (err, res: ClientResponse, body) => {
+            (err, res: IncomingMessage, body) => {
                 if (err) {
                     this.emit('error', err);
                     return;
                 }
 
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`);
+                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;
                 }
                 this.emit('registered', payload);
@@ -119,7 +119,7 @@ export default class Metrics extends EventEmitter {
                 appName: this.appName,
                 instanceId: this.instanceId,
             },
-            (err, res: ClientResponse, body) => {
+            (err, res: IncomingMessage, body) => {
                 this.startTimer();
                 if (err) {
                     this.emit('error', err);
@@ -133,7 +133,7 @@ export default class Metrics extends EventEmitter {
                 }
 
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`);
+                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;
                 }
                 this.emit('sent', payload);
