@@ -16,12 +16,12 @@ export interface Data {
 }
 
 export interface PostRequestOptions extends RequestOptions {
-    json?: Data;
+    json: Data;
     appName?: string;
     instanceId?: string;
 }
 
-export const post = ({ url, appName, timeout, instanceId }: PostRequestOptions, cb) => {
+export const post = ({ url, appName, timeout, instanceId, json }: PostRequestOptions, cb) => {
     const options = {
         url,
         timeout: timeout || 10000,
@@ -30,6 +30,7 @@ export const post = ({ url, appName, timeout, instanceId }: PostRequestOptions, 
             'UNLEASH-INSTANCEID': instanceId,
             'User-Agent': appName,
         },
+        json,
     };
     return request.post(options, cb);
 };
