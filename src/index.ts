@@ -1,6 +1,6 @@
 import { Unleash, UnleashConfig } from './unleash';
 
-export { Strategy } from './strategy';
+export { Strategy } from './strategy/index';
 export { Unleash } from './unleash';
 
 let instance;
