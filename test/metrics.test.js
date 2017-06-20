@@ -64,6 +64,43 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
     });
 });
 
+test.cb('should sendMetrics', t => {
+    const url = getUrl();
+    t.plan(6);
+    const metricsEP = nock(url)
+        .post(metricsUrl, payload => {
+            t.truthy(payload.bucket);
+            t.truthy(payload.bucket.start);
+            t.truthy(payload.bucket.stop);
+            t.deepEqual(payload.bucket.toggles, {
+                'toggle-x': { yes: 1, no: 1 },
+                'toggle-y': { yes: 1, no: 0 },
+            });
+            return true;
+        })
+        .reply(200, '');
+    const regEP = nockRegister(url);
+
+    const metrics = new Metrics({
+        url,
+        metricsInterval: 50,
+    });
+
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+
+    metrics.on('registered', () => {
+        t.true(regEP.isDone());
+    });
+
+    metrics.on('sent', () => {
+        t.true(metricsEP.isDone());
+        t.end();
+        metrics.stop();
+    });
+});
+
 test.cb('registerInstance should warn when non 200 statusCode', t => {
     const url = getUrl();
     const regEP = nockRegister(url, 500);
