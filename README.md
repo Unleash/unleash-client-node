@@ -87,6 +87,7 @@ The initialize method takes the following arguments:
 - **metricsInterval** - How often the client should send metrics to Unleash API
 - **strategies** - Custom activation strategies to be used.
 - **disableMetrics** - disable metrics
+- **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
 
 
 ## Custom strategies

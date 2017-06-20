@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0
+- Add support for custom headers 
+
+## 2.2.1
+- Fix broken metrics reporting
+
 ## 2.2.0
 - Add user-agent header to requests
 - Add appName and instanceId as headers to post requests
