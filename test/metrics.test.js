@@ -59,8 +59,8 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
 
     metrics.on('sent', () => {
         t.true(metricsEP.isDone());
-        t.end();
         metrics.stop();
+        t.end();
     });
 });
 
@@ -96,8 +96,35 @@ test.cb('should sendMetrics', t => {
 
     metrics.on('sent', () => {
         t.true(metricsEP.isDone());
-        t.end();
         metrics.stop();
+        t.end();
+    });
+});
+
+test.cb('should send custom headers', t => {
+    const url = getUrl();
+    t.plan(2);
+    const randomKey = `value-${Math.random()}`;
+    const metricsEP = nockMetrics(url).matchHeader('randomKey', randomKey);
+    const regEP = nockRegister(url).matchHeader('randomKey', randomKey);
+
+    const metrics = new Metrics({
+        url,
+        metricsInterval: 50,
+        headers: {
+            randomKey,
+        },
+    });
+
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+
+    metrics.on('sent', () => {
+        t.true(regEP.isDone());
+        t.true(metricsEP.isDone());
+        metrics.stop();
+        t.end();
     });
 });
 

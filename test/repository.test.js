@@ -129,6 +129,35 @@ test.cb('should request with etag', t => {
     });
 });
 
+test.cb('should request with custom headers', t => {
+    const url = 'http://unleash-test-4-x.app';
+    const randomKey = `random-${Math.random()}`;
+    nock(url)
+        .matchHeader('randomKey', value => value === randomKey)
+        .persist()
+        .get('/features')
+        .reply(200, { features: [] }, { Etag: '12345-3' });
+
+    const repo = new Repository({
+        backupPath: 'foo',
+        url,
+        appName,
+        instanceId,
+        refreshInterval: 0,
+        StorageImpl: MockStorage,
+        headers: {
+            randomKey,
+        },
+    });
+
+    repo.etag = '12345-1';
+
+    repo.once('data', () => {
+        t.true(repo.etag === '12345-3');
+        t.end();
+    });
+});
+
 test.cb('should handle 404 request error and emit error event', t => {
     const url = 'http://unleash-test-5.app';
     nock(url).persist().get('/features').reply(404, 'asd');

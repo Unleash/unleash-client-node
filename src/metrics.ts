@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { IncomingMessage } from 'http';
 import { resolve } from 'url';
 import { post, Data } from './request';
+import { CustomHeaders } from './unleash';
 
 export interface MetricsOptions {
     appName: string;
@@ -11,6 +12,7 @@ export interface MetricsOptions {
     disableMetrics?: boolean;
     bucketInterval?: number;
     url: string;
+    headers?: CustomHeaders;
 }
 
 interface Bucket {
@@ -30,6 +32,7 @@ export default class Metrics extends EventEmitter {
     private url: string;
     private timer: NodeJS.Timer;
     private started: Date;
+    private headers?: CustomHeaders;
 
     constructor({
         appName,
@@ -38,6 +41,7 @@ export default class Metrics extends EventEmitter {
         metricsInterval = 0,
         disableMetrics = false,
         url,
+        headers,
     }: MetricsOptions) {
         super();
         this.disabled = disableMetrics;
@@ -46,6 +50,7 @@ export default class Metrics extends EventEmitter {
         this.instanceId = instanceId;
         this.strategies = strategies;
         this.url = url;
+        this.headers = headers;
         this.started = new Date();
         this.resetBucket();
 
@@ -84,6 +89,7 @@ export default class Metrics extends EventEmitter {
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
+                headers: this.headers,
             },
             (err, res: IncomingMessage, body) => {
                 if (err) {
@@ -118,6 +124,7 @@ export default class Metrics extends EventEmitter {
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
+                headers: this.headers,
             },
             (err, res: IncomingMessage, body) => {
                 this.startTimer();

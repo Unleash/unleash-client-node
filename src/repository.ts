@@ -4,6 +4,7 @@ import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
+import { CustomHeaders } from './unleash';
 
 export interface StorageImpl {
     new (Storage);
@@ -16,6 +17,7 @@ export interface RepositoryOptions {
     instanceId: string;
     refreshInterval?: number;
     StorageImpl?: StorageImpl;
+    headers?: CustomHeaders;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -26,6 +28,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private appName: string;
     private instanceId: string;
     private refreshInterval?: number;
+    private headers?: CustomHeaders;
 
     constructor({
         backupPath,
@@ -34,12 +37,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
         instanceId,
         refreshInterval,
         StorageImpl = Storage,
+        headers,
     }: RepositoryOptions) {
         super();
         this.url = url;
         this.refreshInterval = refreshInterval;
         this.instanceId = instanceId;
         this.appName = appName;
+        this.headers = headers;
 
         this.storage = new StorageImpl({ backupPath, appName });
         this.storage.on('error', err => this.emit('error', err));
@@ -81,6 +86,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 etag: this.etag,
                 appName: this.appName,
                 instanceId: this.instanceId,
+                headers: this.headers,
             },
             (error, res, body: string) => {
                 // start timer for next fetch

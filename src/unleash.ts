@@ -9,6 +9,10 @@ import { userInfo, hostname } from 'os';
 
 const BACKUP_PATH: string = tmpdir();
 
+export interface CustomHeaders {
+    [key: string]: string;
+}
+
 export interface UnleashConfig {
     appName: string;
     instanceId?: string;
@@ -18,6 +22,7 @@ export interface UnleashConfig {
     disableMetrics?: boolean;
     backupPath?: string;
     strategies: Strategy[];
+    customHeaders?: CustomHeaders;
 }
 
 export class Unleash extends EventEmitter {
@@ -34,6 +39,7 @@ export class Unleash extends EventEmitter {
         disableMetrics = false,
         backupPath = BACKUP_PATH,
         strategies = [],
+        customHeaders,
     }: UnleashConfig) {
         super();
 
@@ -81,6 +87,7 @@ export class Unleash extends EventEmitter {
             appName,
             instanceId,
             refreshInterval,
+            headers: customHeaders,
         });
 
         strategies = defaultStrategies.concat(strategies);
@@ -108,6 +115,7 @@ export class Unleash extends EventEmitter {
             strategies: strategies.map((strategy: Strategy) => strategy.name),
             metricsInterval,
             url,
+            headers: customHeaders,
         });
 
         this.metrics.on('error', err => {
