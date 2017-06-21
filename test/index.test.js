@@ -16,7 +16,7 @@ test('should load main module', t => {
     t.truthy(destroy);
 });
 
-test('initialize should init with valid options', t => {
+test('initialize should init with valid options', () => {
     const url = getUrl();
     nockMetrics(url);
     nockRegister(url);
