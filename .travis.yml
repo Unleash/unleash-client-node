@@ -1,14 +1,14 @@
 sudo: false
 language: node_js
 node_js:
-- "6"
-- "7"
+- 6
+# Nock is broken on node 8
+- 7
 script:
-- npm install
-- npm run lint
-- npm run build
-- npm run coverage
-after_success: npm run coveralls
+- yarn lint
+- yarn build
+- yarn coverage
+after_success: yarn coveralls
 notifications:
   hipchat:
     rooms:
@@ -16,6 +16,4 @@ notifications:
   slack:
     secure: BwaqTOBsNhGopuKDbYn14Zw9VELjQYnFTtOc22CPr926Ctc7+oGvg6KgukDEY4VTGOa+fI1nWOytia8Vl9/pL8dFBTc21oeelewltYOpPOPbqPyRVa4otIe5j5N3IoGSQtA1S/tJeUctVq6u4HnevnpqxdqB9QKT8nq0a7GcJx0=
 cache:
-  npm: true
-  directories:
-  - node_modules
+  yarn: true
