@@ -22,7 +22,10 @@ const client = initialize({
 client.on('error', console.error);
 client.on('warn', console.log);
 
-console.log('Fetching toggles from: https://unleash-new-ui.herokuapp.com', client);
+console.log(
+    'Fetching toggles from: https://unleash-new-ui.herokuapp.com',
+    client
+);
 
 setInterval(() => {
     console.log(`Test enabled: ${isEnabled('Test', { userId: '1234' })}`);

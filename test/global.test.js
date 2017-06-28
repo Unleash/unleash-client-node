@@ -7,7 +7,10 @@ import mkdirp from 'mkdirp';
 import { initialize, isEnabled, destroy } from '../lib/index';
 
 function getRandomBackupPath() {
-    const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
+    const path = join(
+        tmpdir(),
+        `test-tmp-${Math.round(Math.random() * 100000)}`
+    );
     mkdirp.sync(path);
     return path;
 }

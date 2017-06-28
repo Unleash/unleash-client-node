@@ -5,9 +5,11 @@ import nock from 'nock';
 let counter = 1;
 const getUrl = () => `http://test${counter++}.app/`;
 const metricsUrl = '/client/metrics';
-const nockMetrics = (url, code = 200) => nock(url).post(metricsUrl).reply(code, '');
+const nockMetrics = (url, code = 200) =>
+    nock(url).post(metricsUrl).reply(code, '');
 const registerUrl = '/client/register';
-const nockRegister = (url, code = 200) => nock(url).post(registerUrl).reply(code, '');
+const nockRegister = (url, code = 200) =>
+    nock(url).post(registerUrl).reply(code, '');
 
 test('should load main module', t => {
     t.truthy(initialize);

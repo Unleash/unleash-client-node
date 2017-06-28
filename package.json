@@ -41,14 +41,14 @@
     "@types/request": "0.0.31",
     "ava": "^0.16.0",
     "coveralls": "^2.11.2",
-    "eslint": "^3.3.1",
-    "eslint-config-finn": "^1.0.0-alpha.9",
-    "eslint-config-finn-prettier": "^1.0.1",
+    "eslint": "^4.1.1",
+    "eslint-config-finn": "^2.0.0",
+    "eslint-config-finn-prettier": "^3.0.0",
     "in-publish": "^2.0.0",
     "mkdirp": "^0.5.1",
     "nock": "^9.0.0",
     "nyc": "^8.3.0",
-    "prettier": "^1.4.4",
+    "prettier": "1.5.2",
     "typescript": "^2.2.1"
   },
   "nyc": {

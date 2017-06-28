@@ -61,7 +61,10 @@ test('should handle complex appNames', t =>
 
 test.cb('should emit error when non-existent target backupPath', t => {
     const storage = new Storage({
-        backupPath: join(tmpdir(), `random-${Math.round(Math.random() * 10000)}`),
+        backupPath: join(
+            tmpdir(),
+            `random-${Math.round(Math.random() * 10000)}`
+        ),
         appName: 'test',
     });
     storage.reset({ random: Math.random() });
@@ -73,9 +76,16 @@ test.cb('should emit error when non-existent target backupPath', t => {
 });
 
 test.cb('should emit error when stored data is invalid', t => {
-    const dir = join(tmpdir(), `random-${Math.round(Math.random() * 10123000)}`);
+    const dir = join(
+        tmpdir(),
+        `random-${Math.round(Math.random() * 10123000)}`
+    );
     mkdirp.sync(dir);
-    writeFileSync(join(dir, 'unleash-repo-schema-v1-test.json'), '{invalid: json, asd}', 'utf8');
+    writeFileSync(
+        join(dir, 'unleash-repo-schema-v1-test.json'),
+        '{invalid: json, asd}',
+        'utf8'
+    );
     const storage = new Storage({
         backupPath: dir,
         appName: 'test',

@@ -5,9 +5,11 @@ import nock from 'nock';
 let counter = 1;
 const getUrl = () => `http://test${counter++}.app/`;
 const metricsUrl = '/client/metrics';
-const nockMetrics = (url, code = 200) => nock(url).post(metricsUrl).reply(code, '');
+const nockMetrics = (url, code = 200) =>
+    nock(url).post(metricsUrl).reply(code, '');
 const registerUrl = '/client/register';
-const nockRegister = (url, code = 200) => nock(url).post(registerUrl).reply(code, '');
+const nockRegister = (url, code = 200) =>
+    nock(url).post(registerUrl).reply(code, '');
 
 test('should be disabled by flag disableMetrics', t => {
     const metrics = new Metrics({ disableMetrics: true });
@@ -38,31 +40,34 @@ test('should not start fetch/register when metricsInterval is 0', t => {
     t.true(metrics.timer === undefined);
 });
 
-test.cb('should sendMetrics and register when metricsInterval is a positive number', t => {
-    const url = getUrl();
-    t.plan(2);
-    const metricsEP = nockMetrics(url);
-    const regEP = nockRegister(url);
+test.cb(
+    'should sendMetrics and register when metricsInterval is a positive number',
+    t => {
+        const url = getUrl();
+        t.plan(2);
+        const metricsEP = nockMetrics(url);
+        const regEP = nockRegister(url);
 
-    const metrics = new Metrics({
-        url,
-        metricsInterval: 50,
-    });
+        const metrics = new Metrics({
+            url,
+            metricsInterval: 50,
+        });
 
-    metrics.count('toggle-x', true);
-    metrics.count('toggle-x', false);
-    metrics.count('toggle-y', true);
+        metrics.count('toggle-x', true);
+        metrics.count('toggle-x', false);
+        metrics.count('toggle-y', true);
 
-    metrics.on('registered', () => {
-        t.true(regEP.isDone());
-    });
+        metrics.on('registered', () => {
+            t.true(regEP.isDone());
+        });
 
-    metrics.on('sent', () => {
-        t.true(metricsEP.isDone());
-        metrics.stop();
-        t.end();
-    });
-});
+        metrics.on('sent', () => {
+            t.true(metricsEP.isDone());
+            metrics.stop();
+            t.end();
+        });
+    }
+);
 
 test.cb('should sendMetrics', t => {
     const url = getUrl();
@@ -148,26 +153,29 @@ test.cb('registerInstance should warn when non 200 statusCode', t => {
     t.true(metrics.registerInstance());
 });
 
-test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', t => {
-    const url = getUrl();
-    const metEP = nockMetrics(url, 404);
-    const metrics = new Metrics({
-        url,
-    });
+test.cb(
+    'sendMetrics should stop/disable metrics if endpoint returns 404',
+    t => {
+        const url = getUrl();
+        const metEP = nockMetrics(url, 404);
+        const metrics = new Metrics({
+            url,
+        });
 
-    metrics.on('warn', () => {
-        metrics.stop();
-        t.true(metEP.isDone());
-        t.true(metrics.disabled);
-        t.end();
-    });
+        metrics.on('warn', () => {
+            metrics.stop();
+            t.true(metEP.isDone());
+            t.true(metrics.disabled);
+            t.end();
+        });
 
-    metrics.count('x-y-z', true);
+        metrics.count('x-y-z', true);
 
-    metrics.sendMetrics();
+        metrics.sendMetrics();
 
-    t.false(metrics.disabled);
-});
+        t.false(metrics.disabled);
+    }
+);
 
 test.cb('sendMetrics should emit warn on non 200 statusCode', t => {
     const url = getUrl();

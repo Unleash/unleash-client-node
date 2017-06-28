@@ -24,7 +24,10 @@ class MockStorage extends EventEmitter {
 }
 
 function setup(url, toggles, headers = {}) {
-    return nock(url).persist().get('/features').reply(200, { features: toggles }, headers);
+    return nock(url)
+        .persist()
+        .get('/features')
+        .reply(200, { features: toggles }, headers);
 }
 
 test.cb('should fetch from endpoint', t => {

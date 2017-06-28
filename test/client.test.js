@@ -45,7 +45,9 @@ test('invalid strategy should throw', t => {
     t.throws(() => new Client(repo, [{}]));
     t.throws(() => new Client(repo, [{ name: 'invalid' }]));
     t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }]));
-    t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null]));
+    t.throws(
+        () => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null])
+    );
 });
 
 test('should use provided repository', t => {
@@ -96,7 +98,10 @@ test('should use custom strategy', t => {
             return buildToggle('feature', true, [{ name: 'custom' }]);
         },
     };
-    const client = new Client(repo, [new Strategy('default', true), new CustomStrategy()]);
+    const client = new Client(repo, [
+        new Strategy('default', true),
+        new CustomStrategy(),
+    ]);
     client.on('error', log).on('warn', log);
     const result = client.isEnabled('feature');
 
@@ -106,7 +111,10 @@ test('should use custom strategy', t => {
 test('should use a set of custom strategies', t => {
     const repo = {
         getToggle() {
-            return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom' }]);
+            return buildToggle('feature', true, [
+                { name: 'custom-false' },
+                { name: 'custom' },
+            ]);
         },
     };
 
@@ -121,7 +129,10 @@ test('should use a set of custom strategies', t => {
 test('should use a set of custom strategies', t => {
     const repo = {
         getToggle() {
-            return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false' }]);
+            return buildToggle('feature', true, [
+                { name: 'custom' },
+                { name: 'custom-false' },
+            ]);
         },
     };
 
@@ -136,7 +147,10 @@ test('should use a set of custom strategies', t => {
 test('should return false a set of custom-false strategies', t => {
     const repo = {
         getToggle() {
-            return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom-false' }]);
+            return buildToggle('feature', true, [
+                { name: 'custom-false' },
+                { name: 'custom-false' },
+            ]);
         },
     };
 
