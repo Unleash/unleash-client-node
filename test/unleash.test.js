@@ -224,8 +224,10 @@ test('should return fallback value until online', t =>
         });
     }));
 
-test('should not throw when os.userInfo throws', () =>
-    new Promise((resolve, reject) => {
+test('should not throw when os.userInfo throws', t => {
+    t.plan(0);
+
+    return new Promise((resolve, reject) => {
         require('os').userInfo = () => {
             throw new Error('Test exception');
         };
@@ -240,4 +242,5 @@ test('should not throw when os.userInfo throws', () =>
         instance.on('ready', () => {
             resolve();
         });
-    }));
+    });
+});

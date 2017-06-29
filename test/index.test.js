@@ -18,9 +18,9 @@ test('should load main module', t => {
     t.truthy(destroy);
 });
 
-test('initialize should init with valid options', () => {
+test('initialize should init with valid options', t => {
     const url = getUrl();
     nockMetrics(url);
     nockRegister(url);
-    initialize({ appName: 'my-app-name', url });
+    t.notThrows(() => initialize({ appName: 'my-app-name', url }));
 });

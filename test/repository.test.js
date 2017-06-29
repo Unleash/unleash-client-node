@@ -181,8 +181,10 @@ test.cb('should handle 404 request error and emit error event', t => {
     });
 });
 
-test('should handle 304 as silent ok', () =>
-    new Promise((resolve, reject) => {
+test('should handle 304 as silent ok', t => {
+    t.plan(0);
+
+    return new Promise((resolve, reject) => {
         const url = 'http://unleash-test-6.app';
         nock(url).persist().get('/features').reply(304, '');
 
@@ -197,7 +199,8 @@ test('should handle 304 as silent ok', () =>
         repo.on('error', reject);
         repo.on('data', reject);
         process.nextTick(resolve);
-    }));
+    });
+});
 
 test('should handle invalid JSON response', t =>
     new Promise((resolve, reject) => {
