@@ -67,7 +67,10 @@ export default class Metrics extends EventEmitter {
         this.timer = setTimeout(() => {
             this.sendMetrics();
         }, this.metricsInterval);
-        this.timer.unref();
+
+        if (process.env.NODE_ENV !== 'test') {
+            this.timer.unref();
+        }
         return true;
     }
 

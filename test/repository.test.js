@@ -63,16 +63,16 @@ test.cb('should fetch from endpoint', t => {
     });
 });
 
-test('should poll for changes', () =>
-    new Promise(resolve => {
+test('should poll for changes', t =>
+    new Promise((resolve, reject) => {
         const url = 'http://unleash-test-2.app';
         setup(url, []);
         const repo = new Repository({
-            backupPath: 'foo',
+            backupPath: 'foo-bar',
             url,
             appName,
             instanceId,
-            refreshInterval: 100,
+            refreshInterval: 10,
             StorageImpl: MockStorage,
         });
 
@@ -82,9 +82,12 @@ test('should poll for changes', () =>
 
             if (assertCount === 0) {
                 repo.stop();
+                t.true(assertCount === 0);
                 resolve();
             }
         });
+
+        repo.on('error', reject);
     }));
 
 test('should store etag', t =>
