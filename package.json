@@ -9,7 +9,7 @@
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts' --single-quote --tab-width 4 --print-width 100 --trailing-comma all --parser typescript",
     "build": "tsc src/*.ts src/**/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
     "prepublish": "not-in-install && npm run build || in-install",
-    "test": "ava test",
+    "test": "NODE_ENV=test ava test",
     "coverage": "nyc --check-coverage=true npm test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -39,15 +39,15 @@
   "devDependencies": {
     "@types/node": "^8.0.4",
     "@types/request": "^0.0.45",
-    "ava": "^0.16.0",
+    "ava": "^0.22.0",
     "coveralls": "^2.11.2",
     "eslint": "^4.1.1",
     "eslint-config-finn": "^2.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
     "in-publish": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "nock": "^9.0.14",
-    "nyc": "^8.3.0",
+    "nock": "^9.0.0",
+    "nyc": "^11.0.3",
     "prettier": "1.5.2",
     "typescript": "^2.2.1"
   },
