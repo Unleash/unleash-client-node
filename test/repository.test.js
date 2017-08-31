@@ -214,7 +214,10 @@ test('should handle invalid JSON response', t =>
         });
         repo.on('error', err => {
             t.truthy(err);
-            t.true(err.message.indexOf('Unexpected token') > -1);
+            t.true(
+                err.message.indexOf('Unexpected token') > -1 ||
+                    err.message.indexOf('Unexpected end of JSON input') > -1
+            );
             resolve();
         });
         repo.on('data', reject);
