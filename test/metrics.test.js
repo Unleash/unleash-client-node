@@ -6,10 +6,14 @@ let counter = 1;
 const getUrl = () => `http://test${counter++}.app/`;
 const metricsUrl = '/client/metrics';
 const nockMetrics = (url, code = 200) =>
-    nock(url).post(metricsUrl).reply(code, '');
+    nock(url)
+        .post(metricsUrl)
+        .reply(code, '');
 const registerUrl = '/client/register';
 const nockRegister = (url, code = 200) =>
-    nock(url).post(registerUrl).reply(code, '');
+    nock(url)
+        .post(registerUrl)
+        .reply(code, '');
 
 test('should be disabled by flag disableMetrics', t => {
     const metrics = new Metrics({ disableMetrics: true });

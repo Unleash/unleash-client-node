@@ -166,7 +166,10 @@ test.cb('should request with custom headers', t => {
 
 test.cb('should handle 404 request error and emit error event', t => {
     const url = 'http://unleash-test-5.app';
-    nock(url).persist().get('/features').reply(404, 'asd');
+    nock(url)
+        .persist()
+        .get('/features')
+        .reply(404, 'asd');
 
     const repo = new Repository({
         backupPath: 'foo',
@@ -189,7 +192,10 @@ test('should handle 304 as silent ok', t => {
 
     return new Promise((resolve, reject) => {
         const url = 'http://unleash-test-6.app';
-        nock(url).persist().get('/features').reply(304, '');
+        nock(url)
+            .persist()
+            .get('/features')
+            .reply(304, '');
 
         const repo = new Repository({
             backupPath: 'foo',
@@ -208,7 +214,10 @@ test('should handle 304 as silent ok', t => {
 test('should handle invalid JSON response', t =>
     new Promise((resolve, reject) => {
         const url = 'http://unleash-test-7.app';
-        nock(url).persist().get('/features').reply(200, '{"Invalid payload');
+        nock(url)
+            .persist()
+            .get('/features')
+            .reply(200, '{"Invalid payload');
 
         const repo = new Repository({
             backupPath: 'foo',

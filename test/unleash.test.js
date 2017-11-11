@@ -26,7 +26,9 @@ const defaultToggles = [
     },
 ];
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
-    nock(url).get('/features').reply(200, { features: toggles });
+    nock(url)
+        .get('/features')
+        .reply(200, { features: toggles });
     return url;
 }
 
@@ -124,7 +126,10 @@ test('should re-emit events from repository and metrics', t => {
 
 test.cb('repository should surface error when invalid basePath', t => {
     const url = 'http://unleash-surface.app/';
-    nock(url).get('/features').delay(100).reply(200, { features: [] });
+    nock(url)
+        .get('/features')
+        .delay(100)
+        .reply(200, { features: [] });
     const backupPath = join(
         tmpdir(),
         `test-tmp-${Math.round(Math.random() * 100000)}`
