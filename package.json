@@ -38,9 +38,9 @@
   ],
   "devDependencies": {
     "@types/node": "^8.0.4",
-    "@types/request": "^0.0.45",
-    "ava": "^0.22.0",
-    "coveralls": "^2.11.2",
+    "@types/request": "^2.0.8",
+    "ava": "^0.23.0",
+    "coveralls": "^3.0.0",
     "eslint": "^4.1.1",
     "eslint-config-finn": "^3.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
