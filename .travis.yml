@@ -16,7 +16,3 @@ notifications:
     secure: BwaqTOBsNhGopuKDbYn14Zw9VELjQYnFTtOc22CPr926Ctc7+oGvg6KgukDEY4VTGOa+fI1nWOytia8Vl9/pL8dFBTc21oeelewltYOpPOPbqPyRVa4otIe5j5N3IoGSQtA1S/tJeUctVq6u4HnevnpqxdqB9QKT8nq0a7GcJx0=
 cache:
   yarn: true
-addons:
-  hosts:
-    - travis.dev
-    - unleash.ci

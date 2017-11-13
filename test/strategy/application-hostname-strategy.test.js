@@ -15,12 +15,14 @@ test('strategy should be disabled when no hostname defined', t => {
 });
 
 test('strategy should be enabled when hostname is defined', t => {
+    process.env.HOSTNAME = '';
     const strategy = new ApplicationHostnameStrategy();
     const context = { hostNames: hostname() };
     t.true(strategy.isEnabled(context));
 });
 
 test('strategy should be enabled when hostname is defined in list', t => {
+    process.env.HOSTNAME = '';
     const strategy = new ApplicationHostnameStrategy();
     const context = { hostNames: `localhost, ${hostname()}` };
     t.true(strategy.isEnabled(context));
