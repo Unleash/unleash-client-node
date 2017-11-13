@@ -18,4 +18,5 @@ cache:
   yarn: true
 addons:
   hosts:
+    - travis.dev
     - unleash.ci
