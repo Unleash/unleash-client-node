@@ -48,7 +48,9 @@ export default class UnleashClient extends EventEmitter {
             this.warned[missingStrategy + name] = true;
             this.emit(
                 'warn',
-                `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
+                `Missing strategy "${missingStrategy}" for toggle "${
+                    name
+                }". Ensure that "${strategies
                     .map(({ name }) => name)
                     .join(', ')}" are supported before using this toggle`,
             );

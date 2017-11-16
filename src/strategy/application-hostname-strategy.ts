@@ -14,6 +14,9 @@ export class ApplicationHostnameStrategy extends Strategy {
             return false;
         }
 
-        return parameters.hostNames.toLowerCase().split(/\s*,\s*/).includes(this.hostname);
+        return parameters.hostNames
+            .toLowerCase()
+            .split(/\s*,\s*/)
+            .includes(this.hostname);
     }
 }

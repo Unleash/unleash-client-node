@@ -9,10 +9,7 @@ test.after(() => nock.enableNetConnect());
 
 test.cb('should emit network errors', t => {
     t.plan(3);
-    const backupPath = join(
-        tmpdir(),
-        `test-tmp-${Math.round(Math.random() * 100000)}`
-    );
+    const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const unleash = new Unleash({
         appName: 'network',
         url: 'http://blocked.app',

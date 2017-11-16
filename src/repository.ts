@@ -113,11 +113,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 try {
                     const payload: any = JSON.parse(body);
                     const data: any = pickData(toNewFormat(payload));
-                    const obj = data.features.reduce((o: Object, feature: FeatureInterface) => {
-                        this.validateFeature(feature);
-                        o[feature.name] = feature;
-                        return o;
-                    }, {} as Object);
+                    const obj = data.features.reduce(
+                        (o: Object, feature: FeatureInterface) => {
+                            this.validateFeature(feature);
+                            o[feature.name] = feature;
+                            return o;
+                        },
+                        {} as Object,
+                    );
                     this.storage.reset(obj);
                     this.etag = res.headers.etag;
                     this.emit('data');
