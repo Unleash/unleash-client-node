@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.0 (unreleased)
+- Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
+
 ## 2.3.0
 - Add support for custom headers 
 
