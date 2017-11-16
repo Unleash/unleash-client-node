@@ -1,8 +1,5 @@
-import { createHash } from 'crypto';
+import { murmurHash3 } from 'murmurhash3js';
 
-export function normalizedValue(id: string, groupId: string): number {
-    const value: string = `${groupId}:${id}`;
-    const hash = createHash('md5').update(value).digest('hex');
-    const hashCode = parseInt(hash.substring(hash.length - 4), 16);
-    return hashCode % 100;
+export function normalizedValue(id: string, groupId: string, normalizer = 100): number {
+    return murmurHash3.x86.hash32(`${groupId}:${id}`) % normalizer + 1;
 }
