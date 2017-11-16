@@ -3,6 +3,8 @@ import { IncomingMessage } from 'http';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders } from './unleash';
+require('pkginfo')(module, 'version');
+const sdkVersion = `unleash-client-node:${module.exports.version}`;
 
 export interface MetricsOptions {
     appName: string;
@@ -25,6 +27,7 @@ export default class Metrics extends EventEmitter {
     private bucket: Bucket;
     private appName: string;
     private instanceId: string;
+    private sdkVersion: string;
     private strategies: string[];
     private metricsInterval: number;
     private disabled: boolean;
@@ -48,6 +51,7 @@ export default class Metrics extends EventEmitter {
         this.metricsInterval = metricsInterval;
         this.appName = appName;
         this.instanceId = instanceId;
+        this.sdkVersion = sdkVersion;
         this.strategies = strategies;
         this.url = url;
         this.headers = headers;
@@ -195,6 +199,7 @@ export default class Metrics extends EventEmitter {
         return {
             appName: this.appName,
             instanceId: this.instanceId,
+            sdkVersion: this.sdkVersion,
             strategies: this.strategies,
             started: this.started,
             interval: this.metricsInterval,
