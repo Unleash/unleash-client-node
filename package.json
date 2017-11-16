@@ -7,12 +7,13 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts' --single-quote --tab-width 4 --print-width 100 --trailing-comma all --parser typescript",
+    "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "build": "tsc src/*.ts src/**/*.ts -d --strictNullChecks --sourceMap --outdir ./lib --lib ES6,ES5",
     "prepublish": "not-in-install && npm run build || in-install",
     "test": "NODE_ENV=test ava test",
     "coverage": "nyc --check-coverage=true npm test",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "precommit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -45,7 +46,9 @@
     "eslint": "^4.1.1",
     "eslint-config-finn": "^3.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
+    "husky": "^0.14.3",
     "in-publish": "^2.0.0",
+    "lint-staged": "^5.0.0",
     "mkdirp": "^0.5.1",
     "murmurhash3js": "^3.0.1",
     "nock": "^9.0.0",
@@ -62,5 +65,21 @@
       "lib/**.js"
     ],
     "all": true
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "all"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{ts,md}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }

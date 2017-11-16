@@ -9,9 +9,7 @@ test('toNewFormat should format old format to new format', t => {
     const result = toNewFormat(oldFormat);
     t.true(
         result.features.some(
-            feature =>
-                Array.isArray(feature.strategies) &&
-                feature.strategies.length > 0
+            feature => Array.isArray(feature.strategies) && feature.strategies.length > 0
         )
     );
 });
@@ -20,9 +18,7 @@ test('toNewFormat should format new format', t => {
     const result = toNewFormat(newFormat);
     t.true(
         result.features.some(
-            feature =>
-                Array.isArray(feature.strategies) &&
-                feature.strategies.length > 0
+            feature => Array.isArray(feature.strategies) && feature.strategies.length > 0
         )
     );
 });

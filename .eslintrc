@@ -5,6 +5,9 @@
         "finn/es-modules",
         "finn-prettier"
     ],
+    "parserOptions": {
+        "ecmaVersion": 8
+    },
     "rules": {
         "no-console": 0
     }

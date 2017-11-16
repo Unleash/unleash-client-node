@@ -10,10 +10,7 @@ let counter = 1;
 const getUrl = () => `http://test2${counter++}.app/`;
 
 function getRandomBackupPath() {
-    const path = join(
-        tmpdir(),
-        `test-tmp-${Math.round(Math.random() * 100000)}`
-    );
+    const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     mkdirp.sync(path);
     return path;
 }
@@ -35,9 +32,7 @@ function mockNetwork(toggles = defaultToggles, url = getUrl()) {
 test('should error when missing url', t => {
     t.throws(() => new Unleash({}));
     t.throws(() => new Unleash({ url: false }));
-    t.throws(
-        () => new Unleash({ url: 'http://unleash.github.io', appName: false })
-    );
+    t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
 test.cb('should handle old url', t => {
@@ -130,10 +125,7 @@ test.cb('repository should surface error when invalid basePath', t => {
         .get('/features')
         .delay(100)
         .reply(200, { features: [] });
-    const backupPath = join(
-        tmpdir(),
-        `test-tmp-${Math.round(Math.random() * 100000)}`
-    );
+    const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const instance = new Unleash({
         appName: 'foo',
         disableMetrics: true,

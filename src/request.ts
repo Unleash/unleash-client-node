@@ -23,7 +23,10 @@ export interface PostRequestOptions extends RequestOptions {
     instanceId?: string;
 }
 
-export const post = ({ url, appName, timeout, instanceId, headers, json }: PostRequestOptions, cb) => {
+export const post = (
+    { url, appName, timeout, instanceId, headers, json }: PostRequestOptions,
+    cb,
+) => {
     const options = {
         url,
         timeout: timeout || 10000,
@@ -35,7 +38,7 @@ export const post = ({ url, appName, timeout, instanceId, headers, json }: PostR
             },
             headers,
         ),
-        json
+        json,
     };
     return request.post(options, cb);
 };
