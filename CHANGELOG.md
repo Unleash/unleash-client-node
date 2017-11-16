@@ -2,7 +2,8 @@
 
 ## 3.0.0 (unreleased)
 
-* Switch hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
+* Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
+* Add sdkVersion in client register cal (https://github.com/Unleash/unleash-client-node/issues/49)
 
 ## 2.3.0
 
