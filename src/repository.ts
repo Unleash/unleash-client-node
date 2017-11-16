@@ -81,7 +81,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     fetch() {
-        const url = resolve(this.url, './features');
+        const url = resolve(this.url, './client/features');
         get(
             {
                 url,
