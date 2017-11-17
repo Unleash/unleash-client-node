@@ -34,3 +34,9 @@ test('RemoteAddressStrategy should be enabled for ip in list', t => {
     const context = { remoteAddress: '127.0.1.2' };
     t.true(strategy.isEnabled(params, context));
 });
+test('RemoteAddressStrategy should be enabled for ip inside range in a list', t => {
+    const strategy = new RemoteAddressStrategy();
+    const params = { IPs: '127.0.1.1, 127.0.1.2,127.0.1.3, 160.33.0.0/16' };
+    const context = { remoteAddress: '160.33.0.33' };
+    t.true(strategy.isEnabled(params, context));
+});
