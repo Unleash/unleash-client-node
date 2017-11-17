@@ -12,14 +12,14 @@ export class RemoteAddressStrategy extends Strategy {
             return false;
         }
         for (const range of parameters.IPs.split(/\s*,\s*/)) {
-            if (!ip.isV6Format(range)) {
+            if (range === context.remoteAddress) {
+                return true;
+            } else if (!ip.isV6Format(range)) {
                 if (ip.cidrSubnet(range).contains(context.remoteAddress)) {
                     return true;
                 }
             }
-            if (range === context.remoteAddress) {
-                return true;
-            }
+            
         }
         return false;
     }
