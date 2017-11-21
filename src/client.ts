@@ -18,7 +18,7 @@ export default class UnleashClient extends EventEmitter {
         this.strategies = strategies || [];
         this.warned = {};
 
-        strategies.forEach((strategy: Strategy) => {
+        this.strategies.forEach((strategy: Strategy) => {
             if (
                 !strategy ||
                 !strategy.name ||
