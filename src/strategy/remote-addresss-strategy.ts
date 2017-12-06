@@ -19,7 +19,6 @@ export class RemoteAddressStrategy extends Strategy {
                     return true;
                 }
             }
-            
         }
         return false;
     }
