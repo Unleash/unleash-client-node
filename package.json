@@ -42,7 +42,7 @@
     "examples"
   ],
   "devDependencies": {
-    "@types/node": "^8.0.4",
+    "@types/node": "^9.3.0",
     "@types/request": "^2.0.8",
     "ava": "^0.24.0",
     "coveralls": "^3.0.0",
