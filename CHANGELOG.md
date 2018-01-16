@@ -3,6 +3,7 @@
 ## 3.0.0 (unreleased)
 
 * Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
+* Bugfix RemoteAddressStrategy (https://github.com/Unleash/unleash-client-node/issues/65)
 
 ## 2.3.1
 
