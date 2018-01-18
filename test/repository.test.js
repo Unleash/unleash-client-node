@@ -26,7 +26,7 @@ class MockStorage extends EventEmitter {
 function setup(url, toggles, headers = {}) {
     return nock(url)
         .persist()
-        .get('/features')
+        .get('/client/features')
         .reply(200, { features: toggles }, headers);
 }
 
@@ -115,7 +115,7 @@ test.cb('should request with etag', t => {
     nock(url)
         .matchHeader('If-None-Match', value => value === '12345-1')
         .persist()
-        .get('/features')
+        .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-2' });
 
     const repo = new Repository({
@@ -141,7 +141,7 @@ test.cb('should request with custom headers', t => {
     nock(url)
         .matchHeader('randomKey', value => value === randomKey)
         .persist()
-        .get('/features')
+        .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-3' });
 
     const repo = new Repository({
@@ -168,7 +168,7 @@ test.cb('should handle 404 request error and emit error event', t => {
     const url = 'http://unleash-test-5.app';
     nock(url)
         .persist()
-        .get('/features')
+        .get('/client/features')
         .reply(404, 'asd');
 
     const repo = new Repository({
@@ -194,7 +194,7 @@ test('should handle 304 as silent ok', t => {
         const url = 'http://unleash-test-6.app';
         nock(url)
             .persist()
-            .get('/features')
+            .get('/client/features')
             .reply(304, '');
 
         const repo = new Repository({
@@ -216,7 +216,7 @@ test('should handle invalid JSON response', t =>
         const url = 'http://unleash-test-7.app';
         nock(url)
             .persist()
-            .get('/features')
+            .get('/client/features')
             .reply(200, '{"Invalid payload');
 
         const repo = new Repository({

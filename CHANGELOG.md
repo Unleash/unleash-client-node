@@ -4,12 +4,16 @@
 
 * Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
 * Bugfix RemoteAddressStrategy (https://github.com/Unleash/unleash-client-node/issues/65)
+* Update client paths for v3 (https://github.com/Unleash/unleash-client-node/issues/50)
 
 ## 2.3.1
 
 * Add sdkVersion in client register call (https://github.com/Unleash/unleash-client-node/issues/49)
 * IP range support to remoteAddress-strategy
   (https://github.com/Unleash/unleash-client-node/pull/58)
+
+- Update API endoint paths for Unleash 3.x
+  (https://github.com/Unleash/unleash-client-node/issues/50)
 
 ## 2.3.0
 
