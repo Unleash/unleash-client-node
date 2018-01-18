@@ -4,6 +4,7 @@
 
 * Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
 * Bugfix RemoteAddressStrategy (https://github.com/Unleash/unleash-client-node/issues/65)
+* Update client paths for v3 (https://github.com/Unleash/unleash-client-node/issues/50)
 
 ## 2.3.1
 
