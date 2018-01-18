@@ -1,7 +1,8 @@
 # Changelog
 
-## 3.0.0 (unreleased)
+## 3.0.0
 
+* You will have to use `unleash-server` v3 in order to use v3 of the client.
 * Swhich hashing to MurmurHash (https://github.com/Unleash/unleash/issues/247)
 * Bugfix RemoteAddressStrategy (https://github.com/Unleash/unleash-client-node/issues/65)
 * Update client paths for v3 (https://github.com/Unleash/unleash-client-node/issues/50)
