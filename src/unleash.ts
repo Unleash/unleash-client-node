@@ -6,6 +6,7 @@ export { Strategy } from './strategy/index';
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
+import { FeatureInterface } from './feature';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -159,5 +160,9 @@ export class Unleash extends EventEmitter {
         }
         this.metrics.count(name, result);
         return result;
+    }
+
+    getFeatureToggleDefinition(toggleName: string): FeatureInterface {
+        return this.repository.getToggle(toggleName);
     }
 }
