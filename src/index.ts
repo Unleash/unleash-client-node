@@ -21,3 +21,7 @@ export function destroy() {
 export function getFeatureToggleDefinition(toggleName: string) {
     return instance && instance.getFeatureToggleDefinition(toggleName);
 }
+
+export function count(toggleName: string, enabled: boolean) {
+    return instance && instance.count(toggleName, enabled);
+}
