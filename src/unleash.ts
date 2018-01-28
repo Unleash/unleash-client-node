@@ -6,6 +6,7 @@ export { Strategy } from './strategy/index';
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
+import { FeatureInterface } from './feature';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -157,7 +158,15 @@ export class Unleash extends EventEmitter {
                 `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
             );
         }
-        this.metrics.count(name, result);
+        this.count(name, result);
         return result;
+    }
+
+    getFeatureToggleDefinition(toggleName: string): FeatureInterface {
+        return this.repository.getToggle(toggleName);
+    }
+
+    count(toggleName: string, enabled: boolean) {
+        this.metrics.count(toggleName, enabled);
     }
 }

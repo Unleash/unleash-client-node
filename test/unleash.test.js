@@ -241,3 +241,39 @@ test('should not throw when os.userInfo throws', t => {
         });
     });
 });
+
+test('should return known feature-toggle definition', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            const toggle = instance.getFeatureToggleDefinition('feature');
+            t.truthy(toggle);
+            instance.destroy();
+            resolve();
+        });
+    }));
+
+test('returns undefined for unknown feature-toggle definition', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            const toggle = instance.getFeatureToggleDefinition('unknown');
+            t.falsy(toggle);
+            instance.destroy();
+            resolve();
+        });
+    }));

@@ -1,5 +1,12 @@
 import { test } from 'ava';
-import { initialize, isEnabled, Strategy, destroy } from '../lib/index';
+import {
+    initialize,
+    isEnabled,
+    Strategy,
+    destroy,
+    getFeatureToggleDefinition,
+    count,
+} from '../lib/index';
 import nock from 'nock';
 
 let counter = 1;
@@ -20,6 +27,8 @@ test('should load main module', t => {
     t.truthy(isEnabled);
     t.truthy(Strategy);
     t.truthy(destroy);
+    t.truthy(getFeatureToggleDefinition);
+    t.truthy(count);
 });
 
 test('initialize should init with valid options', t => {
