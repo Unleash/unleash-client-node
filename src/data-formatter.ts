@@ -26,10 +26,11 @@ export function toNewFormat(data: any): Features {
 export function pickData(serverData: any): FeaturesBase {
     const features: FeatureInterface[] = serverData.features;
     return {
-        features: features.map(({ name, enabled, strategies }) => ({
+        features: features.map(({ name, enabled, strategies, variants }) => ({
             name,
             enabled,
             strategies,
+            variants,
         })),
     };
 }

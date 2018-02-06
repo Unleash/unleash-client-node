@@ -6,6 +6,7 @@ import {
     destroy,
     getFeatureToggleDefinition,
     count,
+    experiment,
 } from '../lib/index';
 import nock from 'nock';
 
@@ -29,6 +30,7 @@ test('should load main module', t => {
     t.truthy(destroy);
     t.truthy(getFeatureToggleDefinition);
     t.truthy(count);
+    t.truthy(experiment);
 });
 
 test('initialize should init with valid options', t => {

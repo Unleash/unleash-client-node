@@ -1,6 +1,6 @@
 import test from 'ava';
-import Client from '../lib/client';
-import { Strategy } from '../lib/strategy';
+import Client from '../../lib/client';
+import { Strategy } from '../../lib/strategy';
 
 function buildToggle(name, active, strategies) {
     return {
@@ -33,20 +33,6 @@ class CustomFalseStrategy extends Strategy {
 const log = err => {
     console.error(err);
 };
-
-test('invalid strategy should throw', t => {
-    const repo = {
-        getToggle() {
-            return buildToggle('feature', true);
-        },
-    };
-
-    t.throws(() => new Client(repo, [true, null]));
-    t.throws(() => new Client(repo, [{}]));
-    t.throws(() => new Client(repo, [{ name: 'invalid' }]));
-    t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }]));
-    t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null]));
-});
 
 test('should use provided repository', t => {
     const repo = {

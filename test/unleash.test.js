@@ -4,6 +4,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
 
+import { Experiment } from '../lib/strategy';
+import { Variant } from '../lib/variant';
 import { Unleash } from '../lib/unleash';
 
 let counter = 1;
@@ -19,9 +21,21 @@ const defaultToggles = [
     {
         name: 'feature',
         enabled: true,
-        strategy: 'default',
+        strategies: [{ name: 'default' }, { name: 'control' }],
+        variants: [{ name: 'control' }],
     },
 ];
+
+class ControlExperiment extends Experiment {
+    constructor() {
+        super('control');
+    }
+
+    experiment() {
+        return new Variant('control');
+    }
+}
+
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
     nock(url)
         .get('/client/features')
@@ -200,6 +214,7 @@ test('should return fallback value until online', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            strategies: [new ControlExperiment()],
         }).on('error', reject);
 
         let warnCounter = 0;
@@ -212,10 +227,16 @@ test('should return fallback value until online', t =>
         t.true(instance.isEnabled('feature', {}, false) === false);
         t.true(instance.isEnabled('feature', {}, true) === true);
         t.true(warnCounter === 3);
+        t.true(instance.experiment('feature') === null);
+        let variant = new Variant('fallback-variant');
+        let control = new Variant('control');
+        t.true(instance.experiment('feature', {}, variant) === variant);
+        t.true(warnCounter === 5);
 
         instance.on('ready', () => {
             t.true(instance.isEnabled('feature') === true);
             t.true(instance.isEnabled('feature', {}, false) === true);
+            t.deepEqual(instance.experiment('feature', {}, variant), control);
             instance.destroy();
             resolve();
         });

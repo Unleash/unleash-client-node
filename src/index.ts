@@ -1,4 +1,5 @@
 import { Unleash, UnleashConfig } from './unleash';
+import { Variant } from './variant';
 
 export { Strategy } from './strategy/index';
 export { Unleash } from './unleash';
@@ -24,4 +25,8 @@ export function getFeatureToggleDefinition(toggleName: string) {
 
 export function count(toggleName: string, enabled: boolean) {
     return instance && instance.count(toggleName, enabled);
+}
+
+export function experiment(name: string, context: any, fallbackVariant?: Variant): null | Variant {
+    return instance && instance.experiment(name, context, fallbackVariant);
 }

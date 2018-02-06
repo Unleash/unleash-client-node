@@ -12,6 +12,11 @@
                     "name": "some_strategy",
                     "parameters": {}
                 }
+            ],
+            "variants": [
+                {
+                    "name": "control"
+                }
             ]
         },
         {
@@ -26,6 +31,11 @@
                     "parameters": {
                         "emails": "me@mail.com"
                     }
+                }
+            ],
+            "variants": [
+                {
+                    "name": "control"
                 }
             ]
         }

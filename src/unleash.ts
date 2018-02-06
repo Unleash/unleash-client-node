@@ -7,6 +7,7 @@ import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
 import { FeatureInterface } from './feature';
+import { Variant } from './variant';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -168,5 +169,19 @@ export class Unleash extends EventEmitter {
 
     count(toggleName: string, enabled: boolean) {
         this.metrics.count(toggleName, enabled);
+    }
+
+    experiment(name: string, context: any, fallbackVariant?: Variant): null | Variant {
+        let result;
+        if (this.client !== undefined) {
+            result = this.client.experiment(name, context, fallbackVariant);
+        } else {
+            result = typeof fallbackVariant === 'object' ? fallbackVariant : null;
+            this.emit(
+                'warn',
+                `Unleash has not been initialized yet. experiment(${name}) defaulted to ${result}`,
+            );
+        }
+        return result;
     }
 }

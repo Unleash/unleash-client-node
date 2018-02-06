@@ -30,6 +30,7 @@ test('pickData should pick wanted fields', t => {
             feature =>
                 Array.isArray(feature.strategies) &&
                 feature.strategies.length > 0 &&
+                feature.variants.length > 0 &&
                 feature.name &&
                 typeof feature.enabled === 'boolean'
         )

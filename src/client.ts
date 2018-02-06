@@ -1,10 +1,18 @@
 import { EventEmitter } from 'events';
-import { Strategy, StrategyTransportInterface } from './strategy';
+import { Strategy, StrategyTransportInterface } from './strategy/index';
 import { FeatureInterface } from './feature';
+import { Variant } from './variant';
 import Repository from './repository';
+import { Experiment } from './strategy/strategy';
+import { experiment } from './index';
 
 interface BooleanMap {
     [key: string]: boolean;
+}
+
+interface ExperimentedStrategy {
+    selector: StrategyTransportInterface;
+    variant: null | Variant;
 }
 
 export default class UnleashClient extends EventEmitter {
@@ -31,6 +39,7 @@ export default class UnleashClient extends EventEmitter {
         });
     }
 
+    private getStrategy(name: string): Experiment;
     private getStrategy(name: string): Strategy {
         let match;
         this.strategies.some((strategy: Strategy): boolean => {
@@ -41,6 +50,24 @@ export default class UnleashClient extends EventEmitter {
             return false;
         });
         return match;
+    }
+
+    private getSimpleStrategies(strategySelector): Function {
+        return strategySelector => {
+            const strategy = this.strategies.find(
+                strategy => strategySelector.name === strategy.name,
+            );
+            return strategy && !(strategy instanceof Experiment);
+        };
+    }
+
+    private getExperimentStrategies(strategySelector): Function {
+        return strategySelector => {
+            const strategy = this.strategies.find(
+                strategy => strategySelector.name === strategy.name,
+            );
+            return strategy && strategy instanceof Experiment;
+        };
     }
 
     warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
@@ -91,5 +118,87 @@ export default class UnleashClient extends EventEmitter {
                 return strategy.isEnabled(strategySelector.parameters, context);
             })
         );
+    }
+
+    experiment(name: string, context: any, fallbackVariant?: Variant): null | Variant {
+        const feature: FeatureInterface = this.repository.getToggle(name);
+
+        if (!feature && fallbackVariant instanceof Variant) {
+            return fallbackVariant;
+        }
+
+        if (!feature || !feature.enabled) {
+            return null;
+        }
+
+        if (!Array.isArray(feature.strategies)) {
+            this.emit(
+                'error',
+                new Error(
+                    `Malformed feature, strategies not an array, is a ${typeof feature.strategies}`,
+                ),
+            );
+            return null;
+        }
+
+        if (feature.strategies.length === 0) {
+            return null;
+        }
+
+        let simpleStrategies: boolean = false;
+        const target = feature.strategies.some((strategySelector): boolean => {
+            const strategy: Strategy = this.getStrategy(strategySelector.name);
+            if (!strategy) {
+                this.warnOnce(strategySelector.name, name, feature.strategies);
+                return false;
+            }
+
+            if (strategy instanceof Experiment) {
+                return false;
+            }
+
+            simpleStrategies = true;
+
+            return strategy.isEnabled(strategySelector.parameters, context);
+        });
+
+        if (simpleStrategies && !target) {
+            return null;
+        }
+
+        return (
+            feature.strategies
+                .map(strategySelector => {
+                    // lets map a new objects array to hold the final variant result
+                    const experimentStrategy: ExperimentedStrategy = {
+                        selector: strategySelector,
+                        variant: null,
+                    } as ExperimentedStrategy;
+
+                    return experimentStrategy;
+                })
+                .find((experimentStrategy): any => {
+                    const experimentSelector = experimentStrategy.selector;
+                    const experiment: Experiment = this.getStrategy(experimentSelector.name);
+                    if (!experiment) {
+                        this.warnOnce(experimentSelector.name, name, feature.strategies);
+                        return false;
+                    }
+
+                    if (!(experiment instanceof Experiment)) {
+                        return false;
+                    }
+
+                    experimentStrategy.variant = experiment.experiment(
+                        experimentSelector.parameters,
+                        context,
+                    );
+                    return experimentStrategy.variant;
+                }) ||
+            ({
+                selector: {} as StrategyTransportInterface,
+                variant: null,
+            } as ExperimentedStrategy)
+        ).variant;
     }
 }
