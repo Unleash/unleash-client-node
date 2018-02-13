@@ -1,6 +1,7 @@
 import test from 'ava';
 import Client from '../lib/client';
 import { Strategy } from '../lib/strategy';
+import { DefaultStrategy } from '../lib/strategy/default-strategy';
 
 function buildToggle(name, active, strategies) {
     return {
@@ -195,4 +196,56 @@ test('should emit error when invalid feature runtime', t => {
     });
 
     t.true(client.isEnabled('feature-wrong-strategy') === false);
+});
+
+test('should support grouped AND strategies and evaluates to true', t => {
+    t.plan(1);
+    const repo = {
+        getToggle() {
+            return {
+                name: 'feature-simple-groups',
+                enabled: true,
+                strategies: [
+                    {
+                        name: '__internal-operator-group-strategy',
+                        type: 'group',
+                        operator: 'AND',
+                        strategies: [{ name: 'default' }, { name: 'custom' }, { name: 'custom' }],
+                    },
+                ],
+            };
+        },
+    };
+
+    const strategies = [new DefaultStrategy(), new CustomStrategy()];
+    const client = new Client(repo, strategies);
+    t.true(client.isEnabled('feature-simple-groups') === true);
+});
+
+test('should support grouped AND strategies and evaluates to false', t => {
+    t.plan(1);
+    const repo = {
+        getToggle() {
+            return {
+                name: 'feature-simple-groups',
+                enabled: true,
+                strategies: [
+                    {
+                        name: '__internal-operator-group-strategy',
+                        type: 'group',
+                        operator: 'AND',
+                        strategies: [
+                            { name: 'default' },
+                            { name: 'custom-false' },
+                            { name: 'custom' },
+                        ],
+                    },
+                ],
+            };
+        },
+    };
+
+    const strategies = [new DefaultStrategy(), new CustomStrategy(), new CustomFalseStrategy()];
+    const client = new Client(repo, strategies);
+    t.true(client.isEnabled('feature-simple-groups') === false);
 });

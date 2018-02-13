@@ -43,15 +43,45 @@ export default class UnleashClient extends EventEmitter {
         return match;
     }
 
-    warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
+    warnOnce(missingStrategy: string, name: string) {
         if (!this.warned[missingStrategy + name]) {
             this.warned[missingStrategy + name] = true;
-            this.emit(
-                'warn',
-                `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
-                    .map(({ name }) => name)
-                    .join(', ')}" are supported before using this toggle`,
-            );
+            this.emit('warn', `Missing strategy "${missingStrategy}" for toggle "${name}"`);
+        }
+    }
+
+    strategyEvaluator(
+        strategySelector: StrategyTransportInterface,
+        feature: FeatureInterface,
+        context: any,
+    ): boolean {
+        if (strategySelector.type === 'group') {
+            const operator = strategySelector.operator || 'OR';
+            const strategies = strategySelector.strategies || [];
+            return this.strategyGroupEvaluator(operator, strategies, feature, context);
+        } else {
+            const strategy: Strategy = this.getStrategy(strategySelector.name);
+            if (!strategy) {
+                this.warnOnce(strategySelector.name, feature.name);
+                return false;
+            } else {
+                return strategy.isEnabled(strategySelector.parameters, context);
+            }
+        }
+    }
+
+    strategyGroupEvaluator(
+        operator: string,
+        strategies: Array<StrategyTransportInterface>,
+        feature: FeatureInterface,
+        context: any,
+    ): boolean {
+        const evaluator = strategySelector =>
+            this.strategyEvaluator(strategySelector, feature, context);
+        if (operator === 'AND') {
+            return strategies.every(evaluator);
+        } else {
+            return strategies.some(evaluator);
         }
     }
 
@@ -66,6 +96,7 @@ export default class UnleashClient extends EventEmitter {
             return false;
         }
 
+        // TODO: Do we need this?
         if (!Array.isArray(feature.strategies)) {
             this.emit(
                 'error',
@@ -80,16 +111,7 @@ export default class UnleashClient extends EventEmitter {
             return feature.enabled;
         }
 
-        return (
-            feature.strategies.length > 0 &&
-            feature.strategies.some((strategySelector): boolean => {
-                const strategy: Strategy = this.getStrategy(strategySelector.name);
-                if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies);
-                    return false;
-                }
-                return strategy.isEnabled(strategySelector.parameters, context);
-            })
-        );
+        // Outer group is always OR
+        return this.strategyGroupEvaluator('OR', feature.strategies, feature, context);
     }
 }
