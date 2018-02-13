@@ -249,3 +249,36 @@ test('should support grouped AND strategies and evaluates to false', t => {
     const client = new Client(repo, strategies);
     t.true(client.isEnabled('feature-simple-groups') === false);
 });
+
+test('should support nested grouped AND strategies and evaluates to true', t => {
+    t.plan(1);
+    const repo = {
+        getToggle() {
+            return {
+                name: 'feature-simple-groups',
+                enabled: true,
+                strategies: [
+                    {
+                        name: '__internal-operator-group-strategy',
+                        type: 'group',
+                        operator: 'AND',
+                        strategies: [
+                            { name: 'default' },
+                            { name: 'custom' },
+                            {
+                                name: '__internal-operator-group-strategy',
+                                type: 'group',
+                                operator: 'AND',
+                                strategies: [{ name: 'default' }, { name: 'custom' }],
+                            },
+                        ],
+                    },
+                ],
+            };
+        },
+    };
+
+    const strategies = [new DefaultStrategy(), new CustomStrategy(), new CustomFalseStrategy()];
+    const client = new Client(repo, strategies);
+    t.true(client.isEnabled('feature-simple-groups') === true);
+});
