@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { Strategy, StrategyTransportInterface } from './strategy';
+import { Strategy, StrategyTransportInterface } from './strategy/index';
 import { FeatureInterface } from './feature';
 import Repository from './repository';
 
@@ -80,16 +80,47 @@ export default class UnleashClient extends EventEmitter {
             return feature.enabled;
         }
 
-        return (
-            feature.strategies.length > 0 &&
-            feature.strategies.some((strategySelector): boolean => {
-                const strategy: Strategy = this.getStrategy(strategySelector.name);
-                if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies);
-                    return false;
-                }
-                return strategy.isEnabled(strategySelector.parameters, context);
-            })
-        );
+        const handler = strategySelector => {
+            if (Array.isArray(strategySelector.group)) {
+                let groupResult = false;
+                strategySelector.group.some((groupedStrategy, index, list) => {
+                    const result = handler(groupedStrategy);
+
+                    if (result === false) {
+                        groupResult = false;
+                        // abort loop if AND;
+                        return groupedStrategy.operator === 'AND';
+                    }
+
+                    // if last in group, resolve this group
+                    if (index + 1 === list.length) {
+                        groupResult = result;
+                        return true;
+                    }
+                    // if result is true, and next entry should be resolved as well
+                    if (groupedStrategy.operator === 'AND') {
+                        // continue loop
+                        return false;
+                    }
+                    groupResult = result;
+                    return result;
+                });
+                return groupResult;
+            }
+
+            const strategy: Strategy = this.getStrategy(strategySelector.name);
+            if (!strategy) {
+                this.warnOnce(
+                    strategySelector.name,
+                    name,
+                    strategySelector.group || feature.strategies,
+                );
+                return false;
+            }
+
+            return strategy.isEnabled(strategySelector.parameters, context);
+        };
+
+        return feature.strategies.some(handler);
     }
 }

@@ -17,4 +17,6 @@ export class Strategy {
 export interface StrategyTransportInterface {
     name: string;
     parameters: any;
+    operator?: string;
+    group?: StrategyTransportInterface[];
 }
