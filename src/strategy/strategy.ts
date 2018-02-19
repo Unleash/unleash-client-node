@@ -14,9 +14,14 @@ export class Strategy {
     }
 }
 
+enum StrategyGroupOperator {
+    AND,
+    OR
+}
+
 export interface StrategyTransportInterface {
     name: string;
     parameters: any;
-    operator?: string;
+    operator?: StrategyGroupOperator;
     group?: StrategyTransportInterface[];
 }
