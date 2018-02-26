@@ -42,6 +42,17 @@ class CustomNullExperiment extends Experiment {
     }
 }
 
+class ContextExperiment extends Experiment {
+    constructor() {
+        super('context');
+        this.context = {};
+    }
+
+    experiment(parameters, context) {
+        this.context = context;
+    }
+}
+
 const log = err => {
     console.error(err);
 };
@@ -145,6 +156,21 @@ test('should return null a set of custom-null strategies', t => {
     const result = client.experiment('feature');
 
     t.true(result === null);
+});
+
+test('should pass variants as context of the experiment', t => {
+    const variants = [{ name: 'control' }];
+    const repo = {
+        getToggle() {
+            return buildToggle('feature', true, [{ name: 'context' }], variants);
+        },
+    };
+    const experiment = new ContextExperiment();
+    const client = new Client(repo, [experiment]);
+    client.on('error', log).on('warn', log);
+    client.experiment('feature');
+
+    t.deepEqual(experiment.context.variants, variants);
 });
 
 test('should emit error when invalid feature runtime', t => {

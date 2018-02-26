@@ -189,6 +189,7 @@ export default class UnleashClient extends EventEmitter {
                         return false;
                     }
 
+                    context = Object.assign({ variants: feature.variants }, context);
                     experimentStrategy.variant = experiment.experiment(
                         experimentSelector.parameters,
                         context,
