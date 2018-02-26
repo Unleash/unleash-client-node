@@ -1,7 +1,8 @@
 import { Unleash, UnleashConfig } from './unleash';
 import { Variant } from './variant';
 
-export { Strategy } from './strategy/index';
+export { Strategy, Experiment } from './strategy/index';
+export { Variant } from './variant';
 export { Unleash } from './unleash';
 
 let instance;
