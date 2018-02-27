@@ -5,7 +5,6 @@ node_js:
 - stable
 script:
 - yarn lint
-- yarn build
 - yarn coverage
 after_success: yarn coveralls
 notifications:
