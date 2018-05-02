@@ -43,7 +43,7 @@
     "examples"
   ],
   "devDependencies": {
-    "@types/node": "^9.3.0",
+    "@types/node": "^10.0.3",
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^0.0.3",
     "ava": "^0.25.0",
