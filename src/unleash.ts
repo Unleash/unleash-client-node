@@ -22,7 +22,7 @@ export interface UnleashConfig {
     metricsInterval?: number;
     disableMetrics?: boolean;
     backupPath?: string;
-    strategies: Strategy[];
+    strategies?: Strategy[];
     customHeaders?: CustomHeaders;
 }
 
