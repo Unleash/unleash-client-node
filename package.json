@@ -48,7 +48,7 @@
     "@unleash/client-specification": "^0.0.3",
     "ava": "^0.25.0",
     "coveralls": "^3.0.0",
-    "eslint": "^4.1.1",
+    "eslint": "^5.0.0",
     "eslint-config-finn": "^3.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
     "husky": "^0.14.3",
