@@ -8,7 +8,7 @@
 This is the node client for Unleash. Read more about the
 [Unleash project](https://github.com/finn-no/unleash)
 
-**Version 3.x of the client requires `unleash-server` v3.x or higher.**
+**Version 3.x of the client requires `unleash-server` >= v3.x**
 
 ## Getting started
 
