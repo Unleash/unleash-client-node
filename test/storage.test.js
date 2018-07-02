@@ -82,7 +82,6 @@ test.cb('should emit error when stored data is invalid', t => {
     });
     storage.on('persisted', console.log);
     storage.on('error', err => {
-        console.log(err);
         t.truthy(err);
         t.regex(err.message, /Unexpected token/);
         t.end();
