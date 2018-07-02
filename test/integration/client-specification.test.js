@@ -8,10 +8,10 @@ import specs from '@unleash/client-specification/specifications/index.json';
 import { Unleash } from '../../lib/unleash';
 
 let counter = 1;
-const getUrl = () => `http://test2${counter++}.app/`;
+const getUrl = () => `http://client-spec-${counter++}.app/`;
 
-function getRandomBackupPath() {
-    const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
+function getRandomBackupPath(testName) {
+    const path = join(tmpdir(), `test-${testName}-${Math.round(Math.random() * 100000)}`);
     mkdirp.sync(path);
     return path;
 }
@@ -24,22 +24,26 @@ function mockNetwork(toggles, url = getUrl()) {
 }
 
 specs.forEach(testName => {
-    const testCase = require(`@unleash/client-specification/specifications/${testName}`);
-    testCase.tests.forEach(tc => {
-        const url = mockNetwork(testCase.state);
+    const definition = require(`@unleash/client-specification/specifications/${testName}`);
 
-        test(`${testName}:${tc.description}`, t =>
+    definition.tests.forEach(testCase => {
+        test(`${testName}:${testCase.description}`, t =>
             new Promise((resolve, reject) => {
+                // Mock unleash-api
+                const url = mockNetwork(definition.state);
+
+                // New unleash instance
                 const instance = new Unleash({
-                    appName: 'foo',
+                    appName: testName,
                     disableMetrics: true,
                     url,
-                    backupPath: getRandomBackupPath(),
-                }).on('error', reject);
+                    backupPath: getRandomBackupPath(definition.name),
+                });
 
+                instance.on('error', reject);
                 instance.on('ready', () => {
-                    const result = instance.isEnabled(tc.toggleName, tc.context);
-                    t.is(result, tc.expectedResult);
+                    const result = instance.isEnabled(testCase.toggleName, testCase.context);
+                    t.is(result, testCase.expectedResult);
                     instance.destroy();
                     resolve();
                 });
