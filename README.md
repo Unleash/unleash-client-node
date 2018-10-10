@@ -12,7 +12,13 @@ This is the node client for Unleash. Read more about the
 
 ## Getting started
 
-### 1. Initialize unleash-client
+### 1. Install the unleash-client into your project
+
+```bash
+$ npm install unleash-client --save
+```
+
+### 2. Initialize unleash-client
 
 You should as early as possible in your node (web) app initialize the unleash-client. The
 unleash-client will set-up a in-memory repository, and poll updates from the unleash-server at
@@ -37,7 +43,7 @@ instance.on('sent', payload => console.log('metrics bucket/payload sent', payloa
 instance.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
 ```
 
-### 2. Use unleash
+### 3. Use unleash
 
 After you have initialized the unleash-client you can easily check if a feature toggle is enabled or
 not.
@@ -47,7 +53,7 @@ const { isEnabled } = require('unleash-client');
 isEnabled('app.ToggleX');
 ```
 
-### 3. Stop unleash
+### 4. Stop unleash
 
 To shut down the client (turn off the polling) you can simply call the destroy-method. This is
 typically not required.
