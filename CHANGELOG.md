@@ -1,5 +1,8 @@
 # Changelog
 
+# 3.1.1
+* Updated request.js to version 2.88.0
+
 ## 3.1.0
 
 * Add method to get the featureToggle definition
