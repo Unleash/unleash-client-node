@@ -32,7 +32,7 @@
     "ip": "^1.1.5",
     "murmurhash3js": "^3.0.1",
     "pkginfo": "^0.4.1",
-    "request": "^2.79.0"
+    "request": "^2.88.0"
   },
   "engines": {
     "node": ">=6",
@@ -65,7 +65,8 @@
     "functions": 95,
     "branches": 80,
     "include": [
-      "lib/**.js"
+      "lib/**.js",
+      "lib/**/*.js"
     ],
     "all": true
   },
