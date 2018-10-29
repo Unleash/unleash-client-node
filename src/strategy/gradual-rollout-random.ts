@@ -8,7 +8,7 @@ export class GradualRolloutRandomStrategy extends Strategy {
 
     isEnabled(parameters: any, context: Context) {
         const percentage: number = Number(parameters.percentage);
-        const random: number = Math.round(Math.random() * 100);
+        const random: number = Math.round(Math.random() * 100) + 1;
         return percentage >= random;
     }
 }

@@ -2,7 +2,7 @@ import test from 'ava';
 
 import { GradualRolloutRandomStrategy } from '../../lib/strategy/gradual-rollout-random';
 
-test('gradual-rollout-user-id strategy should have correct name', t => {
+test('gradual-rollout-random strategy should have correct name', t => {
     const strategy = new GradualRolloutRandomStrategy();
     t.deepEqual(strategy.name, 'gradualRolloutRandom');
 });
@@ -29,4 +29,10 @@ test('should only at most miss by one percent', t => {
 
     t.true(lowMark <= actualPercentage);
     t.true(highMark >= actualPercentage);
+});
+
+test('gradual-rollout-random strategy should be disabled when percentage=0', t => {
+    const strategy = new GradualRolloutRandomStrategy();
+    let params = { percentage: '0', groupId: 'test' };
+    t.false(strategy.isEnabled(params));
 });
