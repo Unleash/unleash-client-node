@@ -1,6 +1,11 @@
 # Changelog
 
+# 3.1.2 (unreleased)
+
+* fix(GradualRolloutStrategy): percentage=0 should mean disabled
+
 # 3.1.1
+
 * Updated request.js to version 2.88.0
 
 ## 3.1.0
