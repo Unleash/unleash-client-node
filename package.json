@@ -46,7 +46,7 @@
     "@types/node": "^10.0.3",
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^0.0.3",
-    "ava": "^0.25.0",
+    "ava": "^1.0.1",
     "coveralls": "^3.0.0",
     "eslint": "^5.0.0",
     "eslint-config-finn": "^3.0.0",
