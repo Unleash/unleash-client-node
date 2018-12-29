@@ -1,5 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES6"
-  }
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "lib": ["es5", "es6"],
+    "target": "es5",
+    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "moduleResolution": "node"
+  },
+  "exclude": [
+    "examples/",
+    "lib/",
+    "node_modules/"
+  ]
 }

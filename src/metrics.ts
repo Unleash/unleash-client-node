@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { IncomingMessage } from 'http';
+import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders } from './unleash';
@@ -20,20 +20,20 @@ export interface MetricsOptions {
 interface Bucket {
     start: Date;
     stop: Date | null;
-    toggles: Object;
+    toggles: { [s: string]: { yes: number; no: number } };
 }
 
 export default class Metrics extends EventEmitter {
-    private bucket: Bucket;
+    private bucket: Bucket | undefined;
     private appName: string;
     private instanceId: string;
     private sdkVersion: string;
     private strategies: string[];
     private metricsInterval: number;
     private disabled: boolean;
-    private bucketInterval: number;
+    private bucketInterval: number | undefined;
     private url: string;
-    private timer: NodeJS.Timer;
+    private timer: NodeJS.Timer | undefined;
     private started: Date;
     private headers?: CustomHeaders;
 
@@ -79,8 +79,10 @@ export default class Metrics extends EventEmitter {
     }
 
     stop() {
-        clearInterval(this.timer);
-        delete this.timer;
+        if (this.timer) {
+            clearInterval(this.timer);
+            delete this.timer;
+        }
         this.disabled = true;
     }
 
@@ -98,7 +100,7 @@ export default class Metrics extends EventEmitter {
                 instanceId: this.instanceId,
                 headers: this.headers,
             },
-            (err, res: IncomingMessage, body) => {
+            (err: Error | null, res: Response, body: any) => {
                 if (err) {
                     this.emit('error', err);
                     return;
@@ -133,7 +135,7 @@ export default class Metrics extends EventEmitter {
                 instanceId: this.instanceId,
                 headers: this.headers,
             },
-            (err, res: IncomingMessage, body) => {
+            (err: Error | null, res: Response, body: any) => {
                 this.startTimer();
                 if (err) {
                     this.emit('error', err);
@@ -157,7 +159,7 @@ export default class Metrics extends EventEmitter {
     }
 
     count(name: string, enabled: boolean): boolean {
-        if (this.disabled) {
+        if (this.disabled || !this.bucket) {
             return false;
         }
         if (!this.bucket.toggles[name]) {
@@ -172,6 +174,9 @@ export default class Metrics extends EventEmitter {
     }
 
     private bucketIsEmpty() {
+        if (!this.bucket) {
+            return false;
+        }
         return Object.keys(this.bucket.toggles).length === 0;
     }
 
@@ -185,7 +190,9 @@ export default class Metrics extends EventEmitter {
     }
 
     private closeBucket() {
-        this.bucket.stop = new Date();
+        if (this.bucket) {
+            this.bucket.stop = new Date();
+        }
     }
 
     private getPayload(): Data {

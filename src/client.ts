@@ -31,18 +31,12 @@ export default class UnleashClient extends EventEmitter {
         });
     }
 
-    private getStrategy(name: string): Strategy {
-        let match;
-        this.strategies.some(
+    private getStrategy(name: string): Strategy | undefined {
+        return this.strategies.find(
             (strategy: Strategy): boolean => {
-                if (strategy.name === name) {
-                    match = strategy;
-                    return true;
-                }
-                return false;
+                return strategy.name === name;
             },
         );
-        return match;
     }
 
     warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
@@ -86,7 +80,7 @@ export default class UnleashClient extends EventEmitter {
             feature.strategies.length > 0 &&
             feature.strategies.some(
                 (strategySelector): boolean => {
-                    const strategy: Strategy = this.getStrategy(strategySelector.name);
+                    const strategy = this.getStrategy(strategySelector.name);
                     if (!strategy) {
                         this.warnOnce(strategySelector.name, name, feature.strategies);
                         return false;

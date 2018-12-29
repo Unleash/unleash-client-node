@@ -25,7 +25,7 @@ export interface PostRequestOptions extends RequestOptions {
 
 export const post = (
     { url, appName, timeout, instanceId, headers, json }: PostRequestOptions,
-    cb,
+    cb: request.RequestCallback,
 ) => {
     const options = {
         url,
@@ -45,7 +45,7 @@ export const post = (
 
 export const get = (
     { url, etag, appName, timeout, instanceId, headers }: GetRequestOptions,
-    cb,
+    cb: request.RequestCallback,
 ) => {
     const options = {
         url,
