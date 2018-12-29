@@ -12,14 +12,18 @@ export interface Features extends FeaturesBase {
 export function toNewFormat(data: any): Features {
     return {
         version: 1,
-        features: data.features.map((feature: any): FeatureInterface => {
-            const copied: FeatureInterface = Object.assign({}, feature);
-            if (!feature.strategies && feature.strategy) {
-                copied.strategies = [{ name: feature.strategy, parameters: feature.parameters }];
+        features: data.features.map(
+            (feature: any): FeatureInterface => {
+                const copied: FeatureInterface = Object.assign({}, feature);
+                if (!feature.strategies && feature.strategy) {
+                    copied.strategies = [
+                        { name: feature.strategy, parameters: feature.parameters },
+                    ];
+                    return copied;
+                }
                 return copied;
-            }
-            return copied;
-        }),
+            },
+        ),
     };
 }
 

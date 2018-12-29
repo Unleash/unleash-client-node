@@ -33,13 +33,15 @@ export default class UnleashClient extends EventEmitter {
 
     private getStrategy(name: string): Strategy {
         let match;
-        this.strategies.some((strategy: Strategy): boolean => {
-            if (strategy.name === name) {
-                match = strategy;
-                return true;
-            }
-            return false;
-        });
+        this.strategies.some(
+            (strategy: Strategy): boolean => {
+                if (strategy.name === name) {
+                    match = strategy;
+                    return true;
+                }
+                return false;
+            },
+        );
         return match;
     }
 
@@ -82,14 +84,16 @@ export default class UnleashClient extends EventEmitter {
 
         return (
             feature.strategies.length > 0 &&
-            feature.strategies.some((strategySelector): boolean => {
-                const strategy: Strategy = this.getStrategy(strategySelector.name);
-                if (!strategy) {
-                    this.warnOnce(strategySelector.name, name, feature.strategies);
-                    return false;
-                }
-                return strategy.isEnabled(strategySelector.parameters, context);
-            })
+            feature.strategies.some(
+                (strategySelector): boolean => {
+                    const strategy: Strategy = this.getStrategy(strategySelector.name);
+                    if (!strategy) {
+                        this.warnOnce(strategySelector.name, name, feature.strategies);
+                        return false;
+                    }
+                    return strategy.isEnabled(strategySelector.parameters, context);
+                },
+            )
         );
     }
 }

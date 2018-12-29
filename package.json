@@ -12,8 +12,7 @@
     "prepare": "npm run build",
     "test": "NODE_ENV=test ava test",
     "coverage": "nyc --check-coverage=true npm test",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "precommit": "lint-staged"
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -46,7 +45,7 @@
     "@types/node": "^10.0.3",
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^0.0.3",
-    "ava": "^0.25.0",
+    "ava": "^1.0.1",
     "coveralls": "^3.0.0",
     "eslint": "^5.0.0",
     "eslint-config-finn": "^3.0.0",
@@ -75,16 +74,29 @@
     "proseWrap": "always",
     "singleQuote": true,
     "tabWidth": 4,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "overrides": [
+      {
+        "files": "*.json",
+        "options": {
+          "tabWidth": 2
+        }
+      }
+    ]
   },
   "lint-staged": {
     "*.js": [
       "eslint --fix",
       "git add"
     ],
-    "*.{ts,md}": [
+    "*.{ts,md,json}": [
       "prettier --write",
       "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

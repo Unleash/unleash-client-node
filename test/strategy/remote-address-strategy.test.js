@@ -14,7 +14,7 @@ test('RemoteAddressStrategy should not crash for missing params', t => {
     t.false(strategy.isEnabled(params, context));
 });
 
-test('RemoteAddressStrategy should be enabled for ip in list', t => {
+test('RemoteAddressStrategy should be enabled for ip in list (localhost)', t => {
     const strategy = new RemoteAddressStrategy();
     const params = { IPs: '127.0.0.1' };
     const context = { remoteAddress: '127.0.0.1' };

@@ -67,13 +67,13 @@ destroy();
 
 The client comes with implementations for the built-in activation strategies provided by unleash.
 
-* DefaultStrategy
-* UserIdStrategy
-* GradualRolloutUserIdStrategy
-* GradualRolloutSessionIdStrategy
-* GradualRolloutRandomStrategy
-* RemoteAddressStrategy
-* ApplicationHostnameStrategy
+-   DefaultStrategy
+-   UserIdStrategy
+-   GradualRolloutUserIdStrategy
+-   GradualRolloutSessionIdStrategy
+-   GradualRolloutRandomStrategy
+-   RemoteAddressStrategy
+-   ApplicationHostnameStrategy
 
 Read more about the strategies in
 [activation-strategy.md](https://github.com/Unleash/unleash/blob/master/docs/activation-strategies.md).
@@ -97,14 +97,14 @@ unleash.isEnabled('someToggle', unleashContext);
 
 The initialize method takes the following arguments:
 
-* **url** - the url to fetch toggles from. (required)
-* **appName** - the application name / codebase name
-* **instanceId** - an unique identifier, should/could be somewhat unique
-* **refreshInterval** - The poll-intervall to check for updates. Defaults to 15s.
-* **metricsInterval** - How often the client should send metrics to Unleash API
-* **strategies** - Custom activation strategies to be used.
-* **disableMetrics** - disable metrics
-* **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
+-   **url** - the url to fetch toggles from. (required)
+-   **appName** - the application name / codebase name
+-   **instanceId** - an unique identifier, should/could be somewhat unique
+-   **refreshInterval** - The poll-intervall to check for updates. Defaults to 15s.
+-   **metricsInterval** - How often the client should send metrics to Unleash API
+-   **strategies** - Custom activation strategies to be used.
+-   **disableMetrics** - disable metrics
+-   **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
 
 ## Custom strategies
 
