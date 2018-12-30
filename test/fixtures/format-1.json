@@ -1,33 +1,33 @@
 {
-    "version": 1,
-    "features": [
+  "version": 1,
+  "features": [
+    {
+      "name": "featureX",
+      "description": "",
+      "enabled": true,
+      "strategy": "default",
+      "parameters": {},
+      "strategies": [
         {
-            "name": "featureX",
-            "description": "",
-            "enabled": true,
-            "strategy": "default",
-            "parameters": {},
-            "strategies": [
-                {
-                    "name": "some_strategy",
-                    "parameters": {}
-                }
-            ]
-        },
-        {
-            "name": "featureY",
-            "description": "",
-            "enabled": true,
-            "strategy": "default",
-            "parameters": {},
-            "strategies": [
-                {
-                    "name": "some_strategy",
-                    "parameters": {
-                        "emails": "me@mail.com"
-                    }
-                }
-            ]
+          "name": "some_strategy",
+          "parameters": {}
         }
-    ]
+      ]
+    },
+    {
+      "name": "featureY",
+      "description": "",
+      "enabled": true,
+      "strategy": "default",
+      "parameters": {},
+      "strategies": [
+        {
+          "name": "some_strategy",
+          "parameters": {
+            "emails": "me@mail.com"
+          }
+        }
+      ]
+    }
+  ]
 }

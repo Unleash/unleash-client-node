@@ -5,10 +5,9 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders } from './unleash';
+import { Response } from 'request';
 
-export interface StorageImpl {
-    new (Storage);
-}
+export type StorageImpl = typeof Storage;
 
 export interface RepositoryOptions {
     backupPath: string;
@@ -21,10 +20,10 @@ export interface RepositoryOptions {
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
-    private timer: NodeJS.Timer;
+    private timer: NodeJS.Timer | undefined;
     private url: string;
     private storage: Storage;
-    private etag: string;
+    private etag: string | undefined;
     private appName: string;
     private instanceId: string;
     private refreshInterval?: number;
@@ -90,7 +89,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 instanceId: this.instanceId,
                 headers: this.headers,
             },
-            (error, res, body: string) => {
+            (error: Error | null, res: Response, body: string) => {
                 // start timer for next fetch
                 this.timedFetch();
 
@@ -114,15 +113,17 @@ export default class Repository extends EventEmitter implements EventEmitter {
                     const payload: any = JSON.parse(body);
                     const data: any = pickData(toNewFormat(payload));
                     const obj = data.features.reduce(
-                        (o: Object, feature: FeatureInterface) => {
+                        (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
                             this.validateFeature(feature);
                             o[feature.name] = feature;
                             return o;
                         },
-                        {} as Object,
+                        {} as { [s: string]: FeatureInterface },
                     );
                     this.storage.reset(obj);
-                    this.etag = res.headers.etag;
+                    this.etag = Array.isArray(res.headers.etag)
+                        ? res.headers.etag.join(' ')
+                        : res.headers.etag;
                     this.emit('data');
                 } catch (err) {
                     this.emit('error', err);
@@ -132,7 +133,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     stop() {
-        clearInterval(this.timer);
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
         this.removeAllListeners();
         this.storage.removeAllListeners();
     }

@@ -39,7 +39,7 @@ export class Storage extends EventEmitter implements EventEmitter {
         });
     }
 
-    get(key): any {
+    get(key: string): any {
         return this.data[key];
     }
 

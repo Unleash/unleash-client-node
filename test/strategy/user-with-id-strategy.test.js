@@ -14,7 +14,7 @@ test('user-with-id-strategy should be enabled for userId', t => {
     t.true(strategy.isEnabled(params, context));
 });
 
-test('user-with-id-strategy should be enabled for userId in list', t => {
+test('user-with-id-strategy should be enabled for userId in list (spaced commas)', t => {
     const strategy = new UserWithIdStrategy();
     const params = { userIds: '123, 122, 12312312' };
     const context = { userId: '12312312' };

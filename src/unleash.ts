@@ -1,8 +1,8 @@
 import Client from './client';
 import Repository from './repository';
 import Metrics from './metrics';
-import { Strategy, defaultStrategies } from './strategy/index';
-export { Strategy } from './strategy/index';
+import { Strategy, defaultStrategies } from './strategy';
+export { Strategy };
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
@@ -73,10 +73,9 @@ export class Unleash extends EventEmitter {
                 info = userInfo();
             } catch (e) {
                 //unable to read info;
-                info = {};
             }
 
-            const prefix = info.username
+            const prefix = info
                 ? info.username
                 : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
             instanceId = `${prefix}-${hostname()}`;

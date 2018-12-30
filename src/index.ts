@@ -3,7 +3,7 @@ import { Unleash, UnleashConfig } from './unleash';
 export { Strategy } from './strategy/index';
 export { Unleash } from './unleash';
 
-let instance;
+let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
     instance = new Unleash(options);
     instance.on('error', () => {});
@@ -11,7 +11,7 @@ export function initialize(options: UnleashConfig): Unleash {
 }
 
 export function isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
-    return instance && instance.isEnabled(name, context, fallbackValue);
+    return !!instance && instance.isEnabled(name, context, fallbackValue);
 }
 
 export function destroy() {

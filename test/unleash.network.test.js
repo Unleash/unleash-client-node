@@ -31,5 +31,5 @@ test.cb('should emit network errors', t => {
         process.nextTick(() => {
             t.end();
         });
-    }, 0);
+    }, 5);
 });

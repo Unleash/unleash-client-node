@@ -106,21 +106,6 @@ test('should use custom strategy', t => {
 test('should use a set of custom strategies', t => {
     const repo = {
         getToggle() {
-            return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom' }]);
-        },
-    };
-
-    const strategies = [new CustomFalseStrategy(), new CustomStrategy()];
-    const client = new Client(repo, strategies);
-    client.on('error', log).on('warn', log);
-    const result = client.isEnabled('feature');
-
-    t.true(result);
-});
-
-test('should use a set of custom strategies', t => {
-    const repo = {
-        getToggle() {
             return buildToggle('feature', true, [{ name: 'custom' }, { name: 'custom-false' }]);
         },
     };
@@ -174,7 +159,7 @@ test('should emit error when invalid feature runtime', t => {
     t.true(client.isEnabled('feature-malformed-strategies') === false);
 });
 
-test('should emit error when invalid feature runtime', t => {
+test('should emit error when mising feature runtime', t => {
     t.plan(3);
     const repo = {
         getToggle() {
