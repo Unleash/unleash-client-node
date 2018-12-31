@@ -344,10 +344,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ip@^0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-0.0.32.tgz#b501fd570908090de11cee98f6bf9dcc4fb6b7b5"
-  integrity sha512-vCzCQQ4W6PoGMOE1SJY1tGXPBi1Wq2EueEvRWx5qOuz35X7bP0b9MQSN5gBEqKbedsFhsEvgtX6kD6ysut+XHA==
+"@types/ip@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
+  integrity sha512-dwNe8gOoF70VdL6WJBwVHtQmAX4RMd62M+mAB9HQFjG1/qiCLM/meRy95Pd14FYBbEDwCq7jgJs89cHpLBu4HQ==
   dependencies:
     "@types/node" "*"
 
