@@ -42,8 +42,8 @@
     "examples"
   ],
   "devDependencies": {
-    "@types/ip": "^0.0.32",
-    "@types/murmurhash3js": "^3.0.1",
+    "@types/ip": "^1.1.0",
+    "@types/murmurhash3js": "^3.0.2",
     "@types/nock": "^9.3.0",
     "@types/node": "^10.0.3",
     "@types/request": "^2.0.8",

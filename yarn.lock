@@ -344,17 +344,17 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ip@^0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-0.0.32.tgz#b501fd570908090de11cee98f6bf9dcc4fb6b7b5"
-  integrity sha512-vCzCQQ4W6PoGMOE1SJY1tGXPBi1Wq2EueEvRWx5qOuz35X7bP0b9MQSN5gBEqKbedsFhsEvgtX6kD6ysut+XHA==
+"@types/ip@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
+  integrity sha512-dwNe8gOoF70VdL6WJBwVHtQmAX4RMd62M+mAB9HQFjG1/qiCLM/meRy95Pd14FYBbEDwCq7jgJs89cHpLBu4HQ==
   dependencies:
     "@types/node" "*"
 
-"@types/murmurhash3js@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/murmurhash3js/-/murmurhash3js-3.0.1.tgz#c42a6f0eece4817464c874ca1ef3fbe92b89d47c"
-  integrity sha1-xCpvDuzkgXRkyHTKHvP76SuJ1Hw=
+"@types/murmurhash3js@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/murmurhash3js/-/murmurhash3js-3.0.2.tgz#eeaf46ed69b0e473f0c310a383c9362c299981f7"
+  integrity sha512-xx8QZPFSzd5520I/EVZCNYUEzTPHYkKf+V0CBDPMA/X0vRRQRkFiEjTfoM3Yd+oE0jTKR/qZ+vDWF+2PMaVXMg==
 
 "@types/nock@^9.3.0":
   version "9.3.0"
