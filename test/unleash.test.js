@@ -19,7 +19,7 @@ const defaultToggles = [
     {
         name: 'feature',
         enabled: true,
-        strategy: 'default',
+        strategies: [],
     },
 ];
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {

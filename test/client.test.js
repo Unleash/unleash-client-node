@@ -2,11 +2,12 @@ import test from 'ava';
 import Client from '../lib/client';
 import { Strategy } from '../lib/strategy';
 
-function buildToggle(name, active, strategies) {
+function buildToggle(name, active, strategies, variants = []) {
     return {
         name,
         enabled: active,
         strategies: strategies || [{ name: 'default' }],
+        variants,
     };
 }
 
@@ -180,4 +181,87 @@ test('should emit error when mising feature runtime', t => {
     });
 
     t.true(client.isEnabled('feature-wrong-strategy') === false);
+});
+
+[
+    [['y', 1], ['0', 1], ['1', 1]],
+    [['3', 33], ['2', 33], ['0', 33]],
+    [['aaa', 100], ['3', 100], ['1', 100]],
+].forEach(([[id1, weight1], [id2, weight2], [id3, weight3]]) => {
+    test(`should return variant when equal weight on ${weight1},${weight2},${weight3}`, t => {
+        const repo = {
+            getToggle() {
+                return buildToggle('feature', true, null, [
+                    {
+                        name: 'variant1',
+                        weight: weight1,
+                        payload: {
+                            type: 'string',
+                            value: 'val1',
+                        },
+                    },
+                    {
+                        name: 'variant2',
+                        weight: weight2,
+                        payload: {
+                            type: 'string',
+                            value: 'val2',
+                        },
+                    },
+                    {
+                        name: 'variant3',
+                        weight: weight3,
+                        payload: {
+                            type: 'string',
+                            value: 'val3',
+                        },
+                    },
+                ]);
+            },
+        };
+
+        const strategies = [new Strategy('default', true)];
+        const client = new Client(repo, strategies);
+        client.on('error', log).on('warn', log);
+        const result = client.isEnabled('feature');
+
+        t.true(result === true);
+
+        [id1, id2, id3].forEach(id => {
+            t.snapshot(client.getVariant('feature', { userId: id }));
+        });
+    });
+});
+
+test('should always return defaultVariant if missing variant', t => {
+    const repo = {
+        getToggle() {
+            return buildToggle('feature-but-no-variant', true, []);
+        },
+    };
+
+    const client = new Client(repo);
+
+    client.on('error', log).on('warn', log);
+    const result = client.getVariant('feature-but-no-variant', {});
+    const defaultVariant = {
+        enabled: false,
+        name: 'disabled',
+    };
+    t.deepEqual(result, defaultVariant);
+
+    const fallback = {
+        enabled: false,
+        name: 'customDisabled',
+        payload: {
+            type: 'string',
+            value: '',
+        },
+    };
+    const result2 = client.getVariant('feature-but-no-variant', {}, fallback);
+
+    t.deepEqual(result2, fallback);
+
+    const result3 = client.getVariant('missing-feature-x', {});
+    t.deepEqual(result3, defaultVariant);
 });

@@ -237,6 +237,40 @@ test('count should increment yes and no counters', t => {
     t.true(toggleCount.no === 4);
 });
 
+test('count should increment yes and no counters with variants', t => {
+    const url = getUrl();
+    const metrics = new Metrics({
+        url,
+    });
+
+    const name = `name-${Math.round(Math.random() * 1000)}`;
+
+    t.falsy(metrics.bucket.toggles[name]);
+
+    metrics.count(name, true);
+
+    const toggleCount = metrics.bucket.toggles[name];
+    t.truthy(toggleCount);
+    t.true(toggleCount.yes === 1);
+    t.true(toggleCount.no === 0);
+
+    metrics.countVariant(name, 'variant1');
+    metrics.countVariant(name, 'variant1');
+    metrics.count(name, false);
+    metrics.count(name, false);
+    metrics.countVariant(name, 'disabled');
+    metrics.countVariant(name, 'disabled');
+    metrics.countVariant(name, 'variant2');
+    metrics.countVariant(name, 'variant2');
+    metrics.countVariant(name, 'variant2');
+
+    t.true(toggleCount.yes === 1);
+    t.true(toggleCount.no === 2);
+    t.true(toggleCount.variant.disabled === 2);
+    t.true(toggleCount.variant.variant1 === 2);
+    t.true(toggleCount.variant.variant2 === 3);
+});
+
 test('getClientData should return a object', t => {
     const url = getUrl();
     const metrics = new Metrics({

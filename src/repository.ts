@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { toNewFormat, pickData } from './data-formatter';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { resolve } from 'url';
@@ -69,6 +68,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
             );
         }
 
+        if (feature.variants && !Array.isArray(feature.variants)) {
+            errors.push(`feature.variants should be an array, but was ${typeof feature.variants}`);
+        }
+
         if (typeof feature.enabled !== 'boolean') {
             errors.push(`feature.enabled should be an boolean, but was ${typeof feature.enabled}`);
         }
@@ -110,8 +113,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 }
 
                 try {
-                    const payload: any = JSON.parse(body);
-                    const data: any = pickData(toNewFormat(payload));
+                    const data: any = JSON.parse(body);
                     const obj = data.features.reduce(
                         (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
                             this.validateFeature(feature);

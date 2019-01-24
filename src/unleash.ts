@@ -7,6 +7,7 @@ import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
 import { FeatureInterface } from './feature';
+import { Variant, getDefaultVariant } from './variant';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -161,11 +162,35 @@ export class Unleash extends EventEmitter {
         return result;
     }
 
+    getVariant(name: string, context: any, fallbackVariant?: Variant): Variant {
+        let result;
+        if (this.client !== undefined) {
+            result = this.client.getVariant(name, context, fallbackVariant);
+        } else {
+            result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
+            this.emit(
+                'warn',
+                `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
+            );
+        }
+        if (result.name) {
+            this.countVariant(name, result.name);
+        } else {
+            this.count(name, result.enabled);
+        }
+
+        return result;
+    }
+
     getFeatureToggleDefinition(toggleName: string): FeatureInterface {
         return this.repository.getToggle(toggleName);
     }
 
     count(toggleName: string, enabled: boolean) {
         this.metrics.count(toggleName, enabled);
+    }
+
+    countVariant(toggleName: string, variantName: string) {
+        this.metrics.countVariant(toggleName, variantName);
     }
 }

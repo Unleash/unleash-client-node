@@ -2,6 +2,8 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import Repository from './repository';
+import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
+import { Context } from './context';
 
 interface BooleanMap {
     [key: string]: boolean;
@@ -51,9 +53,16 @@ export default class UnleashClient extends EventEmitter {
         }
     }
 
-    isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
-        const feature: FeatureInterface = this.repository.getToggle(name);
+    isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean {
+        const feature = this.repository.getToggle(name);
+        return this.isFeatureEnabled(feature, context, fallbackValue);
+    }
 
+    isFeatureEnabled(
+        feature: FeatureInterface,
+        context: Context,
+        fallbackValue?: boolean,
+    ): boolean {
         if (!feature && typeof fallbackValue === 'boolean') {
             return fallbackValue;
         }
@@ -82,12 +91,43 @@ export default class UnleashClient extends EventEmitter {
                 (strategySelector): boolean => {
                     const strategy = this.getStrategy(strategySelector.name);
                     if (!strategy) {
-                        this.warnOnce(strategySelector.name, name, feature.strategies);
+                        this.warnOnce(strategySelector.name, feature.name, feature.strategies);
                         return false;
                     }
                     return strategy.isEnabled(strategySelector.parameters, context);
                 },
             )
         );
+    }
+
+    getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+        if (!fallbackVariant) {
+            fallbackVariant = getDefaultVariant();
+        }
+        const feature = this.repository.getToggle(name);
+        if (
+            typeof feature === 'undefined' ||
+            !feature.variants ||
+            !Array.isArray(feature.variants) ||
+            feature.variants.length === 0
+        ) {
+            return fallbackVariant;
+        }
+
+        const enabled = this.isFeatureEnabled(feature, context, fallbackVariant.enabled);
+        if (!enabled) {
+            return fallbackVariant;
+        }
+
+        const variant: VariantDefinition | null = selectVariant(feature, context);
+        if (variant === null) {
+            return fallbackVariant;
+        }
+
+        return {
+            name: variant.name,
+            payload: variant.payload,
+            enabled,
+        };
     }
 }
