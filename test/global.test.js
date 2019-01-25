@@ -16,7 +16,7 @@ const defaultToggles = [
     {
         name: 'feature',
         enabled: true,
-        strategy: 'default',
+        strategies: [],
     },
 ];
 

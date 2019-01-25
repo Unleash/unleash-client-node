@@ -17,10 +17,14 @@ export interface MetricsOptions {
     headers?: CustomHeaders;
 }
 
+interface VariantBucket {
+    [s: string]: number;
+}
+
 interface Bucket {
     start: Date;
     stop: Date | null;
-    toggles: { [s: string]: { yes: number; no: number } };
+    toggles: { [s: string]: { yes: number; no: number; variant?: VariantBucket } };
 }
 
 export default class Metrics extends EventEmitter {
@@ -158,7 +162,7 @@ export default class Metrics extends EventEmitter {
         return true;
     }
 
-    count(name: string, enabled: boolean): boolean {
+    assertBucket(name: string) {
         if (this.disabled || !this.bucket) {
             return false;
         }
@@ -168,8 +172,37 @@ export default class Metrics extends EventEmitter {
                 no: 0,
             };
         }
+    }
+
+    count(name: string, enabled: boolean): boolean {
+        if (this.disabled || !this.bucket) {
+            return false;
+        }
+        this.assertBucket(name);
         this.bucket.toggles[name][enabled ? 'yes' : 'no']++;
         this.emit('count', name, enabled);
+        return true;
+    }
+
+    countVariant(name: string, variantName: string) {
+        if (this.disabled || !this.bucket) {
+            return false;
+        }
+        this.assertBucket(name);
+        const variant = this.bucket.toggles[name].variant;
+        if (typeof variant !== 'undefined') {
+            if (!variant[variantName]) {
+                variant[variantName] = 1;
+            } else {
+                variant[variantName]++;
+            }
+        } else {
+            this.bucket.toggles[name].variant = {
+                [variantName]: 1,
+            };
+        }
+
+        this.emit('countVariant', name, variantName);
         return true;
     }
 

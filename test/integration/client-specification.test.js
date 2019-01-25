@@ -26,27 +26,56 @@ function mockNetwork(toggles, url = getUrl()) {
 specs.forEach(testName => {
     const definition = require(`@unleash/client-specification/specifications/${testName}`);
 
-    definition.tests.forEach(testCase => {
-        test(`${testName}:${testCase.description}`, t =>
-            new Promise((resolve, reject) => {
-                // Mock unleash-api
-                const url = mockNetwork(definition.state);
+    if (definition.tests) {
+        definition.tests.forEach(testCase => {
+            test(`${testName}:${testCase.description}`, t =>
+                new Promise((resolve, reject) => {
+                    // Mock unleash-api
+                    const url = mockNetwork(definition.state);
 
-                // New unleash instance
-                const instance = new Unleash({
-                    appName: testName,
-                    disableMetrics: true,
-                    url,
-                    backupPath: getRandomBackupPath(definition.name),
-                });
+                    // New unleash instance
+                    const instance = new Unleash({
+                        appName: testName,
+                        disableMetrics: true,
+                        url,
+                        backupPath: getRandomBackupPath(definition.name),
+                    });
 
-                instance.on('error', reject);
-                instance.on('ready', () => {
-                    const result = instance.isEnabled(testCase.toggleName, testCase.context);
-                    t.is(result, testCase.expectedResult);
-                    instance.destroy();
-                    resolve();
-                });
-            }));
-    });
+                    instance.on('error', reject);
+                    instance.on('ready', () => {
+                        const result = instance.isEnabled(testCase.toggleName, testCase.context);
+                        t.is(result, testCase.expectedResult);
+                        instance.destroy();
+                        resolve();
+                    });
+                }));
+        });
+    }
+
+    if (definition.variantTests) {
+        definition.variantTests.forEach(testCase => {
+            test(`${testName}:${testCase.description}`, t =>
+                new Promise((resolve, reject) => {
+                    // Mock unleash-api
+                    const url = mockNetwork(definition.state);
+
+                    // New unleash instance
+                    const instance = new Unleash({
+                        appName: testName,
+                        disableMetrics: true,
+                        url,
+                        backupPath: getRandomBackupPath(definition.name),
+                    });
+
+                    instance.on('error', reject);
+                    instance.on('ready', () => {
+                        const result = instance.getVariant(testCase.toggleName, testCase.context);
+                        t.deepEqual(result, testCase.expectedResult);
+
+                        instance.destroy();
+                        resolve();
+                    });
+                }));
+        });
+    }
 });
