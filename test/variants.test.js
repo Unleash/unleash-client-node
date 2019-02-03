@@ -54,3 +54,38 @@ test('selectVariant should select on 3 variants', t => {
     const variant3 = selectVariant(feature, { toggleName: 'toggleName', userId: 'z' });
     t.true(variant3.name === 'variant3');
 });
+
+test('selectVariant should use variant overrides', t => {
+    const variants = genVariants(3);
+    variants[0].overrides = [
+        {
+            field: 'userId',
+            values: ['z'],
+        },
+    ];
+
+    const feature = createFeature(variants);
+    const variant1 = selectVariant(feature, { toggleName: 'toggleName', userId: 'z' });
+    t.is(variant1.name, 'variant1');
+});
+
+test('selectVariant should use *first* variant override', t => {
+    const variants = genVariants(3);
+    variants[0].overrides = [
+        {
+            field: 'userId',
+            values: ['z', 'b'],
+        },
+    ];
+
+    variants[1].overrides = [
+        {
+            field: 'userId',
+            values: ['z'],
+        },
+    ];
+
+    const feature = createFeature(variants);
+    const variant1 = selectVariant(feature, { toggleName: 'toggleName', userId: 'z' });
+    t.is(variant1.name, 'variant1');
+});
