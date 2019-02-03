@@ -6,6 +6,11 @@ enum PayloadType {
     STRING = 'string',
 }
 
+interface Override {
+    field: string;
+    values: String[];
+}
+
 export interface Payload {
     type: PayloadType;
     value: string;
@@ -15,6 +20,7 @@ export interface VariantDefinition {
     name: string;
     weight: number;
     payload: Payload;
+    overrides: Override[];
 }
 
 export interface Variant {
@@ -46,6 +52,16 @@ function getSeed(context: Context): string {
     return result || String(Math.round(Math.random() * 100000));
 }
 
+function overrideMatchesContext(context: Context): (o: Override) => boolean {
+    return (o: Override) => o.values.some(value => value === context[o.field]);
+}
+
+function findOverride(feature: FeatureInterface, context: Context): VariantDefinition | undefined {
+    return feature.variants
+        .filter(variant => variant.overrides)
+        .find(variant => variant.overrides.some(overrideMatchesContext(context)));
+}
+
 export function selectVariant(
     feature: FeatureInterface,
     context: Context,
@@ -53,6 +69,10 @@ export function selectVariant(
     const totalWeight = feature.variants.reduce((acc, v) => acc + v.weight, 0);
     if (totalWeight <= 0) {
         return null;
+    }
+    const variantOverride = findOverride(feature, context);
+    if (variantOverride) {
+        return variantOverride;
     }
     const target = normalizedValue(getSeed(context), feature.name, totalWeight);
 
