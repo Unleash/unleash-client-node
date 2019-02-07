@@ -383,10 +383,10 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.4.tgz#821878b81bfab971b93a265a561d54ea61f9059f"
   integrity sha512-Set5ZdrAaKI/qHdFlVMgm/GsAv/wkXhSTuZFkJ+JI7HK+wIkIlOaUXSXieIvJ0+OvGIqtREFoE+NHJtEq0gtEw==
 
-"@unleash/client-specification@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-0.0.3.tgz#a3459dd956577e57dab6bb6b685ab6627840dacd"
-  integrity sha512-SpI4rh86/H8fc0JgnqhaujsqI1KBUqiCRur9ebsycBFE3t1rizZAYdyr/mmWX+UWuwu1doxHcdv13aeC7n2u/Q==
+"@unleash/client-specification@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-0.1.0.tgz#c8b4165b3ab30669ee57da6bdb9074478d261f3c"
+  integrity sha512-HnDBEoHjU8A0BOmLfnhebS5l+nfwCjrcWZQhybAFO2drU5mwB/cY6LtTJaeWN0njCiHzm7ht7c2eUrG0UIdvJg==
 
 abbrev@1:
   version "1.1.1"
