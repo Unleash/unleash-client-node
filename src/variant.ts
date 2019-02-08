@@ -7,7 +7,7 @@ enum PayloadType {
 }
 
 interface Override {
-    field: string;
+    contextName: string;
     values: String[];
 }
 
@@ -53,7 +53,7 @@ function getSeed(context: Context): string {
 }
 
 function overrideMatchesContext(context: Context): (o: Override) => boolean {
-    return (o: Override) => o.values.some(value => value === context[o.field]);
+    return (o: Override) => o.values.some(value => value === context[o.contextName]);
 }
 
 function findOverride(feature: FeatureInterface, context: Context): VariantDefinition | undefined {

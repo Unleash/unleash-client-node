@@ -59,7 +59,7 @@ test('selectVariant should use variant overrides', t => {
     const variants = genVariants(3);
     variants[0].overrides = [
         {
-            field: 'userId',
+            contextName: 'userId',
             values: ['z'],
         },
     ];
@@ -73,19 +73,62 @@ test('selectVariant should use *first* variant override', t => {
     const variants = genVariants(3);
     variants[0].overrides = [
         {
-            field: 'userId',
+            contextName: 'userId',
             values: ['z', 'b'],
         },
     ];
 
     variants[1].overrides = [
         {
-            field: 'userId',
+            contextName: 'userId',
             values: ['z'],
         },
     ];
 
     const feature = createFeature(variants);
     const variant1 = selectVariant(feature, { toggleName: 'toggleName', userId: 'z' });
+    t.is(variant1.name, 'variant1');
+});
+
+test('selectVariant should use *first* variant override for userId=132', t => {
+    const featureToggle = {
+        name: 'Feature.Variants.override.D',
+        description: 'Variant with overrides',
+        enabled: true,
+        strategies: [],
+        variants: [
+            {
+                name: 'variant1',
+                weight: 33,
+                payload: {
+                    type: 'string',
+                    value: 'val1',
+                },
+                overrides: [
+                    {
+                        contextName: 'userId',
+                        values: ['132', '61'],
+                    },
+                ],
+            },
+            {
+                name: 'variant2',
+                weight: 33,
+                payload: {
+                    type: 'string',
+                    value: 'val2',
+                },
+            },
+            {
+                name: 'variant3',
+                weight: 34,
+                payload: {
+                    type: 'string',
+                    value: 'val3',
+                },
+            },
+        ],
+    };
+    const variant1 = selectVariant(featureToggle, { userId: '132' });
     t.is(variant1.name, 'variant1');
 });
