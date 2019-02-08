@@ -1,10 +1,14 @@
 # Changelog
 
-# 3.1.2 (unreleased)
+## 3.2.0
+
+-   feat: Add support for toggle variants
+
+## 3.1.2
 
 -   fix(GradualRolloutStrategy): percentage=0 should mean disabled
 
-# 3.1.1
+## 3.1.1
 
 -   Updated request.js to version 2.88.0
 
