@@ -24,7 +24,7 @@ interface VariantBucket {
 interface Bucket {
     start: Date;
     stop: Date | null;
-    toggles: { [s: string]: { yes: number; no: number; variant?: VariantBucket } };
+    toggles: { [s: string]: { yes: number; no: number; variants?: VariantBucket } };
 }
 
 export default class Metrics extends EventEmitter {
@@ -189,15 +189,15 @@ export default class Metrics extends EventEmitter {
             return false;
         }
         this.assertBucket(name);
-        const variant = this.bucket.toggles[name].variant;
-        if (typeof variant !== 'undefined') {
-            if (!variant[variantName]) {
-                variant[variantName] = 1;
+        const variants = this.bucket.toggles[name].variants;
+        if (typeof variants !== 'undefined') {
+            if (!variants[variantName]) {
+                variants[variantName] = 1;
             } else {
-                variant[variantName]++;
+                variants[variantName]++;
             }
         } else {
-            this.bucket.toggles[name].variant = {
+            this.bucket.toggles[name].variants = {
                 [variantName]: 1,
             };
         }

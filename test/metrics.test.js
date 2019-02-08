@@ -266,9 +266,9 @@ test('count should increment yes and no counters with variants', t => {
 
     t.true(toggleCount.yes === 1);
     t.true(toggleCount.no === 2);
-    t.true(toggleCount.variant.disabled === 2);
-    t.true(toggleCount.variant.variant1 === 2);
-    t.true(toggleCount.variant.variant2 === 3);
+    t.true(toggleCount.variants.disabled === 2);
+    t.true(toggleCount.variants.variant1 === 2);
+    t.true(toggleCount.variants.variant2 === 3);
 });
 
 test('getClientData should return a object', t => {
