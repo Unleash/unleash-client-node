@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.1
+
+-   fix: typo in variant metrics making them not show up
+
 ## 3.2.0
 
 -   feat: Add support for toggle variants
