@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.3
+
+-   fix: details.json should be updated after npm version
+
 ## 3.2.2
 
 -   fix: remove pkginfo dependency.
