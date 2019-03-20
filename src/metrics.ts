@@ -3,8 +3,7 @@ import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders } from './unleash';
-require('pkginfo')(module, 'version');
-const sdkVersion = `unleash-client-node:${module.exports.version}`;
+import { sdkVersion } from './details.json';
 
 export interface MetricsOptions {
     appName: string;

@@ -6,6 +6,7 @@
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "scripts": {
+    "preinstall": "node scripts/build-details.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "build": "tsc -p .",
@@ -30,7 +31,6 @@
   "dependencies": {
     "ip": "^1.1.5",
     "murmurhash3js": "^3.0.1",
-    "pkginfo": "^0.4.1",
     "request": "^2.88.0"
   },
   "engines": {

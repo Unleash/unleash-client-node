@@ -8,12 +8,9 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "resolveJsonModule": true,
     "strict": true,
     "moduleResolution": "node"
   },
-  "exclude": [
-    "examples/",
-    "lib/",
-    "node_modules/"
-  ]
+  "exclude": ["examples/", "lib/", "node_modules/"]
 }
