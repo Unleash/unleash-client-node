@@ -29,6 +29,8 @@
   },
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
+    "bfs-path": "^1.0.2",
+    "localstorage-fs": "^0.1.0",
     "ip": "^1.1.5",
     "murmurhash3js": "^3.0.1",
     "request": "^2.88.0"

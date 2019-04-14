@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-import { join } from 'path';
-import { writeFile, readFile } from 'fs';
+import resolveStorageUtils from './integrations/storage-utils';
 
 export interface StorageOptions {
     backupPath: string;
@@ -13,11 +12,15 @@ export class Storage extends EventEmitter implements EventEmitter {
     private ready: boolean = false;
     private data: any;
     private path: string;
+    private _utils = resolveStorageUtils();
 
     constructor({ backupPath, appName }: StorageOptions) {
         super();
         this.data = {};
-        this.path = join(backupPath, `/unleash-repo-schema-v1-${this.safeAppName(appName)}.json`);
+        this.path = this._utils.join(
+            backupPath,
+            `/unleash-repo-schema-v1-${this.safeAppName(appName)}.json`,
+        );
         this.load();
     }
 
@@ -44,7 +47,7 @@ export class Storage extends EventEmitter implements EventEmitter {
     }
 
     persist(): void {
-        writeFile(this.path, JSON.stringify(this.data), err => {
+        this._utils.writeFile(this.path, JSON.stringify(this.data), err => {
             if (err) {
                 return this.emit('error', err);
             }
@@ -53,7 +56,7 @@ export class Storage extends EventEmitter implements EventEmitter {
     }
 
     load(): void {
-        readFile(this.path, 'utf8', (err, data: string) => {
+        this._utils.readFile(this.path, 'utf8', (err, data: string) => {
             if (this.ready) {
                 return;
             }
