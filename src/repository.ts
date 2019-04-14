@@ -4,7 +4,9 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders } from './unleash';
-import { Response } from 'request';
+import { AxiosResponse } from "axios";
+
+type Response = AxiosResponse | any;
 
 export type StorageImpl = typeof Storage;
 
@@ -100,20 +102,20 @@ export default class Repository extends EventEmitter implements EventEmitter {
                     return this.emit('error', error);
                 }
 
-                if (res.statusCode === 304) {
+                if (res.status === 304) {
                     // No new data
                     return;
                 }
 
-                if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+                if (!(res.status >= 200 && res.status < 300)) {
                     return this.emit(
                         'error',
-                        new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`),
+                        new Error(`Response was not statusCode 2XX, but was ${res.status}`),
                     );
                 }
 
                 try {
-                    const data: any = JSON.parse(body);
+                    const data = typeof body === "string" ? JSON.parse(body) : body;
                     const obj = data.features.reduce(
                         (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
                             this.validateFeature(feature);

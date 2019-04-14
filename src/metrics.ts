@@ -1,9 +1,11 @@
 import { EventEmitter } from 'events';
-import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders } from './unleash';
 import { sdkVersion } from './details.json';
+import { AxiosResponse } from "axios";
+
+type Response = AxiosResponse | any;
 
 export interface MetricsOptions {
     appName: string;
@@ -103,14 +105,14 @@ export default class Metrics extends EventEmitter {
                 instanceId: this.instanceId,
                 headers: this.headers,
             },
-            (err: Error | null, res: Response, body: any) => {
+            (err: Error | null, res: AxiosResponse | any, body: any) => {
                 if (err) {
                     this.emit('error', err);
                     return;
                 }
 
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
+                if (!(res.status && res.status >= 200 && res.status < 300)) {
+                    this.emit('warn', `${url} returning ${res.status}`, body);
                     return;
                 }
                 this.emit('registered', payload);
@@ -145,14 +147,14 @@ export default class Metrics extends EventEmitter {
                     return;
                 }
 
-                if (res.statusCode === 404) {
+                if (res.status === 404) {
                     this.emit('warn', `${url} returning 404, stopping metrics`);
                     this.stop();
                     return;
                 }
 
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
+                if (!(res.status && res.status >= 200 && res.status < 300)) {
+                    this.emit('warn', `${url} returning ${res.status}`, body);
                     return;
                 }
                 this.emit('sent', payload);
