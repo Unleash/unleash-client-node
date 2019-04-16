@@ -5,6 +5,7 @@ import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders } from './unleash';
 import { AxiosResponse } from "axios";
+import resolveTimerUtils from './integrations/timer-utils';
 
 type Response = AxiosResponse | any;
 
@@ -29,6 +30,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private instanceId: string;
     private refreshInterval?: number;
     private headers?: CustomHeaders;
+    private _timerUtils = resolveTimerUtils();
 
     constructor({
         backupPath,
@@ -55,7 +57,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     timedFetch() {
         if (this.refreshInterval != null && this.refreshInterval > 0) {
-            this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
+            this.timer = this._timerUtils.setTimeout(() => this.fetch(), this.refreshInterval);
             if (process.env.NODE_ENV !== 'test') {
                 this.timer.unref();
             }
@@ -138,7 +140,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     stop() {
         if (this.timer) {
-            clearInterval(this.timer);
+            this._timerUtils.clearInterval(this.timer);
         }
         this.removeAllListeners();
         this.storage.removeAllListeners();

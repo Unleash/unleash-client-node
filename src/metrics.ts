@@ -4,6 +4,7 @@ import { post, Data } from './request';
 import { CustomHeaders } from './unleash';
 import { sdkVersion } from './details.json';
 import { AxiosResponse } from "axios";
+import resolveTimerUtils from './integrations/timer-utils';
 
 type Response = AxiosResponse | any;
 
@@ -41,6 +42,7 @@ export default class Metrics extends EventEmitter {
     private timer: NodeJS.Timer | undefined;
     private started: Date;
     private headers?: CustomHeaders;
+    private _timerUtils = resolveTimerUtils();
 
     constructor({
         appName,
@@ -73,7 +75,7 @@ export default class Metrics extends EventEmitter {
         if (this.disabled) {
             return false;
         }
-        this.timer = setTimeout(() => {
+        this.timer = this._timerUtils.setTimeout(() => {
             this.sendMetrics();
         }, this.metricsInterval);
 
@@ -85,7 +87,7 @@ export default class Metrics extends EventEmitter {
 
     stop() {
         if (this.timer) {
-            clearInterval(this.timer);
+            this._timerUtils.clearInterval(this.timer);
             delete this.timer;
         }
         this.disabled = true;
