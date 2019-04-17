@@ -42,7 +42,9 @@ const attachCallbackTo = <T = any>(promise: Promise<AxiosResponse<T>>, cb: Reque
         });
 
 const deleteUndefinedHeaders = (headers: any) =>
-    Object.entries(headers)
+    //TODO: Travis runs the build on node6, which does not support Object.entries
+    Object.keys(headers)
+        .map(key => [key, headers[key]])
         .filter(([key, value]) => value === undefined)
         .forEach(([key]) => delete headers[key]);
 
