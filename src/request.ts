@@ -1,5 +1,11 @@
-import * as request from 'request';
 import { CustomHeaders } from './unleash';
+import axios, { AxiosResponse } from 'axios';
+
+type RequestCallback<T = any> = (
+    error: Error | null,
+    response: AxiosResponse<T> | null,
+    data: any,
+) => void;
 
 export interface RequestOptions {
     url: string;
@@ -23,9 +29,28 @@ export interface PostRequestOptions extends RequestOptions {
     instanceId?: string;
 }
 
+const isA2XXResponse = (res: any) => res.status >= 200 && res.status < 300;
+const isAValidNon2XXResponse = (res: any) => res && !isA2XXResponse(res);
+
+const attachCallbackTo = <T = any>(promise: Promise<AxiosResponse<T>>, cb: RequestCallback) =>
+    promise
+        .then(response => cb(null, response, response.data))
+        .catch(reason => {
+            const res = reason.response;
+            const error = isAValidNon2XXResponse(res) ? null : reason;
+            cb(error, res, res && res.data);
+        });
+
+const deleteUndefinedHeaders = (headers: any) =>
+    //TODO: Travis runs the build on node6, which does not support Object.entries
+    Object.keys(headers)
+        .map(key => [key, headers[key]])
+        .filter(([key, value]) => value === undefined)
+        .forEach(([key]) => delete headers[key]);
+
 export const post = (
     { url, appName, timeout, instanceId, headers, json }: PostRequestOptions,
-    cb: request.RequestCallback,
+    cb: RequestCallback,
 ) => {
     const options = {
         url,
@@ -38,14 +63,15 @@ export const post = (
             },
             headers,
         ),
-        json,
     };
-    return request.post(options, cb);
+
+    deleteUndefinedHeaders(options.headers);
+    return attachCallbackTo(axios.post(url, json, options), cb);
 };
 
 export const get = (
     { url, etag, appName, timeout, instanceId, headers }: GetRequestOptions,
-    cb: request.RequestCallback,
+    cb: RequestCallback,
 ) => {
     const options = {
         url,
@@ -62,5 +88,7 @@ export const get = (
     if (etag) {
         options.headers['If-None-Match'] = etag;
     }
-    return request.get(options, cb);
+
+    deleteUndefinedHeaders(options.headers);
+    return attachCallbackTo(axios.get(url, options), cb);
 };

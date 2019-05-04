@@ -4,7 +4,10 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders } from './unleash';
-import { Response } from 'request';
+import { AxiosResponse } from "axios";
+import resolveTimerUtils from './integrations/timer-utils';
+
+type Response = AxiosResponse | any;
 
 export type StorageImpl = typeof Storage;
 
@@ -27,6 +30,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private instanceId: string;
     private refreshInterval?: number;
     private headers?: CustomHeaders;
+    private _timerUtils = resolveTimerUtils();
 
     constructor({
         backupPath,
@@ -53,7 +57,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     timedFetch() {
         if (this.refreshInterval != null && this.refreshInterval > 0) {
-            this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
+            this.timer = this._timerUtils.setTimeout(() => this.fetch(), this.refreshInterval);
             if (process.env.NODE_ENV !== 'test') {
                 this.timer.unref();
             }
@@ -100,20 +104,20 @@ export default class Repository extends EventEmitter implements EventEmitter {
                     return this.emit('error', error);
                 }
 
-                if (res.statusCode === 304) {
+                if (res.status === 304) {
                     // No new data
                     return;
                 }
 
-                if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+                if (!(res.status >= 200 && res.status < 300)) {
                     return this.emit(
                         'error',
-                        new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`),
+                        new Error(`Response was not statusCode 2XX, but was ${res.status}`),
                     );
                 }
 
                 try {
-                    const data: any = JSON.parse(body);
+                    const data = typeof body === "string" ? JSON.parse(body) : body;
                     const obj = data.features.reduce(
                         (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
                             this.validateFeature(feature);
@@ -136,7 +140,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     stop() {
         if (this.timer) {
-            clearInterval(this.timer);
+            this._timerUtils.clearInterval(this.timer);
         }
         this.removeAllListeners();
         this.storage.removeAllListeners();
