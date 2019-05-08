@@ -114,10 +114,12 @@ export default class Metrics extends EventEmitter {
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                     this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;
                 }
+                /* istanbul ignore next line */
                 this.emit('registered', payload);
             },
         );
@@ -125,6 +127,7 @@ export default class Metrics extends EventEmitter {
     }
 
     sendMetrics(): boolean {
+        /* istanbul ignore next if */
         if (this.disabled) {
             return false;
         }
@@ -151,12 +154,14 @@ export default class Metrics extends EventEmitter {
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (res.statusCode === 404) {
                     this.emit('warn', `${url} returning 404, stopping metrics`);
                     this.stop();
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                     this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;
