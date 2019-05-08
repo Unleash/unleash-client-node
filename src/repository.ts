@@ -15,6 +15,7 @@ export interface RepositoryOptions {
     instanceId: string;
     refreshInterval?: number;
     StorageImpl?: StorageImpl;
+    timeout?: number;
     headers?: CustomHeaders;
 }
 
@@ -27,6 +28,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private instanceId: string;
     private refreshInterval?: number;
     private headers?: CustomHeaders;
+    private timeout?: number;
 
     constructor({
         backupPath,
@@ -35,6 +37,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         instanceId,
         refreshInterval,
         StorageImpl = Storage,
+        timeout,
         headers,
     }: RepositoryOptions) {
         super();
@@ -43,6 +46,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.instanceId = instanceId;
         this.appName = appName;
         this.headers = headers;
+        this.timeout = timeout;
 
         this.storage = new StorageImpl({ backupPath, appName });
         this.storage.on('error', err => this.emit('error', err));
@@ -89,6 +93,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 url,
                 etag: this.etag,
                 appName: this.appName,
+                timeout: this.timeout,
                 instanceId: this.instanceId,
                 headers: this.headers,
             },
