@@ -1,5 +1,5 @@
 import Client from './client';
-import Repository from './repository';
+import Repository, { RepositoryInterface } from './repository';
 import Metrics from './metrics';
 import { Strategy, defaultStrategies } from './strategy';
 export { Strategy };
@@ -26,10 +26,11 @@ export interface UnleashConfig {
     strategies?: Strategy[];
     customHeaders?: CustomHeaders;
     timeout?: number;
+    repository?: RepositoryInterface;
 }
 
 export class Unleash extends EventEmitter {
-    private repository: Repository;
+    private repository: RepositoryInterface;
     private client: Client | undefined;
     private metrics: Metrics;
 
@@ -42,6 +43,7 @@ export class Unleash extends EventEmitter {
         disableMetrics = false,
         backupPath = BACKUP_PATH,
         strategies = [],
+        repository,
         customHeaders,
         timeout,
     }: UnleashConfig) {
@@ -84,15 +86,17 @@ export class Unleash extends EventEmitter {
             instanceId = `${prefix}-${hostname()}`;
         }
 
-        this.repository = new Repository({
-            backupPath,
-            url,
-            appName,
-            instanceId,
-            refreshInterval,
-            headers: customHeaders,
-            timeout,
-        });
+        this.repository =
+            repository ||
+            new Repository({
+                backupPath,
+                url,
+                appName,
+                instanceId,
+                refreshInterval,
+                headers: customHeaders,
+                timeout,
+            });
 
         strategies = defaultStrategies.concat(strategies);
 

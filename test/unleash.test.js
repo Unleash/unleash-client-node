@@ -3,6 +3,7 @@ import nock from 'nock';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
+import { EventEmitter } from 'events';
 
 import { Unleash } from '../lib/unleash';
 
@@ -22,6 +23,24 @@ const defaultToggles = [
         strategies: [],
     },
 ];
+
+class FakeRepo extends EventEmitter {
+    constructor() {
+        super();
+        this.data = {
+            name: 'fake-feature',
+            enabled: false,
+            strategies: [],
+        };
+    }
+    stop() {
+        return;
+    }
+    getToggle() {
+        return this.data;
+    }
+}
+
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
     nock(url)
         .get('/client/features')
@@ -276,4 +295,23 @@ test('returns undefined for unknown feature-toggle definition', t =>
             instance.destroy();
             resolve();
         });
+    }));
+
+test('should use the injected repository', t =>
+    new Promise((resolve, reject) => {
+        const repo = new FakeRepo();
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+            repository: repo,
+        }).on('error', reject);
+        instance.on('ready', () => {
+            t.false(instance.isEnabled('fake-feature'));
+            instance.destroy();
+            resolve();
+        });
+        repo.emit('ready');
     }));
