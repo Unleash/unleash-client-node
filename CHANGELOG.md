@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.4
+
+-   feat: add timeout option for http requests (#115)
+-   fix: Upgrade husky to version 2.2.0
+-   Update lint-staged to the latest version 🚀 (#112)
+-   Update @types/node to the latest version 🚀 (#113)
+-   Update @types/nock to the latest version 🚀 (#111)
+-   chore: update deails.json
+
 ## 3.2.3
 
 -   fix: details.json should be updated after npm version
