@@ -14,6 +14,7 @@ export interface MetricsOptions {
     bucketInterval?: number;
     url: string;
     headers?: CustomHeaders;
+    timeout?: number;
 }
 
 interface VariantBucket {
@@ -39,6 +40,7 @@ export default class Metrics extends EventEmitter {
     private timer: NodeJS.Timer | undefined;
     private started: Date;
     private headers?: CustomHeaders;
+    private timeout?: number;
 
     constructor({
         appName,
@@ -48,6 +50,7 @@ export default class Metrics extends EventEmitter {
         disableMetrics = false,
         url,
         headers,
+        timeout,
     }: MetricsOptions) {
         super();
         this.disabled = disableMetrics;
@@ -59,6 +62,7 @@ export default class Metrics extends EventEmitter {
         this.url = url;
         this.headers = headers;
         this.started = new Date();
+        this.timeout = timeout;
         this.resetBucket();
 
         if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
@@ -102,6 +106,7 @@ export default class Metrics extends EventEmitter {
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers: this.headers,
+                timeout: this.timeout,
             },
             (err: Error | null, res: Response, body: any) => {
                 if (err) {
@@ -109,10 +114,12 @@ export default class Metrics extends EventEmitter {
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                     this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;
                 }
+                /* istanbul ignore next line */
                 this.emit('registered', payload);
             },
         );
@@ -120,6 +127,7 @@ export default class Metrics extends EventEmitter {
     }
 
     sendMetrics(): boolean {
+        /* istanbul ignore next if */
         if (this.disabled) {
             return false;
         }
@@ -137,6 +145,7 @@ export default class Metrics extends EventEmitter {
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers: this.headers,
+                timeout: this.timeout,
             },
             (err: Error | null, res: Response, body: any) => {
                 this.startTimer();
@@ -145,12 +154,14 @@ export default class Metrics extends EventEmitter {
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (res.statusCode === 404) {
                     this.emit('warn', `${url} returning 404, stopping metrics`);
                     this.stop();
                     return;
                 }
 
+                /* istanbul ignore next if */
                 if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
                     this.emit('warn', `${url} returning ${res.statusCode}`, body);
                     return;

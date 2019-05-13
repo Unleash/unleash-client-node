@@ -238,6 +238,32 @@ test('should handle invalid JSON response', t =>
         repo.on('data', reject);
     }));
 
+test('should respect timeout', t =>
+    new Promise((resolve, reject) => {
+        const url = 'http://unleash-test-8.app';
+        nock(url)
+            .persist()
+            .get('/client/features')
+            .socketDelay(2000)
+            .reply(200, 'OK');
+
+        const repo = new Repository({
+            backupPath: 'foo',
+            url,
+            appName,
+            instanceId,
+            refreshInterval: 0,
+            StorageImpl: MockStorage,
+            timeout: 50,
+        });
+        repo.on('error', err => {
+            t.truthy(err);
+            t.true(err.message.indexOf('ESOCKETTIMEDOUT') > -1);
+            resolve();
+        });
+        repo.on('data', reject);
+    }));
+
 test.cb('should emit errors on invalid features', t => {
     const url = 'http://unleash-test-1.app';
     setup(url, [

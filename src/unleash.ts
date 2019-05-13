@@ -25,6 +25,7 @@ export interface UnleashConfig {
     backupPath?: string;
     strategies?: Strategy[];
     customHeaders?: CustomHeaders;
+    timeout?: number;
 }
 
 export class Unleash extends EventEmitter {
@@ -42,6 +43,7 @@ export class Unleash extends EventEmitter {
         backupPath = BACKUP_PATH,
         strategies = [],
         customHeaders,
+        timeout,
     }: UnleashConfig) {
         super();
 
@@ -89,6 +91,7 @@ export class Unleash extends EventEmitter {
             instanceId,
             refreshInterval,
             headers: customHeaders,
+            timeout,
         });
 
         strategies = defaultStrategies.concat(strategies);
@@ -117,6 +120,7 @@ export class Unleash extends EventEmitter {
             metricsInterval,
             url,
             headers: customHeaders,
+            timeout,
         });
 
         this.metrics.on('error', err => {

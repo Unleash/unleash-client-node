@@ -134,6 +134,35 @@ test.cb('should send custom headers', t => {
     });
 });
 
+test.only('should respect timeout', t =>
+    new Promise((resolve, reject) => {
+        t.plan(2);
+        const url = getUrl();
+        nock(url)
+            .post(metricsUrl)
+            .socketDelay(100)
+            .reply(200, '');
+
+        nock(url)
+            .post(registerUrl)
+            .socketDelay(100)
+            .reply(200, '');
+
+        const metrics = new Metrics({
+            url,
+            metricsInterval: 50,
+            timeout: 50,
+        });
+
+        metrics.on('error', err => {
+            t.truthy(err);
+            t.true(err.message.indexOf('ESOCKETTIMEDOUT') > -1);
+            resolve();
+        });
+        metrics.on('sent', reject);
+        metrics.count('toggle-x', true);
+    }));
+
 test.cb('registerInstance should warn when non 200 statusCode', t => {
     const url = getUrl();
     const regEP = nockRegister(url, 500);
