@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+-   feat: Drop node 6 support (EOL)
+
 ## 3.2.4
 
 -   feat: add timeout option for http requests (#115)
