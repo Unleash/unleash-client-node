@@ -1,7 +1,7 @@
 # Changelog
 
 ## Next
-
+-   feature: Allow user to implement custom toggle repository
 -   feat: Drop node 6 support (EOL)
 
 ## 3.2.4
