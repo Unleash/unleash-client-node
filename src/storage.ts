@@ -43,6 +43,10 @@ export class Storage extends EventEmitter implements EventEmitter {
         return this.data[key];
     }
 
+    getAll(): any {
+        return this.data;
+    }
+
     persist(): void {
         writeFile(this.path, JSON.stringify(this.data), err => {
             if (err) {

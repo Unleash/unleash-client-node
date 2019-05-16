@@ -5,6 +5,7 @@ import {
     Strategy,
     destroy,
     getFeatureToggleDefinition,
+    getFeatureToggleDefinitions,
     count,
     countVariant,
     getVariant,
@@ -32,6 +33,7 @@ test('should load main module', t => {
     t.truthy(countVariant);
     t.truthy(getVariant);
     t.truthy(getFeatureToggleDefinition);
+    t.truthy(getFeatureToggleDefinitions);
     t.truthy(count);
 });
 

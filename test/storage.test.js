@@ -134,6 +134,19 @@ test('should provide Get method from data', t => {
     t.true(result2 === 'some-value');
 });
 
+test('should provide getAll method for data object', t => {
+    const storage = setup('get-all-method');
+    const result = storage.getAll();
+
+    t.deepEqual(result, {});
+
+    storage.reset({ 'some-key': 'some-value' });
+
+    const result2 = storage.getAll();
+
+    t.deepEqual(result2, { 'some-key': 'some-value' });
+});
+
 test('should persist data on reset', t =>
     new Promise(resolve => {
         const storage = setup('persist');

@@ -49,11 +49,19 @@ After you have initialized the unleash-client you can easily check if a feature 
 not.
 
 ```js
-const { isEnabled, getVariant } = require('unleash-client');
+const {
+    isEnabled,
+    getVariant,
+    getFeatureToggleDefinition,
+    getFeatureToggleDefinitions,
+} = require('unleash-client');
 
 isEnabled('app.ToggleX');
 
 const { enabled, name, payload } = getVariant('app.ToggleY', { userId: '1234' });
+
+const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
+const featureToggles = getFeatureToggleDefinitions();
 ```
 
 ### 4. Stop unleash
