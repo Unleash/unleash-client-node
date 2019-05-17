@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
-import Repository from './repository';
+import { RepositoryInterface } from './repository';
 import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
 import { Context } from './context';
 
@@ -10,11 +10,11 @@ interface BooleanMap {
 }
 
 export default class UnleashClient extends EventEmitter {
-    private repository: Repository;
+    private repository: RepositoryInterface;
     private strategies: Strategy[];
     private warned: BooleanMap;
 
-    constructor(repository: Repository, strategies: Strategy[]) {
+    constructor(repository: RepositoryInterface, strategies: Strategy[]) {
         super();
         this.repository = repository;
         this.strategies = strategies || [];

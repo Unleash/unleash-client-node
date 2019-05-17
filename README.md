@@ -117,6 +117,7 @@ The initialize method takes the following arguments:
 -   **disableMetrics** - disable metrics
 -   **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
 -   **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
+-   **repository** - Provide a custom repository implementation to manage the underlying data
 
 ## Custom strategies
 
@@ -161,3 +162,39 @@ instance.on('ready', console.log.bind(console, 'ready'));
 // required error handling when using instance directly
 instance.on('error', console.error);
 ```
+
+## Events
+
+The unleash instance object implements the EventEmitter class and **emits** the following events:
+
+| event      | payload                          | description                                                                              |
+| ---------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. |
+| registered | -                                | is emitted after the app has been registered at the api server                           |
+| sent       | `object` data                    | key/value pair of delivered metrics                                                      |
+| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                   |
+| warn       | `string` msg                     | is emitted on a warning                                                                  |
+| error      | `Error` err                      | is emitted on a error                                                                    |
+
+Example usage:
+
+```js
+const { Unleash, isEnabled } = require('unleash-client');
+
+const instance = new Unleash({
+    appName: 'my-app-name',
+    url: 'http://unleash.herokuapp.com',
+});
+
+await instance.once('ready');
+// do something
+```
+
+## Custom repository
+
+You can manage the underlying data layer yourself if you want to. This enables you to use unleash
+offline, from a browser environment or implement your own caching layer. See
+[example](examples/custom_repository.js).
+
+Unleash depends on a `ready` event of the repository you pass in. Be sure that you emit the event
+**after** you've initialized unleash.

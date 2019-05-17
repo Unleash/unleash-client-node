@@ -8,6 +8,12 @@ import { Response } from 'request';
 
 export type StorageImpl = typeof Storage;
 
+export interface RepositoryInterface extends EventEmitter {
+    getToggle(name: string): FeatureInterface;
+    getToggles(): FeatureInterface[];
+    stop(): void;
+}
+
 export interface RepositoryOptions {
     backupPath: string;
     url: string;
