@@ -279,6 +279,24 @@ test('should return known feature-toggle definition', t =>
         });
     }));
 
+test('should return feature-toggles', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            const toggles = instance.getFeatureToggleDefinitions();
+            t.deepEqual(toggles, defaultToggles);
+            instance.destroy();
+            resolve();
+        });
+    }));
+
 test('returns undefined for unknown feature-toggle definition', t =>
     new Promise((resolve, reject) => {
         const url = mockNetwork();

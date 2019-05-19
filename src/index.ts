@@ -24,6 +24,10 @@ export function getFeatureToggleDefinition(toggleName: string) {
     return instance && instance.getFeatureToggleDefinition(toggleName);
 }
 
+export function getFeatureToggleDefinitions() {
+    return instance && instance.getFeatureToggleDefinitions();
+}
+
 export function getVariant(
     name: string,
     context: Context = {},

@@ -10,6 +10,7 @@ export type StorageImpl = typeof Storage;
 
 export interface RepositoryInterface extends EventEmitter {
     getToggle(name: string): FeatureInterface;
+    getToggles(): FeatureInterface[];
     stop(): void;
 }
 
@@ -154,5 +155,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     getToggle(name: string): FeatureInterface {
         return this.storage.get(name);
+    }
+
+    getToggles(): FeatureInterface[] {
+        const toggles = this.storage.getAll();
+        return Object.keys(toggles).map(key => toggles[key]);
     }
 }

@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "build": "tsc -p .",
     "prepare": "npm run build",
-    "test": "NODE_ENV=test npm run build && ava test",
+    "test": "cross-env NODE_ENV=test npm run build && ava test",
     "coverage": "nyc --check-coverage=true npm test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -49,6 +49,7 @@
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^3.2.0",
     "ava": "^1.0.1",
+    "cross-env": "^5.2.0",
     "coveralls": "^3.0.0",
     "eslint": "^5.0.0",
     "eslint-config-finn": "^3.0.0",
