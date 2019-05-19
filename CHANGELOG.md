@@ -5,14 +5,15 @@
 -   feature: Allow user to implement custom toggle repository
 -   feat: Drop node 6 support (EOL)
 -   feat: Get all feature toggle definitions at once
+-   fix: Update lint-staged to the latest version 8.1.7
 
 ## 3.2.4
 
 -   feat: add timeout option for http requests (#115)
 -   fix: Upgrade husky to version 2.2.0
--   Update lint-staged to the latest version 🚀 (#112)
--   Update @types/node to the latest version 🚀 (#113)
--   Update @types/nock to the latest version 🚀 (#111)
+-   fix: Update lint-staged to the latest version 🚀 (#112)
+-   fix: Update @types/node to the latest version 🚀 (#113)
+-   fix: Update @types/nock to the latest version 🚀 (#111)
 -   chore: update deails.json
 
 ## 3.2.3
