@@ -58,7 +58,7 @@
     "lint-staged": "^8.1.7",
     "mkdirp": "^0.5.1",
     "nock": "^10.0.6",
-    "nyc": "^13.1.0",
+    "nyc": "^14.1.1",
     "prettier": "^1.17.1",
     "typescript": "^3.2.2"
   },
@@ -71,7 +71,8 @@
       "lib/**.js",
       "lib/**/*.js"
     ],
-    "all": true
+    "all": true,
+    "exclude-after-remap": false
   },
   "prettier": {
     "printWidth": 100,
