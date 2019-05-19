@@ -8,6 +8,7 @@
 -   fix: Update lint-staged to the latest version 8.1.7
 -   fix: Update nock to version 10.0.6
 -   fix: Update @types/node to version 12.0.2
+-   fix: Update husky to version 2.3.0
 
 ## 3.2.4
 
