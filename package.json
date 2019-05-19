@@ -44,7 +44,7 @@
   "devDependencies": {
     "@types/ip": "^1.1.0",
     "@types/murmurhash3js": "^3.0.2",
-    "@types/nock": "^10.0.0",
+    "@types/nock": "^10.0.3",
     "@types/node": "^12.0.0",
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^3.2.0",
@@ -57,7 +57,7 @@
     "husky": "^2.2.0",
     "lint-staged": "^8.1.7",
     "mkdirp": "^0.5.1",
-    "nock": "^10.0.0",
+    "nock": "^10.0.6",
     "nyc": "^13.1.0",
     "prettier": "^1.9.1",
     "typescript": "^3.2.2"

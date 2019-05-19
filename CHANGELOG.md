@@ -6,6 +6,7 @@
 -   feat: Drop node 6 support (EOL)
 -   feat: Get all feature toggle definitions at once
 -   fix: Update lint-staged to the latest version 8.1.7
+-   fix: Update nock to version 10.0.6
 
 ## 3.2.4
 
