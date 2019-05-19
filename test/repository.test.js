@@ -21,6 +21,10 @@ class MockStorage extends EventEmitter {
     get(name) {
         return this.data[name];
     }
+
+    getAll() {
+        return this.data;
+    }
 }
 
 function setup(url, toggles, headers = {}) {
@@ -56,6 +60,9 @@ test.cb('should fetch from endpoint', t => {
         const savedFeature = repo.storage.data[feature.name];
         t.true(savedFeature.enabled === feature.enabled);
         t.true(savedFeature.strategies[0].name === feature.strategies[0].name);
+
+        const featureToggles = repo.getToggles();
+        t.true(featureToggles[0].name === 'feature');
 
         const featureToggle = repo.getToggle('feature');
         t.truthy(featureToggle);
