@@ -111,8 +111,9 @@ The initialize method takes the following arguments:
 -   **url** - the url to fetch toggles from. (required)
 -   **appName** - the application name / codebase name
 -   **instanceId** - an unique identifier, should/could be somewhat unique
--   **refreshInterval** - The poll-intervall to check for updates. Defaults to 15s.
--   **metricsInterval** - How often the client should send metrics to Unleash API
+-   **refreshInterval** - The poll-intervall to check for updates. Defaults to 15000ms.
+-   **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
+    60000ms.
 -   **strategies** - Custom activation strategies to be used.
 -   **disableMetrics** - disable metrics
 -   **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
