@@ -27,6 +27,6 @@ export interface Constraint {
 }
 
 export enum Operator {
-    IN,
-    NOT_IN,
+    IN = 'IN',
+    NOT_IN = 'NOT_IN',
 }
