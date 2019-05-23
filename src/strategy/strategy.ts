@@ -9,7 +9,7 @@ export class Strategy {
         this.returnValue = returnValue;
     }
 
-    isEnabled(parameters: any, context: Context): boolean {
+    isEnabled(parameters: any, context: Context, constraints?: Constraint[]): boolean {
         return this.returnValue;
     }
 }
@@ -17,4 +17,16 @@ export class Strategy {
 export interface StrategyTransportInterface {
     name: string;
     parameters: any;
+    constraints: Constraint[];
+}
+
+export interface Constraint {
+    contextName: string;
+    operator: Operator;
+    values: string[];
+}
+
+export enum Operator {
+    IN,
+    NOT_IN,
 }

@@ -5,6 +5,7 @@ import { GradualRolloutUserIdStrategy } from './gradual-rollout-user-id';
 import { GradualRolloutSessionIdStrategy } from './gradual-rollout-session-id';
 import { UserWithIdStrategy } from './user-with-id-strategy';
 import { RemoteAddressStrategy } from './remote-addresss-strategy';
+import { MatchingStrategy } from './matching-strategy';
 import { Strategy } from './strategy';
 export { Strategy } from './strategy';
 export { StrategyTransportInterface } from './strategy';
@@ -17,4 +18,5 @@ export const defaultStrategies: Array<Strategy> = [
     new GradualRolloutSessionIdStrategy(),
     new UserWithIdStrategy(),
     new RemoteAddressStrategy(),
+    new MatchingStrategy(),
 ];

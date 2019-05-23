@@ -2,6 +2,7 @@ import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
 import Metrics from './metrics';
 import { Strategy, defaultStrategies } from './strategy';
+import { Context } from './context';
 export { Strategy };
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
@@ -18,6 +19,7 @@ export interface CustomHeaders {
 export interface UnleashConfig {
     appName: string;
     instanceId?: string;
+    environment?: string;
     url: string;
     refreshInterval?: number;
     metricsInterval?: number;
@@ -34,9 +36,12 @@ export class Unleash extends EventEmitter {
     private client: Client | undefined;
     private metrics: Metrics;
 
+    private staticContext: Context;
+
     constructor({
         appName,
         instanceId,
+        environment,
         url,
         refreshInterval = 15 * 1000,
         metricsInterval = 60 * 1000,
@@ -85,6 +90,8 @@ export class Unleash extends EventEmitter {
                 : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
             instanceId = `${prefix}-${hostname()}`;
         }
+
+        this.staticContext = { application: appName, environment };
 
         this.repository =
             repository ||
@@ -155,7 +162,15 @@ export class Unleash extends EventEmitter {
         this.client = undefined;
     }
 
-    isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
+    isEnabled(name: string, context?: Context, fallbackValue?: boolean): boolean {
+        //TODO: Figure out how to use spread operator for this.
+        if (context) {
+            context.environment = this.staticContext.environment;
+            context.application = this.staticContext.application;
+        } else {
+            context = this.staticContext;
+        }
+
         let result;
         if (this.client !== undefined) {
             result = this.client.isEnabled(name, context, fallbackValue);
