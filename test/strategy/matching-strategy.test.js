@@ -1,4 +1,5 @@
 import test from 'ava';
+import sinon from 'sinon';
 
 import { MatchingStrategy } from '../../lib/strategy/matching-strategy';
 
@@ -89,5 +90,55 @@ test('should not enabled for multiple constraints where all are satisfied', t =>
         { contextName: 'application', operator: 'IN', values: ['web'] },
     ];
     const context = { environment: 'prod', userId: '123', application: 'web' };
+    t.true(strategy.isEnabled(params, context, constraints));
+});
+
+test('should NOT be enabled for userId=61 and rollout=9', t => {
+    const strategy = new MatchingStrategy();
+    const params = { rollout: 9, stickiness: 'default', groupId: 'Demo' };
+    const constraints = [];
+    const context = { userId: '61', application: 'web' };
+    t.false(strategy.isEnabled(params, context, constraints));
+});
+
+test('should be enabled for userId=61 and rollout=10', t => {
+    const strategy = new MatchingStrategy();
+    const params = { rollout: '10', stickiness: 'default', groupId: 'Demo' };
+    const constraints = [];
+    const context = { userId: '61', application: 'web' };
+    t.true(strategy.isEnabled(params, context, constraints));
+});
+
+test('should be disabled when stickiness=userId and userId not on context', t => {
+    const strategy = new MatchingStrategy();
+    const params = { rollout: '100', stickiness: 'userId', groupId: 'Demo' };
+    const constraints = [];
+    const context = {};
+    t.false(strategy.isEnabled(params, context, constraints));
+});
+
+test('should fallback to random if stickiness=default and empty context', t => {
+    const randomGenerator = sinon.fake.returns('42');
+
+    const strategy = new MatchingStrategy(randomGenerator);
+    const params = { rollout: '100', stickiness: 'default', groupId: 'Demo' };
+    const constraints = [];
+    const context = {};
+
+    t.true(strategy.isEnabled(params, context, constraints));
+    t.true(randomGenerator.called);
+});
+
+test('should be enabled when cosutomerId is in constraint', t => {
+    const strategy = new MatchingStrategy();
+    const params = { rollout: '100', stickiness: 'default', groupId: 'Demo' };
+    const constraints = [
+        { contextName: 'environment', operator: 'IN', values: ['dev', 'stage'] },
+        { contextName: 'customer', operator: 'IN', values: ['12', '13'] },
+    ];
+    const context = {
+        environment: 'dev',
+        properties: { customer: '13' },
+    };
     t.true(strategy.isEnabled(params, context, constraints));
 });
