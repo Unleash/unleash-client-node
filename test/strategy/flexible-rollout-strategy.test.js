@@ -1,15 +1,15 @@
 import test from 'ava';
 import sinon from 'sinon';
 
-import { MatchingStrategy } from '../../lib/strategy/matching-strategy';
+import { FlexibleRolloutStrategy } from '../../lib/strategy/flexible-rollout-strategy';
 
 test('should have correct name', t => {
-    const strategy = new MatchingStrategy();
-    t.deepEqual(strategy.name, 'MatchingStrategy');
+    const strategy = new FlexibleRolloutStrategy();
+    t.deepEqual(strategy.name, 'FlexibleRollout');
 });
 
 test('should be enabled for environment=dev', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100 };
     const constraints = [{ contextName: 'environment', operator: 'IN', values: ['stage', 'dev'] }];
     const context = { environment: 'dev' };
@@ -17,7 +17,7 @@ test('should be enabled for environment=dev', t => {
 });
 
 test('should NOT be enabled for environment=prod', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100 };
     const constraints = [{ contextName: 'environment', operator: 'IN', values: ['dev'] }];
     const context = { environment: 'prod' };
@@ -25,7 +25,7 @@ test('should NOT be enabled for environment=prod', t => {
 });
 
 test('should NOT be enabled for environment=prod AND userId=123', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100 };
     const constraints = [
         { contextName: 'environment', operator: 'IN', values: ['dev'] },
@@ -36,7 +36,7 @@ test('should NOT be enabled for environment=prod AND userId=123', t => {
 });
 
 test('should NOT be enabled for environment=dev AND rollout=10% when userId is 123', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 10, stickiness: 'default', groupId: 'toggleName' };
     const constraints = [{ contextName: 'environment', operator: 'IN', values: ['dev'] }];
     const context = { environment: 'dev', userId: '123' };
@@ -44,7 +44,7 @@ test('should NOT be enabled for environment=dev AND rollout=10% when userId is 1
 });
 
 test('should be enabled when constraints is empty list', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100, stickiness: 'default', groupId: 'toggleName' };
     const constraints = [];
     const context = { environment: 'dev', userId: '123' };
@@ -52,7 +52,7 @@ test('should be enabled when constraints is empty list', t => {
 });
 
 test('should be enabled when constraints is undefined', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100, stickiness: 'default', groupId: 'toggleName' };
     const constraints = undefined;
     const context = { environment: 'dev', userId: '123' };
@@ -60,7 +60,7 @@ test('should be enabled when constraints is undefined', t => {
 });
 
 test('should be enabled when environment NOT_IN constaints', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100, stickiness: 'default', groupId: 'toggleName' };
     const constraints = [
         { contextName: 'environment', operator: 'NOT_IN', values: ['dev', 'stage'] },
@@ -70,7 +70,7 @@ test('should be enabled when environment NOT_IN constaints', t => {
 });
 
 test('should not enabled for multiple constraints where last one is not satisfied', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100, stickiness: 'default', groupId: 'toggleName' };
     const constraints = [
         { contextName: 'environment', operator: 'NOT_IN', values: ['dev', 'stage'] },
@@ -81,7 +81,7 @@ test('should not enabled for multiple constraints where last one is not satisfie
 });
 
 test('should not enabled for multiple constraints where all are satisfied', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 100, stickiness: 'default', groupId: 'toggleName' };
     const constraints = [
         { contextName: 'environment', operator: 'NOT_IN', values: ['dev', 'stage'] },
@@ -94,7 +94,7 @@ test('should not enabled for multiple constraints where all are satisfied', t =>
 });
 
 test('should NOT be enabled for userId=61 and rollout=9', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: 9, stickiness: 'default', groupId: 'Demo' };
     const constraints = [];
     const context = { userId: '61', application: 'web' };
@@ -102,7 +102,7 @@ test('should NOT be enabled for userId=61 and rollout=9', t => {
 });
 
 test('should be enabled for userId=61 and rollout=10', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: '10', stickiness: 'default', groupId: 'Demo' };
     const constraints = [];
     const context = { userId: '61', application: 'web' };
@@ -110,7 +110,7 @@ test('should be enabled for userId=61 and rollout=10', t => {
 });
 
 test('should be disabled when stickiness=userId and userId not on context', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: '100', stickiness: 'userId', groupId: 'Demo' };
     const constraints = [];
     const context = {};
@@ -120,7 +120,7 @@ test('should be disabled when stickiness=userId and userId not on context', t =>
 test('should fallback to random if stickiness=default and empty context', t => {
     const randomGenerator = sinon.fake.returns('42');
 
-    const strategy = new MatchingStrategy(randomGenerator);
+    const strategy = new FlexibleRolloutStrategy(randomGenerator);
     const params = { rollout: '100', stickiness: 'default', groupId: 'Demo' };
     const constraints = [];
     const context = {};
@@ -130,7 +130,7 @@ test('should fallback to random if stickiness=default and empty context', t => {
 });
 
 test('should be enabled when cosutomerId is in constraint', t => {
-    const strategy = new MatchingStrategy();
+    const strategy = new FlexibleRolloutStrategy();
     const params = { rollout: '100', stickiness: 'default', groupId: 'Demo' };
     const constraints = [
         { contextName: 'environment', operator: 'IN', values: ['dev', 'stage'] },
