@@ -109,7 +109,7 @@ unleash.isEnabled('someToggle', unleashContext);
 The initialize method takes the following arguments:
 
 -   **url** - the url to fetch toggles from. (required)
--   **appName** - the application name / codebase name
+-   **appName** - the application name / codebase name (required)
 -   **instanceId** - an unique identifier, should/could be somewhat unique
 -   **refreshInterval** - The poll-intervall to check for updates. Defaults to 15000ms.
 -   **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
