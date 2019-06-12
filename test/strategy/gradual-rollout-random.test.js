@@ -31,10 +31,10 @@ test('should only at most miss by one percent', t => {
     t.true(highMark >= actualPercentage);
 });
 
-test('should be disabled when percentage is lower than the normalized random', t => {
-    const strategy = new GradualRolloutRandomStrategy(() => 0.5);
+test('should be disabled when percentage is lower than random', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 50);
     let params = { percentage: '20', groupId: 'test' };
-    t.true(strategy.isEnabled(params));
+    t.false(strategy.isEnabled(params));
 });
 
 test('should be disabled when percentage=0', t => {
@@ -61,7 +61,7 @@ test('should be enabled when percentage=100', t => {
     t.true(strategy.isEnabled(params));
 });
 
-test('should be enabled when percentage and normalized random are the same', t => {
+test('should be enabled when percentage and random are the same', t => {
     const strategy = new GradualRolloutRandomStrategy(() => 55);
     let params = { percentage: '55', groupId: 'test' };
     t.true(strategy.isEnabled(params));
