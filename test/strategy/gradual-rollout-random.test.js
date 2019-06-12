@@ -2,7 +2,7 @@ import test from 'ava';
 
 import { GradualRolloutRandomStrategy } from '../../lib/strategy/gradual-rollout-random';
 
-test('gradual-rollout-random strategy should have correct name', t => {
+test('should have correct name', t => {
     const strategy = new GradualRolloutRandomStrategy();
     t.deepEqual(strategy.name, 'gradualRolloutRandom');
 });
@@ -31,14 +31,38 @@ test('should only at most miss by one percent', t => {
     t.true(highMark >= actualPercentage);
 });
 
-test('gradual-rollout-random strategy should be disabled when percentage=0', t => {
-    const strategy = new GradualRolloutRandomStrategy();
+test('should be disabled when percentage is lower than the normalized random', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 0.5);
+    let params = { percentage: '20', groupId: 'test' };
+    t.true(strategy.isEnabled(params));
+});
+
+test('should be disabled when percentage=0', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 1);
     let params = { percentage: '0', groupId: 'test' };
     t.false(strategy.isEnabled(params));
 });
 
-test('gradual-rollout-random strategy should be enabled when percentage=100', t => {
-    const strategy = new GradualRolloutRandomStrategy();
+test('should be disabled when percentage=0 and random is not zero', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 50);
+    let params = { percentage: '0', groupId: 'test' };
+    t.false(strategy.isEnabled(params));
+});
+
+test('should be enabled when percentage is greater than random', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 10);
+    let params = { percentage: '20', groupId: 'test' };
+    t.true(strategy.isEnabled(params));
+});
+
+test('should be enabled when percentage=100', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 90);
     let params = { percentage: '100', groupId: 'test' };
+    t.true(strategy.isEnabled(params));
+});
+
+test('should be enabled when percentage and normalized random are the same', t => {
+    const strategy = new GradualRolloutRandomStrategy(() => 55);
+    let params = { percentage: '55', groupId: 'test' };
     t.true(strategy.isEnabled(params));
 });
