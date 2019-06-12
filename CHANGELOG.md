@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.6
+
+-   fix: update README init param defaults to milliseconds (#126)
+-   fix: bump js-yaml from 3.12.0 to 3.13.1 (#129)
+-   fix: Strategy gradualRolloutRandom random should <= 100 (#132)
+-   chore: Update readme - appName is required (#130)
+-   chore: control gradual rollout strategy randomness (#133)
+
 ## 3.2.5
 
 -   feature: Allow user to implement custom toggle repository
