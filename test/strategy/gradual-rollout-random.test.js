@@ -36,3 +36,9 @@ test('gradual-rollout-random strategy should be disabled when percentage=0', t =
     let params = { percentage: '0', groupId: 'test' };
     t.false(strategy.isEnabled(params));
 });
+
+test('gradual-rollout-random strategy should be enabled when percentage=100', t => {
+    const strategy = new GradualRolloutRandomStrategy();
+    let params = { percentage: '100', groupId: 'test' };
+    t.true(strategy.isEnabled(params));
+});
