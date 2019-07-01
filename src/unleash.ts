@@ -1,6 +1,7 @@
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
 import Metrics from './metrics';
+import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 export { Strategy };
 import { tmpdir } from 'os';
@@ -17,6 +18,7 @@ export interface CustomHeaders {
 
 export interface UnleashConfig {
     appName: string;
+    environment?: string;
     instanceId?: string;
     url: string;
     refreshInterval?: number;
@@ -33,9 +35,11 @@ export class Unleash extends EventEmitter {
     private repository: RepositoryInterface;
     private client: Client | undefined;
     private metrics: Metrics;
+    private staticContext: any;
 
     constructor({
         appName,
+        environment = 'default',
         instanceId,
         url,
         refreshInterval = 15 * 1000,
@@ -85,6 +89,8 @@ export class Unleash extends EventEmitter {
                 : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
             instanceId = `${prefix}-${hostname()}`;
         }
+
+        this.staticContext = { appName, environment };
 
         this.repository =
             repository ||
@@ -155,10 +161,12 @@ export class Unleash extends EventEmitter {
         this.client = undefined;
     }
 
-    isEnabled(name: string, context: any, fallbackValue?: boolean): boolean {
+    isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean {
+        const enhancedContext = Object.assign({}, this.staticContext, context);
+
         let result;
         if (this.client !== undefined) {
-            result = this.client.isEnabled(name, context, fallbackValue);
+            result = this.client.isEnabled(name, enhancedContext, fallbackValue);
         } else {
             result = typeof fallbackValue === 'boolean' ? fallbackValue : false;
             this.emit(

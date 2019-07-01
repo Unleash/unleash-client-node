@@ -3,5 +3,7 @@ export interface Context {
     userId?: string;
     sessionId?: string;
     remoteAddress?: string;
+    environment?: string;
+    appName?: string;
     properties?: any;
 }
