@@ -13,7 +13,6 @@ class EnvironmentStrategy extends Strategy {
     }
 
     isEnabled(parameters, context) {
-        console.log(context);
         return parameters.environments.indexOf(context.environment) !== -1;
     }
 }
