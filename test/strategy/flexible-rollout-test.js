@@ -5,7 +5,7 @@ import { FlexibleRolloutStrategy } from '../../lib/strategy/flexible-rollout-str
 
 test('should have correct name', t => {
     const strategy = new FlexibleRolloutStrategy();
-    t.deepEqual(strategy.name, 'FlexibleRollout');
+    t.deepEqual(strategy.name, 'flexibleRollout');
 });
 
 test('should be enabled for environment=dev', t => {

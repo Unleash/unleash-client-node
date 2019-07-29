@@ -13,7 +13,7 @@ export class FlexibleRolloutStrategy extends Strategy {
     private randomGenerator: Function = () => Math.round(Math.random() * 100) + 1 + '';
 
     constructor(radnomGenerator?: Function) {
-        super('FlexibleRollout');
+        super('flexibleRollout');
         if (radnomGenerator) {
             this.randomGenerator = radnomGenerator;
         }
