@@ -5,7 +5,18 @@ import { join } from 'path';
 import mkdirp from 'mkdirp';
 import { EventEmitter } from 'events';
 
-import { Unleash } from '../lib/unleash';
+import { Strategy, Unleash } from '../lib/unleash';
+
+class EnvironmentStrategy extends Strategy {
+    constructor() {
+        super('EnvironmentStrategy');
+    }
+
+    isEnabled(parameters, context) {
+        console.log(context);
+        return parameters.environments.indexOf(context.environment) !== -1;
+    }
+}
 
 let counter = 1;
 const getUrl = () => `http://test2${counter++}.app/`;
@@ -21,6 +32,18 @@ const defaultToggles = [
         name: 'feature',
         enabled: true,
         strategies: [],
+    },
+    {
+        name: 'f-context',
+        enabled: true,
+        strategies: [
+            {
+                name: 'EnvironmentStrategy',
+                parameters: {
+                    environments: 'prod',
+                },
+            },
+        ],
     },
 ];
 
@@ -332,4 +355,42 @@ test('should use the injected repository', t =>
             resolve();
         });
         repo.emit('ready');
+    }));
+
+test('should add static context fields', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+            environment: 'prod',
+            strategies: [new EnvironmentStrategy()],
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('f-context') === true);
+            instance.destroy();
+            resolve();
+        });
+    }));
+
+test('should local context should take precendence over static context fields', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+            environment: 'prod',
+            strategies: [new EnvironmentStrategy()],
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('f-context', { environment: 'dev' }) === false);
+            instance.destroy();
+            resolve();
+        });
     }));
