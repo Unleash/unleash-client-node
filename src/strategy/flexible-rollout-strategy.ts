@@ -1,4 +1,4 @@
-import { Strategy, Constraint } from './strategy';
+import { Strategy } from './strategy';
 import { Context } from '../context';
 import { normalizedValue } from './util';
 
@@ -32,24 +32,17 @@ export class FlexibleRolloutStrategy extends Strategy {
         }
     }
 
-    isEnabled(parameters: any, context: Context, constraints?: Constraint[]) {
-        //TODO v.4.x: Move this out to parent and make it apply for all strategies.
-        const constraintsSatisfied = super.checkConstraints(context, constraints);
+    isEnabled(parameters: any, context: Context) {
+        const groupId = parameters.groupId || context.featureToggle || '';
+        const percentage = Number(parameters.rollout);
+        const stickiness = parameters.stickiness || STICKINESS.default;
+        const stickinessId = this.resolveStickiness(stickiness, context);
 
-        if (constraintsSatisfied) {
-            const groupId = parameters.groupId || context.featureToggle || '';
-            const percentage = Number(parameters.rollout);
-            const stickiness = parameters.stickiness || STICKINESS.default;
-            const stickinessId = this.resolveStickiness(stickiness, context);
-
-            if (!stickinessId) {
-                return false;
-            } else {
-                const normalizedUserId = normalizedValue(stickinessId, groupId);
-                return percentage > 0 && normalizedUserId <= percentage;
-            }
-        } else {
+        if (!stickinessId) {
             return false;
+        } else {
+            const normalizedUserId = normalizedValue(stickinessId, groupId);
+            return percentage > 0 && normalizedUserId <= percentage;
         }
     }
 }

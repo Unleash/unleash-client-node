@@ -94,7 +94,7 @@ export default class UnleashClient extends EventEmitter {
                         this.warnOnce(strategySelector.name, feature.name, feature.strategies);
                         return false;
                     }
-                    return strategy.isEnabled(
+                    return strategy.isEnabledWithConstraints(
                         strategySelector.parameters,
                         context,
                         strategySelector.constraints,

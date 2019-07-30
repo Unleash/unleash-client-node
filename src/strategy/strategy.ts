@@ -17,14 +17,18 @@ export class Strategy {
     }
 
     checkConstraints(context: Context, constraints?: Constraint[]) {
-        if (!constraints) {
+        if (!constraints || constraints.length === 0) {
             return true;
         }
         return constraints.every(constraint => this.checkConstraint(constraint, context));
     }
 
-    isEnabled(parameters: any, context: Context, constraints?: Constraint[]): boolean {
+    isEnabled(parameters: any, context: Context): boolean {
         return this.returnValue;
+    }
+
+    isEnabledWithConstraints(parameters: any, context: Context, constraints: Constraint[] = []) {
+        return this.checkConstraints(context, constraints) && this.isEnabled(parameters, context);
     }
 }
 
