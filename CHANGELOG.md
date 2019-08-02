@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.7
+
+-   fix: upgrade ava to version 2.2.0
+-   fix: upgrade husky to version 3.0.1
+-   fix: upgrade eslint to version 6.1.0
+-   fix: upgrade lint-staged to version 9.2.1
+-   feat: Add support for static context fields (#136)
+-   feat: add support for strategy constraint (beta)
+-   feat: add support for flexible-rollout-strategy
+
 ## 3.2.6
 
 -   fix: update README init param defaults to milliseconds (#126)
