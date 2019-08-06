@@ -1,4 +1,5 @@
 import test from 'ava';
+import { v4 as uuid } from 'uuid';
 
 import { GradualRolloutSessionIdStrategy } from '../../lib/strategy/gradual-rollout-session-id';
 import { normalizedValue } from '../../lib/strategy/util';
@@ -66,4 +67,19 @@ test('should only at most miss by one percent', t => {
 
     t.true(lowMark <= actualPercentage);
     t.true(highMark >= actualPercentage);
+});
+
+test('should always be enabled when percentage is 100', t => {
+    const strategy = new GradualRolloutSessionIdStrategy();
+    const params = { percentage: '100', groupId: 'gr1' };
+
+    const rounds = 200000;
+    let enabledCount = 0;
+    for (let i = 0; i < rounds; i++) {
+        const context = { sessionId: uuid() };
+        if (strategy.isEnabled(params, context)) {
+            enabledCount++;
+        }
+    }
+    t.is(enabledCount, rounds);
 });

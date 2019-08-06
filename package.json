@@ -49,8 +49,8 @@
     "@types/request": "^2.0.8",
     "@unleash/client-specification": "^3.2.0",
     "ava": "^2.2.0",
-    "cross-env": "^5.2.0",
     "coveralls": "^3.0.3",
+    "cross-env": "^5.2.0",
     "eslint": "^6.1.0",
     "eslint-config-finn": "^3.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
@@ -60,8 +60,9 @@
     "nock": "^10.0.6",
     "nyc": "^14.1.1",
     "prettier": "^1.17.1",
+    "sinon": "^7.3.2",
     "typescript": "^3.2.2",
-    "sinon": "^7.3.2"
+    "uuid": "^3.3.2"
   },
   "nyc": {
     "lines": 95,
