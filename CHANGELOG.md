@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.8
+
+-   fix: script for updating client version
+
 ## 3.2.7
 
 -   fix: upgrade ava to version 2.2.0
