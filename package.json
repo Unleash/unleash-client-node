@@ -6,7 +6,7 @@
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "scripts": {
-    "postversion": "node scripts/build-details.js",
+    "postversion": "./scripts/update-build-details.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "build": "tsc -p .",
