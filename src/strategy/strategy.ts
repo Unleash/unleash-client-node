@@ -1,5 +1,15 @@
 import { Context } from '../context';
 
+function resolveContextValue(context: Context, field: string) {
+    if (context[field]) {
+        return context[field];
+    } else if (context.properties && context.properties[field]) {
+        return context.properties[field];
+    } else {
+        return undefined;
+    }
+}
+
 export class Strategy {
     public name: string;
     private returnValue: boolean;
@@ -11,7 +21,7 @@ export class Strategy {
 
     checkConstraint(constraint: Constraint, context: Context) {
         const field = constraint.contextName;
-        const contextValue = context[field] ? context[field] : context.properties[field];
+        const contextValue = resolveContextValue(context, field);
         const isIn = constraint.values.some(val => val.trim() === contextValue);
         return constraint.operator === Operator.IN ? isIn : !isIn;
     }
