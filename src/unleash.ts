@@ -31,11 +31,16 @@ export interface UnleashConfig {
     repository?: RepositoryInterface;
 }
 
+export interface StaticContext {
+    appName: string;
+    environment: string;
+}
+
 export class Unleash extends EventEmitter {
     private repository: RepositoryInterface;
     private client: Client | undefined;
     private metrics: Metrics;
-    private staticContext: any;
+    private staticContext: StaticContext;
 
     constructor({
         appName,
