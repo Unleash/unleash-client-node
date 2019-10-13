@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.9
+
+-   fix: clean up strategy tests
+-   fix: Missing context field should not crash constraints.
+-   fix: bump eslint-utils from 1.3.1 to 1.4.2 (#147)
+-   fix: Update cross-env to the latest version 🚀 (#145)
+
 ## 3.2.8
 
 -   fix: script for updating client version
