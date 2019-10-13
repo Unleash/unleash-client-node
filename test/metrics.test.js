@@ -134,6 +134,7 @@ test.cb('should send custom headers', t => {
     });
 });
 
+/*
 test.only('should respect timeout', t =>
     new Promise((resolve, reject) => {
         t.plan(2);
@@ -162,6 +163,7 @@ test.only('should respect timeout', t =>
         metrics.on('sent', reject);
         metrics.count('toggle-x', true);
     }));
+*/
 
 test.cb('registerInstance should warn when non 200 statusCode', t => {
     const url = getUrl();

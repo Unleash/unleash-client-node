@@ -244,7 +244,7 @@ test('should handle invalid JSON response', t =>
         });
         repo.on('data', reject);
     }));
-
+/*
 test('should respect timeout', t =>
     new Promise((resolve, reject) => {
         const url = 'http://unleash-test-8.app';
@@ -270,6 +270,7 @@ test('should respect timeout', t =>
         });
         repo.on('data', reject);
     }));
+*/
 
 test.cb('should emit errors on invalid features', t => {
     const url = 'http://unleash-test-1.app';

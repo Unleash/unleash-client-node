@@ -86,9 +86,9 @@ test('should not enabled for multiple constraints where all are satisfied', t =>
         { contextName: 'environment', operator: 'NOT_IN', values: ['dev', 'stage'] },
         { contextName: 'environment', operator: 'IN', values: ['prod'] },
         { contextName: 'userId', operator: 'IN', values: ['123', '223'] },
-        { contextName: 'application', operator: 'IN', values: ['web'] },
+        { contextName: 'appName', operator: 'IN', values: ['web'] },
     ];
-    const context = { environment: 'prod', userId: '123', application: 'web' };
+    const context = { environment: 'prod', userId: '123', appName: 'web' };
     t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
 
