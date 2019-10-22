@@ -71,10 +71,10 @@ test('should fallback when missing feature', t => {
     const client = new Client(repo, []);
     client.on('error', log).on('warn', log);
 
-    const result = client.isEnabled('feature-x', {});
+    const result = client.isEnabled('feature-x', {}, () => false);
     t.true(result === false);
 
-    const result2 = client.isEnabled('feature-x', {}, true);
+    const result2 = client.isEnabled('feature-x', {}, () => true);
     t.true(result2 === true);
 });
 
