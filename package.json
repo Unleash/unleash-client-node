@@ -47,7 +47,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^12.0.2",
     "@types/request": "^2.0.8",
-    "@unleash/client-specification": "^3.2.0",
+    "@unleash/client-specification": "^3.3.0",
     "ava": "^2.2.0",
     "cross-env": "^6.0.0",
     "coveralls": "^3.0.3",

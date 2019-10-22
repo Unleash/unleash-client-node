@@ -525,10 +525,10 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.4.tgz#821878b81bfab971b93a265a561d54ea61f9059f"
   integrity sha512-Set5ZdrAaKI/qHdFlVMgm/GsAv/wkXhSTuZFkJ+JI7HK+wIkIlOaUXSXieIvJ0+OvGIqtREFoE+NHJtEq0gtEw==
 
-"@unleash/client-specification@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-3.2.0.tgz#0f87fea4000c9bd84d64666dcb6c61962438d575"
-  integrity sha512-rf9DixPgMsaZMKLiUJ0AR4OjNX1QxDxbss4X86p/0dBgGZ92IqtxhA0bFBT9sQPWOq3JzqdHCtW1dXKc4TCcoA==
+"@unleash/client-specification@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-3.3.0.tgz#cdee9ed2a30be03134d2bf79d28614f416abe98d"
+  integrity sha512-nHaC/7nP7+gC83k3n3lXuqt7PV/eKPSYCe8I0ijL6riCdhdtdaIe0eKKHI97A3+MCw5UNvf4dXm7zTnkJX4LpQ==
 
 acorn-jsx@^5.0.0:
   version "5.0.1"
