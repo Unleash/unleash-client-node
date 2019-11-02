@@ -3,7 +3,7 @@ import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
-import { CustomHeaders } from './unleash';
+import { CustomHeaders, CustomHeadersFunction } from './unleash';
 import { Response } from 'request';
 
 export type StorageImpl = typeof Storage;
@@ -23,6 +23,7 @@ export interface RepositoryOptions {
     StorageImpl?: StorageImpl;
     timeout?: number;
     headers?: CustomHeaders;
+    customHeadersFunction?: CustomHeadersFunction;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -34,6 +35,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private instanceId: string;
     private refreshInterval?: number;
     private headers?: CustomHeaders;
+    private customHeadersFunction?: CustomHeadersFunction;
     private timeout?: number;
 
     constructor({
@@ -45,6 +47,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         StorageImpl = Storage,
         timeout,
         headers,
+        customHeadersFunction,
     }: RepositoryOptions) {
         super();
         this.url = url;
@@ -53,6 +56,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.appName = appName;
         this.headers = headers;
         this.timeout = timeout;
+        this.customHeadersFunction = customHeadersFunction;
 
         this.storage = new StorageImpl({ backupPath, appName });
         this.storage.on('error', err => this.emit('error', err));
@@ -92,8 +96,13 @@ export default class Repository extends EventEmitter implements EventEmitter {
         }
     }
 
-    fetch() {
+    async fetch() {
         const url = resolve(this.url, './client/features');
+
+        const headers = this.customHeadersFunction
+            ? await this.customHeadersFunction()
+            : this.headers;
+
         get(
             {
                 url,
@@ -101,7 +110,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 appName: this.appName,
                 timeout: this.timeout,
                 instanceId: this.instanceId,
-                headers: this.headers,
+                headers,
             },
             (error: Error | null, res: Response, body: string) => {
                 // start timer for next fetch
