@@ -117,6 +117,9 @@ The initialize method takes the following arguments:
 -   **strategies** - Custom activation strategies to be used.
 -   **disableMetrics** - disable metrics
 -   **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
+-   **customHeadersFunction** - Provide a function that return a Promise resolving as custom headers
+    to be sent to unleash-server. When options are set, this will take precedence over
+    `customHeaders` option.
 -   **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
 -   **repository** - Provide a custom repository implementation to manage the underlying data
 
