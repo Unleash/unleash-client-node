@@ -53,18 +53,14 @@ export default class UnleashClient extends EventEmitter {
         }
     }
 
-    isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean {
+    isEnabled(name: string, context: Context, fallback: Function): boolean {
         const feature = this.repository.getToggle(name);
-        return this.isFeatureEnabled(feature, context, fallbackValue);
+        return this.isFeatureEnabled(feature, context, fallback);
     }
 
-    isFeatureEnabled(
-        feature: FeatureInterface,
-        context: Context,
-        fallbackValue?: boolean,
-    ): boolean {
-        if (!feature && typeof fallbackValue === 'boolean') {
-            return fallbackValue;
+    isFeatureEnabled(feature: FeatureInterface, context: Context, fallback: Function): boolean {
+        if (!feature) {
+            return fallback();
         }
 
         if (!feature || !feature.enabled) {
@@ -118,7 +114,9 @@ export default class UnleashClient extends EventEmitter {
             return fallbackVariant;
         }
 
-        const enabled = this.isFeatureEnabled(feature, context, fallbackVariant.enabled);
+        const enabled = this.isFeatureEnabled(feature, context, () =>
+            fallbackVariant ? fallbackVariant.enabled : false,
+        );
         if (!enabled) {
             return fallbackVariant;
         }

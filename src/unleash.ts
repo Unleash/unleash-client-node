@@ -9,6 +9,7 @@ import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
 import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
+import { FallbackFunction, createFallbackFunction } from './helpers';
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -172,14 +173,17 @@ export class Unleash extends EventEmitter {
         this.client = undefined;
     }
 
-    isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean {
+    isEnabled(name: string, context: Context, fallbackFunction?: FallbackFunction): boolean;
+    isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean;
+    isEnabled(name: string, context: Context, fallback?: FallbackFunction | boolean): boolean {
         const enhancedContext = Object.assign({}, this.staticContext, context);
+        const fallbackFunc = createFallbackFunction(name, enhancedContext, fallback);
 
         let result;
         if (this.client !== undefined) {
-            result = this.client.isEnabled(name, enhancedContext, fallbackValue);
+            result = this.client.isEnabled(name, enhancedContext, fallbackFunc);
         } else {
-            result = typeof fallbackValue === 'boolean' ? fallbackValue : false;
+            result = fallbackFunc();
             this.emit(
                 'warn',
                 `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,

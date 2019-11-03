@@ -4,6 +4,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
 import { EventEmitter } from 'events';
+import sinon from 'sinon';
 
 import { Strategy, Unleash } from '../lib/unleash';
 
@@ -257,6 +258,35 @@ test('should return fallback value until online', t =>
         instance.on('ready', () => {
             t.true(instance.isEnabled('feature') === true);
             t.true(instance.isEnabled('feature', {}, false) === true);
+            instance.destroy();
+            resolve();
+        });
+    }));
+
+test('should call fallback function for unknown feature-toggle', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            environment: 'test',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            const fallbackFunc = sinon.spy(() => false);
+            const name = 'unknown';
+            const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
+            t.true(result === false);
+            t.true(fallbackFunc.called);
+            t.true(
+                fallbackFunc.firstCall.calledWith(name, {
+                    appName: 'foo',
+                    environment: 'test',
+                    userId: '123',
+                })
+            );
             instance.destroy();
             resolve();
         });
