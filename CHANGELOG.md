@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0
+
+-   feat: Add support for fallback function (#150)
+-   feat: customHeaderFunction to dynamic setting headers (#152)
+-   fix: upgrade @unleash/client-specification to version 3.3.0
+
 ## 3.2.9
 
 -   fix: clean up strategy tests
