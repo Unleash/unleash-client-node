@@ -22,16 +22,20 @@ test('should be disabled by flag disableMetrics', t => {
     t.true(Object.keys(metrics.bucket.toggles).length === 0);
 });
 
-test('registerInstance, sendMetrics, startTimer and count should respect disabled', t => {
+test.cb('registerInstance, sendMetrics, startTimer and count should respect disabled', t => {
     const url = getUrl();
     const metrics = new Metrics({
         url,
         disableMetrics: true,
     });
     t.true(!metrics.startTimer());
-    t.true(!metrics.registerInstance());
     t.true(!metrics.count());
-    t.true(!metrics.sendMetrics());
+    Promise.all([metrics.registerInstance(), metrics.sendMetrics()]).then(results => {
+        const [registerInstance, sendMetrics] = results;
+        t.true(!registerInstance);
+        t.true(!sendMetrics);
+        t.end();
+    });
 });
 
 test('should not start fetch/register when metricsInterval is 0', t => {
@@ -134,6 +138,40 @@ test.cb('should send custom headers', t => {
     });
 });
 
+test.cb('request with customHeadersFunction should take precedence over customHeaders', t => {
+    const url = getUrl();
+    t.plan(2);
+    const customHeadersKey = `value-${Math.random()}`;
+    const randomKey = `value-${Math.random()}`;
+    const metricsEP = nockMetrics(url)
+        .matchHeader('randomKey', value => value === undefined)
+        .matchHeader('customHeadersKey', value => value === customHeadersKey);
+
+    const regEP = nockRegister(url)
+        .matchHeader('randomKey', value => value === undefined)
+        .matchHeader('customHeadersKey', value => value === customHeadersKey);
+
+    const metrics = new Metrics({
+        url,
+        metricsInterval: 50,
+        headers: {
+            randomKey,
+        },
+        customHeadersFunction: () => Promise.resolve({ customHeadersKey }),
+    });
+
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+
+    metrics.on('sent', () => {
+        t.true(regEP.isDone());
+        t.true(metricsEP.isDone());
+        metrics.stop();
+        t.end();
+    });
+});
+
 /*
 test.only('should respect timeout', t =>
     new Promise((resolve, reject) => {
@@ -182,7 +220,7 @@ test.cb('registerInstance should warn when non 200 statusCode', t => {
         t.end();
     });
 
-    t.true(metrics.registerInstance());
+    metrics.registerInstance().then(t.true);
 });
 
 test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', t => {
@@ -232,12 +270,14 @@ test.cb('sendMetrics should not send empty buckets', t => {
         url,
     });
 
-    t.true(metrics.sendMetrics());
+    metrics.sendMetrics().then(result => {
+        t.true(result);
 
-    setTimeout(() => {
-        t.false(metEP.isDone());
-        t.end();
-    }, 10);
+        setTimeout(() => {
+            t.false(metEP.isDone());
+            t.end();
+        }, 10);
+    });
 });
 
 test('count should increment yes and no counters', t => {

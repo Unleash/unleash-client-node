@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
-import { CustomHeaders } from './unleash';
+import { CustomHeaders, CustomHeadersFunction } from './unleash';
 import { sdkVersion } from './details.json';
 
 export interface MetricsOptions {
@@ -14,6 +14,7 @@ export interface MetricsOptions {
     bucketInterval?: number;
     url: string;
     headers?: CustomHeaders;
+    customHeadersFunction?: CustomHeadersFunction;
     timeout?: number;
 }
 
@@ -40,6 +41,7 @@ export default class Metrics extends EventEmitter {
     private timer: NodeJS.Timer | undefined;
     private started: Date;
     private headers?: CustomHeaders;
+    private customHeadersFunction?: CustomHeadersFunction;
     private timeout?: number;
 
     constructor({
@@ -50,6 +52,7 @@ export default class Metrics extends EventEmitter {
         disableMetrics = false,
         url,
         headers,
+        customHeadersFunction,
         timeout,
     }: MetricsOptions) {
         super();
@@ -61,6 +64,7 @@ export default class Metrics extends EventEmitter {
         this.strategies = strategies;
         this.url = url;
         this.headers = headers;
+        this.customHeadersFunction = customHeadersFunction;
         this.started = new Date();
         this.timeout = timeout;
         this.resetBucket();
@@ -93,19 +97,24 @@ export default class Metrics extends EventEmitter {
         this.disabled = true;
     }
 
-    registerInstance(): boolean {
+    async registerInstance(): Promise<boolean> {
         if (this.disabled) {
             return false;
         }
         const url = resolve(this.url, './client/register');
         const payload = this.getClientData();
+
+        const headers = this.customHeadersFunction
+            ? await this.customHeadersFunction()
+            : this.headers;
+
         post(
             {
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
-                headers: this.headers,
+                headers,
                 timeout: this.timeout,
             },
             (err: Error | null, res: Response, body: any) => {
@@ -126,7 +135,7 @@ export default class Metrics extends EventEmitter {
         return true;
     }
 
-    sendMetrics(): boolean {
+    async sendMetrics(): Promise<boolean> {
         /* istanbul ignore next if */
         if (this.disabled) {
             return false;
@@ -138,13 +147,18 @@ export default class Metrics extends EventEmitter {
         }
         const url = resolve(this.url, './client/metrics');
         const payload = this.getPayload();
+
+        const headers = this.customHeadersFunction
+            ? await this.customHeadersFunction()
+            : this.headers;
+
         post(
             {
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
-                headers: this.headers,
+                headers,
                 timeout: this.timeout,
             },
             (err: Error | null, res: Response, body: any) => {

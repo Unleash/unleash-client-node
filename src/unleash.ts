@@ -16,6 +16,8 @@ export interface CustomHeaders {
     [key: string]: string;
 }
 
+export type CustomHeadersFunction = () => Promise<CustomHeaders>;
+
 export interface UnleashConfig {
     appName: string;
     environment?: string;
@@ -27,6 +29,7 @@ export interface UnleashConfig {
     backupPath?: string;
     strategies?: Strategy[];
     customHeaders?: CustomHeaders;
+    customHeadersFunction?: CustomHeadersFunction;
     timeout?: number;
     repository?: RepositoryInterface;
 }
@@ -54,6 +57,7 @@ export class Unleash extends EventEmitter {
         strategies = [],
         repository,
         customHeaders,
+        customHeadersFunction,
         timeout,
     }: UnleashConfig) {
         super();
@@ -106,6 +110,7 @@ export class Unleash extends EventEmitter {
                 instanceId,
                 refreshInterval,
                 headers: customHeaders,
+                customHeadersFunction,
                 timeout,
             });
 
@@ -135,6 +140,7 @@ export class Unleash extends EventEmitter {
             metricsInterval,
             url,
             headers: customHeaders,
+            customHeadersFunction,
             timeout,
         });
 

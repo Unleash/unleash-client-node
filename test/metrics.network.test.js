@@ -16,7 +16,10 @@ test.cb('registerInstance should emit error when request error', t => {
         t.end();
     });
 
-    t.true(metrics.registerInstance());
+    metrics.registerInstance().then(result => {
+        t.true(result);
+        t.end();
+    });
 });
 
 test.cb('sendMetrics should emit error when request error', t => {
@@ -32,5 +35,8 @@ test.cb('sendMetrics should emit error when request error', t => {
 
     metrics.count('x', true);
 
-    t.true(metrics.sendMetrics());
+    metrics.sendMetrics().then(result => {
+        t.true(result);
+        t.end();
+    });
 });
