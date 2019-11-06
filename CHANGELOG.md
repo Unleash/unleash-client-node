@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1
+
+-   fix: ensure destroy works more consistently (#153)
+
 ## 3.3.0
 
 -   feat: Add support for fallback function (#150)
