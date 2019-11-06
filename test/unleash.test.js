@@ -77,6 +77,19 @@ test('should error when missing url', t => {
     t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
+test('calling destroy synchronously should avoid network activity', t => {
+    const url = getUrl();
+    // Don't call mockNetwork. If destroy didn't work, then we would have an
+    // uncaught exception.
+    const instance = new Unleash({
+        appName: 'foo',
+        url,
+        disableMetrics: true,
+    });
+    instance.destroy();
+    t.true(true);
+});
+
 test.cb('should handle old url', t => {
     const url = mockNetwork([]);
 

@@ -37,6 +37,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     private headers?: CustomHeaders;
     private customHeadersFunction?: CustomHeadersFunction;
     private timeout?: number;
+    private stopped = false;
 
     constructor({
         backupPath,
@@ -97,6 +98,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     async fetch() {
+        if (this.stopped) {
+            return;
+        }
         const url = resolve(this.url, './client/features');
 
         const headers = this.customHeadersFunction
@@ -155,8 +159,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     stop() {
+        this.stopped = true;
         if (this.timer) {
-            clearInterval(this.timer);
+            clearTimeout(this.timer);
         }
         this.removeAllListeners();
         this.storage.removeAllListeners();
