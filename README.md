@@ -5,7 +5,7 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
 
-Unleash Client SDK for Node.js. It is compatible with [Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and the [Unleash Open-Soruce](https://github.com/finn-no/unleash).
+Unleash Client SDK for Node.js. It is compatible with the [Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and [Unleash Open-Soruce](https://github.com/finn-no/unleash).
 
 ## Getting started
 
