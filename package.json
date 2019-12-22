@@ -61,7 +61,7 @@
     "nyc": "^14.1.1",
     "prettier": "^1.17.1",
     "typescript": "^3.2.2",
-    "sinon": "^7.3.2"
+    "sinon": "^8.0.0"
   },
   "nyc": {
     "lines": 95,
