@@ -54,7 +54,7 @@
     "eslint": "^6.1.0",
     "eslint-config-finn": "^3.0.0",
     "eslint-config-finn-prettier": "^3.0.0",
-    "husky": "^3.0.1",
+    "husky": "^4.0.2",
     "lint-staged": "^9.2.1",
     "mkdirp": "^0.5.1",
     "nock": "^11.1.0",
