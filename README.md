@@ -1,5 +1,7 @@
 # Unleash Client SDK for Node.js
 
+![npm](https://img.shields.io/npm/v/unleash-client)
+![npm](https://img.shields.io/npm/dm/unleash-client)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Unleash/unleash-client-node.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/Unleash/unleash-client-node.svg?branch=master)](https://travis-ci.org/Unleash/unleash-client-node)
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
