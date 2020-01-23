@@ -184,9 +184,21 @@ test('should emit error when mising feature runtime', t => {
 });
 
 [
-    [['y', 1], ['0', 1], ['1', 1]],
-    [['3', 33], ['2', 33], ['0', 33]],
-    [['aaa', 100], ['3', 100], ['1', 100]],
+    [
+        ['y', 1],
+        ['0', 1],
+        ['1', 1],
+    ],
+    [
+        ['3', 33],
+        ['2', 33],
+        ['0', 33],
+    ],
+    [
+        ['aaa', 100],
+        ['3', 100],
+        ['1', 100],
+    ],
 ].forEach(([[id1, weight1], [id2, weight2], [id3, weight3]]) => {
     test(`should return variant when equal weight on ${weight1},${weight2},${weight3}`, t => {
         const repo = {
