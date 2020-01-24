@@ -56,7 +56,7 @@
     "eslint-config-finn-prettier": "^3.0.0",
     "husky": "^4.2.1",
     "lint-staged": "^9.2.1",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.3",
     "nock": "^11.1.0",
     "nyc": "^15.0.0",
     "prettier": "^1.17.1",
