@@ -133,12 +133,12 @@ export class Unleash extends EventEmitter {
             this.emit('warn', msg);
         });
 
-        this.repository.on('serveralive', () => {
-            this.emit('serveralive');
+        this.repository.on('unchanged', () => {
+            this.emit('unchanged');
         });
 
-        this.repository.on('repochange', data => {
-            this.emit('repochange', data);
+        this.repository.on('changed', data => {
+            this.emit('changed', data);
         });
 
         this.metrics = new Metrics({
