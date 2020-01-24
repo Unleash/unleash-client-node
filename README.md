@@ -9,7 +9,7 @@
 
 Unleash Client SDK for Node.js. It is compatible with the
 [Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and
-[Unleash Open-Soruce](https://github.com/finn-no/unleash).
+[Unleash Open-Source](https://github.com/finn-no/unleash).
 
 ## Getting started
 
