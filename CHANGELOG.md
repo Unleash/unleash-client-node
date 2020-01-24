@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.3.2
+
+-   feat: add events for changed and unchanged repository
+-   fix: upgrade @types/node to verison 12.12.25
+-   fix: upgrade typescript to version 3.7.5
+-   fix: upgrade husky to version 4.2.1
+-   fix: upgrade sinon to version 8.1.1
+-   fix: upgrade prettier to verseion 1.19.1
+-   fix: upgrade nock to version 11.7.2
+-   fix: upgrade dependencies
+-   fix: remove package-lock.json
+-   fix: upgrade sinon to version 8.1.1
+-   fix: upgrade prettier to verseion 1.19.1
+-   fix: upgrade nock to version 11.7.2
+-   fix: upgrade dependencies
+-   fix: remove package-lock.json
+
 ## 3.3.1
 
 -   fix: ensure destroy works more consistently (#153)
