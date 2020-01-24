@@ -7,7 +7,9 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
 
-Unleash Client SDK for Node.js. It is compatible with the [Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and [Unleash Open-Soruce](https://github.com/finn-no/unleash).
+Unleash Client SDK for Node.js. It is compatible with the
+[Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and
+[Unleash Open-Soruce](https://github.com/finn-no/unleash).
 
 ## Getting started
 
@@ -170,14 +172,17 @@ instance.on('error', console.error);
 
 The unleash instance object implements the EventEmitter class and **emits** the following events:
 
-| event      | payload                          | description                                                                              |
-| ---------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
-| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. |
-| registered | -                                | is emitted after the app has been registered at the api server                           |
-| sent       | `object` data                    | key/value pair of delivered metrics                                                      |
-| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                   |
-| warn       | `string` msg                     | is emitted on a warning                                                                  |
-| error      | `Error` err                      | is emitted on a error                                                                    |
+| event      | payload                          | description                                                                                 |
+| ---------- | -------------------------------- | ------------------------------------------------------------------------------------------- |
+| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted.    |
+| registered | -                                | is emitted after the app has been registered at the api server                              |
+| sent       | `object` data                    | key/value pair of delivered metrics                                                         |
+| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                      |
+| warn       | `string` msg                     | is emitted on a warning                                                                     |
+| error      | `Error` err                      | is emitted on a error                                                                       |
+| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed  |
+| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made |
+|            |
 
 Example usage:
 

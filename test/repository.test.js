@@ -56,7 +56,7 @@ test.cb('should fetch from endpoint', t => {
         StorageImpl: MockStorage,
     });
 
-    repo.once('data', () => {
+    repo.once('changed', () => {
         const savedFeature = repo.storage.data[feature.name];
         t.true(savedFeature.enabled === feature.enabled);
         t.true(savedFeature.strategies[0].name === feature.strategies[0].name);
@@ -84,7 +84,8 @@ test('should poll for changes', t =>
         });
 
         let assertCount = 5;
-        repo.on('data', () => {
+        repo.on('unchanged', resolve);
+        repo.on('changed', () => {
             assertCount--;
 
             if (assertCount === 0) {
@@ -110,7 +111,8 @@ test('should store etag', t =>
             StorageImpl: MockStorage,
         });
 
-        repo.once('data', () => {
+        repo.once('unchanged', resolve);
+        repo.once('changed', () => {
             t.true(repo.etag === '12345');
 
             resolve();
@@ -136,7 +138,10 @@ test.cb('should request with etag', t => {
 
     repo.etag = '12345-1';
 
-    repo.once('data', () => {
+    repo.once('unchanged', () => {
+        t.end();
+    });
+    repo.once('changed', () => {
         t.true(repo.etag === '12345-2');
         t.end();
     });
@@ -164,8 +169,10 @@ test.cb('should request with custom headers', t => {
     });
 
     repo.etag = '12345-1';
-
-    repo.once('data', () => {
+    repo.once('unchanged', () => {
+        t.end();
+    });
+    repo.once('changed', () => {
         t.true(repo.etag === '12345-3');
         t.end();
     });
@@ -197,7 +204,10 @@ test.cb('request with customHeadersFunction should take precedence over customHe
 
     repo.etag = '12345-1';
 
-    repo.once('data', () => {
+    repo.once('unchanged', () => {
+        t.end();
+    });
+    repo.once('changed', () => {
         t.true(repo.etag === '12345-3');
         t.end();
     });
@@ -245,7 +255,7 @@ test('should handle 304 as silent ok', t => {
             StorageImpl: MockStorage,
         });
         repo.on('error', reject);
-        repo.on('data', reject);
+        repo.on('unchanged', resolve);
         process.nextTick(resolve);
     });
 });
@@ -274,7 +284,8 @@ test('should handle invalid JSON response', t =>
             );
             resolve();
         });
-        repo.on('data', reject);
+        repo.on('unchanged', resolve);
+        repo.on('changed', reject);
     }));
 /*
 test('should respect timeout', t =>

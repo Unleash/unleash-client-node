@@ -126,6 +126,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
                 if (res.statusCode === 304) {
                     // No new data
+                    this.emit('unchanged');
                     return;
                 }
 
@@ -150,7 +151,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                     this.etag = Array.isArray(res.headers.etag)
                         ? res.headers.etag.join(' ')
                         : res.headers.etag;
-                    this.emit('data');
+                    this.emit('changed', this.storage.getAll());
                 } catch (err) {
                     this.emit('error', err);
                 }
