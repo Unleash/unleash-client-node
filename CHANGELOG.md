@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.3
+
+-   fix: clean up properties types a bit
+
 ## 3.3.2
 
 -   feat: add events for changed and unchanged repository
