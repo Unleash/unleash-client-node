@@ -45,7 +45,7 @@
     "@types/ip": "^1.1.0",
     "@types/murmurhash3js": "^3.0.2",
     "@types/nock": "^11.1.0",
-    "@types/node": "^12.12.25",
+    "@types/node": "^13.7.4",
     "@types/request": "^2.48.4",
     "@unleash/client-specification": "^3.3.0",
     "ava": "^2.2.0",
@@ -61,7 +61,7 @@
     "nyc": "^15.0.0",
     "prettier": "^1.17.1",
     "sinon": "^9.0.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.2"
   },
   "nyc": {
     "lines": 95,

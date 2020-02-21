@@ -1,5 +1,12 @@
 # Changelog
 
+# 3.3.4
+
+-   chore: upgrade typscrip to version 3.8.2
+-   chore: Update nock to the latest version
+-   chore: Update sinon to the latest version
+-   chore(package): update lint-staged to version 10.0.3
+
 ## 3.3.3
 
 -   fix: clean up properties types a bit
