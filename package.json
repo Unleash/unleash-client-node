@@ -46,7 +46,7 @@
     "@types/murmurhash3js": "^3.0.2",
     "@types/nock": "^11.1.0",
     "@types/node": "^13.7.4",
-    "@types/request": "^2.48.4",
+    "@types/request": "^2.48.5",
     "@unleash/client-specification": "^3.3.0",
     "ava": "^2.2.0",
     "coveralls": "^3.0.3",
