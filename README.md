@@ -8,7 +8,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
 
 Unleash Client SDK for Node.js. It is compatible with the
-[Unlesah-hosted.com SaaS offering](https://www.unleash-hosted.com/) and
+[Unleash-hosted.com SaaS offering](https://www.unleash-hosted.com/) and
 [Unleash Open-Source](https://github.com/finn-no/unleash).
 
 ## Getting started
