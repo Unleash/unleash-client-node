@@ -1,14 +1,5 @@
 import { Context } from '../context';
-
-function resolveContextValue(context: Context, field: string) {
-    if (context[field]) {
-        return context[field];
-    } else if (context.properties && context.properties[field]) {
-        return context.properties[field];
-    } else {
-        return undefined;
-    }
-}
+import { resolveContextValue } from '../helpers';
 
 export class Strategy {
     public name: string;

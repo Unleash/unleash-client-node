@@ -202,9 +202,10 @@ export class Unleash extends EventEmitter {
     }
 
     getVariant(name: string, context: any, fallbackVariant?: Variant): Variant {
+        const enhancedContext = Object.assign({}, this.staticContext, context);
         let result;
         if (this.client !== undefined) {
-            result = this.client.getVariant(name, context, fallbackVariant);
+            result = this.client.getVariant(name, enhancedContext, fallbackVariant);
         } else {
             result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
             this.emit(

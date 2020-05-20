@@ -15,3 +15,13 @@ export function createFallbackFunction(
         return () => false;
     }
 }
+
+export function resolveContextValue(context: Context, field: string) {
+    if (context[field]) {
+        return context[field];
+    } else if (context.properties && context.properties[field]) {
+        return context.properties[field];
+    } else {
+        return undefined;
+    }
+}
