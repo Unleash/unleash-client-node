@@ -77,15 +77,15 @@ export function selectVariant(
     const target = normalizedValue(getSeed(context), feature.name, totalWeight);
 
     let counter = 0;
-    const variant = feature.variants.find((variant: VariantDefinition): any => {
-        if (variant.weight === 0) {
+    const variant = feature.variants.find((v: VariantDefinition): any => {
+        if (v.weight === 0) {
             return;
         }
-        counter += variant.weight;
+        counter += v.weight;
         if (counter < target) {
             return;
         } else {
-            return variant;
+            return v;
         }
     });
     return variant || null;
