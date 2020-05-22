@@ -1,5 +1,14 @@
 # Changelog
 
+# 3.3.5
+
+-   Fix typo (#174)
+-   fix: varant should support all context fields (#178)
+-   Update @types/node to the latest version 🚀 (#175)
+-   Merge pull request #176 from aBMania/patch-1
+-   fix typo in readme
+-   fix: license year and company
+
 # 3.3.4
 
 -   chore: upgrade typscrip to version 3.8.2
