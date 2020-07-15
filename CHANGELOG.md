@@ -1,5 +1,10 @@
 # Changelog
 
+# 3.3.6
+
+-   fix: upgrade request to version 2.88.2
+-   fix: add keepAlive options to request.
+
 # 3.3.5
 
 -   Fix typo (#174)
