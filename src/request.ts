@@ -30,6 +30,11 @@ export const post = (
     const options = {
         url,
         timeout: timeout || 10000,
+        agentOptions: {
+            keepAlive: true,
+            keepAliveMsecs: 30 * 1000,
+            timeout: timeout || 10 * 1000,
+        },
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
@@ -50,6 +55,11 @@ export const get = (
     const options = {
         url,
         timeout: timeout || 10000,
+        agentOptions: {
+            keepAlive: true,
+            keepAliveMsecs: 30 * 1000,
+            timeout: timeout || 10 * 1000,
+        },
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
