@@ -187,15 +187,21 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 Example usage:
 
 ```js
-const { Unleash, isEnabled } = require('unleash-client');
+const { initialize, isEnabled } = require('unleash-client');
 
-const instance = new Unleash({
+const instance = initialize({
     appName: 'my-app-name',
-    url: 'http://unleash.herokuapp.com',
+    url: 'http://unleash.herokuapp.com/api/',
 });
 
-await instance.once('ready');
-// do something
+instance.once('registered', () => {
+    // Do something after the client has registered with the server api.
+    // NB! It might not have recieved updated feature toggles yet.
+});
+
+instance.once('changed', () => {
+    console.log(`Demo is enabled: ${isEnabled('Demo')}`);
+});
 ```
 
 ## Custom repository
