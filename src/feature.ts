@@ -5,6 +5,7 @@ export interface FeatureInterface {
     name: string;
     description?: string;
     enabled: boolean;
+    stale: boolean;
     strategies: StrategyTransportInterface[];
     variants: VariantDefinition[];
 }
