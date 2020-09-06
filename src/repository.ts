@@ -60,7 +60,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.customHeadersFunction = customHeadersFunction;
 
         this.storage = new StorageImpl({ backupPath, appName });
-        this.storage.on('error', err => this.emit('error', err));
+        this.storage.on('error', (err) => this.emit('error', err));
         this.storage.on('ready', () => this.emit('ready'));
 
         process.nextTick(() => this.fetch());
@@ -69,7 +69,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     timedFetch() {
         if (this.refreshInterval != null && this.refreshInterval > 0) {
             this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
-            if (process.env.NODE_ENV !== 'test') {
+            if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
                 this.timer.unref();
             }
         }
@@ -174,6 +174,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     getToggles(): FeatureInterface[] {
         const toggles = this.storage.getAll();
-        return Object.keys(toggles).map(key => toggles[key]);
+        return Object.keys(toggles).map((key) => toggles[key]);
     }
 }

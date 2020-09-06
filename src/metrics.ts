@@ -83,7 +83,7 @@ export default class Metrics extends EventEmitter {
             this.sendMetrics();
         }, this.metricsInterval);
 
-        if (process.env.NODE_ENV !== 'test') {
+        if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
             this.timer.unref();
         }
         return true;
