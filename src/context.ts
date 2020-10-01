@@ -1,13 +1,13 @@
-export interface Propeties {
+export interface Properties {
     [key: string]: string | undefined | number;
 }
 
 export interface Context {
-    [key: string]: string | undefined | number | Propeties;
+    [key: string]: string | undefined | number | Properties;
     userId?: string;
     sessionId?: string;
     remoteAddress?: string;
     environment?: string;
     appName?: string;
-    properties?: Propeties;
+    properties?: Properties;
 }
