@@ -3,7 +3,7 @@ import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
 
 export { Strategy } from './strategy/index';
-export { Unleash } from './unleash';
+export { Context, Variant, Unleash };
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
