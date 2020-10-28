@@ -172,16 +172,16 @@ instance.on('error', console.error);
 
 The unleash instance object implements the EventEmitter class and **emits** the following events:
 
-| event      | payload                          | description                                                                                 |
-| ---------- | -------------------------------- | ------------------------------------------------------------------------------------------- |
-| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted.    |
-| registered | -                                | is emitted after the app has been registered at the api server                              |
-| sent       | `object` data                    | key/value pair of delivered metrics                                                         |
-| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                      |
-| warn       | `string` msg                     | is emitted on a warning                                                                     |
-| error      | `Error` err                      | is emitted on a error                                                                       |
-| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed  |
-| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made |
+| event      | payload                          | description                                                                                                                        |
+| ---------- | -------------------------------- | -----------------------------------------------------------------------------------------------------------------------------------|
+| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. toggle states are available at this point |
+| registered | -                                | is emitted after the app has been registered at the api server                                                                     |
+| sent       | `object` data                    | key/value pair of delivered metrics                                                                                                |
+| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                             |
+| warn       | `string` msg                     | is emitted on a warning                                                                                                            |
+| error      | `Error` err                      | is emitted on a error                                                                                                              |
+| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                         |
+| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                        |
 |            |
 
 Example usage:
