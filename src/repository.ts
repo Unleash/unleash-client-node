@@ -69,7 +69,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     timedFetch() {
         if (this.refreshInterval != null && this.refreshInterval > 0) {
             this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
-            if (process.env.NODE_ENV !== 'test') {
+            if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
                 this.timer.unref();
             }
         }
