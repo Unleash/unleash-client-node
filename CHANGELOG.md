@@ -1,5 +1,14 @@
 # Changelog
 
+# 3.4.0
+
+-   fix: Only unref timers when used in node, where unref is defined (#188)
+-   feat: Expose Context and Variant interfaces (#190)
+-   fix: Typo in Properties interface name (#189)
+-   feat: Add stale property to the FeatureInterface (#185)
+-   chore: correct example in README.
+-   chore: Update build-details
+
 # 3.3.6
 
 -   fix: upgrade request to version 2.88.2
