@@ -97,7 +97,7 @@ In order to use some of the common activation strategies you must provide a
 client SDK allows you to send in the unleash context as part of the `isEnabled` call:
 
 ```javascript
-const context = {
+const unleashContext = {
     userId: '123',
     sessionId: 'some-session-id',
     remoteAddress: '127.0.0.1',
