@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
-    "@cloudflare/workers-types": "^2.1.0",
     "ip": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "murmurhash3js": "^3.0.1"

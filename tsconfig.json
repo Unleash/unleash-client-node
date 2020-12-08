@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./lib",
     "lib": ["ES2020", "WebWorker"],
-    "types": ["@cloudflare/workers-types", "@types/node"],
+    "types": ["@types/node"],
     "target": "ES2020",
     "module": "commonjs",
     "sourceMap": true,
