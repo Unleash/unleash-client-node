@@ -1,4 +1,3 @@
-import * as request from 'request';
 import { CustomHeaders } from './unleash';
 
 export interface RequestOptions {
@@ -23,54 +22,40 @@ export interface PostRequestOptions extends RequestOptions {
     instanceId?: string;
 }
 
-export const post = (
-    { url, appName, timeout, instanceId, headers, json }: PostRequestOptions,
-    cb: request.RequestCallback,
-) => {
-    const options = {
-        url,
-        timeout: timeout || 10000,
-        agentOptions: {
-            keepAlive: true,
-            keepAliveMsecs: 30 * 1000,
-            timeout: timeout || 10 * 1000,
-        },
+export const post = async ({
+    url,
+    appName,
+    timeout,
+    instanceId,
+    headers,
+    json,
+}: PostRequestOptions) => {
+    return fetch(url, {
+        method: 'post',
+        keepalive: true,
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
                 'UNLEASH-INSTANCEID': instanceId,
                 'User-Agent': appName,
+                'content-type': 'application/json',
             },
             headers,
         ),
-        json,
-    };
-    return request.post(options, cb);
+        body: JSON.stringify(json),
+    });
 };
 
-export const get = (
-    { url, etag, appName, timeout, instanceId, headers }: GetRequestOptions,
-    cb: request.RequestCallback,
-) => {
-    const options = {
-        url,
-        timeout: timeout || 10000,
-        agentOptions: {
-            keepAlive: true,
-            keepAliveMsecs: 30 * 1000,
-            timeout: timeout || 10 * 1000,
-        },
+export const get = async ({ url, etag, appName, instanceId, headers }: GetRequestOptions) => {
+    return fetch(url, {
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
                 'UNLEASH-INSTANCEID': instanceId,
                 'User-Agent': appName,
+                'if-none-match': etag ? etag : undefined,
             },
             headers,
         ),
-    };
-    if (etag) {
-        options.headers['If-None-Match'] = etag;
-    }
-    return request.get(options, cb);
+    });
 };

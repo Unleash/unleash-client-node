@@ -4,6 +4,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { Storage } from '../lib/storage';
 import * as mkdirp from 'mkdirp';
+import 'isomorphic-fetch';
 
 function setup(name) {
     const tmp = join(tmpdir(), name + Math.round(10000 * Math.random()));

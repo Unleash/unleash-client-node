@@ -4,7 +4,6 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './unleash';
-import { Response } from 'request';
 
 export type StorageImpl = typeof Storage;
 
@@ -27,7 +26,7 @@ export interface RepositoryOptions {
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
-    private timer: NodeJS.Timer | undefined;
+    private timer?: ReturnType<typeof setTimeout>;
     private url: string;
     private storage: Storage;
     private etag: string | undefined;
@@ -63,7 +62,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.storage.on('error', err => this.emit('error', err));
         this.storage.on('ready', () => this.emit('ready'));
 
-        process.nextTick(() => this.fetch());
+        setImmediate(() => this.fetch());
     }
 
     timedFetch() {
@@ -107,56 +106,48 @@ export default class Repository extends EventEmitter implements EventEmitter {
             ? await this.customHeadersFunction()
             : this.headers;
 
-        get(
-            {
+        try {
+            const fetchResult = await get({
                 url,
                 etag: this.etag,
                 appName: this.appName,
                 timeout: this.timeout,
                 instanceId: this.instanceId,
                 headers,
-            },
-            (error: Error | null, res: Response, body: string) => {
-                // start timer for next fetch
-                this.timedFetch();
+            });
 
-                if (error) {
-                    return this.emit('error', error);
-                }
+            // start timer for next fetch
+            this.timedFetch();
 
-                if (res.statusCode === 304) {
-                    // No new data
-                    this.emit('unchanged');
-                    return;
-                }
+            if (fetchResult.status === 304) {
+                // No new data
+                this.emit('unchanged');
+                return;
+            }
 
-                if (!(res.statusCode >= 200 && res.statusCode < 300)) {
-                    return this.emit(
-                        'error',
-                        new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`),
-                    );
-                }
+            if (!(fetchResult.status >= 200 && fetchResult.status < 300)) {
+                return this.emit(
+                    'error',
+                    new Error(`Response was not statusCode 2XX, but was ${fetchResult.status}`),
+                );
+            }
 
-                try {
-                    const data: any = JSON.parse(body);
-                    const obj = data.features.reduce(
-                        (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
-                            this.validateFeature(feature);
-                            o[feature.name] = feature;
-                            return o;
-                        },
-                        {} as { [s: string]: FeatureInterface },
-                    );
-                    this.storage.reset(obj);
-                    this.etag = Array.isArray(res.headers.etag)
-                        ? res.headers.etag.join(' ')
-                        : res.headers.etag;
-                    this.emit('changed', this.storage.getAll());
-                } catch (err) {
-                    this.emit('error', err);
-                }
-            },
-        );
+            const data = await fetchResult.json();
+            const obj = data.features.reduce(
+                (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
+                    this.validateFeature(feature);
+                    o[feature.name] = feature;
+                    return o;
+                },
+                {} as { [s: string]: FeatureInterface },
+            );
+            this.storage.reset(obj);
+            const etag = fetchResult.headers.get('etag') || '';
+            this.etag = Array.isArray(etag) ? etag.join(' ') : etag;
+            this.emit('changed', this.storage.getAll());
+        } catch (err) {
+            this.emit('error', err);
+        }
     }
 
     stop() {

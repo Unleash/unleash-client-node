@@ -69,7 +69,7 @@ export class Unleash extends EventEmitter {
 
         if (url.endsWith('/features')) {
             const oldUrl = url;
-            process.nextTick(() =>
+            setImmediate(() =>
                 this.emit(
                     'warn',
                     `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
@@ -96,7 +96,7 @@ export class Unleash extends EventEmitter {
 
             const prefix = info
                 ? info.username
-                : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+                : `generated-${Math.round(Math.random() * 1000000)}`;
             instanceId = `${prefix}-${hostname()}`;
         }
 

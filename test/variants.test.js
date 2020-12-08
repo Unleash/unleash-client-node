@@ -1,5 +1,6 @@
 import test from 'ava';
 import { selectVariant } from '../lib/variant';
+import 'isomorphic-fetch';
 
 function genVariants(n) {
     return Array.from(new Array(n)).map((v, i) => ({

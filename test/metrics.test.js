@@ -1,19 +1,23 @@
 import test from 'ava';
 import Metrics from '../lib/metrics';
-import nock from 'nock';
+const fetchMock = require('fetch-mock');
+import 'isomorphic-fetch';
 
 let counter = 1;
-const getUrl = () => `http://test${counter++}.app/`;
+const getUrl = () => `http://testm${counter++}.app`;
 const metricsUrl = '/client/metrics';
-const nockMetrics = (url, code = 200) =>
-    nock(url)
-        .post(metricsUrl)
-        .reply(code, '');
-const registerUrl = '/client/register';
-const nockRegister = (url, code = 200) =>
-    nock(url)
-        .post(registerUrl)
-        .reply(code, '');
+const nockMetrics = (url, code = 200, headers = {}) =>
+    fetchMock.mock({
+        url: `${url}${metricsUrl}`,
+        headers,
+        response: { status: code },
+    });
+const nockRegister = (url, code = 200, headers = {}) =>
+    fetchMock.mock({
+        url: `${url}/client/register`,
+        headers,
+        response: { status: code },
+    });
 
 test('should be disabled by flag disableMetrics', t => {
     const metrics = new Metrics({ disableMetrics: true });
@@ -64,11 +68,11 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
     metrics.count('toggle-y', true);
 
     metrics.on('registered', () => {
-        t.true(regEP.isDone());
+        t.truthy(regEP.done(`${url}/client/register`));
     });
 
     metrics.on('sent', () => {
-        t.true(metricsEP.isDone());
+        t.true(metricsEP.done(`${url}/client/metrics`));
         metrics.stop();
         t.end();
     });
@@ -76,19 +80,19 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
 
 test.cb('should sendMetrics', t => {
     const url = getUrl();
-    t.plan(6);
-    const metricsEP = nock(url)
-        .post(metricsUrl, payload => {
-            t.truthy(payload.bucket);
-            t.truthy(payload.bucket.start);
-            t.truthy(payload.bucket.stop);
-            t.deepEqual(payload.bucket.toggles, {
-                'toggle-x': { yes: 1, no: 1 },
-                'toggle-y': { yes: 1, no: 0 },
-            });
-            return true;
-        })
-        .reply(200, '');
+    t.plan(7);
+    const metricsEP = fetchMock.mock(url + metricsUrl, (_, req) => {
+        t.deepEqual(req.method, 'post');
+        const payload = JSON.parse(req.body);
+        t.truthy(payload.bucket);
+        t.truthy(payload.bucket.start);
+        t.truthy(payload.bucket.stop);
+        t.deepEqual(payload.bucket.toggles, {
+            'toggle-x': { yes: 1, no: 1 },
+            'toggle-y': { yes: 1, no: 0 },
+        });
+        return { status: 200 };
+    });
     const regEP = nockRegister(url);
 
     const metrics = new Metrics({
@@ -101,11 +105,11 @@ test.cb('should sendMetrics', t => {
     metrics.count('toggle-y', true);
 
     metrics.on('registered', () => {
-        t.true(regEP.isDone());
+        t.true(regEP.done(`${url}/client/register`));
     });
 
     metrics.on('sent', () => {
-        t.true(metricsEP.isDone());
+        t.true(metricsEP.done(`${url}/client/metrics`));
         metrics.stop();
         t.end();
     });
@@ -115,8 +119,8 @@ test.cb('should send custom headers', t => {
     const url = getUrl();
     t.plan(2);
     const randomKey = `value-${Math.random()}`;
-    const metricsEP = nockMetrics(url).matchHeader('randomKey', randomKey);
-    const regEP = nockRegister(url).matchHeader('randomKey', randomKey);
+    const metricsEP = nockMetrics(url, 200, { randomKey });
+    const regEP = nockRegister(url, 200, { randomKey });
 
     const metrics = new Metrics({
         url,
@@ -131,8 +135,8 @@ test.cb('should send custom headers', t => {
     metrics.count('toggle-y', true);
 
     metrics.on('sent', () => {
-        t.true(regEP.isDone());
-        t.true(metricsEP.isDone());
+        t.true(regEP.done(`${url}/client/register`));
+        t.true(metricsEP.done(`${url}/client/metrics`));
         metrics.stop();
         t.end();
     });
@@ -143,13 +147,14 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     t.plan(2);
     const customHeadersKey = `value-${Math.random()}`;
     const randomKey = `value-${Math.random()}`;
-    const metricsEP = nockMetrics(url)
-        .matchHeader('randomKey', value => value === undefined)
-        .matchHeader('customHeadersKey', value => value === customHeadersKey);
-
-    const regEP = nockRegister(url)
-        .matchHeader('randomKey', value => value === undefined)
-        .matchHeader('customHeadersKey', value => value === customHeadersKey);
+    const metricsEP = nockMetrics(url, 200, {
+        randomKey: undefined,
+        customHeadersKey,
+    });
+    const regEP = nockRegister(url, 200, {
+        randomKey: undefined,
+        customHeadersKey,
+    });
 
     const metrics = new Metrics({
         url,
@@ -165,8 +170,8 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     metrics.count('toggle-y', true);
 
     metrics.on('sent', () => {
-        t.true(regEP.isDone());
-        t.true(metricsEP.isDone());
+        t.true(regEP.done(`${url}/client/register`));
+        t.true(metricsEP.done(`${url}/client/metrics`));
         metrics.stop();
         t.end();
     });
@@ -215,7 +220,7 @@ test.cb('registerInstance should warn when non 200 statusCode', t => {
     });
 
     metrics.on('warn', e => {
-        t.true(regEP.isDone());
+        t.true(regEP.done(`${url}/client/register`));
         t.truthy(e);
         t.end();
     });
@@ -232,7 +237,7 @@ test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', t => 
 
     metrics.on('warn', () => {
         metrics.stop();
-        t.true(metEP.isDone());
+        t.true(metEP.done(`${url}/client/metrics`));
         t.true(metrics.disabled);
         t.end();
     });
@@ -253,7 +258,7 @@ test.cb('sendMetrics should emit warn on non 200 statusCode', t => {
     });
 
     metrics.on('warn', () => {
-        t.true(metEP.isDone());
+        t.true(metEP.done(`${url}/client/metrics`));
         t.end();
     });
 
@@ -274,7 +279,7 @@ test.cb('sendMetrics should not send empty buckets', t => {
         t.true(result);
 
         setTimeout(() => {
-            t.false(metEP.isDone());
+            t.falsy(metEP.done(`${url}/client/metrics`));
             t.end();
         }, 10);
     });

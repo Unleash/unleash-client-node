@@ -1,6 +1,7 @@
 import test from 'ava';
 import { EventEmitter } from 'events';
-import nock from 'nock';
+const fetchMock = require('fetch-mock');
+import 'isomorphic-fetch';
 
 import Repository from '../lib/repository';
 
@@ -11,7 +12,7 @@ class MockStorage extends EventEmitter {
     constructor() {
         super();
         this.data = {};
-        process.nextTick(() => this.emit('ready'));
+        setImmediate(() => this.emit('ready'));
     }
 
     reset(data) {
@@ -28,10 +29,14 @@ class MockStorage extends EventEmitter {
 }
 
 function setup(url, toggles, headers = {}) {
-    return nock(url)
-        .persist()
-        .get('/client/features')
-        .reply(200, { features: toggles }, headers);
+    return fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: 200,
+            headers,
+            body: JSON.stringify({ features: toggles }),
+        },
+    });
 }
 
 test.cb('should fetch from endpoint', t => {
@@ -121,11 +126,18 @@ test('should store etag', t =>
 
 test.cb('should request with etag', t => {
     const url = 'http://unleash-test-4.app';
-    nock(url)
-        .matchHeader('If-None-Match', value => value === '12345-1')
-        .persist()
-        .get('/client/features')
-        .reply(200, { features: [] }, { Etag: '12345-2' });
+
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        headers: {
+            'If-None-Match': '12345-1',
+        },
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: [] }),
+            headers: { Etag: '12345-2' },
+        },
+    });
 
     const repo = new Repository({
         backupPath: 'foo',
@@ -150,11 +162,18 @@ test.cb('should request with etag', t => {
 test.cb('should request with custom headers', t => {
     const url = 'http://unleash-test-4-x.app';
     const randomKey = `random-${Math.random()}`;
-    nock(url)
-        .matchHeader('randomKey', value => value === randomKey)
-        .persist()
-        .get('/client/features')
-        .reply(200, { features: [] }, { Etag: '12345-3' });
+
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        headers: {
+            randomKey,
+        },
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: [] }),
+            headers: { Etag: '12345-3' },
+        },
+    });
 
     const repo = new Repository({
         backupPath: 'foo',
@@ -179,15 +198,22 @@ test.cb('should request with custom headers', t => {
 });
 
 test.cb('request with customHeadersFunction should take precedence over customHeaders', t => {
-    const url = 'http://unleash-test-4-x.app';
+    const url = 'http://unleash-test-4-y.app';
     const randomKey = `random-${Math.random()}`;
     const customHeaderKey = `customer-${Math.random()}`;
-    nock(url)
-        .matchHeader('customHeaderKey', value => value === customHeaderKey)
-        .matchHeader('randomKey', value => value === undefined)
-        .persist()
-        .get('/client/features')
-        .reply(200, { features: [] }, { Etag: '12345-3' });
+
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        headers: {
+            customHeaderKey,
+            randomKey: undefined,
+        },
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: [] }),
+            headers: { Etag: '12345-3' },
+        },
+    });
 
     const repo = new Repository({
         backupPath: 'foo',
@@ -215,10 +241,14 @@ test.cb('request with customHeadersFunction should take precedence over customHe
 
 test.cb('should handle 404 request error and emit error event', t => {
     const url = 'http://unleash-test-5.app';
-    nock(url)
-        .persist()
-        .get('/client/features')
-        .reply(404, 'asd');
+
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: 404,
+            body: 'asd',
+        },
+    });
 
     const repo = new Repository({
         backupPath: 'foo',
@@ -241,10 +271,13 @@ test('should handle 304 as silent ok', t => {
 
     return new Promise((resolve, reject) => {
         const url = 'http://unleash-test-6.app';
-        nock(url)
-            .persist()
-            .get('/client/features')
-            .reply(304, '');
+
+        fetchMock.mock({
+            url: `${url}/client/features`,
+            response: {
+                status: 304,
+            },
+        });
 
         const repo = new Repository({
             backupPath: 'foo',
@@ -256,17 +289,21 @@ test('should handle 304 as silent ok', t => {
         });
         repo.on('error', reject);
         repo.on('unchanged', resolve);
-        process.nextTick(resolve);
+        setImmediate(resolve);
     });
 });
 
 test('should handle invalid JSON response', t =>
     new Promise((resolve, reject) => {
         const url = 'http://unleash-test-7.app';
-        nock(url)
-            .persist()
-            .get('/client/features')
-            .reply(200, '{"Invalid payload');
+
+        fetchMock.mock({
+            url: `${url}/client/features`,
+            response: {
+                status: 200,
+                body: '{"Invalid payload',
+            },
+        });
 
         const repo = new Repository({
             backupPath: 'foo',

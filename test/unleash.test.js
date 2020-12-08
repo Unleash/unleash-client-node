@@ -1,10 +1,11 @@
 import test from 'ava';
-import nock from 'nock';
+const fetchMock = require('fetch-mock');
 import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
 import { EventEmitter } from 'events';
 import sinon from 'sinon';
+import 'isomorphic-fetch';
 
 import { Strategy, Unleash } from '../lib/unleash';
 
@@ -19,7 +20,7 @@ class EnvironmentStrategy extends Strategy {
 }
 
 let counter = 1;
-const getUrl = () => `http://test2${counter++}.app/`;
+const getUrl = () => `http://test2${counter++}.app`;
 
 function getRandomBackupPath() {
     const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
@@ -65,9 +66,14 @@ class FakeRepo extends EventEmitter {
 }
 
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
-    nock(url)
-        .get('/client/features')
-        .reply(200, { features: toggles });
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: toggles }),
+        },
+    });
+
     return url;
 }
 
@@ -90,7 +96,7 @@ test('calling destroy synchronously should avoid network activity', t => {
     t.true(true);
 });
 
-test.cb('should handle old url', t => {
+test('should handle old url', t => {
     const url = mockNetwork([]);
 
     const instance = new Unleash({
@@ -98,14 +104,10 @@ test.cb('should handle old url', t => {
         refreshInterval: 0,
         metricsInterval: 0,
         disableMetrics: true,
-        url: `${url}features`,
+        url: `${url}/features`,
     });
 
-    t.plan(1);
-    instance.on('warn', e => {
-        t.truthy(e);
-        t.end();
-    });
+    t.deepEqual(instance.repository.url, `${url}/`);
 
     instance.destroy();
 });
@@ -175,11 +177,17 @@ test('should re-emit events from repository and metrics', t => {
 });
 
 test.cb('repository should surface error when invalid basePath', t => {
-    const url = 'http://unleash-surface.app/';
-    nock(url)
-        .get('/client/features')
-        .delay(100)
-        .reply(200, { features: [] });
+    const url = 'http://unleash-surface.app';
+
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        delay: 100,
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: [] }),
+        },
+    });
+
     const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
     const instance = new Unleash({
         appName: 'foo',

@@ -2,8 +2,9 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./lib",
-    "lib": ["es5", "es6"],
-    "target": "es5",
+    "lib": ["ES2020", "WebWorker"],
+    "types": ["@cloudflare/workers-types", "@types/node"],
+    "target": "ES2020",
     "module": "commonjs",
     "sourceMap": true,
     "declaration": true,

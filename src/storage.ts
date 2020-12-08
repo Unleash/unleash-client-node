@@ -29,7 +29,7 @@ export class Storage extends EventEmitter implements EventEmitter {
         const doEmitReady = this.ready === false;
         this.ready = true;
         this.data = data;
-        process.nextTick(() => {
+        setImmediate(() => {
             if (doEmitReady) {
                 this.emit('ready');
             }

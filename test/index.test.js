@@ -10,20 +10,34 @@ import {
     countVariant,
     getVariant,
 } from '../lib/index';
-import nock from 'nock';
+const fetchMock = require('fetch-mock');
+
+import 'isomorphic-fetch';
 
 let counter = 1;
-const getUrl = () => `http://test${counter++}.app/`;
-const metricsUrl = '/client/metrics';
+const getUrl = () => `http://test${counter++}.app`;
 const nockMetrics = (url, code = 200) =>
-    nock(url)
-        .post(metricsUrl)
-        .reply(code, '');
-const registerUrl = '/client/register';
-const nockRegister = (url, code = 200) =>
-    nock(url)
-        .post(registerUrl)
-        .reply(code, '');
+    fetchMock.mock({
+        url: `${url}/client/metrics`,
+        response: {
+            status: code,
+        },
+    });
+const nockRegister = (url, code = 200) => {
+    fetchMock.mock({
+        url: `${url}/client/register`,
+        response: {
+            status: code,
+        },
+    });
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: code,
+            body: JSON.stringify({ features: [] }),
+        },
+    });
+};
 
 test('should load main module', t => {
     t.truthy(initialize);

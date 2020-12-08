@@ -1,8 +1,9 @@
 import test from 'ava';
-import nock from 'nock';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
+const fetchMock = require('fetch-mock');
+import 'isomorphic-fetch';
 
 import { initialize, isEnabled, destroy } from '../lib/index';
 
@@ -23,9 +24,14 @@ const defaultToggles = [
 let counter = 0;
 function mockNetwork(toggles = defaultToggles) {
     const url = `http://unleash-${counter++}.app`;
-    nock(url)
-        .get('/client/features')
-        .reply(200, { features: toggles });
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: 200,
+            body: JSON.stringify({ features: toggles }),
+            headers: { 'content-type': 'application/json' },
+        },
+    });
     return url;
 }
 

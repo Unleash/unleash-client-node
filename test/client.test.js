@@ -1,6 +1,7 @@
 import test from 'ava';
 import Client from '../lib/client';
 import { Strategy } from '../lib/strategy';
+import 'isomorphic-fetch';
 
 function buildToggle(name, active, strategies, variants = []) {
     return {

@@ -1,14 +1,15 @@
 import test from 'ava';
-import nock from 'nock';
+const fetchMock = require('fetch-mock');
 import { tmpdir } from 'os';
 import { join } from 'path';
 import mkdirp from 'mkdirp';
 import specs from '@unleash/client-specification/specifications/index.json';
+import 'isomorphic-fetch';
 
 import { Unleash } from '../../lib/unleash';
 
 let counter = 1;
-const getUrl = () => `http://client-spec-${counter++}.app/`;
+const getUrl = () => `http://client-spec-${counter++}.app`;
 
 function getRandomBackupPath(testName) {
     const path = join(tmpdir(), `test-${testName}-${Math.round(Math.random() * 100000)}`);
@@ -17,9 +18,14 @@ function getRandomBackupPath(testName) {
 }
 
 function mockNetwork(toggles, url = getUrl()) {
-    nock(url)
-        .get('/client/features')
-        .reply(200, toggles);
+    fetchMock.mock({
+        url: `${url}/client/features`,
+        response: {
+            status: 200,
+            body: JSON.stringify(toggles),
+        },
+    });
+
     return url;
 }
 

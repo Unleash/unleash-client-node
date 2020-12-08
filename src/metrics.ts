@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './unleash';
@@ -38,7 +37,7 @@ export default class Metrics extends EventEmitter {
     private disabled: boolean;
     private bucketInterval: number | undefined;
     private url: string;
-    private timer: NodeJS.Timer | undefined;
+    private timer?: ReturnType<typeof setTimeout>;
     private started: Date;
     private headers?: CustomHeaders;
     private customHeadersFunction?: CustomHeadersFunction;
@@ -71,7 +70,9 @@ export default class Metrics extends EventEmitter {
 
         if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
             this.startTimer();
-            this.registerInstance();
+            this.registerInstance().catch(err => {
+                this.emit('error', err);
+            });
         }
     }
 
@@ -108,30 +109,31 @@ export default class Metrics extends EventEmitter {
             ? await this.customHeadersFunction()
             : this.headers;
 
-        post(
-            {
+        try {
+            const fetchResult = await post({
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers,
                 timeout: this.timeout,
-            },
-            (err: Error | null, res: Response, body: any) => {
-                if (err) {
-                    this.emit('error', err);
-                    return;
-                }
+            });
 
-                /* istanbul ignore next if */
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
-                    return;
-                }
-                /* istanbul ignore next line */
-                this.emit('registered', payload);
-            },
-        );
+            /* istanbul ignore next if */
+            if (!(fetchResult.status && fetchResult.status >= 200 && fetchResult.status < 300)) {
+                this.emit(
+                    'warn',
+                    `${url} returning ${fetchResult.status}`,
+                    await fetchResult.text(),
+                );
+                return false;
+            }
+            /* istanbul ignore next line */
+            this.emit('registered', payload);
+        } catch (err) {
+            this.emit('error', err);
+        }
+
         return true;
     }
 
@@ -151,38 +153,37 @@ export default class Metrics extends EventEmitter {
         const headers = this.customHeadersFunction
             ? await this.customHeadersFunction()
             : this.headers;
-
-        post(
-            {
+        try {
+            const fetchResult = await post({
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers,
                 timeout: this.timeout,
-            },
-            (err: Error | null, res: Response, body: any) => {
-                this.startTimer();
-                if (err) {
-                    this.emit('error', err);
-                    return;
-                }
+            });
+            this.startTimer();
 
-                /* istanbul ignore next if */
-                if (res.statusCode === 404) {
-                    this.emit('warn', `${url} returning 404, stopping metrics`);
-                    this.stop();
-                    return;
-                }
+            /* istanbul ignore next if */
+            if (fetchResult.status === 404) {
+                this.emit('warn', `${url} returning 404, stopping metrics`);
+                this.stop();
+                return false;
+            }
 
-                /* istanbul ignore next if */
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
-                    return;
-                }
-                this.emit('sent', payload);
-            },
-        );
+            /* istanbul ignore next if */
+            if (!(fetchResult.status && fetchResult.status >= 200 && fetchResult.status < 300)) {
+                this.emit(
+                    'warn',
+                    `${url} returning ${fetchResult.status}`,
+                    await fetchResult.text(),
+                );
+                return false;
+            }
+            this.emit('sent', payload);
+        } catch (err) {
+            this.emit('error', err);
+        }
         return true;
     }
 
