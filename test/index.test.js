@@ -55,14 +55,14 @@ test('initialize should init with valid options', t => {
     const url = getUrl();
     nockMetrics(url);
     nockRegister(url);
-    t.notThrows(() => initialize({ appName: 'my-app-name', url }));
+    t.notThrows(() => initialize({ appName: 'my-app-name', url, instanceId: '1' }));
 });
 
 test('should call methods', t => {
     const url = getUrl();
     nockMetrics(url);
     nockRegister(url);
-    t.notThrows(() => initialize({ appName: 'my-app-name', url }));
+    t.notThrows(() => initialize({ appName: 'my-app-name', url, instanceId: '1' }));
     t.snapshot(isEnabled('some-feature'));
     t.snapshot(getFeatureToggleDefinition('some-feature'));
     t.snapshot(getVariant('some-feature'));

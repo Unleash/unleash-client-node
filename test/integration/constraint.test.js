@@ -83,6 +83,7 @@ test('should be enabled for satisfied constraint', t =>
             environment: 'test',
             url,
             backupPath: getRandomBackupPath('with-constraint'),
+            instanceId: '1',
         });
 
         instance.on('error', reject);
@@ -106,6 +107,7 @@ test('should be enabled for satisfied NOT_IN constraint', t =>
             environment: 'test',
             url,
             backupPath: getRandomBackupPath('with-constraint'),
+            instanceId: '1',
         });
 
         instance.on('error', reject);

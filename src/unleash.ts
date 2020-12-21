@@ -4,14 +4,11 @@ import Metrics from './metrics';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 export { Strategy };
-import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
-import { userInfo, hostname } from 'os';
 import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
-
-const BACKUP_PATH: string = tmpdir();
+import { IStorage } from './storage';
 
 export interface CustomHeaders {
     [key: string]: string;
@@ -22,10 +19,8 @@ export type CustomHeadersFunction = () => Promise<CustomHeaders>;
 export interface UnleashConfig {
     appName: string;
     environment?: string;
-    instanceId?: string;
+    instanceId: string;
     url: string;
-    refreshInterval?: number;
-    metricsInterval?: number;
     disableMetrics?: boolean;
     backupPath?: string;
     strategies?: Strategy[];
@@ -33,6 +28,7 @@ export interface UnleashConfig {
     customHeadersFunction?: CustomHeadersFunction;
     timeout?: number;
     repository?: RepositoryInterface;
+    storage: IStorage;
 }
 
 export interface StaticContext {
@@ -41,24 +37,22 @@ export interface StaticContext {
 }
 
 export class Unleash extends EventEmitter {
-    private repository: RepositoryInterface;
-    private client: Client | undefined;
-    private metrics: Metrics;
-    private staticContext: StaticContext;
+    repository: RepositoryInterface;
+    client: Client | undefined;
+    metrics: Metrics;
+    staticContext: StaticContext;
 
     constructor({
         appName,
         environment = 'default',
         instanceId,
         url,
-        refreshInterval = 15 * 1000,
-        metricsInterval = 60 * 1000,
         disableMetrics = false,
-        backupPath = BACKUP_PATH,
         strategies = [],
         repository,
         customHeaders,
         customHeadersFunction,
+        storage,
         timeout,
     }: UnleashConfig) {
         super();
@@ -69,13 +63,11 @@ export class Unleash extends EventEmitter {
 
         if (url.endsWith('/features')) {
             const oldUrl = url;
-            setImmediate(() =>
-                this.emit(
-                    'warn',
-                    `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
-                ),
-            );
-            url = url.replace(/\/features$/, '');
+            this.emit(
+                'warn',
+                `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
+            ),
+                (url = url.replace(/\/features$/, ''));
         }
 
         if (!url.endsWith('/')) {
@@ -87,17 +79,7 @@ export class Unleash extends EventEmitter {
         }
 
         if (!instanceId) {
-            let info;
-            try {
-                info = userInfo();
-            } catch (e) {
-                //unable to read info;
-            }
-
-            const prefix = info
-                ? info.username
-                : `generated-${Math.round(Math.random() * 1000000)}`;
-            instanceId = `${prefix}-${hostname()}`;
+            throw new Error('Unleash client instanceId missing');
         }
 
         this.staticContext = { appName, environment };
@@ -105,14 +87,7 @@ export class Unleash extends EventEmitter {
         this.repository =
             repository ||
             new Repository({
-                backupPath,
-                url,
-                appName,
-                instanceId,
-                refreshInterval,
-                headers: customHeaders,
-                customHeadersFunction,
-                timeout,
+                storage,
             });
 
         strategies = defaultStrategies.concat(strategies);
@@ -146,7 +121,6 @@ export class Unleash extends EventEmitter {
             appName,
             instanceId,
             strategies: strategies.map((strategy: Strategy) => strategy.name),
-            metricsInterval,
             url,
             headers: customHeaders,
             customHeadersFunction,
@@ -176,8 +150,6 @@ export class Unleash extends EventEmitter {
     }
 
     destroy() {
-        this.repository.stop();
-        this.metrics.stop();
         this.client = undefined;
     }
 

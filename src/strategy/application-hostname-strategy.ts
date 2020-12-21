@@ -1,22 +1,19 @@
+import { Context } from '../context';
 import { Strategy } from './strategy';
-import { hostname } from 'os';
 
 export class ApplicationHostnameStrategy extends Strategy {
-    private hostname: string;
-
     constructor() {
         super('applicationHostname');
-        this.hostname = (process.env.HOSTNAME || hostname() || 'undefined').toLowerCase();
     }
 
-    isEnabled(parameters: any) {
-        if (!parameters.hostNames) {
+    isEnabled(parameters: any, context: Context) {
+        if (!parameters.hostNames || !context.referrer) {
             return false;
         }
 
-        return parameters.hostNames
+        return (parameters.hostNames as string)
             .toLowerCase()
             .split(/\s*,\s*/)
-            .includes(this.hostname);
+            .some($ => context.referrer!.toLowerCase()!.includes($));
     }
 }

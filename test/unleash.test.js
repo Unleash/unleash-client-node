@@ -8,6 +8,7 @@ import sinon from 'sinon';
 import 'isomorphic-fetch';
 
 import { Strategy, Unleash } from '../lib/unleash';
+import { FileStorage } from '../lib/filestorage';
 
 class EnvironmentStrategy extends Strategy {
     constructor() {
@@ -91,6 +92,7 @@ test('calling destroy synchronously should avoid network activity', t => {
         appName: 'foo',
         url,
         disableMetrics: true,
+        instanceId: '1',
     });
     instance.destroy();
     t.true(true);
@@ -105,6 +107,7 @@ test('should handle old url', t => {
         metricsInterval: 0,
         disableMetrics: true,
         url: `${url}/features`,
+        instanceId: '1',
     });
 
     t.deepEqual(instance.repository.url, `${url}/`);
@@ -123,6 +126,7 @@ test('should handle url without ending /', t => {
         metricsInterval: 0,
         disableMetrics: true,
         url: baseUrl,
+        instanceId: '1',
     });
 
     t.true(`${baseUrl}/` === instance.repository.url);
@@ -139,6 +143,7 @@ test('should re-emit error from repository, storage and metrics', t => {
         metricsInterval: 0,
         disableMetrics: true,
         url,
+        instanceId: '1',
     });
 
     t.plan(3);
@@ -159,6 +164,7 @@ test('should re-emit events from repository and metrics', t => {
         refreshInterval: 0,
         disableMetrics: true,
         url,
+        instanceId: '1',
     });
 
     t.plan(5);
@@ -195,6 +201,8 @@ test.cb('repository should surface error when invalid basePath', t => {
         refreshInterval: 0,
         url,
         backupPath,
+        instanceId: '1',
+        storage: new FileStorage({ backupPath, appName: 'foo' }),
     });
 
     instance.once('error', err => {
@@ -214,6 +222,7 @@ test('should allow request even before unleash is initialized', t => {
         disableMetrics: true,
         url,
         backupPath: getRandomBackupPath(),
+        instanceId: '1',
     }).on('error', err => {
         throw err;
     });
@@ -229,6 +238,7 @@ test('should consider known feature-toggle as active', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -246,6 +256,7 @@ test('should consider unknown feature-toggle as disabled', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -263,6 +274,7 @@ test('should return fallback value until online', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         let warnCounter = 0;
@@ -293,6 +305,7 @@ test('should call fallback function for unknown feature-toggle', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -326,6 +339,7 @@ test('should not throw when os.userInfo throws', t => {
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -342,6 +356,7 @@ test('should return known feature-toggle definition', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -360,6 +375,7 @@ test('should return feature-toggles', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -378,6 +394,7 @@ test('returns undefined for unknown feature-toggle definition', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
         }).on('error', reject);
 
         instance.on('ready', () => {
@@ -397,6 +414,7 @@ test('should use the injected repository', t =>
             disableMetrics: true,
             url,
             backupPath: getRandomBackupPath(),
+            instanceId: '1',
             repository: repo,
         }).on('error', reject);
         instance.on('ready', () => {
@@ -416,6 +434,7 @@ test('should add static context fields', t =>
             url,
             backupPath: getRandomBackupPath(),
             environment: 'prod',
+            instanceId: '1',
             strategies: [new EnvironmentStrategy()],
         }).on('error', reject);
 
@@ -435,6 +454,7 @@ test('should local context should take precendence over static context fields', 
             url,
             backupPath: getRandomBackupPath(),
             environment: 'prod',
+            instanceId: '1',
             strategies: [new EnvironmentStrategy()],
         }).on('error', reject);
 

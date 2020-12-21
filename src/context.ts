@@ -9,5 +9,6 @@ export interface Context {
     remoteAddress?: string;
     environment?: string;
     appName?: string;
+    referrer?: string;
     properties?: Properties;
 }

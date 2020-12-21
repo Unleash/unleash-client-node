@@ -8,7 +8,6 @@ export interface MetricsOptions {
     appName: string;
     instanceId: string;
     strategies: string[];
-    metricsInterval: number;
     disableMetrics?: boolean;
     bucketInterval?: number;
     url: string;
@@ -33,11 +32,8 @@ export default class Metrics extends EventEmitter {
     private instanceId: string;
     private sdkVersion: string;
     private strategies: string[];
-    private metricsInterval: number;
     private disabled: boolean;
-    private bucketInterval: number | undefined;
     private url: string;
-    private timer?: ReturnType<typeof setTimeout>;
     private started: Date;
     private headers?: CustomHeaders;
     private customHeadersFunction?: CustomHeadersFunction;
@@ -47,7 +43,6 @@ export default class Metrics extends EventEmitter {
         appName,
         instanceId,
         strategies,
-        metricsInterval = 0,
         disableMetrics = false,
         url,
         headers,
@@ -56,7 +51,6 @@ export default class Metrics extends EventEmitter {
     }: MetricsOptions) {
         super();
         this.disabled = disableMetrics;
-        this.metricsInterval = metricsInterval;
         this.appName = appName;
         this.instanceId = instanceId;
         this.sdkVersion = sdkVersion;
@@ -68,34 +62,9 @@ export default class Metrics extends EventEmitter {
         this.timeout = timeout;
         this.resetBucket();
 
-        if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
-            this.startTimer();
-            this.registerInstance().catch(err => {
-                this.emit('error', err);
-            });
-        }
-    }
-
-    private startTimer() {
-        if (this.disabled) {
-            return false;
-        }
-        this.timer = setTimeout(() => {
-            this.sendMetrics();
-        }, this.metricsInterval);
-
-        if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
-            this.timer.unref();
-        }
-        return true;
-    }
-
-    stop() {
-        if (this.timer) {
-            clearInterval(this.timer);
-            delete this.timer;
-        }
-        this.disabled = true;
+        this.registerInstance().catch(err => {
+            this.emit('error', err);
+        });
     }
 
     async registerInstance(): Promise<boolean> {
@@ -144,7 +113,6 @@ export default class Metrics extends EventEmitter {
         }
         if (this.bucketIsEmpty()) {
             this.resetBucket();
-            this.startTimer();
             return true;
         }
         const url = resolve(this.url, './client/metrics');
@@ -162,12 +130,10 @@ export default class Metrics extends EventEmitter {
                 headers,
                 timeout: this.timeout,
             });
-            this.startTimer();
 
             /* istanbul ignore next if */
             if (fetchResult.status === 404) {
                 this.emit('warn', `${url} returning 404, stopping metrics`);
-                this.stop();
                 return false;
             }
 
@@ -267,7 +233,6 @@ export default class Metrics extends EventEmitter {
             sdkVersion: this.sdkVersion,
             strategies: this.strategies,
             started: this.started,
-            interval: this.metricsInterval,
         };
     }
 

@@ -17,6 +17,7 @@ test.cb('should emit network errors', t => {
         metricsInterval: 20000,
         disableMetrics: false,
         backupPath,
+        instanceId: '1',
     });
 
     unleash.on('error', e => {

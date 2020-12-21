@@ -73,7 +73,6 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
 
     metrics.on('sent', () => {
         t.true(metricsEP.done(`${url}/client/metrics`));
-        metrics.stop();
         t.end();
     });
 });
@@ -110,7 +109,6 @@ test.cb('should sendMetrics', t => {
 
     metrics.on('sent', () => {
         t.true(metricsEP.done(`${url}/client/metrics`));
-        metrics.stop();
         t.end();
     });
 });
@@ -137,7 +135,6 @@ test.cb('should send custom headers', t => {
     metrics.on('sent', () => {
         t.true(regEP.done(`${url}/client/register`));
         t.true(metricsEP.done(`${url}/client/metrics`));
-        metrics.stop();
         t.end();
     });
 });
@@ -172,7 +169,6 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     metrics.on('sent', () => {
         t.true(regEP.done(`${url}/client/register`));
         t.true(metricsEP.done(`${url}/client/metrics`));
-        metrics.stop();
         t.end();
     });
 });
@@ -236,7 +232,6 @@ test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', t => 
     });
 
     metrics.on('warn', () => {
-        metrics.stop();
         t.true(metEP.done(`${url}/client/metrics`));
         t.true(metrics.disabled);
         t.end();

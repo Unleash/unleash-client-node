@@ -45,6 +45,7 @@ specs.forEach(testName => {
                         disableMetrics: true,
                         url,
                         backupPath: getRandomBackupPath(definition.name),
+                        instanceId: '1',
                     });
 
                     instance.on('error', reject);
@@ -71,6 +72,7 @@ specs.forEach(testName => {
                         disableMetrics: true,
                         url,
                         backupPath: getRandomBackupPath(definition.name),
+                        instanceId: '1',
                     });
 
                     instance.on('error', reject);

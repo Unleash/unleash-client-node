@@ -1,5 +1,4 @@
 import test from 'ava';
-import { hostname } from 'os';
 
 import { ApplicationHostnameStrategy } from '../../lib/strategy/application-hostname-strategy';
 
@@ -10,21 +9,21 @@ test('strategy should have correct name', t => {
 
 test('strategy should be disabled when no hostname defined', t => {
     const strategy = new ApplicationHostnameStrategy();
-    const context = { hostNames: '' };
+    const context = { hostNames: 'asdasdasd' };
     t.false(strategy.isEnabled(context));
 });
 
 test('strategy should be enabled when hostname is defined', t => {
-    process.env.HOSTNAME = '';
+    process.env.HOSTNAME = 'testi';
     const strategy = new ApplicationHostnameStrategy();
-    const context = { hostNames: hostname() };
+    const context = { hostNames: 'testi' };
     t.true(strategy.isEnabled(context));
 });
 
 test('strategy should be enabled when hostname is defined in list', t => {
-    process.env.HOSTNAME = '';
+    process.env.HOSTNAME = 'adasa';
     const strategy = new ApplicationHostnameStrategy();
-    const context = { hostNames: `localhost, ${hostname()}` };
+    const context = { hostNames: `localhost, adasa` };
     t.true(strategy.isEnabled(context));
 });
 

@@ -42,6 +42,7 @@ test('should be able to call api', t => {
         metricsInterval: 0,
         url,
         backupPath: getRandomBackupPath(),
+        instanceId: '1',
     }).on('error', err => {
         throw err;
     });
@@ -56,6 +57,7 @@ test.cb('should be able to call isEnabled eventually', t => {
         metricsInterval: 0,
         url,
         backupPath: getRandomBackupPath(),
+        instanceId: '1',
     }).on('error', err => {
         throw err;
     });
