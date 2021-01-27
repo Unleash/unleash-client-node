@@ -38,7 +38,11 @@ export function getDefaultVariant(): Variant {
 }
 
 const stickynessSelectors = ['userId', 'sessionId', 'remoteAddress'];
-function getSeed(context: Context): string {
+function getSeed(context: Context, variantStickiness?: string): string {
+    if (variantStickiness && context[variantStickiness]) {
+        return `${context[variantStickiness]}`;
+    }
+
     let result;
     stickynessSelectors.some((key: string): boolean => {
         const value = context[key];
@@ -74,7 +78,11 @@ export function selectVariant(
     if (variantOverride) {
         return variantOverride;
     }
-    const target = normalizedValue(getSeed(context), feature.name, totalWeight);
+    const target = normalizedValue(
+        getSeed(context, feature.variantStickiness),
+        feature.name,
+        totalWeight,
+    );
 
     let counter = 0;
     const variant = feature.variants.find((v: VariantDefinition): any => {
