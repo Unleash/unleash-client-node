@@ -47,7 +47,7 @@ test('should NOT be enabled for rollout=10% when userId is 123', t => {
     t.false(strategy.isEnabled(params, context));
 });
 
-test('should be disabled when stickiness=customerId and contextField not found', t => {
+test('should be disabled when stickiness=customerId and customerId not found on context', t => {
     const strategy = new FlexibleRolloutStrategy();
     const params = {
         rollout: '100',
