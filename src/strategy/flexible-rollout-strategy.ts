@@ -4,9 +4,6 @@ import { normalizedValue } from './util';
 
 const STICKINESS = {
     default: 'default',
-    custom: 'custom',
-    userId: 'userId',
-    sessionId: 'sessionId',
     random: 'random',
 };
 
@@ -20,18 +17,14 @@ export class FlexibleRolloutStrategy extends Strategy {
         }
     }
 
-    resolveStickiness(stickiness: string, context: Context, customField?: string): any {
+    resolveStickiness(stickiness: string | undefined, context: Context): any {
         switch (stickiness) {
-            case STICKINESS.userId:
-                return context.userId;
-            case STICKINESS.sessionId:
-                return context.sessionId;
-            case STICKINESS.custom:
-                return customField ? context[customField] : null;
+            case STICKINESS.default:
+                return context.userId || context.sessionId || this.randomGenerator();
             case STICKINESS.random:
                 return this.randomGenerator();
             default:
-                return context.userId || context.sessionId || this.randomGenerator();
+                return stickiness ? context[stickiness] : null;
         }
     }
 
@@ -39,7 +32,7 @@ export class FlexibleRolloutStrategy extends Strategy {
         const groupId = parameters.groupId || context.featureToggle || '';
         const percentage = Number(parameters.rollout);
         const stickiness = parameters.stickiness || STICKINESS.default;
-        const stickinessId = this.resolveStickiness(stickiness, context, parameters.customField);
+        const stickinessId = this.resolveStickiness(stickiness, context);
 
         if (!stickinessId) {
             return false;

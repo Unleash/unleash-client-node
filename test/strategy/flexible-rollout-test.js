@@ -47,33 +47,24 @@ test('should NOT be enabled for rollout=10% when userId is 123', t => {
     t.false(strategy.isEnabled(params, context));
 });
 
-test('should be disabled when stickiness=custom and contextField not specified', t => {
-    const strategy = new FlexibleRolloutStrategy();
-    const params = { rollout: '100', stickiness: 'custom', groupId: 'Demo' };
-    const context = {};
-    t.false(strategy.isEnabled(params, context));
-});
-
-test('should be disabled when stickiness=custom and contextField not found', t => {
+test('should be disabled when stickiness=customerId and contextField not found', t => {
     const strategy = new FlexibleRolloutStrategy();
     const params = {
         rollout: '100',
-        stickiness: 'custom',
+        stickiness: 'customerId',
         groupId: 'Demo',
-        contextField: 'customerId',
     };
     const context = {};
     t.false(strategy.isEnabled(params, context));
 });
 
-test('should be enabled when stickiness=custom , customField=customerId and customerId=61', t => {
+test('should be enabled when stickiness=customerId and customerId=61', t => {
     const strategy = new FlexibleRolloutStrategy();
     const params = {
         rollout: '100',
-        stickiness: 'custom',
+        stickiness: 'customerId',
         groupId: 'Demo',
-        contextField: 'customerId',
     };
     const context = { customerId: 61 };
-    t.false(strategy.isEnabled(params, context));
+    t.true(strategy.isEnabled(params, context));
 });
