@@ -1,6 +1,7 @@
 import { Strategy } from './strategy';
 import { Context } from '../context';
 import { normalizedValue } from './util';
+import { resolveContextValue } from '../helpers';
 
 const STICKINESS = {
     default: 'default',
@@ -24,7 +25,7 @@ export class FlexibleRolloutStrategy extends Strategy {
             case STICKINESS.random:
                 return this.randomGenerator();
             default:
-                return stickiness ? context[stickiness] : null;
+                return stickiness ? resolveContextValue(context, stickiness) : null;
         }
     }
 
