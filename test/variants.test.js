@@ -1,7 +1,7 @@
 import test from 'ava';
 import { selectVariant } from '../lib/variant';
 
-function genVariants(n) {
+function genVariants(n, options) {
     return Array.from(new Array(n)).map((v, i) => ({
         name: `variant${i + 1}`,
         payload: {
@@ -9,6 +9,7 @@ function genVariants(n) {
             value: '',
         },
         weight: 1,
+        stickiness: options && options.stickiness,
     }));
 }
 
@@ -45,9 +46,8 @@ test('selectVariant should select on 2 variants', t => {
     t.true(variant2.name === 'variant2');
 });
 
-test('selectVariant should use feature variantStickiness when specified to select variant', t => {
-    const feature = createFeature(genVariants(2));
-    feature.variantStickiness = 'someField';
+test('selectVariant should use variant stickiness when specified to select variant', t => {
+    const feature = createFeature(genVariants(2, { stickiness: 'someField' }));
     const variant = selectVariant(feature, { toggleName: 'toggleName', someField: 'a' });
     t.true(variant.name === 'variant1');
     const variant2 = selectVariant(feature, { toggleName: 'toggleName', someField: '0' });

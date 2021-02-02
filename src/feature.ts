@@ -8,5 +8,4 @@ export interface FeatureInterface {
     stale: boolean;
     strategies: StrategyTransportInterface[];
     variants: VariantDefinition[];
-    variantStickiness?: string;
 }

@@ -20,6 +20,7 @@ export interface Payload {
 export interface VariantDefinition {
     name: string;
     weight: number;
+    stickiness?: string;
     payload: Payload;
     overrides: Override[];
 }
@@ -38,11 +39,7 @@ export function getDefaultVariant(): Variant {
 }
 
 const stickynessSelectors = ['userId', 'sessionId', 'remoteAddress'];
-function getSeed(context: Context, variantStickiness?: string): string {
-    if (variantStickiness && context[variantStickiness]) {
-        return `${context[variantStickiness]}`;
-    }
-
+function getSeed(context: Context): string {
     let result;
     stickynessSelectors.some((key: string): boolean => {
         const value = context[key];
@@ -66,6 +63,27 @@ function findOverride(feature: FeatureInterface, context: Context): VariantDefin
         .find(variant => variant.overrides.some(overrideMatchesContext(context)));
 }
 
+interface StickinessTargetProps {
+    context: Context;
+    variant: VariantDefinition;
+    target: number;
+    feature: FeatureInterface;
+    totalWeight: number;
+}
+
+function resolveStickinessTarget({
+    context,
+    variant,
+    feature,
+    totalWeight,
+    target,
+}: StickinessTargetProps) {
+    if (variant.stickiness && context[variant.stickiness]) {
+        return normalizedValue(`${context[variant.stickiness]}`, feature.name, totalWeight);
+    }
+    return target;
+}
+
 export function selectVariant(
     feature: FeatureInterface,
     context: Context,
@@ -78,11 +96,7 @@ export function selectVariant(
     if (variantOverride) {
         return variantOverride;
     }
-    const target = normalizedValue(
-        getSeed(context, feature.variantStickiness),
-        feature.name,
-        totalWeight,
-    );
+    const target = normalizedValue(getSeed(context), feature.name, totalWeight);
 
     let counter = 0;
     const variant = feature.variants.find((v: VariantDefinition): any => {
@@ -90,7 +104,14 @@ export function selectVariant(
             return;
         }
         counter += v.weight;
-        if (counter < target) {
+        const variantTarget = resolveStickinessTarget({
+            context,
+            variant: v,
+            feature,
+            totalWeight,
+            target,
+        });
+        if (counter < variantTarget) {
             return;
         } else {
             return v;
