@@ -10,10 +10,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "build": "tsc -p .",
-    "prepare": "npm run build",
-    "test": "cross-env NODE_ENV=test npm run build && ava",
-    "coverage": "nyc --check-coverage=true npm test",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+    "prepare": "yarn run build",
+    "test": "cross-env NODE_ENV=test yarn run build && ava",
+    "coverage": "nyc --reporter=lcov yarn test"
   },
   "repository": {
     "type": "git",
