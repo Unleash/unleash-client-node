@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { Response } from 'request';
 import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './unleash';
@@ -108,30 +107,24 @@ export default class Metrics extends EventEmitter {
             ? await this.customHeadersFunction()
             : this.headers;
 
-        post(
-            {
+        try {
+            const res = await post({
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers,
                 timeout: this.timeout,
-            },
-            (err: Error | null, res: Response, body: any) => {
-                if (err) {
-                    this.emit('error', err);
-                    return;
-                }
-
-                /* istanbul ignore next if */
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
-                    return;
-                }
-                /* istanbul ignore next line */
+            });
+            if (!res.ok) {
+                // status code outside 200 range
+                this.emit('warn', `${url} returning ${res.status}`, await res.text());
+            } else {
                 this.emit('registered', payload);
-            },
-        );
+            }
+        } catch (err) {
+            this.emit('error', err);
+        }
         return true;
     }
 
@@ -152,37 +145,29 @@ export default class Metrics extends EventEmitter {
             ? await this.customHeadersFunction()
             : this.headers;
 
-        post(
-            {
+        try {
+            const res = await post({
                 url,
                 json: payload,
                 appName: this.appName,
                 instanceId: this.instanceId,
                 headers,
                 timeout: this.timeout,
-            },
-            (err: Error | null, res: Response, body: any) => {
-                this.startTimer();
-                if (err) {
-                    this.emit('error', err);
-                    return;
-                }
-
-                /* istanbul ignore next if */
-                if (res.statusCode === 404) {
-                    this.emit('warn', `${url} returning 404, stopping metrics`);
-                    this.stop();
-                    return;
-                }
-
-                /* istanbul ignore next if */
-                if (!(res.statusCode && res.statusCode >= 200 && res.statusCode < 300)) {
-                    this.emit('warn', `${url} returning ${res.statusCode}`, body);
-                    return;
-                }
+            });
+            this.startTimer();
+            if (res.status === 404) {
+                this.emit('warn', `${url} returning 404, stopping metrics`);
+                this.stop();
+            }
+            if (!res.ok) {
+                this.emit('warn', `${url} returning ${res.status}`, await res.text());
+            } else {
                 this.emit('sent', payload);
-            },
-        );
+            }
+        } catch (err) {
+            this.emit('error', err);
+            this.startTimer();
+        }
         return true;
     }
 

@@ -122,7 +122,7 @@ test('should store etag', t =>
 test.cb('should request with etag', t => {
     const url = 'http://unleash-test-4.app';
     nock(url)
-        .matchHeader('If-None-Match', value => value === '12345-1')
+        .matchHeader('If-None-Match', '12345-1')
         .persist()
         .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-2' });
@@ -137,7 +137,6 @@ test.cb('should request with etag', t => {
     });
 
     repo.etag = '12345-1';
-
     repo.once('unchanged', () => {
         t.end();
     });
@@ -151,7 +150,7 @@ test.cb('should request with custom headers', t => {
     const url = 'http://unleash-test-4-x.app';
     const randomKey = `random-${Math.random()}`;
     nock(url)
-        .matchHeader('randomKey', value => value === randomKey)
+        .matchHeader('randomKey', randomKey)
         .persist()
         .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-3' });
@@ -183,7 +182,7 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     const randomKey = `random-${Math.random()}`;
     const customHeaderKey = `customer-${Math.random()}`;
     nock(url)
-        .matchHeader('customHeaderKey', value => value === customHeaderKey)
+        .matchHeader('customHeaderKey', customHeaderKey)
         .matchHeader('randomKey', value => value === undefined)
         .persist()
         .get('/client/features')
@@ -203,7 +202,6 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     });
 
     repo.etag = '12345-1';
-
     repo.once('unchanged', () => {
         t.end();
     });

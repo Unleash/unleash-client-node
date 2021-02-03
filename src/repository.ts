@@ -4,7 +4,6 @@ import { FeatureInterface } from './feature';
 import { resolve } from 'url';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './unleash';
-import { Response } from 'request';
 
 export type StorageImpl = typeof Storage;
 
@@ -107,38 +106,27 @@ export default class Repository extends EventEmitter implements EventEmitter {
             ? await this.customHeadersFunction()
             : this.headers;
 
-        get(
-            {
+        try {
+            const res = await get({
                 url,
                 etag: this.etag,
                 appName: this.appName,
                 timeout: this.timeout,
                 instanceId: this.instanceId,
                 headers,
-            },
-            (error: Error | null, res: Response, body: string) => {
-                // start timer for next fetch
-                this.timedFetch();
-
-                if (error) {
-                    return this.emit('error', error);
-                }
-
-                if (res.statusCode === 304) {
-                    // No new data
-                    this.emit('unchanged');
-                    return;
-                }
-
-                if (!(res.statusCode >= 200 && res.statusCode < 300)) {
-                    return this.emit(
-                        'error',
-                        new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`),
-                    );
-                }
-
+            });
+            this.timedFetch();
+            if (res.status === 304) {
+                // No new data
+                this.emit('unchanged');
+            } else if (!res.ok) {
+                return this.emit(
+                    'error',
+                    new Error(`Response was not statusCode 2XX, but was ${res.status}`),
+                );
+            } else {
                 try {
-                    const data: any = JSON.parse(body);
+                    const data: any = await res.json();
                     const obj = data.features.reduce(
                         (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
                             this.validateFeature(feature);
@@ -148,15 +136,20 @@ export default class Repository extends EventEmitter implements EventEmitter {
                         {} as { [s: string]: FeatureInterface },
                     );
                     this.storage.reset(obj);
-                    this.etag = Array.isArray(res.headers.etag)
-                        ? res.headers.etag.join(' ')
-                        : res.headers.etag;
+                    if (res.headers.get('etag') !== null) {
+                        this.etag = res.headers.get('etag') as string;
+                    } else {
+                        this.etag = undefined;
+                    }
                     this.emit('changed', this.storage.getAll());
                 } catch (err) {
                     this.emit('error', err);
                 }
-            },
-        );
+            }
+        } catch (err) {
+            this.emit('error', err);
+            this.timedFetch();
+        }
     }
 
     stop() {
