@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 10.x, 12.x ]
+        node-version: [ 12.x, 14.x ]
 
     steps:
       - name: Checkout
@@ -35,7 +35,7 @@ jobs:
         with:
           status: ${{ job.status }}
           author_name: Github Action
-          text: Build on Java ${{ matrix.version }}
+          text: Build on Node SDK ${{ matrix.node-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
