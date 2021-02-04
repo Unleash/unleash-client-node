@@ -2,6 +2,7 @@ import { CustomHeaders } from './unleash';
 import fetch from 'node-fetch';
 import * as http from 'http';
 import * as https from 'https';
+import { URL } from 'url';
 
 export interface RequestOptions {
     url: string;
@@ -35,11 +36,13 @@ const httpsAgent = new https.Agent({
     keepAliveMsecs: 30 * 1000,
     timeout: 10 * 1000,
 });
+
+export const getAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
 export const post = ({ url, appName, timeout, instanceId, headers, json }: PostRequestOptions) => {
     return fetch(url, {
         timeout: timeout || 10000,
         method: 'POST',
-        agent: url => (url.protocol === 'https:' ? httpsAgent : httpAgent),
+        agent: getAgent,
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
