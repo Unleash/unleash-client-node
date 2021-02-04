@@ -1,5 +1,7 @@
-import * as request from 'request';
 import { CustomHeaders } from './unleash';
+import fetch from 'node-fetch';
+import * as http from 'http';
+import * as https from 'https';
 
 export interface RequestOptions {
     url: string;
@@ -22,19 +24,22 @@ export interface PostRequestOptions extends RequestOptions {
     appName?: string;
     instanceId?: string;
 }
+const httpAgent = new http.Agent({
+    keepAlive: true,
+    keepAliveMsecs: 30 * 1000,
+    timeout: 10 * 1000,
+});
 
-export const post = (
-    { url, appName, timeout, instanceId, headers, json }: PostRequestOptions,
-    cb: request.RequestCallback,
-) => {
-    const options = {
-        url,
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    keepAliveMsecs: 30 * 1000,
+    timeout: 10 * 1000,
+});
+export const post = ({ url, appName, timeout, instanceId, headers, json }: PostRequestOptions) => {
+    return fetch(url, {
         timeout: timeout || 10000,
-        agentOptions: {
-            keepAlive: true,
-            keepAliveMsecs: 30 * 1000,
-            timeout: timeout || 10 * 1000,
-        },
+        method: 'POST',
+        agent: url => (url.protocol === 'https' ? httpsAgent : httpAgent),
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
@@ -43,34 +48,26 @@ export const post = (
             },
             headers,
         ),
-        json,
-    };
-    return request.post(options, cb);
+        body: JSON.stringify(json),
+    });
 };
 
-export const get = (
-    { url, etag, appName, timeout, instanceId, headers }: GetRequestOptions,
-    cb: request.RequestCallback,
-) => {
-    const options = {
-        url,
-        timeout: timeout || 10000,
-        agentOptions: {
-            keepAlive: true,
-            keepAliveMsecs: 30 * 1000,
-            timeout: timeout || 10 * 1000,
+export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetRequestOptions) => {
+    const optHeaders = Object.assign(
+        {
+            'UNLEASH-APPNAME': appName,
+            'UNLEASH-INSTANCEID': instanceId,
+            'User-Agent': appName,
         },
-        headers: Object.assign(
-            {
-                'UNLEASH-APPNAME': appName,
-                'UNLEASH-INSTANCEID': instanceId,
-                'User-Agent': appName,
-            },
-            headers,
-        ),
-    };
+        headers,
+    );
     if (etag) {
-        options.headers['If-None-Match'] = etag;
+        optHeaders['If-None-Match'] = etag;
     }
-    return request.get(options, cb);
+    return fetch(url, {
+        method: 'GET',
+        timeout: timeout || 10000,
+        agent: url => (url.protocol === 'https' ? httpsAgent : httpAgent),
+        headers: optHeaders,
+    });
 };

@@ -145,11 +145,11 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     const randomKey = `value-${Math.random()}`;
     const metricsEP = nockMetrics(url)
         .matchHeader('randomKey', value => value === undefined)
-        .matchHeader('customHeadersKey', value => value === customHeadersKey);
+        .matchHeader('customHeadersKey', customHeadersKey);
 
     const regEP = nockRegister(url)
         .matchHeader('randomKey', value => value === undefined)
-        .matchHeader('customHeadersKey', value => value === customHeadersKey);
+        .matchHeader('customHeadersKey', customHeadersKey);
 
     const metrics = new Metrics({
         url,
@@ -163,7 +163,6 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     metrics.count('toggle-x', true);
     metrics.count('toggle-x', false);
     metrics.count('toggle-y', true);
-
     metrics.on('sent', () => {
         t.true(regEP.isDone());
         t.true(metricsEP.isDone());

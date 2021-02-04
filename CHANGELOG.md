@@ -8,6 +8,7 @@
 -   feat: Add stale property to the FeatureInterface (#185)
 -   chore: correct example in README.
 -   chore: Update build-details
+-   chore: Replace deprecated request with node-fetch
 
 # 3.3.6
 
