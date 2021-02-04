@@ -39,7 +39,7 @@ export const post = ({ url, appName, timeout, instanceId, headers, json }: PostR
     return fetch(url, {
         timeout: timeout || 10000,
         method: 'POST',
-        agent: url => (url.protocol === 'https' ? httpsAgent : httpAgent),
+        agent: url => (url.protocol === 'https:' ? httpsAgent : httpAgent),
         headers: Object.assign(
             {
                 'UNLEASH-APPNAME': appName,
@@ -68,7 +68,7 @@ export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetReq
     return fetch(url, {
         method: 'GET',
         timeout: timeout || 10000,
-        agent: url => (url.protocol === 'https' ? httpsAgent : httpAgent),
+        agent: url => (url.protocol === 'https:' ? httpsAgent : httpAgent),
         headers: optHeaders,
     });
 };
