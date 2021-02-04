@@ -138,6 +138,27 @@ test.cb('should send custom headers', t => {
     });
 });
 
+test.cb('should send content-type header', t => {
+    const url = getUrl();
+    t.plan(2);
+    const metricsEP = nockMetrics(url).matchHeader('content-type', 'application/json');
+    const regEP = nockRegister(url).matchHeader('content-type', 'application/json');
+
+    const metrics = new Metrics({
+        url,
+        metricsInterval: 50,
+    });
+
+    metrics.count('toggle-x', true);
+
+    metrics.on('sent', () => {
+        t.true(regEP.isDone());
+        t.true(metricsEP.isDone());
+        metrics.stop();
+        t.end();
+    });
+});
+
 test.cb('request with customHeadersFunction should take precedence over customHeaders', t => {
     const url = getUrl();
     t.plan(2);

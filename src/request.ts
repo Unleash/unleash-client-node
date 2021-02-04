@@ -45,6 +45,7 @@ export const post = ({ url, appName, timeout, instanceId, headers, json }: PostR
                 'UNLEASH-APPNAME': appName,
                 'UNLEASH-INSTANCEID': instanceId,
                 'User-Agent': appName,
+                'Content-Type': 'application/json',
             },
             headers,
         ),
