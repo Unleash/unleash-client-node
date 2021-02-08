@@ -13,6 +13,13 @@
 # 3.5.0
 
 -   fix: Replace deprecated request library with node-fetch
+-   chore: upgrade typescript to 4.1.3
+-   chore: upgrade sinon to 9.2.4
+-   chore: upgrade eslint to 7.19.0
+-   chore: migrate to eslint-config-airbnb
+-   chore: upgrade nock to 13.0.7
+-   chore: upgrade ava to 3.15.0
+-   chore: adopt eslint-config-airbnb-typescript
 
 # 3.4.0
 
