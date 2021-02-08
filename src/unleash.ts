@@ -121,7 +121,9 @@ export class Unleash extends EventEmitter {
             this.client = new Client(this.repository, strategies);
             this.client.on('error', err => this.emit('error', err));
             this.client.on('warn', msg => this.emit('warn', msg));
-            this.emit('ready');
+            process.nextTick(() => {
+                this.emit('ready');
+            });
         });
 
         this.repository.on('error', err => {
