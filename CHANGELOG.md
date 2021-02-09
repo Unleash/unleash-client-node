@@ -1,6 +1,6 @@
 # Changelog
 
-# 3.x.x
+# 3.5.0
 
 -   fix: Replace deprecated request library with node-fetch
 
