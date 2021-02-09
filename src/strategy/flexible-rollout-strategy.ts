@@ -33,7 +33,6 @@ export class FlexibleRolloutStrategy extends Strategy {
         const groupId = parameters.groupId || context.featureToggle || '';
         const percentage = Number(parameters.rollout);
         const stickiness: string = parameters.stickiness || STICKINESS.default;
-
         const stickinessId = this.resolveStickiness(stickiness, context);
 
         if (!stickinessId) {
