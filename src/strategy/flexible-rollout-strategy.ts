@@ -18,21 +18,21 @@ export class FlexibleRolloutStrategy extends Strategy {
         }
     }
 
-    resolveStickiness(stickiness: string | undefined, context: Context): any {
+    resolveStickiness(stickiness: string, context: Context): any {
         switch (stickiness) {
             case STICKINESS.default:
                 return context.userId || context.sessionId || this.randomGenerator();
             case STICKINESS.random:
                 return this.randomGenerator();
             default:
-                return stickiness ? resolveContextValue(context, stickiness) : null;
+                return resolveContextValue(context, stickiness);
         }
     }
 
     isEnabled(parameters: any, context: Context) {
         const groupId = parameters.groupId || context.featureToggle || '';
         const percentage = Number(parameters.rollout);
-        const stickiness = parameters.stickiness || STICKINESS.default;
+        const stickiness: string = parameters.stickiness || STICKINESS.default;
         const stickinessId = this.resolveStickiness(stickiness, context);
 
         if (!stickinessId) {
