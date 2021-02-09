@@ -12,7 +12,7 @@
         "no-console": 0,
         "no-plusplus": "off",
         "max-len": ["error", {
-            "code": 140,
+            "code": 100,
             "ignoreTrailingComments": true,
             "ignoreUrls" :true
         }],

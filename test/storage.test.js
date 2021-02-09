@@ -86,37 +86,38 @@ test.cb('should emit error when stored data is invalid', (t) => {
   });
 });
 
-test('should not write content from backup file if ready has been fired', (t) => new Promise((resolve, reject) => {
-  const tmp = join(tmpdir(), 'ignore-backup-file-test');
-  mkdirp.sync(tmp);
-  const storage = new Storage({
-    backupPath: tmp,
-    appName: 'test',
-  });
-  const data = { random: Math.random() };
-  storage.on('error', reject);
-
-  storage.once('persisted', () => {
-    t.true(storage.get('random') === data.random);
-
-    const storage2 = new Storage({
+test('should not write content from backup file if ready has been fired',
+  (t) => new Promise((resolve, reject) => {
+    const tmp = join(tmpdir(), 'ignore-backup-file-test');
+    mkdirp.sync(tmp);
+    const storage = new Storage({
       backupPath: tmp,
       appName: 'test',
     });
-    const overwrite = { random: Math.random() };
+    const data = { random: Math.random() };
+    storage.on('error', reject);
 
-    storage2.on('error', reject);
-    storage2.on('ready', () => {
-      t.true(storage2.get('random') !== data.random);
-      t.true(storage2.get('random') === overwrite.random);
-      resolve();
+    storage.once('persisted', () => {
+      t.true(storage.get('random') === data.random);
+
+      const storage2 = new Storage({
+        backupPath: tmp,
+        appName: 'test',
+      });
+      const overwrite = { random: Math.random() };
+
+      storage2.on('error', reject);
+      storage2.on('ready', () => {
+        t.true(storage2.get('random') !== data.random);
+        t.true(storage2.get('random') === overwrite.random);
+        resolve();
+      });
+
+      // Lets pretend "server" finished read first
+      storage2.reset(overwrite);
     });
-
-    // Lets pretend "server" finished read first
-    storage2.reset(overwrite);
-  });
-  storage.reset(data);
-}));
+    storage.reset(data);
+  }));
 
 test('should provide Get method from data', (t) => {
   const storage = setup('get-method');

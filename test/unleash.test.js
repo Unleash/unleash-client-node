@@ -256,33 +256,34 @@ test('should return fallback value until online', (t) => new Promise((resolve, r
   });
 }));
 
-test('should call fallback function for unknown feature-toggle', (t) => new Promise((resolve, reject) => {
-  const url = mockNetwork();
-  const instance = new Unleash({
-    appName: 'foo',
-    environment: 'test',
-    disableMetrics: true,
-    url,
-    backupPath: getRandomBackupPath(),
-  }).on('error', reject);
+test('should call fallback function for unknown feature-toggle',
+  (t) => new Promise((resolve, reject) => {
+    const url = mockNetwork();
+    const instance = new Unleash({
+      appName: 'foo',
+      environment: 'test',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+    }).on('error', reject);
 
-  instance.on('ready', () => {
-    const fallbackFunc = sinon.spy(() => false);
-    const name = 'unknown';
-    const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
-    t.true(result === false);
-    t.true(fallbackFunc.called);
-    t.true(
-      fallbackFunc.firstCall.calledWith(name, {
-        appName: 'foo',
-        environment: 'test',
-        userId: '123',
-      }),
-    );
-    instance.destroy();
-    resolve();
-  });
-}));
+    instance.on('ready', () => {
+      const fallbackFunc = sinon.spy(() => false);
+      const name = 'unknown';
+      const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
+      t.true(result === false);
+      t.true(fallbackFunc.called);
+      t.true(
+        fallbackFunc.firstCall.calledWith(name, {
+          appName: 'foo',
+          environment: 'test',
+          userId: '123',
+        }),
+      );
+      instance.destroy();
+      resolve();
+    });
+  }));
 
 test('should not throw when os.userInfo throws', (t) => {
   t.plan(0);
@@ -340,22 +341,23 @@ test('should return feature-toggles', (t) => new Promise((resolve, reject) => {
   });
 }));
 
-test('returns undefined for unknown feature-toggle definition', (t) => new Promise((resolve, reject) => {
-  const url = mockNetwork();
-  const instance = new Unleash({
-    appName: 'foo',
-    disableMetrics: true,
-    url,
-    backupPath: getRandomBackupPath(),
-  }).on('error', reject);
+test('returns undefined for unknown feature-toggle definition',
+  (t) => new Promise((resolve, reject) => {
+    const url = mockNetwork();
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+    }).on('error', reject);
 
-  instance.on('ready', () => {
-    const toggle = instance.getFeatureToggleDefinition('unknown');
-    t.falsy(toggle);
-    instance.destroy();
-    resolve();
-  });
-}));
+    instance.on('ready', () => {
+      const toggle = instance.getFeatureToggleDefinition('unknown');
+      t.falsy(toggle);
+      instance.destroy();
+      resolve();
+    });
+  }));
 
 test('should use the injected repository', (t) => new Promise((resolve, reject) => {
   const repo = new FakeRepo();
@@ -393,20 +395,21 @@ test('should add static context fields', (t) => new Promise((resolve, reject) =>
   });
 }));
 
-test('should local context should take precedence over static context fields', (t) => new Promise((resolve, reject) => {
-  const url = mockNetwork();
-  const instance = new Unleash({
-    appName: 'foo',
-    disableMetrics: true,
-    url,
-    backupPath: getRandomBackupPath(),
-    environment: 'prod',
-    strategies: [new EnvironmentStrategy()],
-  }).on('error', reject);
+test('should local context should take precedence over static context fields',
+  (t) => new Promise((resolve, reject) => {
+    const url = mockNetwork();
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+      environment: 'prod',
+      strategies: [new EnvironmentStrategy()],
+    }).on('error', reject);
 
-  instance.on('ready', () => {
-    t.true(instance.isEnabled('f-context', { environment: 'dev' }) === false);
-    instance.destroy();
-    resolve();
-  });
-}));
+    instance.on('ready', () => {
+      t.true(instance.isEnabled('f-context', { environment: 'dev' }) === false);
+      instance.destroy();
+      resolve();
+    });
+  }));
