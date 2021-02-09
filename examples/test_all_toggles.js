@@ -12,6 +12,8 @@ const client = initialize({
 
 client.on('error', console.error);
 client.on('warn', console.log);
+client.on('unchanged', () => console.error('NOT CHANGED'));
+client.on('changed', () => console.log('changed'));
 
 console.log('Fetching toggles from: https://unleash.herokuapp.com');
 
