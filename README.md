@@ -43,6 +43,10 @@ unleash.on('sent', payload => console.log('metrics bucket/payload sent', payload
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
 ```
 
+Be aware that the `initialize` function will configure a global Unleash instance. If you call this
+method multiple times the global instance will be changed. If you prefer to handle the instance
+yourself you should [construct your own Unleash instance](#alternative-usage).
+
 ### 3. Use unleash
 
 After you have initialized the unleash-client you can easily check if a feature toggle is enabled or
