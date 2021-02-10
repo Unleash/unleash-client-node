@@ -7,6 +7,9 @@ export { Context, Variant, Unleash };
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
+    if (instance) {
+        instance.emit('warn', 'This global unleash instance is initialized multiple times.');
+    }
     instance = new Unleash(options);
     instance.on('error', () => {});
     return instance;
