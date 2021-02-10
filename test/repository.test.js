@@ -98,6 +98,35 @@ test('should poll for changes', t =>
         repo.on('error', reject);
     }));
 
+test('should retry even if custom header function fails', t =>
+    new Promise(resolve => {
+        const url = 'http://unleash-test-2-custom-headers.app';
+        setup(url, []);
+        const repo = new Repository({
+            backupPath: 'foo-bar',
+            url,
+            appName,
+            instanceId,
+            refreshInterval: 10,
+            customHeadersFunction: () => {
+                throw new Error('custom function fails');
+            },
+            StorageImpl: MockStorage,
+        });
+
+        let assertCount = 2;
+        repo.on('error', error => {
+            if (error.message === 'custom function fails') {
+                assertCount--;
+            }
+            if (assertCount === 0) {
+                repo.stop();
+                t.true(assertCount === 0);
+                resolve();
+            }
+        });
+    }));
+
 test('should store etag', t =>
     new Promise(resolve => {
         const url = 'http://unleash-test-3.app';
