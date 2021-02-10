@@ -6,6 +6,7 @@ test.before(() => nock.disableNetConnect());
 test.after(() => nock.enableNetConnect());
 
 test.cb('registerInstance should emit error when request error', t => {
+    t.plan(2);
     const url = 'http://metrics1.app/';
 
     const metrics = new Metrics({
@@ -13,7 +14,6 @@ test.cb('registerInstance should emit error when request error', t => {
     });
     metrics.on('error', e => {
         t.truthy(e);
-        t.end();
     });
 
     metrics.registerInstance().then(result => {
@@ -23,6 +23,7 @@ test.cb('registerInstance should emit error when request error', t => {
 });
 
 test.cb('sendMetrics should emit error when request error', t => {
+    t.plan(2);
     const url = 'http://metrics2.app/';
 
     const metrics = new Metrics({
@@ -30,7 +31,6 @@ test.cb('sendMetrics should emit error when request error', t => {
     });
     metrics.on('error', e => {
         t.truthy(e);
-        t.end();
     });
 
     metrics.count('x', true);
