@@ -222,6 +222,7 @@ test.only('should respect timeout', t =>
 */
 
 test.cb('registerInstance should warn when non 200 statusCode', (t) => {
+  t.plan(2);
   const url = getUrl();
   const regEP = nockRegister(url, 500);
 
