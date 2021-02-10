@@ -221,7 +221,7 @@ test.only('should respect timeout', t =>
     }));
 */
 
-test.cb('registerInstance should warn when non 200 statusCode', (t) => {
+test('registerInstance should warn when non 200 statusCode', async (t) => {
   t.plan(2);
   const url = getUrl();
   const regEP = nockRegister(url, 500);
@@ -236,10 +236,9 @@ test.cb('registerInstance should warn when non 200 statusCode', (t) => {
   metrics.on('warn', (e) => {
     t.true(regEP.isDone());
     t.truthy(e);
-    t.end();
   });
 
-  metrics.registerInstance().then(t.true);
+  await metrics.registerInstance();
 });
 
 test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', (t) => {
