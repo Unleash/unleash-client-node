@@ -100,13 +100,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
         if (this.stopped) {
             return;
         }
-        const url = resolve(this.url, './client/features');
-
-        const headers = this.customHeadersFunction
-            ? await this.customHeadersFunction()
-            : this.headers;
 
         try {
+            const url = resolve(this.url, './client/features');
+
+            const headers = this.customHeadersFunction
+                ? await this.customHeadersFunction()
+                : this.headers;
+
             const res = await get({
                 url,
                 etag: this.etag,
@@ -115,7 +116,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
                 instanceId: this.instanceId,
                 headers,
             });
-            this.timedFetch();
+
             if (res.status === 304) {
                 // No new data
                 this.emit('unchanged');
@@ -148,6 +149,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
             }
         } catch (err) {
             this.emit('error', err);
+        } finally {
             this.timedFetch();
         }
     }
