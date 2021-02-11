@@ -365,3 +365,33 @@ test.cb('should emit errors on invalid features', t => {
         t.end();
     });
 });
+
+test.cb('should emit errors on invalid variant', t => {
+    const url = 'http://unleash-test-1-invalid-bariant.app';
+    setup(url, [
+        {
+            name: 'feature',
+            enabled: true,
+            strategies: [
+                {
+                    name: 'default',
+                },
+            ],
+            variants: 'not legal',
+        },
+    ]);
+    const repo = new Repository({
+        backupPath: 'foo',
+        url,
+        appName,
+        instanceId,
+        refreshInterval: 0,
+        StorageImpl: MockStorage,
+    });
+
+    repo.once('error', err => {
+        t.truthy(err);
+        t.is(err.message, 'feature.variants should be an array, but was string');
+        t.end();
+    });
+});
