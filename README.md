@@ -2,7 +2,6 @@
 
 ![npm](https://img.shields.io/npm/v/unleash-client)
 ![npm](https://img.shields.io/npm/dm/unleash-client)
-[![Greenkeeper badge](https://badges.greenkeeper.io/Unleash/unleash-client-node.svg)](https://greenkeeper.io/)
 [![Build Status](https://github.com/Unleash/unleash-client-node/workflows/Build/badge.svg)](https://github.com/Unleash/unleash-client-node/actions)
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
@@ -27,22 +26,26 @@ regular intervals.
 
 ```js
 const { initialize } = require('unleash-client');
-const instance = initialize({
+const unleash = initialize({
     url: 'http://unleash.herokuapp.com/api/',
     appName: 'my-app-name',
     instanceId: 'my-unique-instance-id',
 });
 
 // optional events
-instance.on('error', console.error);
-instance.on('warn', console.warn);
-instance.on('ready', console.log);
+unleash.on('error', console.error);
+unleash.on('warn', console.warn);
+unleash.on('ready', console.log);
 
 // metrics hooks
-instance.on('registered', clientData => console.log('registered', clientData));
-instance.on('sent', payload => console.log('metrics bucket/payload sent', payload));
-instance.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
+unleash.on('registered', clientData => console.log('registered', clientData));
+unleash.on('sent', payload => console.log('metrics bucket/payload sent', payload));
+unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
 ```
+
+Be aware that the `initialize` function will configure a global Unleash instance. If you call this
+method multiple times the global instance will be changed. If you prefer to handle the instance
+yourself you should [construct your own Unleash instance](#alternative-usage).
 
 ### 3. Use unleash
 
@@ -81,6 +84,7 @@ The client comes with implementations for the built-in activation strategies pro
 
 -   DefaultStrategy
 -   UserIdStrategy
+-   FlexibleRolloutStrategy
 -   GradualRolloutUserIdStrategy
 -   GradualRolloutSessionIdStrategy
 -   GradualRolloutRandomStrategy
@@ -158,30 +162,30 @@ Its also possible to ship the unleash instance around yourself, instead of using
 ```js
 const { Unleash } = require('unleash-client');
 
-const instance = new Unleash({
+const unleash = new Unleash({
     appName: 'my-app-name',
     url: 'http://unleash.herokuapp.com',
 });
 
-instance.on('ready', console.log.bind(console, 'ready'));
-// required error handling when using instance directly
-instance.on('error', console.error);
+unleash.on('ready', console.log.bind(console, 'ready'));
+// required error handling when using unleash directly
+unleash.on('error', console.error);
 ```
 
 ## Events
 
 The unleash instance object implements the EventEmitter class and **emits** the following events:
 
-| event      | payload                          | description                                                                                 |
-| ---------- | -------------------------------- | ------------------------------------------------------------------------------------------- |
-| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted.    |
-| registered | -                                | is emitted after the app has been registered at the api server                              |
-| sent       | `object` data                    | key/value pair of delivered metrics                                                         |
-| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                      |
-| warn       | `string` msg                     | is emitted on a warning                                                                     |
-| error      | `Error` err                      | is emitted on a error                                                                       |
-| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed  |
-| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made |
+| event      | payload                          | description                                                                                                                                                                                                                                  |
+| ---------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
+| registered | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
+| sent       | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
+| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
+| warn       | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
+| error      | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
+| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
+| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
 |            |
 
 Example usage:
