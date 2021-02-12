@@ -18,6 +18,7 @@ export interface RepositoryOptions {
   url: string;
   appName: string;
   instanceId: string;
+  projectName?: string;
   refreshInterval?: number;
   StorageImpl?: StorageImpl;
   timeout?: number;
@@ -48,11 +49,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private stopped = false;
 
+  private projectName?: string;
+
   constructor({
     backupPath,
     url,
     appName,
     instanceId,
+    projectName,
     refreshInterval,
     StorageImpl = Storage,
     timeout,
@@ -64,12 +68,13 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.refreshInterval = refreshInterval;
     this.instanceId = instanceId;
     this.appName = appName;
+    this.projectName = projectName;
     this.headers = headers;
     this.timeout = timeout;
     this.customHeadersFunction = customHeadersFunction;
 
     this.storage = new StorageImpl({ backupPath, appName });
-    this.storage.on('error', (err) => this.emit('error', err));
+    this.storage.on('error', err => this.emit('error', err));
     this.storage.on('ready', () => this.emit('ready'));
 
     process.nextTick(() => this.fetch());
@@ -110,7 +115,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
-      const url = resolve(this.url, './client/features');
+      const url = resolve(this.url, `./client/features?project=${this.projectName}`);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
@@ -175,6 +180,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   getToggles(): FeatureInterface[] {
     const toggles = this.storage.getAll();
-    return Object.keys(toggles).map((key) => toggles[key]);
+    return Object.keys(toggles).map(key => toggles[key]);
   }
 }

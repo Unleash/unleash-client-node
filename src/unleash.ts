@@ -21,6 +21,7 @@ export interface UnleashConfig {
   instanceId?: string;
   url: string;
   refreshInterval?: number;
+  projectName?: string;
   metricsInterval?: number;
   disableMetrics?: boolean;
   backupPath?: string;
@@ -48,6 +49,7 @@ export class Unleash extends EventEmitter {
   constructor({
     appName,
     environment = 'default',
+    projectName,
     instanceId,
     url,
     refreshInterval = 15 * 1000,
@@ -106,6 +108,7 @@ export class Unleash extends EventEmitter {
       repository ||
       new Repository({
         backupPath,
+        projectName,
         url: unleashUrl,
         appName,
         instanceId: unleashInstanceId,
@@ -119,20 +122,20 @@ export class Unleash extends EventEmitter {
 
     this.repository.on('ready', () => {
       this.client = new Client(this.repository, strats);
-      this.client.on('error', (err) => this.emit('error', err));
-      this.client.on('warn', (msg) => this.emit('warn', msg));
+      this.client.on('error', err => this.emit('error', err));
+      this.client.on('warn', msg => this.emit('warn', msg));
       process.nextTick(() => {
         this.emit('ready');
       });
     });
 
-    this.repository.on('error', (err) => {
+    this.repository.on('error', err => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Repository error: ${err.message}`;
       this.emit('error', err);
     });
 
-    this.repository.on('warn', (msg) => {
+    this.repository.on('warn', msg => {
       this.emit('warn', msg);
     });
 
@@ -140,7 +143,7 @@ export class Unleash extends EventEmitter {
       this.emit('unchanged');
     });
 
-    this.repository.on('changed', (data) => {
+    this.repository.on('changed', data => {
       this.emit('changed', data);
     });
 
@@ -156,13 +159,13 @@ export class Unleash extends EventEmitter {
       timeout,
     });
 
-    this.metrics.on('error', (err) => {
+    this.metrics.on('error', err => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Metrics error: ${err.message}`;
       this.emit('error', err);
     });
 
-    this.metrics.on('warn', (msg) => {
+    this.metrics.on('warn', msg => {
       this.emit('warn', msg);
     });
 
@@ -170,11 +173,11 @@ export class Unleash extends EventEmitter {
       this.emit('count', name, enabled);
     });
 
-    this.metrics.on('sent', (payload) => {
+    this.metrics.on('sent', payload => {
       this.emit('sent', payload);
     });
 
-    this.metrics.on('registered', (payload) => {
+    this.metrics.on('registered', payload => {
       this.emit('registered', payload);
     });
   }
