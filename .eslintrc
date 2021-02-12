@@ -1,14 +1,21 @@
 {
     "extends": [
-        "finn",
-        "finn/node",
-        "finn/es-modules",
-        "finn-prettier"
+        "airbnb-typescript/base",
+        "prettier"
     ],
+    "plugins": ["prettier"],
     "parserOptions": {
-        "ecmaVersion": 8
+        "ecmaVersion": 8,
+        "project": ["./jsconfig.json", "./tsconfig.json"]
     },
     "rules": {
-        "no-console": 0
+        "no-console": 0,
+        "no-plusplus": "off",
+        "max-len": ["error", {
+            "code": 100,
+            "ignoreTrailingComments": true,
+            "ignoreUrls" :true
+        }],
+        "class-methods-use-this": "off"
     }
 }

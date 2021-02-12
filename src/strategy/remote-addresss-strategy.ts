@@ -1,29 +1,31 @@
 import { Strategy } from './strategy';
 import { Context } from '../context';
+
 const ip = require('ip');
 
-export class RemoteAddressStrategy extends Strategy {
-    constructor() {
-        super('remoteAddress');
-    }
+export default class RemoteAddressStrategy extends Strategy {
+  constructor() {
+    super('remoteAddress');
+  }
 
-    isEnabled(parameters: any, context: Context) {
-        if (!parameters.IPs) {
-            return false;
+  isEnabled(parameters: any, context: Context) {
+    if (!parameters.IPs) {
+      return false;
+    }
+    return parameters.IPs.split(/\s*,\s*/).some(
+      (range: string): Boolean => {
+        if (range === context.remoteAddress) {
+          return true;
         }
-        for (const range of parameters.IPs.split(/\s*,\s*/)) {
-            try {
-                if (range === context.remoteAddress) {
-                    return true;
-                } else if (!ip.isV6Format(range)) {
-                    if (ip.cidrSubnet(range).contains(context.remoteAddress)) {
-                        return true;
-                    }
-                }
-            } catch (e) {
-                continue;
-            }
+        if (!ip.isV6Format(range)) {
+          try {
+            return ip.cidrSubnet(range).contains(context.remoteAddress);
+          } catch (err) {
+            return false;
+          }
         }
         return false;
-    }
+      },
+    );
+  }
 }

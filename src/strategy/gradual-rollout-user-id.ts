@@ -1,23 +1,23 @@
 import { Strategy } from './strategy';
 import { Context } from '../context';
-import { normalizedValue } from './util';
+import normalizedValue from './util';
 
-export class GradualRolloutUserIdStrategy extends Strategy {
-    constructor() {
-        super('gradualRolloutUserId');
+export default class GradualRolloutUserIdStrategy extends Strategy {
+  constructor() {
+    super('gradualRolloutUserId');
+  }
+
+  isEnabled(parameters: any, context: Context) {
+    const { userId } = context;
+    if (!userId) {
+      return false;
     }
 
-    isEnabled(parameters: any, context: Context) {
-        const userId = context.userId;
-        if (!userId) {
-            return false;
-        }
+    const percentage = Number(parameters.percentage);
+    const groupId = parameters.groupId || '';
 
-        const percentage = Number(parameters.percentage);
-        const groupId = parameters.groupId || '';
+    const normalizedUserId = normalizedValue(userId, groupId);
 
-        const normalizedUserId = normalizedValue(userId, groupId);
-
-        return percentage > 0 && normalizedUserId <= percentage;
-    }
+    return percentage > 0 && normalizedUserId <= percentage;
+  }
 }
