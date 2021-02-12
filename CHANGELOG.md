@@ -1,5 +1,15 @@
 # Changelog
 
+# 3.6.0
+
+-   feat: flexible rollout - custom stickiness (#201)
+-   fix: add another test-script
+-   fix: add test for variants validation
+-   fix: Keep fetching if customHeadersFunction fails. (#210)
+-   fix: emit warn if initialize is called multiple times
+-   fix tests for node 10
+-   fix: add meta to test-script
+
 # 3.5.0
 
 -   fix: Replace deprecated request library with node-fetch
