@@ -3,12 +3,8 @@ import { resolve } from 'url';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { get } from './request';
-<<<<<<< HEAD
-import { CustomHeaders, CustomHeadersFunction } from './headers';
-=======
 import { CustomHeaders, CustomHeadersFunction } from './unleash';
 import UrlGenerator from './urlGenerator';
->>>>>>> refactor: add urlgenerator
 
 export type StorageImpl = typeof Storage;
 
@@ -100,13 +96,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
       errors.push(`feature.strategies should be an array, but was ${typeof feature.strategies}`);
     }
 
-<<<<<<< HEAD
     if (feature.variants && !Array.isArray(feature.variants)) {
       errors.push(`feature.variants should be an array, but was ${typeof feature.variants}`);
     }
-=======
-        const url = UrlGenerator.getUrl(this.url, this.projectName);
->>>>>>> refactor: add urlgenerator
 
     if (typeof feature.enabled !== 'boolean') {
       errors.push(`feature.enabled should be an boolean, but was ${typeof feature.enabled}`);
