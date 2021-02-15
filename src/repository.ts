@@ -3,7 +3,7 @@ import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
-import { getUrl } from './url-utils';
+import getUrl from './url-utils';
 
 export type StorageImpl = typeof Storage;
 
@@ -74,7 +74,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.customHeadersFunction = customHeadersFunction;
 
     this.storage = new StorageImpl({ backupPath, appName });
-    this.storage.on('error', err => this.emit('error', err));
+    this.storage.on('error', (err) => this.emit('error', err));
     this.storage.on('ready', () => this.emit('ready'));
 
     process.nextTick(() => this.fetch());
@@ -180,6 +180,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   getToggles(): FeatureInterface[] {
     const toggles = this.storage.getAll();
-    return Object.keys(toggles).map(key => toggles[key]);
+    return Object.keys(toggles).map((key) => toggles[key]);
   }
 }
