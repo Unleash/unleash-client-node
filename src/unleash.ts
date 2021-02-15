@@ -21,6 +21,7 @@ export interface UnleashConfig {
   instanceId?: string;
   url: string;
   refreshInterval?: number;
+  projectName?: string;
   metricsInterval?: number;
   disableMetrics?: boolean;
   backupPath?: string;
@@ -48,6 +49,7 @@ export class Unleash extends EventEmitter {
   constructor({
     appName,
     environment = 'default',
+    projectName,
     instanceId,
     url,
     refreshInterval = 15 * 1000,
@@ -106,6 +108,7 @@ export class Unleash extends EventEmitter {
       repository ||
       new Repository({
         backupPath,
+        projectName,
         url: unleashUrl,
         appName,
         instanceId: unleashInstanceId,

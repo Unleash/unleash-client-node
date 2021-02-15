@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
-import { resolve } from 'url';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
+import getUrl from './url-utils';
 
 export type StorageImpl = typeof Storage;
 
@@ -18,6 +18,7 @@ export interface RepositoryOptions {
   url: string;
   appName: string;
   instanceId: string;
+  projectName?: string;
   refreshInterval?: number;
   StorageImpl?: StorageImpl;
   timeout?: number;
@@ -48,11 +49,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private stopped = false;
 
+  private projectName?: string;
+
   constructor({
     backupPath,
     url,
     appName,
     instanceId,
+    projectName,
     refreshInterval,
     StorageImpl = Storage,
     timeout,
@@ -64,6 +68,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.refreshInterval = refreshInterval;
     this.instanceId = instanceId;
     this.appName = appName;
+    this.projectName = projectName;
     this.headers = headers;
     this.timeout = timeout;
     this.customHeadersFunction = customHeadersFunction;
@@ -110,7 +115,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
-      const url = resolve(this.url, './client/features');
+      const url = getUrl(this.url, this.projectName);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
