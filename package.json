@@ -82,7 +82,6 @@
   "prettier": {
     "printWidth": 100,
     "proseWrap": "always",
-    "arrowParens": "always",
     "singleQuote": true,
     "tabWidth": 2,
     "trailingComma": "all",
