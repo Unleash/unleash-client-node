@@ -1,10 +1,9 @@
 import { EventEmitter } from 'events';
-import { resolve } from 'url';
 import { Storage } from './storage';
 import { FeatureInterface } from './feature';
 import { get } from './request';
-import { CustomHeaders, CustomHeadersFunction } from './unleash';
-import UrlGenerator from './urlGenerator';
+import { CustomHeaders, CustomHeadersFunction } from './headers';
+import { getUrl } from './url-utils';
 
 export type StorageImpl = typeof Storage;
 
@@ -116,7 +115,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
-      const url = resolve(this.url, `./client/features?project=${this.projectName}`);
+      const url = getUrl(this.url, this.projectName);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
