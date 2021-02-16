@@ -46,6 +46,8 @@ export class Unleash extends EventEmitter {
 
   private staticContext: StaticContext;
 
+  private synchronized: boolean = false;
+
   constructor({
     appName,
     environment = 'default',
@@ -145,6 +147,12 @@ export class Unleash extends EventEmitter {
 
     this.repository.on('changed', (data) => {
       this.emit('changed', data);
+
+      // Only emit the fully synchronized event the first time.
+      if (!this.synchronized) {
+        this.synchronized = true;
+        process.nextTick(() => this.emit('synchronized'));
+      }
     });
 
     this.metrics = new Metrics({

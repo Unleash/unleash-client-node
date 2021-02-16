@@ -10,6 +10,7 @@ import {
   count,
   countVariant,
   getVariant,
+  startUnleash,
 } from '../lib/index';
 
 let counter = 1;
@@ -22,9 +23,14 @@ const registerUrl = '/client/register';
 const nockRegister = (url, code = 200) => nock(url)
   .post(registerUrl)
   .reply(code, '');
+const nockFeatures = (url, code = 200) => nock(url)
+  .get('/client/features')
+  .reply(code, { features: [] });
+  
 
 test('should load main module', (t) => {
   t.truthy(initialize);
+  t.truthy(startUnleash);
   t.truthy(isEnabled);
   t.truthy(Strategy);
   t.truthy(destroy);
@@ -52,4 +58,21 @@ test('should call methods', (t) => {
   t.snapshot(getVariant('some-feature'));
   t.snapshot(count('some-feature', true));
   t.snapshot(countVariant('some-feature', 'variant1'));
+});
+
+test('should not return feature-toggle definition if there is no instance', t => {
+  t.is(getFeatureToggleDefinition(), undefined);
+});
+
+test('should not empty array of feature-toggle definitions if there is no instance', t => {
+  t.deepEqual(getFeatureToggleDefinitions(), []);
+});
+
+test('should start unleash with promise', async (t) => {
+  const url = getUrl();
+  nockFeatures(url);
+  nockMetrics(url);
+  nockRegister(url);
+  const unleash = await startUnleash({ appName: 'my-app-name', url });
+  t.truthy(unleash);
 });
