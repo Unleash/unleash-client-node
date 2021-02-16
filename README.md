@@ -34,7 +34,12 @@ const unleash = initialize({
 
 unleash.on('synchronized', () => {
   // Unleash is ready to serve updated feature toggles.
-  unleash.isEnabled('some-toggle');
+
+  // Check a feature flag
+  const isEnabled = unleash.isEnabled('some-toggle');
+
+  // Check the variant
+  const variant = getVariant('app.ToggleY');
 });
 ```
 
@@ -42,25 +47,22 @@ Be aware that the `initialize` function will configure a global Unleash instance
 method multiple times the global instance will be changed. If you prefer to handle the instance
 yourself you should [construct your own Unleash instance](#alternative-usage).
 
-### 3. Use unleash
+#### Block until Unleash SDK has synchronized
 
-After you have initialized the unleash-client you can easily check if a feature toggle is enabled or
-not.
+You can also use the asynchronous `startUnleash` function, and `await` for the SDK to have fully
+synchronized with the unleash-api. This allows you to secure that the SDK is not operating on
+locally and potential stale feature toggle configuration.
 
 ```js
-const {
-  isEnabled,
-  getVariant,
-  getFeatureToggleDefinition,
-  getFeatureToggleDefinitions,
-} = require('unleash-client');
+const { startUnleash } = require('unleash-client');
 
-isEnabled('app.ToggleX');
+const unleash = await startUnleash({
+  appName: 'async-unleash',
+  url: 'http://unleash.herokuapp.com/api/',
+});
 
-const { enabled, name, payload } = getVariant('app.ToggleY', { userId: '1234' });
-
-const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
-const featureToggles = getFeatureToggleDefinitions();
+// Unleash SDK has now fresh state from the unleash-api
+const isEnabled = unleash.isEnabled('Demo');
 ```
 
 ### 4. Stop unleash
@@ -174,7 +176,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | event        | payload                          | description                                                                                                                                                                                                                                  |
 | ------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ready        | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
-| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API and has all the latest feature toggle configuration available.                                                                                                   |
+| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API and has all the latest feature toggle configuration available.                                                                                                    |
 | registered   | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
@@ -210,6 +212,27 @@ instance.once('changed', () => {
 });
 
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})
+```
+
+## Toggle definitions
+
+Sometimes you might be interested in the raw feature toggle definitions.
+
+```js
+const {
+  initialize,
+  getFeatureToggleDefinition,
+  getFeatureToggleDefinitions,
+} = require('unleash-client');
+
+initialize({
+  url: 'http://unleash.herokuapp.com/api/',
+  appName: 'my-app-name',
+  instanceId: 'my-unique-instance-id',
+});
+
+const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
+const featureToggles = getFeatureToggleDefinitions();
 ```
 
 ## Custom repository
