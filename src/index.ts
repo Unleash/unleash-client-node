@@ -1,3 +1,4 @@
+import { once } from 'events';
 import { Unleash, UnleashConfig } from './unleash';
 import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
@@ -13,6 +14,12 @@ export function initialize(options: UnleashConfig): Unleash {
   instance = new Unleash(options);
   instance.on('error', () => {});
   return instance;
+}
+
+export async function startUnleash(options: UnleashConfig): Promise<Unleash> {
+  const unleash = initialize(options);
+  await once(unleash, 'synchronized');
+  return unleash;
 }
 
 export function isEnabled(name: string, context: Context = {}, fallbackValue?: boolean): boolean {
