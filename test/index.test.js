@@ -53,3 +53,11 @@ test('should call methods', (t) => {
   t.snapshot(count('some-feature', true));
   t.snapshot(countVariant('some-feature', 'variant1'));
 });
+
+test('should not return feature-toggle definition if there is no instance', t => {
+  t.is(getFeatureToggleDefinition(), undefined);
+});
+
+test('should not empty array of feature-toggle definitions if there is no instance', t => {
+  t.deepEqual(getFeatureToggleDefinitions(), []);
+});

@@ -454,3 +454,22 @@ test('should call client/features if no projectname set', t => {
 
   t.assert(instance.repository.projectName === undefined);
 });
+
+test('should emit "synchronized" when data is received', t =>
+  new Promise((resolve, reject) => {
+    const url = mockNetwork();
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+      environment: 'prod',
+    }).on('error', reject);
+
+    instance.on('synchronized', () => {
+      t.true(instance.isEnabled('feature') === true);
+      instance.destroy();
+      resolve();
+    });
+  }));
+
