@@ -38,10 +38,18 @@ export function getDefaultVariant(): Variant {
     };
 }
 
-const stickynessSelectors = ['userId', 'sessionId', 'remoteAddress'];
-function getSeed(context: Context): string {
+function randomString() {
+    return String(Math.round(Math.random() * 100000));
+}
+
+const stickinessSelectors = ['userId', 'sessionId', 'remoteAddress'];
+function getSeed(context: Context, stickiness: string = 'default'): string {
+    if (stickiness !== 'default') {
+        const value = resolveContextValue(context, stickiness);
+        return value ? value.toString() : randomString();
+    }
     let result;
-    stickynessSelectors.some((key: string): boolean => {
+    stickinessSelectors.some((key: string): boolean => {
         const value = context[key];
         if (typeof value === 'string' && value !== '') {
             result = value;
@@ -49,7 +57,7 @@ function getSeed(context: Context): string {
         }
         return false;
     });
-    return result || String(Math.round(Math.random() * 100000));
+    return result || randomString();
 }
 
 function overrideMatchesContext(context: Context): (o: Override) => boolean {
@@ -61,27 +69,6 @@ function findOverride(feature: FeatureInterface, context: Context): VariantDefin
     return feature.variants
         .filter(variant => variant.overrides)
         .find(variant => variant.overrides.some(overrideMatchesContext(context)));
-}
-
-interface StickinessTargetProps {
-    context: Context;
-    variant: VariantDefinition;
-    target: number;
-    feature: FeatureInterface;
-    totalWeight: number;
-}
-
-function resolveStickinessTarget({
-    context,
-    variant,
-    feature,
-    totalWeight,
-    target,
-}: StickinessTargetProps) {
-    if (variant.stickiness && context[variant.stickiness]) {
-        return normalizedValue(`${context[variant.stickiness]}`, feature.name, totalWeight);
-    }
-    return target;
 }
 
 export function selectVariant(
@@ -96,7 +83,10 @@ export function selectVariant(
     if (variantOverride) {
         return variantOverride;
     }
-    const target = normalizedValue(getSeed(context), feature.name, totalWeight);
+
+    const stickiness = feature.variants[0].stickiness;
+
+    const target = normalizedValue(getSeed(context, stickiness), feature.name, totalWeight);
 
     let counter = 0;
     const variant = feature.variants.find((v: VariantDefinition): any => {
@@ -104,14 +94,7 @@ export function selectVariant(
             return;
         }
         counter += v.weight;
-        const variantTarget = resolveStickinessTarget({
-            context,
-            variant: v,
-            feature,
-            totalWeight,
-            target,
-        });
-        if (counter < variantTarget) {
+        if (counter < target) {
             return;
         } else {
             return v;
