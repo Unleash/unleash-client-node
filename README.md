@@ -27,20 +27,15 @@ regular intervals.
 ```js
 const { initialize } = require('unleash-client');
 const unleash = initialize({
-    url: 'http://unleash.herokuapp.com/api/',
-    appName: 'my-app-name',
-    instanceId: 'my-unique-instance-id',
+  url: 'http://unleash.herokuapp.com/api/',
+  appName: 'my-app-name',
+  instanceId: 'my-unique-instance-id',
 });
 
-// optional events
-unleash.on('error', console.error);
-unleash.on('warn', console.warn);
-unleash.on('ready', console.log);
-
-// metrics hooks
-unleash.on('registered', clientData => console.log('registered', clientData));
-unleash.on('sent', payload => console.log('metrics bucket/payload sent', payload));
-unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}) returned ${enabled}`));
+unleash.on('synchronized', () => {
+  // Unleash is ready to serve updated feature toggles.
+  unleash.isEnabled('some-toggle');
+});
 ```
 
 Be aware that the `initialize` function will configure a global Unleash instance. If you call this
@@ -54,10 +49,10 @@ not.
 
 ```js
 const {
-    isEnabled,
-    getVariant,
-    getFeatureToggleDefinition,
-    getFeatureToggleDefinitions,
+  isEnabled,
+  getVariant,
+  getFeatureToggleDefinition,
+  getFeatureToggleDefinitions,
 } = require('unleash-client');
 
 isEnabled('app.ToggleX');
@@ -82,14 +77,14 @@ destroy();
 
 The client comes with implementations for the built-in activation strategies provided by unleash.
 
--   DefaultStrategy
--   UserIdStrategy
--   FlexibleRolloutStrategy
--   GradualRolloutUserIdStrategy
--   GradualRolloutSessionIdStrategy
--   GradualRolloutRandomStrategy
--   RemoteAddressStrategy
--   ApplicationHostnameStrategy
+- DefaultStrategy
+- UserIdStrategy
+- FlexibleRolloutStrategy
+- GradualRolloutUserIdStrategy
+- GradualRolloutSessionIdStrategy
+- GradualRolloutRandomStrategy
+- RemoteAddressStrategy
+- ApplicationHostnameStrategy
 
 Read more about the strategies in
 [activation-strategy.md](https://github.com/Unleash/unleash/blob/master/docs/activation-strategies.md).
@@ -102,9 +97,9 @@ client SDK allows you to send in the unleash context as part of the `isEnabled` 
 
 ```javascript
 const unleashContext = {
-    userId: '123',
-    sessionId: 'some-session-id',
-    remoteAddress: '127.0.0.1',
+  userId: '123',
+  sessionId: 'some-session-id',
+  remoteAddress: '127.0.0.1',
 };
 unleash.isEnabled('someToggle', unleashContext);
 ```
@@ -113,20 +108,20 @@ unleash.isEnabled('someToggle', unleashContext);
 
 The initialize method takes the following arguments:
 
--   **url** - the url to fetch toggles from. (required)
--   **appName** - the application name / codebase name (required)
--   **instanceId** - an unique identifier, should/could be somewhat unique
--   **refreshInterval** - The poll-intervall to check for updates. Defaults to 15000ms.
--   **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
-    60000ms.
--   **strategies** - Custom activation strategies to be used.
--   **disableMetrics** - disable metrics
--   **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
--   **customHeadersFunction** - Provide a function that return a Promise resolving as custom headers
-    to be sent to unleash-server. When options are set, this will take precedence over
-    `customHeaders` option.
--   **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
--   **repository** - Provide a custom repository implementation to manage the underlying data
+- **url** - the url to fetch toggles from. (required)
+- **appName** - the application name / codebase name (required)
+- **instanceId** - an unique identifier, should/could be somewhat unique
+- **refreshInterval** - The poll-intervall to check for updates. Defaults to 15000ms.
+- **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
+  60000ms.
+- **strategies** - Custom activation strategies to be used.
+- **disableMetrics** - disable metrics
+- **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
+- **customHeadersFunction** - Provide a function that return a Promise resolving as custom headers
+  to be sent to unleash-server. When options are set, this will take precedence over `customHeaders`
+  option.
+- **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
+- **repository** - Provide a custom repository implementation to manage the underlying data
 
 ## Custom strategies
 
@@ -135,13 +130,13 @@ The initialize method takes the following arguments:
 ```js
 const { Strategy, initialize } = require('unleash-client');
 class ActiveForUserWithEmailStrategy extends Strategy {
-    constructor() {
-        super('ActiveForUserWithEmail');
-    }
+  constructor() {
+    super('ActiveForUserWithEmail');
+  }
 
-    isEnabled(parameters, context) {
-        return parameters.emails.indexOf(context.email) !== -1;
-    }
+  isEnabled(parameters, context) {
+    return parameters.emails.indexOf(context.email) !== -1;
+  }
 }
 ```
 
@@ -149,8 +144,8 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 
 ```js
 initialize({
-    url: 'http://unleash.herokuapp.com',
-    strategies: [new ActiveForUserWithEmailStrategy()],
+  url: 'http://unleash.herokuapp.com',
+  strategies: [new ActiveForUserWithEmailStrategy()],
 });
 ```
 
@@ -163,8 +158,8 @@ Its also possible to ship the unleash instance around yourself, instead of using
 const { Unleash } = require('unleash-client');
 
 const unleash = new Unleash({
-    appName: 'my-app-name',
-    url: 'http://unleash.herokuapp.com',
+  appName: 'my-app-name',
+  url: 'http://unleash.herokuapp.com',
 });
 
 unleash.on('ready', console.log.bind(console, 'ready'));
@@ -176,17 +171,18 @@ unleash.on('error', console.error);
 
 The unleash instance object implements the EventEmitter class and **emits** the following events:
 
-| event      | payload                          | description                                                                                                                                                                                                                                  |
-| ---------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ready      | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
-| registered | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
-| sent       | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
-| count      | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
-| warn       | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
-| error      | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
-| unchanged  | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
-| changed    | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
-|            |
+| event        | payload                          | description                                                                                                                                                                                                                                  |
+| ------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ready        | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
+| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API and has alle the latest feature toggle configuration available.                                                                                                   |
+| registered   | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
+| sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
+| count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
+| warn         | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
+| error        | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
+| unchanged    | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
+| changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
+|              |
 
 Example usage:
 
@@ -198,14 +194,22 @@ const instance = initialize({
     url: 'http://unleash.herokuapp.com/api/',
 });
 
+// Some useful life-cycle events
+unleash.on('ready', console.log);
+unleash.on('synchronized', console.log);
+unleash.on('error', console.error);
+unleash.on('warn', console.warn);
+
 instance.once('registered', () => {
     // Do something after the client has registered with the server api.
-    // NB! It might not have recieved updated feature toggles yet.
+    // NB! It might not have received updated feature toggles yet.
 });
 
 instance.once('changed', () => {
     console.log(`Demo is enabled: ${isEnabled('Demo')}`);
 });
+
+unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})
 ```
 
 ## Custom repository
