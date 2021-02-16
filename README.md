@@ -6,9 +6,9 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
 
-Unleash Client SDK for Node.js. It is compatible with the
-[Unleash-hosted.com SaaS offering](https://www.unleash-hosted.com/) and
-[Unleash Open-Source](https://github.com/finn-no/unleash).
+Unleash Client SDK for Node.js. It is compatible with:
+- [Unleash Enterprise](https://www.unleash-hosted.com)
+- [Unleash Open-Source](https://github.com/Unleash/unleash)
 
 ## Getting started
 
@@ -20,9 +20,8 @@ $ npm install unleash-client --save
 
 ### 2. Initialize unleash-client
 
-You should as early as possible in your node (web) app initialize the unleash-client. The
-unleash-client will set-up a in-memory repository, and poll updates from the unleash-server at
-regular intervals.
+It is recommended to initialize the Unleash client SDK as early as possible in your node.js application. The
+SDK will set-up a in-memory repository, and poll updates from the unleash-server at regular intervals.
 
 ```js
 const { initialize } = require('unleash-client');
@@ -39,17 +38,17 @@ unleash.on('synchronized', () => {
   const isEnabled = unleash.isEnabled('some-toggle');
 
   // Check the variant
-  const variant = getVariant('app.ToggleY');
+  const variant = unleash.getVariant('app.ToggleY');
 });
 ```
 
-Be aware that the `initialize` function will configure a global Unleash instance. If you call this
+Be aware that the `initialize` function will configure a *global* Unleash instance. If you call this
 method multiple times the global instance will be changed. If you prefer to handle the instance
 yourself you should [construct your own Unleash instance](#alternative-usage).
 
 #### Block until Unleash SDK has synchronized
 
-You can also use the asynchronous `startUnleash` function, and `await` for the SDK to have fully
+You can also use the `startUnleash` function, and `await` for the SDK to have fully
 synchronized with the unleash-api. This allows you to secure that the SDK is not operating on
 locally and potential stale feature toggle configuration.
 
