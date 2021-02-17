@@ -454,3 +454,140 @@ test('should call client/features if no projectname set', t => {
 
   t.assert(instance.repository.projectName === undefined);
 });
+
+test('should distribute variants according to stickiness', async t => {
+  const baseUrl = getUrl();
+  nock(baseUrl)
+    .get('/client/features')
+    .reply(200, { features: [{
+      name: 'toggle-with-variants',
+      enabled: true,
+      strategies: [{ name: 'default' }],
+      variants: [{
+        name: 'blue',
+        weight: 1,
+        stickiness: 'customField',
+      },
+      {
+        name: 'red',
+        weight: 1,
+        stickiness: 'customField',
+      },
+      {
+        name: 'green',
+        weight: 1,
+        stickiness: 'customField',
+      },
+      {
+        name: 'yellow',
+        weight: 1,
+        stickiness: 'customField',
+      }],
+    }] });
+
+  const unleash = new Unleash({
+    appName: 'foo-variants',
+    disableMetrics: true,
+    backupPath: getRandomBackupPath(),
+    url: baseUrl,
+  });
+
+  const counts = {
+    red: 0,
+    blue:0,
+    green: 0,
+    yellow: 0,
+    sum: 0,
+  };
+
+  const genRandomValue = () => String(Math.round(Math.random() * 100000));
+
+  return new Promise((resolve) => {
+    unleash.on('ready', () => {
+
+      for (let i = 0; i < 10000; i++) {
+        const variant = unleash.getVariant('toggle-with-variants', { someField: genRandomValue() });
+        counts[variant.name] ++;
+        counts.sum ++;
+      }
+  
+      const red = Math.round(counts.red / counts.sum * 100);
+      const blue = Math.round(counts.blue / counts.sum * 100);
+      const green = Math.round(counts.green / counts.sum * 100);
+      const yellow = Math.round(counts.yellow / counts.sum * 100);
+
+      t.true(red > 23 && red < 27, `red not within range: ${red}`);
+      t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
+      t.true(green > 23 && green < 27, `green not within range: ${green}`);
+      t.true(yellow > 23 && yellow < 27, `yellow not within range: ${yellow}`);
+      resolve();
+    });
+  });
+});
+
+
+test('should distribute variants according to default stickiness', async t => {
+  const baseUrl = getUrl();
+  nock(baseUrl)
+    .get('/client/features')
+    .reply(200, { features: [{
+      name: 'toggle-with-variants',
+      enabled: true,
+      strategies: [{ name: 'default' }],
+      variants: [{
+        name: 'blue',
+        weight: 1,
+      },
+      {
+        name: 'red',
+        weight: 1,
+      },
+      {
+        name: 'green',
+        weight: 1,
+      },
+      {
+        name: 'yellow',
+        weight: 1,
+      }],
+    }] });
+
+  const unleash = new Unleash({
+    appName: 'foo-variants',
+    disableMetrics: true,
+    backupPath: getRandomBackupPath(),
+    url: baseUrl,
+  });
+
+  const counts = {
+    red: 0,
+    blue:0,
+    green: 0,
+    yellow: 0,
+    sum: 0,
+  };
+
+  const genRandomValue = () => String(Math.round(Math.random() * 100000));
+
+  return new Promise((resolve) => {
+    unleash.on('ready', () => {
+
+      for (let i = 0; i < 10000; i++) {
+        const variant = unleash.getVariant('toggle-with-variants', { userId: genRandomValue() });
+        counts[variant.name] ++;
+        counts.sum ++;
+      }
+  
+      const red = Math.round(counts.red / counts.sum * 100);
+      const blue = Math.round(counts.blue / counts.sum * 100);
+      const green = Math.round(counts.green / counts.sum * 100);
+      const yellow = Math.round(counts.yellow / counts.sum * 100);
+
+      t.true(red > 23 && red < 27, `red not within range: ${red}`);
+      t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
+      t.true(green > 23 && green < 27, `green not within range: ${green}`);
+      t.true(yellow > 23 && yellow < 27, `yellow not within range: ${yellow}`);
+      resolve();
+    });
+  });
+});
