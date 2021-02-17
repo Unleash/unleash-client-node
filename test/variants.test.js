@@ -45,7 +45,33 @@ test('selectVariant should select on 2 variants', (t) => {
   t.true(variant2.name === 'variant2');
 });
 
-test('selectVariant should select on 3 variants', (t) => {
+test('selectVariant should use variant stickiness when specified to select variant', t => {
+  const variants = genVariants(2).map(v => ({ ...v, stickiness: 'someField' }));
+  const feature = createFeature(variants);
+  const variant = selectVariant(feature, { someField: 'a' });
+  t.true(variant.name === 'variant1');
+  const variant2 = selectVariant(feature, { someField: '0' });
+  t.true(variant2.name === 'variant2');
+});
+
+test('selectVariant should use variant stickiness for many variants', t => {
+  const variants = genVariants(4).map(v =>
+    ({ ...v, stickiness: 'organization', weight: 25 }),
+  );
+
+  const feature = createFeature(variants);
+
+  const variant = selectVariant(feature, { organization: '726' });
+  t.is(variant.name, 'variant1');
+  const variant2 = selectVariant(feature, { organization: '48' });
+  t.is(variant2.name, 'variant2');
+  const variant3 = selectVariant(feature, { organization: '381' });
+  t.is(variant3.name, 'variant3');
+  const variant4 = selectVariant(feature, { organization: '222' });
+  t.is(variant4.name, 'variant4');
+});
+
+test('selectVariant should select on 3 variants', t => {
   const feature = createFeature(genVariants(3));
   const variant = selectVariant(feature, { toggleName: 'toggleName', userId: 'a' });
   t.true(variant.name === 'variant1');
