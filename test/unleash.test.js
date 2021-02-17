@@ -591,3 +591,53 @@ test('should distribute variants according to default stickiness', async t => {
     });
   });
 });
+test('should emit "synchronized" when data is received', t =>
+  new Promise((resolve, reject) => {
+    const url = mockNetwork();
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+    }).on('error', reject);
+
+    instance.on('synchronized', () => {
+      t.true(instance.isEnabled('feature') === true);
+      instance.destroy();
+      resolve();
+    });
+  }));
+
+test('should emit "synchronized" only first time', t =>
+  new Promise((resolve, reject) => {
+    let changedCount = 0;
+    let synchronizedCount = 0;
+
+    const url = getUrl();
+    nock(url)
+      .get('/client/features')
+      .times(3)
+      .reply(200, { features: defaultToggles });
+
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      refreshInterval: 1,
+      url,
+      backupPath: getRandomBackupPath(),
+    }).on('error', reject);
+
+    instance.on('changed', () => {
+      changedCount += 1;
+      if (changedCount > 2) {
+        t.is(synchronizedCount, 1);
+        instance.destroy();
+        resolve();
+      }
+    });
+
+    instance.on('synchronized', () => {
+      synchronizedCount += 1;
+    });
+  }));
+
