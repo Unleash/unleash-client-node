@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.7.1
+
+- fix: Handle trailing slash or not in base url (#214)
+
 # 3.7.0
 
 - feat: variant stickiness (#202)

@@ -161,7 +161,7 @@ export class Unleash extends EventEmitter {
       instanceId: unleashInstanceId,
       strategies: strats.map((strategy: Strategy) => strategy.name),
       metricsInterval,
-      url,
+      url: unleashUrl,
       headers: customHeaders,
       customHeadersFunction,
       timeout,
