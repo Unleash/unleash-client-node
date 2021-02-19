@@ -107,6 +107,7 @@ test('should handle url without ending /', t => {
   });
 
   t.true(`${baseUrl}/` === instance.repository.url);
+  t.true(`${baseUrl}/` === instance.metrics.url);
 
   instance.destroy();
 });
@@ -510,7 +511,7 @@ test('should distribute variants according to stickiness', async t => {
         counts[variant.name] ++;
         counts.sum ++;
       }
-  
+
       const red = Math.round(counts.red / counts.sum * 100);
       const blue = Math.round(counts.blue / counts.sum * 100);
       const green = Math.round(counts.green / counts.sum * 100);
@@ -577,7 +578,7 @@ test('should distribute variants according to default stickiness', async t => {
         counts[variant.name] ++;
         counts.sum ++;
       }
-  
+
       const red = Math.round(counts.red / counts.sum * 100);
       const blue = Math.round(counts.blue / counts.sum * 100);
       const green = Math.round(counts.green / counts.sum * 100);
