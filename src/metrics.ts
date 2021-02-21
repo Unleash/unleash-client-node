@@ -127,9 +127,9 @@ export default class Metrics extends EventEmitter {
         headers,
         timeout: this.timeout,
       });
-      if (!res.ok) {
+      if (res.statusCode > 299) {
         // status code outside 200 range
-        this.emit('warn', `${url} returning ${res.status}`, await res.text());
+        this.emit('warn', `${url} returning ${res.statusCode}`, res.body);
       } else {
         this.emit('registered', payload);
       }
@@ -164,12 +164,12 @@ export default class Metrics extends EventEmitter {
         timeout: this.timeout,
       });
       this.startTimer();
-      if (res.status === 404) {
+      if (res.statusCode === 404) {
         this.emit('warn', `${url} returning 404, stopping metrics`);
         this.stop();
       }
-      if (!res.ok) {
-        this.emit('warn', `${url} returning ${res.status}`, await res.text());
+      if (res.statusCode > 299) {
+        this.emit('warn', `${url} returning ${res.statusCode}`, res.body);
       } else {
         this.emit('sent', payload);
       }

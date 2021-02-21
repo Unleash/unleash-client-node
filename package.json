@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
+    "got": "^11.8.1",
     "ip": "^1.1.5",
     "murmurhash3js": "^3.0.1",
     "node-fetch": "^2.6.1"

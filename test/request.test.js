@@ -16,5 +16,5 @@ test('https URLs should yield https.Agent', (t) => {
 
 test('Custom headers should be included', (t) => {
   const headers = buildHeaders('https://bullshit.com', undefined, undefined, undefined, { hello: 'world' });
-  t.is(headers.get('hello'), 'world');
+  t.is(headers.hello, 'world');
 });

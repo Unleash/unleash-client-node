@@ -1,4 +1,4 @@
-import fetch, { Headers } from 'node-fetch';
+import got from 'got';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
@@ -44,40 +44,41 @@ export const buildHeaders = (
   etag: string | undefined,
   contentType: string | undefined,
   custom: CustomHeaders | undefined,
-): Headers => {
-  const head = new Headers();
+): Record<string, string> => {
+  const head: Record<string, string> = {};
   if (appName) {
-    head.append('UNLEASH-APPNAME', appName);
-    head.append('User-Agent', appName);
+    head['UNLEASH-APPNAME'] = appName;
+    head['User-Agent'] = appName;
   }
   if (instanceId) {
-    head.append('UNLEASH-INSTANCEID', instanceId);
+    head['UNLEASH-INSTANCEID'] = instanceId;
   }
   if (etag) {
-    head.append('If-None-Match', etag);
+    head['If-None-Match'] = etag;
   }
   if (contentType) {
-    head.append('Content-Type', contentType);
+    head['Content-Type'] = contentType;
   }
   if (custom) {
-    Object.keys(custom).forEach((k) => head.append(k, custom[k]));
+    // eslint-disable-next-line no-return-assign
+    Object.keys(custom).forEach((k) => (head[k] = custom[k]));
   }
   return head;
 };
 
 export const post = ({ url, appName, timeout, instanceId, headers, json }: PostRequestOptions) =>
-  fetch(url, {
+  got.post(url, {
     timeout: timeout || 10000,
-    method: 'POST',
-    agent: getAgent,
+    agent: { http: httpAgent, https: httpsAgent },
     headers: buildHeaders(appName, instanceId, undefined, 'application/json', headers),
     body: JSON.stringify(json),
+    responseType: 'json',
   });
 
 export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetRequestOptions) =>
-  fetch(url, {
-    method: 'GET',
+  got.get(url, {
     timeout: timeout || 10000,
-    agent: getAgent,
+    agent: { http: httpAgent, https: httpsAgent },
     headers: buildHeaders(appName, instanceId, etag, undefined, headers),
+    responseType: 'json',
   });

@@ -130,14 +130,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
         headers,
       });
 
-      if (res.status === 304) {
+      if (res.statusCode === 304) {
         // No new data
         this.emit('unchanged');
-      } else if (!res.ok) {
-        this.emit('error', new Error(`Response was not statusCode 2XX, but was ${res.status}`));
+      } else if (res.statusCode > 299) {
+        this.emit('error', new Error(`Response was not statusCode 2XX, but was ${res.statusCode}`));
       } else {
         try {
-          const data: any = await res.json();
+          const data: any = res.body;
           const obj = data.features.reduce(
             (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
               const a = { ...o };
@@ -148,8 +148,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
             {} as { [s: string]: FeatureInterface },
           );
           this.storage.reset(obj);
-          if (res.headers.get('etag') !== null) {
-            this.etag = res.headers.get('etag') as string;
+          if (res.headers['etag'] !== null) {
+            this.etag = res.headers['etag'] as string;
           } else {
             this.etag = undefined;
           }
