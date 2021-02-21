@@ -1,4 +1,4 @@
-import fetch, { Headers } from 'node-fetch';
+import * as fetch from 'make-fetch-happen';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
@@ -44,23 +44,24 @@ export const buildHeaders = (
   etag: string | undefined,
   contentType: string | undefined,
   custom: CustomHeaders | undefined,
-): Headers => {
-  const head = new Headers();
+): Record<string, string> => {
+  const head: Record<string, string> = {};
   if (appName) {
-    head.append('UNLEASH-APPNAME', appName);
-    head.append('User-Agent', appName);
+    head['UNLEASH-APPNAME'] = appName;
+    head['User-Agent'] = appName;
   }
   if (instanceId) {
-    head.append('UNLEASH-INSTANCEID', instanceId);
+    head['UNLEASH-INSTANCEID'] = instanceId;
   }
   if (etag) {
-    head.append('If-None-Match', etag);
+    head['If-None-Match'] = etag;
   }
   if (contentType) {
-    head.append('Content-Type', contentType);
+    head['Content-Type'] = contentType;
   }
   if (custom) {
-    Object.keys(custom).forEach((k) => head.append(k, custom[k]));
+    // eslint-disable-next-line no-return-assign
+    Object.keys(custom).forEach((k) => (head[k] = custom[k]));
   }
   return head;
 };
@@ -80,4 +81,7 @@ export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetReq
     timeout: timeout || 10000,
     agent: getAgent,
     headers: buildHeaders(appName, instanceId, etag, undefined, headers),
+    retry: {
+      retries: 2,
+    },
   });
