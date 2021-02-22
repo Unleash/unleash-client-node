@@ -12,7 +12,7 @@ test.cb('should retry on error', (t) => {
     res.end();
   });
 
-  server.listen(async () => {
+  server.listen(() => {
     const { port } = server.address();
   
     const unleash = new Unleash({
