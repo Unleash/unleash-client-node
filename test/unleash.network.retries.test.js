@@ -7,7 +7,7 @@ test.cb('should retry on error', (t) => {
 
   let calls = 0;
   const server = createServer((req, res) => {
-    calls ++;
+    calls++;
     res.writeHead(408);
     res.end();
   });
