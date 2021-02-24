@@ -60,8 +60,7 @@ export const buildHeaders = (
     head['Content-Type'] = contentType;
   }
   if (custom) {
-    // eslint-disable-next-line no-return-assign
-    Object.keys(custom).forEach((k) => (head[k] = custom[k]));
+    Object.assign(head, custom);
   }
   return head;
 };
