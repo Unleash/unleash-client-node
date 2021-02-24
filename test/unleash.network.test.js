@@ -18,7 +18,6 @@ test.cb('should emit network errors', (t) => {
   });
 
   unleash.on('error', (e) => {
-    // console.log(e);
     t.truthy(e);
   });
 
