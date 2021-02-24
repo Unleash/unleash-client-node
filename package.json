@@ -30,8 +30,7 @@
   "dependencies": {
     "ip": "^1.1.5",
     "make-fetch-happen": "^8.0.14",
-    "murmurhash3js": "^3.0.1",
-    "node-fetch": "^2.6.1"
+    "murmurhash3js": "^3.0.1"
   },
   "engines": {
     "node": ">=10",
