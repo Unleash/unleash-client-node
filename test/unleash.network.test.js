@@ -4,10 +4,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { Unleash } from '../lib/unleash';
 
-test.before(() => nock.disableNetConnect());
-test.after(() => nock.enableNetConnect());
-
 test.cb('should emit network errors', (t) => {
+  nock.disableNetConnect();
   t.plan(3);
   const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
   const unleash = new Unleash({
@@ -29,6 +27,7 @@ test.cb('should emit network errors', (t) => {
   setTimeout(() => {
     unleash.destroy();
     process.nextTick(() => {
+      nock.enableNetConnect();
       t.end();
     });
   }, 5);

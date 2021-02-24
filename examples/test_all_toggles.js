@@ -2,7 +2,7 @@ const { initialize, isEnabled, getFeatureToggleDefinitions } = require('../lib')
 
 const client = initialize({
   appName: 'test-all-toggles',
-  url: 'https://unleash.herokuapp.com/api',
+  url: 'https://app.unleash-hosted.com/demo/api',
   metricsInterval: 1000,
   refreshInterval: 5000,
   customHeaders: {
