@@ -19,7 +19,7 @@ export default class FlexibleRolloutStrategy extends Strategy {
   }
 
   resolveStickiness(stickiness: string, context: Context): any {
-    const stickinessNormalized = stickiness?.toLowerCase()
+    const stickinessNormalized = stickiness?.toLowerCase();
     switch (stickinessNormalized) {
       case STICKINESS.default:
         return context.userId || context.sessionId || this.randomGenerator();
