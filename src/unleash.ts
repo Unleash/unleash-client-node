@@ -196,9 +196,9 @@ export class Unleash extends EventEmitter {
     this.client = undefined;
   }
 
-  isEnabled(name: string, context: Context, fallbackFunction?: FallbackFunction): boolean;
-  isEnabled(name: string, context: Context, fallbackValue?: boolean): boolean;
-  isEnabled(name: string, context: Context, fallback?: FallbackFunction | boolean): boolean {
+  isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
+  isEnabled(name: string, context?: Context, fallbackValue?: boolean): boolean;
+  isEnabled(name: string, context: Context = {}, fallback?: FallbackFunction | boolean): boolean {
     const enhancedContext = { ...this.staticContext, ...context };
     const fallbackFunc = createFallbackFunction(name, enhancedContext, fallback);
 
@@ -216,7 +216,7 @@ export class Unleash extends EventEmitter {
     return result;
   }
 
-  getVariant(name: string, context: any, fallbackVariant?: Variant): Variant {
+  getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result;
     if (this.client !== undefined) {
