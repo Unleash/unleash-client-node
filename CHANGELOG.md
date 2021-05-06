@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.8.1
+
+- Fix: (types) relax argument requirements (#223)
+
 # 3.8.0
 
 - feat: use make-fetch-happen instead of node-fetch (#217)
