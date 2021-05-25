@@ -6,7 +6,7 @@ const client = initialize({
   metricsInterval: 1000,
   refreshInterval: 5000,
   customHeaders: {
-    Authorization: '56907a2fa53c1d16101d509a10b78e36190b0f918d9f122d',
+    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
   },
 });
 

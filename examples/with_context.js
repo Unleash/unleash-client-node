@@ -6,6 +6,9 @@ const client = initialize({
   refreshInterval: 10000,
   metricsInterval: 10000,
   environment: 'production',
+  customHeaders: {
+    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
+  },
 });
 
 client.on('error', console.error);

@@ -7,6 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
 
 Unleash Client SDK for Node.js. It is compatible with:
+
 - [Unleash Enterprise](https://www.unleash-hosted.com)
 - [Unleash Open-Source](https://github.com/Unleash/unleash)
 
@@ -20,8 +21,9 @@ $ npm install unleash-client --save
 
 ### 2. Initialize unleash-client
 
-It is recommended to initialize the Unleash client SDK as early as possible in your node.js application. The
-SDK will set-up a in-memory repository, and poll updates from the unleash-server at regular intervals.
+It is recommended to initialize the Unleash client SDK as early as possible in your node.js
+application. The SDK will set-up a in-memory repository, and poll updates from the unleash-server at
+regular intervals.
 
 ```js
 const { initialize } = require('unleash-client');
@@ -29,6 +31,9 @@ const unleash = initialize({
   url: 'http://unleash.herokuapp.com/api/',
   appName: 'my-app-name',
   instanceId: 'my-unique-instance-id',
+  customHeaders: {
+    Authorization: 'API token',
+  },
 });
 
 unleash.on('synchronized', () => {
@@ -42,15 +47,15 @@ unleash.on('synchronized', () => {
 });
 ```
 
-Be aware that the `initialize` function will configure a *global* Unleash instance. If you call this
+Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this
 method multiple times the global instance will be changed. If you prefer to handle the instance
 yourself you should [construct your own Unleash instance](#alternative-usage).
 
 #### Block until Unleash SDK has synchronized
 
-You can also use the `startUnleash` function, and `await` for the SDK to have fully
-synchronized with the unleash-api. This allows you to secure that the SDK is not operating on
-locally and potential stale feature toggle configuration.
+You can also use the `startUnleash` function, and `await` for the SDK to have fully synchronized
+with the unleash-api. This allows you to secure that the SDK is not operating on locally and
+potential stale feature toggle configuration.
 
 ```js
 const { startUnleash } = require('unleash-client');
@@ -58,6 +63,9 @@ const { startUnleash } = require('unleash-client');
 const unleash = await startUnleash({
   appName: 'async-unleash',
   url: 'http://unleash.herokuapp.com/api/',
+  customHeaders: {
+    Authorization: 'API token',
+  },
 });
 
 // Unleash SDK has now fresh state from the unleash-api
@@ -146,6 +154,9 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 ```js
 initialize({
   url: 'http://unleash.herokuapp.com',
+  customHeaders: {
+    Authorization: 'API token',
+  },
   strategies: [new ActiveForUserWithEmailStrategy()],
 });
 ```
@@ -161,6 +172,9 @@ const { Unleash } = require('unleash-client');
 const unleash = new Unleash({
   appName: 'my-app-name',
   url: 'http://unleash.herokuapp.com',
+  customHeaders: {
+    Authorization: 'API token',
+  },
 });
 
 unleash.on('ready', console.log.bind(console, 'ready'));
@@ -188,11 +202,14 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 Example usage:
 
 ```js
-const { initialize, isEnabled } = require('unleash-client');
+const { initialize } = require('unleash-client');
 
-const instance = initialize({
+const unleash = initialize({
     appName: 'my-app-name',
     url: 'http://unleash.herokuapp.com/api/',
+    customHeaders: {
+    Authorization: 'API token',
+  },
 });
 
 // Some useful life-cycle events
@@ -201,16 +218,16 @@ unleash.on('synchronized', console.log);
 unleash.on('error', console.error);
 unleash.on('warn', console.warn);
 
-instance.once('registered', () => {
+unleash.once('registered', () => {
     // Do something after the client has registered with the server api.
     // NB! It might not have received updated feature toggles yet.
 });
 
-instance.once('changed', () => {
-    console.log(`Demo is enabled: ${isEnabled('Demo')}`);
+unleash.once('changed', () => {
+    console.log(`Demo is enabled: ${unleash.isEnabled('Demo')}`);
 });
 
-unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})
+unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}`)
 ```
 
 ## Toggle definitions
@@ -226,6 +243,9 @@ const {
 
 initialize({
   url: 'http://unleash.herokuapp.com/api/',
+  customHeaders: {
+    Authorization: 'API token',
+  },
   appName: 'my-app-name',
   instanceId: 'my-unique-instance-id',
 });
