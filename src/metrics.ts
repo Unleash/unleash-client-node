@@ -3,6 +3,7 @@ import { resolve } from 'url';
 import { post, Data } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
+import { HttpOptions } from './http-options';
 
 export interface MetricsOptions {
   appName: string;
@@ -15,6 +16,7 @@ export interface MetricsOptions {
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
+  httpOptions?: HttpOptions;
 }
 
 interface VariantBucket {
@@ -56,6 +58,8 @@ export default class Metrics extends EventEmitter {
 
   private timeout?: number;
 
+  private httpOptions?: HttpOptions;
+
   constructor({
     appName,
     instanceId,
@@ -66,6 +70,7 @@ export default class Metrics extends EventEmitter {
     headers,
     customHeadersFunction,
     timeout,
+    httpOptions,
   }: MetricsOptions) {
     super();
     this.disabled = disableMetrics;
@@ -80,6 +85,7 @@ export default class Metrics extends EventEmitter {
     this.started = new Date();
     this.timeout = timeout;
     this.resetBucket();
+    this.httpOptions = httpOptions;
 
     if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
       this.startTimer();
@@ -126,6 +132,7 @@ export default class Metrics extends EventEmitter {
         instanceId: this.instanceId,
         headers,
         timeout: this.timeout,
+        httpOptions: this.httpOptions,
       });
       if (!res.ok) {
         // status code outside 200 range
@@ -162,6 +169,7 @@ export default class Metrics extends EventEmitter {
         instanceId: this.instanceId,
         headers,
         timeout: this.timeout,
+        httpOptions: this.httpOptions,
       });
       this.startTimer();
       if (res.status === 404) {

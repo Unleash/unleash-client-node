@@ -4,6 +4,7 @@ import { FeatureInterface } from './feature';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import getUrl from './url-utils';
+import { HttpOptions } from './http-options';
 
 export type StorageImpl = typeof Storage;
 
@@ -24,6 +25,7 @@ export interface RepositoryOptions {
   timeout?: number;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
+  httpOptions?: HttpOptions;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -51,6 +53,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private projectName?: string;
 
+  private httpOptions?: HttpOptions;
+
   constructor({
     backupPath,
     url,
@@ -62,6 +66,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     timeout,
     headers,
     customHeadersFunction,
+    httpOptions,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -72,6 +77,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.headers = headers;
     this.timeout = timeout;
     this.customHeadersFunction = customHeadersFunction;
+    this.httpOptions = httpOptions;
 
     this.storage = new StorageImpl({ backupPath, appName });
     this.storage.on('error', (err) => this.emit('error', err));
@@ -128,6 +134,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         timeout: this.timeout,
         instanceId: this.instanceId,
         headers,
+        httpOptions: this.httpOptions,
       });
 
       if (res.status === 304) {
