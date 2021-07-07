@@ -667,10 +667,10 @@
     "@typescript-eslint/types" "4.14.2"
     eslint-visitor-keys "^2.0.0"
 
-"@unleash/client-specification@^3.3.1":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-3.3.1.tgz#4f0527c7bf1d6f77d7dbb909f698340f8b117049"
-  integrity sha512-B+NlU9LSGPLKJ7LpKW//2XcFhTZLruGNoiy/o2Zd93RRLpf1Yy9Bpyw8hsZw8tZrdRweWOXyFbttXroqk1j1ww==
+"@unleash/client-specification@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.0.0.tgz#ad8c813587b185e36b88f6555c8fec4583ec65db"
+  integrity sha512-K5JoOqGz8g1EYIV5oJiM3sCEKd4EHUKj1/zLq3Z2ExZ/+aQ/04kQDeJ62aTNtjErbIDH6toOBQ1BgS/1Bie0wg==
 
 acorn-jsx@^5.3.1:
   version "5.3.1"
@@ -3396,9 +3396,9 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
 normalize-url@^4.1.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.0.tgz#453354087e6ca96957bd8f5baf753f5982142129"
-  integrity sha512-2s47yzUxdexf1OhyRi4Em83iQk0aPvwTddtFz4hnSSw9dCEsLEGf6SwIO8ss/19S9iBb5sJaOuTvTGDeZI00BQ==
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.1.tgz#0dd90cf1288ee1d1313b87081c9a5932ee48518a"
+  integrity sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==
 
 npm-run-path@^4.0.0:
   version "4.0.1"
