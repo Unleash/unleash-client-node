@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.9.0
+
+- fix: add support for passing in rejectUnauthorized to http fetch (#229)
+
 # 3.8.1
 
 - Fix: (types) relax argument requirements (#223)
