@@ -3,6 +3,7 @@ import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
 import { CustomHeaders } from './headers';
+import { HttpOptions } from './http-options';
 
 export interface RequestOptions {
   url: string;
@@ -14,6 +15,7 @@ export interface GetRequestOptions extends RequestOptions {
   etag?: string;
   appName?: string;
   instanceId?: string;
+  httpOptions?: HttpOptions;
 }
 
 export interface Data {
@@ -24,6 +26,7 @@ export interface PostRequestOptions extends RequestOptions {
   json: Data;
   appName?: string;
   instanceId?: string;
+  httpOptions?: HttpOptions;
 }
 const httpAgent = new http.Agent({
   keepAlive: true,
@@ -65,16 +68,33 @@ export const buildHeaders = (
   return head;
 };
 
-export const post = ({ url, appName, timeout, instanceId, headers, json }: PostRequestOptions) =>
+export const post = ({
+  url,
+  appName,
+  timeout,
+  instanceId,
+  headers,
+  json,
+  httpOptions,
+}: PostRequestOptions) =>
   fetch(url, {
     timeout: timeout || 10000,
     method: 'POST',
     agent: getAgent,
     headers: buildHeaders(appName, instanceId, undefined, 'application/json', headers),
     body: JSON.stringify(json),
+    strictSSL: httpOptions?.rejectUnauthorized,
   });
 
-export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetRequestOptions) =>
+export const get = ({
+  url,
+  etag,
+  appName,
+  timeout,
+  instanceId,
+  headers,
+  httpOptions,
+}: GetRequestOptions) =>
   fetch(url, {
     method: 'GET',
     timeout: timeout || 10000,
@@ -83,4 +103,5 @@ export const get = ({ url, etag, appName, timeout, instanceId, headers }: GetReq
     retry: {
       retries: 2,
     },
+    strictSSL: httpOptions?.rejectUnauthorized,
   });

@@ -131,6 +131,8 @@ The initialize method takes the following arguments:
   option.
 - **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
 - **repository** - Provide a custom repository implementation to manage the underlying data
+- **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
+  options as they may compromise your application security
 
 ## Custom strategies
 

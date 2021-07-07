@@ -10,6 +10,7 @@ import { Strategy, defaultStrategies } from './strategy';
 import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
+import { HttpOptions } from './http-options';
 
 export { Strategy };
 
@@ -30,6 +31,7 @@ export interface UnleashConfig {
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
   repository?: RepositoryInterface;
+  httpOptions?: HttpOptions;
 }
 
 export interface StaticContext {
@@ -63,6 +65,7 @@ export class Unleash extends EventEmitter {
     customHeaders,
     customHeadersFunction,
     timeout,
+    httpOptions,
   }: UnleashConfig) {
     super();
 
@@ -118,6 +121,7 @@ export class Unleash extends EventEmitter {
         headers: customHeaders,
         customHeadersFunction,
         timeout,
+        httpOptions,
       });
 
     const strats = defaultStrategies.concat(strategies);
@@ -165,6 +169,7 @@ export class Unleash extends EventEmitter {
       headers: customHeaders,
       customHeadersFunction,
       timeout,
+      httpOptions,
     });
 
     this.metrics.on('error', (err) => {
