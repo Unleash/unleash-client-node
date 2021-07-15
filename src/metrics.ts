@@ -4,6 +4,7 @@ import { post, Data } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
+import { suffixSlash } from './url-utils';
 
 export interface MetricsOptions {
   appName: string;
@@ -119,7 +120,7 @@ export default class Metrics extends EventEmitter {
     if (this.disabled) {
       return false;
     }
-    const url = resolve(this.url, './client/register');
+    const url = resolve(suffixSlash(this.url), './client/register');
     const payload = this.getClientData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
@@ -156,7 +157,7 @@ export default class Metrics extends EventEmitter {
       this.startTimer();
       return true;
     }
-    const url = resolve(this.url, './client/metrics');
+    const url = resolve(suffixSlash(this.url), './client/metrics');
     const payload = this.getPayload();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
