@@ -7,4 +7,6 @@ const getUrl = (base: string, projectName?: string): string => {
   return resolve(base, './client/features');
 };
 
+export const suffixSlash = (url: string): string => (url.endsWith('/') ? url : `${url}/`);
+
 export default getUrl;
