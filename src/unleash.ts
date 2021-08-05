@@ -11,6 +11,7 @@ import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
 import { HttpOptions } from './http-options';
+import { TagFilter } from './tags';
 
 export { Strategy };
 
@@ -33,7 +34,7 @@ export interface UnleashConfig {
   timeout?: number;
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
-  tags?: Array<string>;
+  tags?: Array<TagFilter>;
 }
 
 export interface StaticContext {

@@ -19,7 +19,11 @@ const getUrl = (
       params.append('tag', tag);
     });
   }
-  return `${url}?${decodeURIComponent(params.toString())}`;
+  if (params.toString().length > 0) {
+    return `${url}?${decodeURIComponent(params.toString())}`;
+  } 
+  return url;
+  
 };
 
 export const suffixSlash = (url: string): string => (url.endsWith('/') ? url : `${url}/`);
