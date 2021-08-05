@@ -24,6 +24,7 @@ export interface UnleashConfig {
   refreshInterval?: number;
   projectName?: string;
   metricsInterval?: number;
+  namePrefix?: string;
   disableMetrics?: boolean;
   backupPath?: string;
   strategies?: Strategy[];
@@ -62,6 +63,7 @@ export class Unleash extends EventEmitter {
     backupPath = BACKUP_PATH,
     strategies = [],
     repository,
+    namePrefix,
     customHeaders,
     customHeadersFunction,
     timeout,
@@ -122,6 +124,7 @@ export class Unleash extends EventEmitter {
         customHeadersFunction,
         timeout,
         httpOptions,
+        namePrefix,
       });
 
     const strats = defaultStrategies.concat(strategies);

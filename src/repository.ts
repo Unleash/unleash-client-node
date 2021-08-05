@@ -26,6 +26,7 @@ export interface RepositoryOptions {
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
   httpOptions?: HttpOptions;
+  namePrefix?: string;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -55,6 +56,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private httpOptions?: HttpOptions;
 
+  private readonly namePrefix?: string;
+
   constructor({
     backupPath,
     url,
@@ -67,6 +70,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     headers,
     customHeadersFunction,
     httpOptions,
+    namePrefix,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -78,6 +82,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.timeout = timeout;
     this.customHeadersFunction = customHeadersFunction;
     this.httpOptions = httpOptions;
+    this.namePrefix = namePrefix;
 
     this.storage = new StorageImpl({ backupPath, appName });
     this.storage.on('error', (err) => this.emit('error', err));
@@ -121,7 +126,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
-      const url = getUrl(this.url, this.projectName);
+      const url = getUrl(this.url, this.projectName, this.namePrefix);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
