@@ -33,6 +33,7 @@ export interface UnleashConfig {
   timeout?: number;
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
+  tags?: Array<string>;
 }
 
 export interface StaticContext {
@@ -68,6 +69,7 @@ export class Unleash extends EventEmitter {
     customHeadersFunction,
     timeout,
     httpOptions,
+    tags,
   }: UnleashConfig) {
     super();
 
@@ -125,6 +127,7 @@ export class Unleash extends EventEmitter {
         timeout,
         httpOptions,
         namePrefix,
+        tags,
       });
 
     const strats = defaultStrategies.concat(strategies);
