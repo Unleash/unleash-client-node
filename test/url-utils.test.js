@@ -16,7 +16,7 @@ test('geturl should return url with namePrefix if namePrefix is provided', t => 
   t.true(result === 'http://unleash-app.com/client/features?namePrefix=unleash');
 });
 
-test('geturl should return url with namePrefix and project if namePrefix and projectname is provided', t => {
+test('geturl should return url with namePrefix and project both are provided', t => {
   const result = getUrl('http://unleash-app.com', 'myProject', 'unleash');
   t.true(result === 'http://unleash-app.com/client/features?namePrefix=unleash&namePrefix=unleash');
 });
