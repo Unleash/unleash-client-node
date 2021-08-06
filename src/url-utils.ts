@@ -7,7 +7,7 @@ const getUrl = (
   tags?: Array<string>,
 ): string => {
   const url = resolve(base, './client/features');
-  const params = new URLSearchParams(url);
+  const params = new URLSearchParams();
   if (projectName) {
     params.append('project', projectName);
   }
