@@ -18,12 +18,12 @@ test('geturl should return url with namePrefix if namePrefix is provided', t => 
 
 test('geturl should return url with namePrefix and project both are provided', t => {
   const result = getUrl('http://unleash-app.com', 'myProject', 'unleash');
-  t.is(result, 'http://unleash-app.com/client/features?namePrefix=unleash&namePrefix=unleash');
+  t.is(result, 'http://unleash-app.com/client/features?project=myProject&namePrefix=unleash');
 });
 
 test('geturl should return url with namePrefix, project and tags if all provided', t => {
   const result = getUrl('http://unleash-app.com', 'myProject', 'unleash', ['tagName:tagValue']);
-  t.is(result, 'http://unleash-app.com/client/features?namePrefix=unleash&namePrefix=unleash&tag=tagName:tagValue');
+  t.is(result, 'http://unleash-app.com/client/features?project=myProject&namePrefix=unleash&tag=tagName:tagValue');
 });
 
 test('geturl should return url with tags if tags are provided', t => {
