@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "esm": "^3.2.25",
-    "husky": "^4.3.8",
+    "husky": "^7.0.1",
     "lint-staged": "^11.1.2",
     "mkdirp": "^1.0.4",
     "nock": "^13.0.7",
