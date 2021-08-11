@@ -45,7 +45,7 @@
     "@types/ip": "^1.1.0",
     "@types/make-fetch-happen": "^9.0.0",
     "@types/murmurhash3js": "^3.0.2",
-    "@types/node": "^14.0.1",
+    "@types/node": "^14.17.9",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@unleash/client-specification": "^4.0.0",
     "ava": "^3.15.0",
