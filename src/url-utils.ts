@@ -15,15 +15,12 @@ const getUrl = (
     params.append('namePrefix', namePrefix);
   }
   if (tags) {
-    tags.forEach((tag) => {
-      params.append('tag', tag);
-    });
+    tags.forEach((tag) => params.append('tag', tag));
   }
   if (params.toString().length > 0) {
-    return `${url}?${decodeURIComponent(params.toString())}`;
-  } 
+    return `${url}?${params.toString()}`;
+  }
   return url;
-  
 };
 
 export const suffixSlash = (url: string): string => (url.endsWith('/') ? url : `${url}/`);

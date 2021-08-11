@@ -23,17 +23,17 @@ test('geturl should return url with namePrefix and project both are provided', t
 
 test('geturl should return url with namePrefix, project and tags if all provided', t => {
   const result = getUrl('http://unleash-app.com', 'myProject', 'unleash', ['tagName:tagValue']);
-  t.is(result, 'http://unleash-app.com/client/features?project=myProject&namePrefix=unleash&tag=tagName:tagValue');
+  t.is(result, 'http://unleash-app.com/client/features?project=myProject&namePrefix=unleash&tag=tagName%3AtagValue');
 });
 
 test('geturl should return url with tags if tags are provided', t => {
   const result = getUrl('http://unleash-app.com', '', '', ['tagName:tagValue']);
-  t.is(result, 'http://unleash-app.com/client/features?tag=tagName:tagValue');
+  t.is(result, 'http://unleash-app.com/client/features?tag=tagName%3AtagValue');
 });
 
 test('geturl should return url with two tags if two tags are provided', t => {
   const result = getUrl('http://unleash-app.com', '', '', ['tagName:tagValue', 'tagName2:tagValue2']);
-  t.is(result, 'http://unleash-app.com/client/features?tag=tagName:tagValue&tag=tagName2:tagValue2');
+  t.is(result, 'http://unleash-app.com/client/features?tag=tagName%3AtagValue&tag=tagName2%3AtagValue2');
 });
 
 test('suffix slash should append / on url missing /', t => {
