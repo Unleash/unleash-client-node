@@ -19,7 +19,7 @@ test.cb('should retry on error', (t) => {
       appName: 'network',
       url: `http://localhost:${port}`,
       refreshInterval: 1,
-      timeout: 100,
+      timeout: 0,
       disableMetrics: true,
     });
   
