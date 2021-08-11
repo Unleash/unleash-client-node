@@ -1,5 +1,21 @@
 # Changelog
 
+# 3.10.0
+
+- feat: Add support to provide namePrefix and tags for filtering (#237)
+- fix: cleanup tag interface
+- fix: Changed the priority of the strategy block (#235)
+- fix: bump eslint-config-prettier to 8.3.0
+- fix: upgrade sinon to 11.1.2
+- fix: run tests all node.js > 12
+- fix: upgrade husky to 7.0.1
+- fix: bump lint staged to 11.1.2
+- fix: bump @types/node to 14.17.9
+- fix: upgrade @ava/babel to 2.0.0
+- fix: failing test
+- fix: update yarn.lock
+- fix: bump make-fetch-happen to version 9.0.4
+
 # 3.9.0
 
 - fix: add support for passing in rejectUnauthorized to http fetch (#229)
