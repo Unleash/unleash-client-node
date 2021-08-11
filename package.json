@@ -41,9 +41,9 @@
     "examples"
   ],
   "devDependencies": {
-    "@ava/babel": "^1.0.1",
+    "@ava/babel": "^2.0.0",
     "@types/ip": "^1.1.0",
-    "@types/make-fetch-happen": "8.0.1",
+    "@types/make-fetch-happen": "^9.0.0",
     "@types/murmurhash3js": "^3.0.2",
     "@types/node": "^14.0.1",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
