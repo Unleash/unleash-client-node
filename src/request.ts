@@ -39,7 +39,7 @@ const httpsAgent = new https.Agent({
   keepAliveMsecs: 30 * 1000,
   timeout: 10 * 1000,
 });
- 
+
 export const getAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
 export const buildHeaders = (
   appName: string | undefined,
@@ -97,11 +97,12 @@ export const get = ({
 }: GetRequestOptions) =>
   fetch(url, {
     method: 'GET',
-    timeout: timeout || 10000,
+    timeout: timeout || 10_000,
     agent: getAgent,
     headers: buildHeaders(appName, instanceId, etag, undefined, headers),
     retry: {
       retries: 2,
+      maxTimeout: timeout || 10_000,
     },
     strictSSL: httpOptions?.rejectUnauthorized,
   });

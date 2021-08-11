@@ -29,7 +29,7 @@
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
     "ip": "^1.1.5",
-    "make-fetch-happen": "^8.0.14",
+    "make-fetch-happen": "^9.0.4",
     "murmurhash3js": "^3.0.1"
   },
   "engines": {

@@ -11,6 +11,7 @@ test.cb('should emit network errors', (t) => {
   const unleash = new Unleash({
     appName: 'network',
     url: 'http://blocked.app',
+    timeout: 1,
     refreshInterval: 20000,
     metricsInterval: 20000,
     disableMetrics: false,
@@ -30,5 +31,5 @@ test.cb('should emit network errors', (t) => {
       nock.enableNetConnect();
       t.end();
     });
-  }, 5);
+  }, 1000);
 });
