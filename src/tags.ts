@@ -1,4 +1,4 @@
 export interface TagFilter{
-  tagName: string;
-  tagValue: string;
+  name: string;
+  value: string;
 }

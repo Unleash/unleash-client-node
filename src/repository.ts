@@ -187,7 +187,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   mergeTagsToStringArray(tags: Array<TagFilter>): Array<string> {
-    return tags.map((tag) => `${tag.tagName}:${tag.tagValue}`);
+    return tags.map((tag) => `${tag.name}:${tag.value}`);
   }
 
   stop() {
