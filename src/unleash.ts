@@ -124,7 +124,7 @@ export class Unleash extends EventEmitter {
         httpOptions,
       });
 
-    const strats = defaultStrategies.concat(strategies);
+    const strats = strategies.concat(defaultStrategies);
 
     this.repository.on('ready', () => {
       this.client = new Client(this.repository, strats);
