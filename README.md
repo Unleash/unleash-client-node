@@ -133,6 +133,8 @@ The initialize method takes the following arguments:
 - **repository** - Provide a custom repository implementation to manage the underlying data
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security
+- **namePrefix** - Only fetch feature toggles with the provided name prefix.
+- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`. 
 
 ## Custom strategies
 
