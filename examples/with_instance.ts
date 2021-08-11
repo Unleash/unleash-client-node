@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import * as express from 'express';
 import { Unleash, Strategy } from '../lib/unleash';
 

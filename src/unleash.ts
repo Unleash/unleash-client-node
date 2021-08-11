@@ -11,6 +11,7 @@ import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
 import { HttpOptions } from './http-options';
+import { TagFilter } from './tags';
 
 export { Strategy };
 
@@ -24,6 +25,7 @@ export interface UnleashConfig {
   refreshInterval?: number;
   projectName?: string;
   metricsInterval?: number;
+  namePrefix?: string;
   disableMetrics?: boolean;
   backupPath?: string;
   strategies?: Strategy[];
@@ -32,6 +34,7 @@ export interface UnleashConfig {
   timeout?: number;
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
+  tags?: Array<TagFilter>;
 }
 
 export interface StaticContext {
@@ -62,10 +65,12 @@ export class Unleash extends EventEmitter {
     backupPath = BACKUP_PATH,
     strategies = [],
     repository,
+    namePrefix,
     customHeaders,
     customHeadersFunction,
     timeout,
     httpOptions,
+    tags,
   }: UnleashConfig) {
     super();
 
@@ -122,6 +127,8 @@ export class Unleash extends EventEmitter {
         customHeadersFunction,
         timeout,
         httpOptions,
+        namePrefix,
+        tags,
       });
 
     const strats = strategies.concat(defaultStrategies);

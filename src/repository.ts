@@ -5,6 +5,7 @@ import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import getUrl from './url-utils';
 import { HttpOptions } from './http-options';
+import { TagFilter } from './tags';
 
 export type StorageImpl = typeof Storage;
 
@@ -13,7 +14,6 @@ export interface RepositoryInterface extends EventEmitter {
   getToggles(): FeatureInterface[];
   stop(): void;
 }
-
 export interface RepositoryOptions {
   backupPath: string;
   url: string;
@@ -26,6 +26,8 @@ export interface RepositoryOptions {
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
   httpOptions?: HttpOptions;
+  namePrefix?: string;
+  tags?: Array<TagFilter>;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -55,6 +57,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private httpOptions?: HttpOptions;
 
+  private readonly namePrefix?: string;
+
+  private readonly tags?: Array<TagFilter>;
+
   constructor({
     backupPath,
     url,
@@ -67,6 +73,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
     headers,
     customHeadersFunction,
     httpOptions,
+    namePrefix,
+    tags,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -78,6 +86,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.timeout = timeout;
     this.customHeadersFunction = customHeadersFunction;
     this.httpOptions = httpOptions;
+    this.namePrefix = namePrefix;
+    this.tags = tags;
 
     this.storage = new StorageImpl({ backupPath, appName });
     this.storage.on('error', (err) => this.emit('error', err));
@@ -121,7 +131,11 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
-      const url = getUrl(this.url, this.projectName);
+      let mergedTags;
+      if (this.tags) { 
+        mergedTags = this.mergeTagsToStringArray(this.tags);
+      }
+      const url = getUrl(this.url, this.projectName, this.namePrefix, mergedTags);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
@@ -170,6 +184,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
     } finally {
       this.timedFetch();
     }
+  }
+
+  mergeTagsToStringArray(tags: Array<TagFilter>): Array<string> {
+    return tags.map((tag) => `${tag.tagName}:${tag.tagValue}`);
   }
 
   stop() {
