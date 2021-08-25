@@ -2,9 +2,10 @@ import { once } from 'events';
 import { Unleash, UnleashConfig } from './unleash';
 import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
+import { TagFilter } from './tags';
 
 export { Strategy } from './strategy/index';
-export { Context, Variant, Unleash };
+export { Context, Variant, Unleash, TagFilter };
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
