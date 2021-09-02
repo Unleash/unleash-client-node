@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.10.1
+
+- fix: expose TagFilter enum
+
 # 3.10.0
 
 - feat: Add support to provide namePrefix and tags for filtering (#237)
