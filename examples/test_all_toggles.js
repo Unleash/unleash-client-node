@@ -14,13 +14,14 @@ const client = initialize({
 
 client.on('error', console.error);
 client.on('warn', console.log);
-client.on('unchanged', () => console.error('NOT CHANGED'));
-client.on('changed', () => console.log('changed'));
+//client.on('unchanged', () => console.error('NOT CHANGED'));
+client.on('changed', () => console.log('CHANGED!'));
 
 console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
   const userId = Math.random()*1000;
+  process.stdout.write("\u001b[2J\u001b[0;0H");
   console.log(`current userId: ${userId}`);
   getFeatureToggleDefinitions().forEach((t) => {
     console.log(`${t.name}: ${isEnabled(t.name, { userId })}`);
