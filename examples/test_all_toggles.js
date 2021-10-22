@@ -5,8 +5,8 @@ const apiKey = process.env.UNLEASH_API_KEY || '56907a2fa53c1d16101d509a10b78e361
 const client = initialize({
   appName: 'test-all-toggles',
   url,
-  metricsInterval: 1000,
-  refreshInterval: 5000,
+  metricsInterval: 2000,
+  refreshInterval: 1000,
   customHeaders: {
     Authorization: apiKey,
   },
@@ -20,7 +20,9 @@ client.on('changed', () => console.log('changed'));
 console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
+  const userId = Math.random()*1000;
+  console.log(`current userId: ${userId}`);
   getFeatureToggleDefinitions().forEach((t) => {
-    console.log(`${t.name}: ${isEnabled(t.name)}`);
+    console.log(`${t.name}: ${isEnabled(t.name, { userId })}`);
   });
 }, 1000);
