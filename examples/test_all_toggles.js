@@ -14,7 +14,7 @@ const client = initialize({
 
 client.on('error', console.error);
 client.on('warn', console.log);
-//client.on('unchanged', () => console.error('NOT CHANGED'));
+// client.on('unchanged', () => console.error('NOT CHANGED'));
 client.on('changed', () => console.log('CHANGED!'));
 
 console.log(`Fetching toggles from: ${url}`);
