@@ -68,7 +68,8 @@
     "typescript": "^4.1.3"
   },
   "resolutions": {
-    "ansi-regex": "^5.0.1"
+    "ansi-regex": "^5.0.1",
+    "json-schema": "^0.4.0"
   },
   "nyc": {
     "lines": 95,
