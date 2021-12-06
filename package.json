@@ -67,6 +67,9 @@
     "sinon": "^11.1.2",
     "typescript": "^4.1.3"
   },
+  "resolutions": {
+    "ansi-regex": "^5.0.1"
+  },
   "nyc": {
     "lines": 95,
     "statements": 95,
