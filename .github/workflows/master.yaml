@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
       - name: Setup yarn cache
-        uses: c-hive/gha-yarn-cache@v1
+        uses: c-hive/gha-yarn-cache@v2
       - name: Yarn
         run: yarn
       - name: Test
