@@ -65,7 +65,7 @@
     "nyc": "15.1.0",
     "prettier": "2.3.2",
     "sinon": "12.0.1",
-    "typescript": "4.3.5"
+    "typescript": "4.5.3"
   },
   "resolutions": {
     "ansi-regex": "^5.0.1",
