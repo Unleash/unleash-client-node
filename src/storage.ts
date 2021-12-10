@@ -74,7 +74,9 @@ export class Storage extends EventEmitter implements EventEmitter {
       try {
         this.reset(JSON.parse(data), false);
       } catch (error) {
-        error.message = `Unleash storage failed parsing file ${this.path}: ${error.message}`;
+        if(error instanceof Error) {
+          error.message = `Unleash storage failed parsing file ${this.path}: ${error.message}`;
+        }
         this.emit('error', error);
       }
     });
