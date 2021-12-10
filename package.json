@@ -63,7 +63,7 @@
     "mkdirp": "1.0.4",
     "nock": "13.2.1",
     "nyc": "15.1.0",
-    "prettier": "2.3.2",
+    "prettier": "2.5.1",
     "sinon": "12.0.1",
     "typescript": "4.3.5"
   },
