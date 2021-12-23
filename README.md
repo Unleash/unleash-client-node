@@ -4,7 +4,7 @@
 ![npm](https://img.shields.io/npm/dm/unleash-client)
 [![Build Status](https://github.com/Unleash/unleash-client-node/workflows/Build/badge.svg)](https://github.com/Unleash/unleash-client-node/actions)
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
-[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
 
 Unleash Client SDK for Node.js. It is compatible with:
 
@@ -96,12 +96,12 @@ The client comes with implementations for the built-in activation strategies pro
 - ApplicationHostnameStrategy
 
 Read more about the strategies in
-[activation-strategy.md](https://github.com/Unleash/unleash/blob/master/docs/activation-strategies.md).
+[activation-strategy.md](https://github.com/Unleash/unleash/blob/main/docs/activation-strategies.md).
 
 ### Unleash context
 
 In order to use some of the common activation strategies you must provide a
-[unleash-context](https://github.com/Unleash/unleash/blob/master/docs/unleash-context.md). This
+[unleash-context](https://github.com/Unleash/unleash/blob/main/docs/unleash-context.md). This
 client SDK allows you to send in the unleash context as part of the `isEnabled` call:
 
 ```javascript
@@ -135,7 +135,7 @@ The initialize method takes the following arguments:
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`. 
+- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
