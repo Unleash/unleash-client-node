@@ -28,6 +28,8 @@ export interface RepositoryOptions {
   httpOptions?: HttpOptions;
   namePrefix?: string;
   tags?: Array<TagFilter>;
+  bootstrap?: FeatureInterface[];
+  bootstrapOverride?: boolean;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
@@ -61,6 +63,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private readonly tags?: Array<TagFilter>;
 
+  private bootstrap?: FeatureInterface[];
+  private bootstrapOverride?: boolean;
+
   constructor({
     backupPath,
     url,
@@ -75,6 +80,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
     httpOptions,
     namePrefix,
     tags,
+    bootstrap,
+    bootstrapOverride,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -88,6 +95,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.httpOptions = httpOptions;
     this.namePrefix = namePrefix;
     this.tags = tags;
+    this.bootstrap = bootstrap;
+    this.bootstrapOverride = bootstrapOverride;
 
     this.storage = new StorageImpl({ backupPath, appName });
     this.storage.on('error', (err) => this.emit('error', err));
@@ -97,7 +106,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   timedFetch() {
-    if (this.refreshInterval != null && this.refreshInterval > 0) {
+    if (this.refreshInterval != null && this.refreshInterval > 0 && !this.bootstrap) {
       this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
@@ -131,8 +140,22 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
 
     try {
+      if (this.bootstrap && (this.bootstrapOverride || this.getToggles().length === 0)) {
+        this.storage.reset(
+          this.bootstrap.reduce(
+            (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
+              const a = { ...o };
+              this.validateFeature(feature);
+              a[feature.name] = feature;
+              return a;
+            },
+            {} as { [s: string]: FeatureInterface },
+          ),
+        );
+        return;
+      }
       let mergedTags;
-      if (this.tags) { 
+      if (this.tags) {
         mergedTags = this.mergeTagsToStringArray(this.tags);
       }
       const url = getUrl(this.url, this.projectName, this.namePrefix, mergedTags);

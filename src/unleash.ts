@@ -35,6 +35,8 @@ export interface UnleashConfig {
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
+  bootstrap?: FeatureInterface[];
+  bootstrapOverride?: boolean;
 }
 
 export interface StaticContext {
@@ -71,6 +73,8 @@ export class Unleash extends EventEmitter {
     timeout,
     httpOptions,
     tags,
+    bootstrap,
+    bootstrapOverride = true,
   }: UnleashConfig) {
     super();
 
@@ -129,6 +133,8 @@ export class Unleash extends EventEmitter {
         httpOptions,
         namePrefix,
         tags,
+        bootstrap,
+        bootstrapOverride,
       });
 
     const strats = strategies.concat(defaultStrategies);
