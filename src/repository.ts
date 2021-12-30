@@ -95,7 +95,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.httpOptions = httpOptions;
     this.namePrefix = namePrefix;
     this.tags = tags;
-    this.bootstrap = bootstrap;
+    this.bootstrap = bootstrap && bootstrap.length > 0 ? bootstrap : undefined;
     this.bootstrapOverride = bootstrapOverride;
 
     this.storage = new StorageImpl({ backupPath, appName });
@@ -106,7 +106,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   timedFetch() {
-    if (this.refreshInterval != null && this.refreshInterval > 0 && !this.bootstrap) {
+    if (this.refreshInterval != null && this.refreshInterval > 0) {
       this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
@@ -152,6 +152,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
             {} as { [s: string]: FeatureInterface },
           ),
         );
+        this.emit('changed', this.storage.getAll());
         return;
       }
       let mergedTags;
