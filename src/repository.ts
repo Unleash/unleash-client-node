@@ -64,6 +64,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   private readonly tags?: Array<TagFilter>;
 
   private bootstrap?: FeatureInterface[];
+  
   private bootstrapOverride?: boolean;
 
   constructor({
