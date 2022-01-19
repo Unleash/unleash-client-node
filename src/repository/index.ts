@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
-import { ClientFeaturesResponse, FeatureInterface } from './feature';
-import { get } from './request';
-import { CustomHeaders, CustomHeadersFunction } from './headers';
-import getUrl from './url-utils';
-import { HttpOptions } from './http-options';
-import { TagFilter } from './tags';
-import { BootstrapProvider } from './repository/bootstrap-provider';
-import { StorageProvider } from './repository/storage-provider';
-import { UnleashEvents } from './events';
+import { ClientFeaturesResponse, FeatureInterface } from '../feature';
+import { get } from '../request';
+import { CustomHeaders, CustomHeadersFunction } from '../headers';
+import getUrl from '../url-utils';
+import { HttpOptions } from '../http-options';
+import { TagFilter } from '../tags';
+import { BootstrapProvider } from './bootstrap-provider';
+import { StorageProvider } from './storage-provider';
+import { UnleashEvents } from '../events';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;

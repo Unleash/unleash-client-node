@@ -1,6 +1,5 @@
-const {
-  initialize,
-} = require('../lib');
+/* eslint-disable */
+const { initialize } = require('../lib');
 
 const data = [
   {
