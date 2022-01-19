@@ -4,9 +4,13 @@ import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
 import { UnleashEvents } from './events';
+import { ClientFeaturesResponse } from './feature';
+import InMemStorageProvider from './repository/storage-provider-in-mem'
 
 export { Strategy } from './strategy/index';
-export { Context, Variant, Unleash, TagFilter };
+export { Context, Variant, Unleash, TagFilter, InMemStorageProvider };
+
+export type { ClientFeaturesResponse, UnleashEvents, UnleashConfig }; 
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {

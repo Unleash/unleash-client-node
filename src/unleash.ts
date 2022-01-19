@@ -7,13 +7,13 @@ import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
-import { FeatureInterface } from './feature';
+import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction, generateInstanceId } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
-import { FileStorageProvider } from './repository/storage-provider';
+import { FileStorageProvider, StorageProvider } from './repository/storage-provider';
 import { UnleashEvents } from './events';
 
 export { Strategy, UnleashEvents };
@@ -39,6 +39,7 @@ export interface UnleashConfig {
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
   bootstrap?: BootstrapOptions;
+  storageProvider?: StorageProvider<ClientFeaturesResponse>,
   disableAutoStart?: boolean;
 }
 
@@ -79,6 +80,7 @@ export class Unleash extends EventEmitter {
     httpOptions,
     tags,
     bootstrap = {},
+    storageProvider,
     disableAutoStart = false,
   }: UnleashConfig) {
     super();
@@ -113,7 +115,7 @@ export class Unleash extends EventEmitter {
         namePrefix,
         tags,
         bootstrapProvider,
-        storageProvider: new FileStorageProvider({ backupPath }),
+        storageProvider: storageProvider || new FileStorageProvider({ backupPath }),
       });
 
     this.repository.on(UnleashEvents.Ready, () => {
