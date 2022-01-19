@@ -31,7 +31,7 @@ export class FileStorageProvider implements StorageProvider<ClientFeaturesRespon
     try {
       data = await readFile(this.path, 'utf8');
     } catch (error: any) {
-      if (error?.code !== 'ENOENT') {
+      if (error.code !== 'ENOENT') {
         throw error;
       } else {
         return undefined;

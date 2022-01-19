@@ -162,13 +162,13 @@ test.cb('repository should surface error when invalid basePath', (t) => {
     appName: 'foo',
     disableMetrics: true,
     refreshInterval: 0,
-    url,
+    url: `${url}/bougus`,
     backupPath,
   });
 
   instance.once('error', (err) => {
     t.truthy(err);
-    t.true(err.code === 'ENOENT');
+    t.is(err.code, 'ERR_NOCK_NO_MATCH');
 
     instance.destroy();
 
