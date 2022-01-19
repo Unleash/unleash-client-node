@@ -6,4 +6,8 @@ export enum UnleashEvents {
   Unchanged = 'unchanged',
   Changed = 'changed',
   Synchronized = 'synchronized',
+  Count = 'count',
+  CountVariant = 'countVariant',
+  Sent = 'sent',
+  Registered = 'registered',
 }

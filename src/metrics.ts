@@ -5,6 +5,7 @@ import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
 import { suffixSlash } from './url-utils';
+import { UnleashEvents } from './events';
 
 export interface MetricsOptions {
   appName: string;
@@ -137,18 +138,17 @@ export default class Metrics extends EventEmitter {
       });
       if (!res.ok) {
         // status code outside 200 range
-        this.emit('warn', `${url} returning ${res.status}`, await res.text());
+        this.emit(UnleashEvents.Warn, `${url} returning ${res.status}`, await res.text());
       } else {
-        this.emit('registered', payload);
+        this.emit(UnleashEvents.Registered, payload);
       }
     } catch (err) {
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
     }
     return true;
   }
 
   async sendMetrics(): Promise<boolean> {
-    /* istanbul ignore next if */
     if (this.disabled) {
       return false;
     }
@@ -174,16 +174,16 @@ export default class Metrics extends EventEmitter {
       });
       this.startTimer();
       if (res.status === 404) {
-        this.emit('warn', `${url} returning 404, stopping metrics`);
+        this.emit(UnleashEvents.Warn, `${url} returning 404, stopping metrics`);
         this.stop();
       }
       if (!res.ok) {
-        this.emit('warn', `${url} returning ${res.status}`, await res.text());
+        this.emit(UnleashEvents.Warn, `${url} returning ${res.status}`, await res.text());
       } else {
-        this.emit('sent', payload);
+        this.emit(UnleashEvents.Sent, payload);
       }
     } catch (err) {
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
       this.startTimer();
     }
     return true;
@@ -208,7 +208,7 @@ export default class Metrics extends EventEmitter {
     }
     this.assertBucket(name);
     this.bucket.toggles[name][enabled ? 'yes' : 'no']++;
-    this.emit('count', name, enabled);
+    this.emit(UnleashEvents.Count, name, enabled);
     return true;
   }
 
@@ -230,7 +230,7 @@ export default class Metrics extends EventEmitter {
       };
     }
 
-    this.emit('countVariant', name, variantName);
+    this.emit(UnleashEvents.CountVariant, name, variantName);
     return true;
   }
 

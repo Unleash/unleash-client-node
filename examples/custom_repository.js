@@ -1,5 +1,6 @@
 const { EventEmitter } = require('events');
 const { initialize, isEnabled } = require('../lib');
+const { UnleashEvents } = require('../lib/events');
 
 class MyRepo extends EventEmitter {
   constructor() {
@@ -28,7 +29,7 @@ const client = initialize({
   disableMetrics: true,
   repository: repo,
 });
-repo.emit('ready');
+repo.emit(UnleashEvents.Ready);
 
 client.on('error', console.error);
 client.on('warn', console.log);

@@ -14,8 +14,9 @@ import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { FileStorageProvider } from './repository/storage-provider';
+import { UnleashEvents } from './events';
 
-export { Strategy };
+export { Strategy, UnleashEvents };
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -79,14 +80,18 @@ export class Unleash extends EventEmitter {
     super();
 
     if (!url) {
-      throw new Error('Unleash server URL missing');
+      throw new Error('Unleash API "url" is required');
     }
+    if (!appName) {
+      throw new Error('Unleash client "appName" is required');
+    }
+    
     let unleashUrl = url;
     if (unleashUrl.endsWith('/features')) {
       const oldUrl = unleashUrl;
       process.nextTick(() =>
         this.emit(
-          'warn',
+          UnleashEvents.Warn,
           `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
         ),
       );
@@ -97,9 +102,7 @@ export class Unleash extends EventEmitter {
       unleashUrl += '/';
     }
 
-    if (!appName) {
-      throw new Error('Unleash client appName missing');
-    }
+    
 
     let unleashInstanceId = instanceId;
     if (!unleashInstanceId) {
@@ -140,36 +143,36 @@ export class Unleash extends EventEmitter {
 
     const supportedStrategies = strategies.concat(defaultStrategies);
 
-    this.repository.on('ready', () => {
+    this.repository.on(UnleashEvents.Ready, () => {
       this.client = new Client(this.repository, supportedStrategies);
-      this.client.on('error', (err) => this.emit('error', err));
-      this.client.on('warn', (msg) => this.emit('warn', msg));
+      this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
+      this.client.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
       process.nextTick(() => {
-        this.emit('ready');
+        this.emit(UnleashEvents.Ready);
       });
     });
 
-    this.repository.on('error', (err) => {
+    this.repository.on(UnleashEvents.Error, (err) => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Repository error: ${err.message}`;
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
     });
 
-    this.repository.on('warn', (msg) => {
-      this.emit('warn', msg);
+    this.repository.on(UnleashEvents.Warn, (msg) => {
+      this.emit(UnleashEvents.Warn, msg);
     });
 
-    this.repository.on('unchanged', () => {
-      this.emit('unchanged');
+    this.repository.on(UnleashEvents.Unchanged, () => {
+      this.emit(UnleashEvents.Unchanged);
     });
 
-    this.repository.on('changed', (data) => {
-      this.emit('changed', data);
+    this.repository.on(UnleashEvents.Changed, (data) => {
+      this.emit(UnleashEvents.Changed, data);
 
       // Only emit the fully synchronized event the first time.
       if (!this.synchronized) {
         this.synchronized = true;
-        process.nextTick(() => this.emit('synchronized'));
+        process.nextTick(() => this.emit(UnleashEvents.Synchronized));
       }
     });
 
@@ -188,26 +191,26 @@ export class Unleash extends EventEmitter {
       httpOptions,
     });
 
-    this.metrics.on('error', (err) => {
+    this.metrics.on(UnleashEvents.Error, (err) => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Metrics error: ${err.message}`;
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
     });
 
-    this.metrics.on('warn', (msg) => {
-      this.emit('warn', msg);
+    this.metrics.on(UnleashEvents.Warn, (msg) => {
+      this.emit(UnleashEvents.Warn, msg);
     });
 
-    this.metrics.on('count', (name, enabled) => {
-      this.emit('count', name, enabled);
+    this.metrics.on(UnleashEvents.Count, (name, enabled) => {
+      this.emit(UnleashEvents.Count, name, enabled);
     });
 
-    this.metrics.on('sent', (payload) => {
-      this.emit('sent', payload);
+    this.metrics.on(UnleashEvents.Sent, (payload) => {
+      this.emit(UnleashEvents.Sent, payload);
     });
 
-    this.metrics.on('registered', (payload) => {
-      this.emit('registered', payload);
+    this.metrics.on(UnleashEvents.Registered, (payload) => {
+      this.emit(UnleashEvents.Registered, payload);
     });
   }
 
@@ -229,7 +232,7 @@ export class Unleash extends EventEmitter {
     } else {
       result = fallbackFunc();
       this.emit(
-        'warn',
+        UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }
@@ -245,7 +248,7 @@ export class Unleash extends EventEmitter {
     } else {
       result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
       this.emit(
-        'warn',
+        UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }
