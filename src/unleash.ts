@@ -39,6 +39,7 @@ export interface UnleashConfig {
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
   bootstrap?: BootstrapOptions;
+  disableAutoStart?: boolean;
 }
 
 export interface StaticContext {
@@ -76,6 +77,7 @@ export class Unleash extends EventEmitter {
     httpOptions,
     tags,
     bootstrap = {},
+    disableAutoStart = false,
   }: UnleashConfig) {
     super();
 
@@ -176,8 +178,6 @@ export class Unleash extends EventEmitter {
       }
     });
 
-    process.nextTick(async () => this.repository.start());
-
     this.metrics = new Metrics({
       disableMetrics,
       appName,
@@ -212,6 +212,17 @@ export class Unleash extends EventEmitter {
     this.metrics.on(UnleashEvents.Registered, (payload) => {
       this.emit(UnleashEvents.Registered, payload);
     });
+
+    if(!disableAutoStart) {
+      process.nextTick(async () => this.start());
+    }
+  }
+
+  async start(): Promise<void> {
+    await Promise.all([
+      this.repository.start(),
+      this.metrics.start()
+    ]);
   }
 
   destroy() {

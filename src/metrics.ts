@@ -88,11 +88,6 @@ export default class Metrics extends EventEmitter {
     this.timeout = timeout;
     this.resetBucket();
     this.httpOptions = httpOptions;
-
-    if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
-      this.startTimer();
-      this.registerInstance();
-    }
   }
 
   private startTimer() {
@@ -107,6 +102,13 @@ export default class Metrics extends EventEmitter {
       this.timer.unref();
     }
     return true;
+  }
+
+  start() {
+    if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
+      this.startTimer();
+      this.registerInstance();
+    }
   }
 
   stop() {
