@@ -68,7 +68,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private storageProvider: StorageProvider<ClientFeaturesResponse>;
 
-  private isReady: boolean = false;
+  private ready: boolean = false;
+
+  private connected: boolean = false;
 
   private data: FeatureToggleData = {};
 
@@ -101,7 +103,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.tags = tags;
     this.bootstrapProvider = bootstrapProvider;
     this.storageProvider = storageProvider;
-    process.nextTick(async () => this.start());
+    // process.nextTick(async () => this.start());
   }
 
   timedFetch() {
@@ -140,7 +142,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   async loadBackup(): Promise<void> {
     try {
       const content = await this.storageProvider.get(this.appName);
-      if (this.isReady) {
+      if (this.ready) {
         return;
       }
 
@@ -154,8 +156,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   setReady(): void {
-    const doEmitReady = this.isReady === false;
-    this.isReady = true;
+    const doEmitReady = this.ready === false;
+    this.ready = true;
 
     if (doEmitReady) {
       process.nextTick(() => {
@@ -164,8 +166,15 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
   }
 
-  async save(response: ClientFeaturesResponse): Promise<void> {
-    this.data = this.convertToMap(response.features);
+  async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
+    if(fromApi) {
+      this.connected = true;
+      this.data = this.convertToMap(response.features);
+    } else if(!this.connected) {
+      // Only allow bootstrap if not connected
+      this.data = this.convertToMap(response.features);
+    }
+    
     this.setReady();
     this.emit(UnleashEvents.Changed, [...response.features]);
     this.storageProvider.set(this.appName, response);
@@ -179,7 +188,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     const content = await this.bootstrapProvider.readBootstrap();
 
     if (content && this.notEmpty(content)) {
-      await this.save(content);
+      await this.save(content, false);
     }
   }
 
@@ -237,7 +246,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
           } else {
             this.etag = undefined;
           }
-          await this.save(data);
+          await this.save(data, true);
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
         }

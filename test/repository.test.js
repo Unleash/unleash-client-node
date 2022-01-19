@@ -48,6 +48,7 @@ test.cb('should fetch from endpoint', t => {
 
     t.end();
   });
+  repo.start();
 });
 
 test('should poll for changes', t =>
@@ -77,6 +78,7 @@ test('should poll for changes', t =>
     });
 
     repo.on('error', reject);
+    repo.start();
   }));
 
 test('should retry even if custom header function fails', t =>
@@ -107,6 +109,7 @@ test('should retry even if custom header function fails', t =>
         resolve();
       }
     });
+    repo.start();
   }));
 
 test('should store etag', t =>
@@ -129,6 +132,7 @@ test('should store etag', t =>
 
       resolve();
     });
+    repo.start();
   }));
 
 test.cb('should request with etag', t => {
@@ -157,6 +161,7 @@ test.cb('should request with etag', t => {
     t.true(repo.etag === '12345-2');
     t.end();
   });
+  repo.start();
 });
 
 test.cb('should request with custom headers', t => {
@@ -189,6 +194,7 @@ test.cb('should request with custom headers', t => {
     t.is(repo.etag, '12345-3');
     t.end();
   });
+  repo.start();
 });
 
 test.cb('request with customHeadersFunction should take precedence over customHeaders', t => {
@@ -224,6 +230,7 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     t.is(repo.etag, '12345-3');
     t.end();
   });
+  repo.start();
 });
 
 test.cb('should handle 404 request error and emit error event', t => {
@@ -248,6 +255,7 @@ test.cb('should handle 404 request error and emit error event', t => {
     t.true(err.message.startsWith('Response was not statusCode 2'));
     t.end();
   });
+  repo.start();
 });
 
 test('should handle 304 as silent ok', t => {
@@ -272,6 +280,7 @@ test('should handle 304 as silent ok', t => {
     repo.on('error', reject);
     repo.on('unchanged', resolve);
     process.nextTick(resolve);
+    repo.start();
   });
 });
 
@@ -302,6 +311,7 @@ test('should handle invalid JSON response', t =>
     });
     repo.on('unchanged', resolve);
     repo.on('changed', reject);
+    repo.start();
   }));
 /*
 test('should respect timeout', t =>
@@ -354,6 +364,8 @@ test.cb('should emit errors on invalid features', t => {
     t.truthy(err);
     t.end();
   });
+
+  repo.start();
 });
 
 test.cb('should emit errors on invalid variant', t => {
@@ -385,4 +397,126 @@ test.cb('should emit errors on invalid variant', t => {
     t.is(err.message, 'feature.variants should be an array, but was string');
     t.end();
   });
+
+  repo.start();
+});
+
+test.cb('should load bootstrap first if faster than unleash-api', t => {
+  const url = 'http://unleash-test-2-api-url.app';
+  const bootstrap = 'http://unleash-test-2-boostrap-url.app';
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .delay(100)
+    .reply(200, { features: [
+      {
+        name: 'feature',
+        enabled: true,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'unleash-api',
+          },
+        ],
+      },
+    ]});
+  nock(bootstrap)
+    .persist()
+    .get('/')
+    .reply(200, { features: [
+      {
+        name: 'feature',
+        enabled: false,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'bootstrap',
+          },
+        ],
+      },
+    ]});
+  const repo = new Repository({
+    backupPath: 'foo',
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 0,
+    bootstrapProvider: new DefaultBootstrapProvider({url: bootstrap}),
+    storageProvider: new InMemStorageProvider(),
+  });
+
+  let counter = 0;
+
+  repo.on('changed', () => {
+    counter++;
+    if(counter === 2) {
+      t.is(repo.getToggle('feature').enabled, true);
+      t.end();
+    }
+  });
+  repo.start();
+});
+
+test.cb('bootstrap should not override actual data', t => {
+  const url = 'http://unleash-test-2-api-url.app';
+  const bootstrap = 'http://unleash-test-2-boostrap-url.app';
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .reply(200, { features: [
+      {
+        name: 'feature',
+        enabled: true,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'unleash-api',
+          },
+        ],
+      },
+    ]});
+  nock(bootstrap)
+    .persist()
+    .get('/')
+    .delay(100)
+    .reply(200, { features: [
+      {
+        name: 'feature',
+        enabled: false,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'bootstrap',
+          },
+        ],
+      },
+    ]});
+  const repo = new Repository({
+    backupPath: 'foo',
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 0,
+    bootstrapProvider: new DefaultBootstrapProvider({url: bootstrap}),
+    storageProvider: new InMemStorageProvider(),
+  });
+
+  let counter = 0;
+
+  repo.on('changed', () => {
+    counter++;
+    if(counter === 2) {
+      t.is(repo.getToggle('feature').enabled, true);
+      t.end();
+    }
+  });
+  repo.start();
 });

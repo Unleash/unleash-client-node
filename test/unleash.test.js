@@ -162,7 +162,7 @@ test.cb('repository should surface error when invalid basePath', (t) => {
     appName: 'foo',
     disableMetrics: true,
     refreshInterval: 0,
-    url: `${url}/bougus`,
+    url: `${url}bougus`,
     backupPath,
   });
 
@@ -430,6 +430,8 @@ test('should call client/features with projectName query parameter if projectNam
   });
 
   t.assert(instance.repository.projectName === 'myProject');
+
+  instance.destroy();
 });
 
 test('should call client/features if no projectname set', (t) => {
@@ -444,6 +446,7 @@ test('should call client/features if no projectname set', (t) => {
   });
 
   t.assert(instance.repository.projectName === undefined);
+  instance.destroy();
 });
 
 test('should distribute variants according to stickiness', async (t) => {

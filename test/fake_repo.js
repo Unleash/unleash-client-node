@@ -14,6 +14,10 @@ export default class FakeRepo extends EventEmitter {
 
   }
 
+  start() {
+    
+  }
+
   getToggle() {
     return this.data;
   }

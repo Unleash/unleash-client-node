@@ -173,7 +173,7 @@ export class Unleash extends EventEmitter {
       }
     });
 
-    // process.nextTick(async () => this.repository.start());
+    process.nextTick(async () => this.repository.start());
 
     this.metrics = new Metrics({
       disableMetrics,
