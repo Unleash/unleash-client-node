@@ -103,7 +103,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.tags = tags;
     this.bootstrapProvider = bootstrapProvider;
     this.storageProvider = storageProvider;
-    // process.nextTick(async () => this.start());
   }
 
   timedFetch() {
@@ -185,10 +184,16 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async loadBootstrap(): Promise<void> {
-    const content = await this.bootstrapProvider.readBootstrap();
+    try {
+      const content = await this.bootstrapProvider.readBootstrap();
 
-    if (content && this.notEmpty(content)) {
-      await this.save(content, false);
+      if (content && this.notEmpty(content)) {
+        await this.save(content, false);
+      }
+  
+    } catch (err: any) {
+      this.emit(UnleashEvents.Warn, `Unleash SDK was unable to load bootstrap.
+Message: ${err.message}`);
     }
   }
 
