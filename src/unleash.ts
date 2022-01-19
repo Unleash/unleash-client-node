@@ -1,4 +1,4 @@
-import { tmpdir, userInfo, hostname } from 'os';
+import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
@@ -9,7 +9,7 @@ import { Strategy, defaultStrategies } from './strategy';
 
 import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
-import { FallbackFunction, createFallbackFunction } from './helpers';
+import { FallbackFunction, createFallbackFunction, generateInstanceId } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
@@ -50,13 +50,15 @@ export interface StaticContext {
 export class Unleash extends EventEmitter {
   private repository: RepositoryInterface;
 
-  private client: Client | undefined;
+  private client: Client;
 
   private metrics: Metrics;
 
   private staticContext: StaticContext;
 
   private synchronized: boolean = false;
+
+  private ready: boolean = false;
 
   constructor({
     appName,
@@ -88,38 +90,9 @@ export class Unleash extends EventEmitter {
       throw new Error('Unleash client "appName" is required');
     }
     
-    let unleashUrl = url;
-    if (unleashUrl.endsWith('/features')) {
-      const oldUrl = unleashUrl;
-      process.nextTick(() =>
-        this.emit(
-          UnleashEvents.Warn,
-          `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
-        ),
-      );
-      unleashUrl = unleashUrl.replace(/\/features$/, '');
-    }
+    const unleashUrl = this.cleanUnleashUrl(url);
 
-    if (!unleashUrl.endsWith('/')) {
-      unleashUrl += '/';
-    }
-
-    
-
-    let unleashInstanceId = instanceId;
-    if (!unleashInstanceId) {
-      let info;
-      try {
-        info = userInfo();
-      } catch (e) {
-        // unable to read info;
-      }
-
-      const prefix = info
-        ? info.username
-        : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
-      unleashInstanceId = `${prefix}-${hostname()}`;
-    }
+    const unleashInstanceId = generateInstanceId(instanceId);
 
     this.staticContext = { appName, environment };
 
@@ -143,12 +116,8 @@ export class Unleash extends EventEmitter {
         storageProvider: new FileStorageProvider({ backupPath }),
       });
 
-    const supportedStrategies = strategies.concat(defaultStrategies);
-
     this.repository.on(UnleashEvents.Ready, () => {
-      this.client = new Client(this.repository, supportedStrategies);
-      this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
-      this.client.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
+      this.ready = true;
       process.nextTick(() => {
         this.emit(UnleashEvents.Ready);
       });
@@ -160,13 +129,7 @@ export class Unleash extends EventEmitter {
       this.emit(UnleashEvents.Error, err);
     });
 
-    this.repository.on(UnleashEvents.Warn, (msg) => {
-      this.emit(UnleashEvents.Warn, msg);
-    });
-
-    this.repository.on(UnleashEvents.Unchanged, () => {
-      this.emit(UnleashEvents.Unchanged);
-    });
+    this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg))
 
     this.repository.on(UnleashEvents.Changed, (data) => {
       this.emit(UnleashEvents.Changed, data);
@@ -177,6 +140,12 @@ export class Unleash extends EventEmitter {
         process.nextTick(() => this.emit(UnleashEvents.Synchronized));
       }
     });
+
+    // setup client
+    const supportedStrategies = strategies.concat(defaultStrategies);
+    this.client = new Client(this.repository, supportedStrategies);
+    this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
+    this.client.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
 
     this.metrics = new Metrics({
       disableMetrics,
@@ -197,18 +166,12 @@ export class Unleash extends EventEmitter {
       this.emit(UnleashEvents.Error, err);
     });
 
-    this.metrics.on(UnleashEvents.Warn, (msg) => {
-      this.emit(UnleashEvents.Warn, msg);
-    });
+    this.metrics.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
+    this.metrics.on(UnleashEvents.Sent, (payload) => this.emit(UnleashEvents.Sent, payload));
 
     this.metrics.on(UnleashEvents.Count, (name, enabled) => {
       this.emit(UnleashEvents.Count, name, enabled);
     });
-
-    this.metrics.on(UnleashEvents.Sent, (payload) => {
-      this.emit(UnleashEvents.Sent, payload);
-    });
-
     this.metrics.on(UnleashEvents.Registered, (payload) => {
       this.emit(UnleashEvents.Registered, payload);
     });
@@ -216,6 +179,25 @@ export class Unleash extends EventEmitter {
     if(!disableAutoStart) {
       process.nextTick(async () => this.start());
     }
+  }
+
+  private cleanUnleashUrl(url: string): string {
+    let unleashUrl = url;
+    if (unleashUrl.endsWith('/features')) {
+      const oldUrl = unleashUrl;
+      process.nextTick(() =>
+        this.emit(
+          UnleashEvents.Warn,
+          `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
+        ),
+      );
+      unleashUrl = unleashUrl.replace(/\/features$/, '');
+    }
+
+    if (!unleashUrl.endsWith('/')) {
+      unleashUrl += '/';
+    }
+    return unleashUrl;
   }
 
   async start(): Promise<void> {
@@ -228,7 +210,6 @@ export class Unleash extends EventEmitter {
   destroy() {
     this.repository.stop();
     this.metrics.stop();
-    this.client = undefined;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
@@ -238,7 +219,7 @@ export class Unleash extends EventEmitter {
     const fallbackFunc = createFallbackFunction(name, enhancedContext, fallback);
 
     let result;
-    if (this.client !== undefined) {
+    if (this.ready) {
       result = this.client.isEnabled(name, enhancedContext, fallbackFunc);
     } else {
       result = fallbackFunc();
@@ -254,7 +235,7 @@ export class Unleash extends EventEmitter {
   getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result;
-    if (this.client !== undefined) {
+    if (this.ready) {
       result = this.client.getVariant(name, enhancedContext, fallbackVariant);
     } else {
       result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();

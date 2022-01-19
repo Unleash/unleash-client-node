@@ -240,10 +240,10 @@ test('should return fallback value until online', (t) =>
     });
 
     t.true(instance.isEnabled('feature') === false);
-    t.true(warnCounter === 1);
+    t.is(warnCounter, 1);
     t.true(instance.isEnabled('feature', {}, false) === false);
     t.true(instance.isEnabled('feature', {}, true) === true);
-    t.true(warnCounter === 3);
+    t.is(warnCounter, 3);
 
     instance.on('synchronized', () => {
       t.true(instance.isEnabled('feature') === true);

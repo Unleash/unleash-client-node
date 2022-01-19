@@ -5,7 +5,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 import InMemStorageProvider from '../lib/repository/storage-provider-in-mem';
-import { FileStorageProvider } from '../lib/repository/storage-provider';
+import { FileStorageProvider } from '../lib/repository/storage-provider';
 import Repository from '../lib/repository';
 import { DefaultBootstrapProvider } from '../lib/repository/bootstrap-provider';
 
