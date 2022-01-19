@@ -1,6 +1,5 @@
 const {
   initialize,
-  getFeatureToggleDefinitions,
 } = require('../lib');
 
 const data = [

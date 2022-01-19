@@ -12,10 +12,7 @@ import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
-import { 
-  BootstrapOptions,
-  resolveBootstrapProvider
-} from './repository/bootstrap-provider';
+import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { FileStorageProvider } from './repository/storage-provider';
 
 export { Strategy };
@@ -121,8 +118,7 @@ export class Unleash extends EventEmitter {
 
     this.staticContext = { appName, environment };
 
-    const bootstrapProvider = resolveBootstrapProvider(
-      bootstrap, appName, unleashInstanceId);
+    const bootstrapProvider = resolveBootstrapProvider(bootstrap, appName, unleashInstanceId);
 
     this.repository =
       repository ||

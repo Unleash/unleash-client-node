@@ -5,79 +5,80 @@ import { CustomHeaders } from '../headers';
 import { buildHeaders } from '../request';
 
 export interface BootstrapProvider {
-    readBootstrap(): Promise<ClientFeaturesResponse | undefined>;
+  readBootstrap(): Promise<ClientFeaturesResponse | undefined>;
 }
 
 export interface BootstrapOptions {
-    url?: string;
-    urlHeaders?: CustomHeaders;
-    filePath?: string;
-    data?: FeatureInterface[];
-    bootstrapProvider?: BootstrapProvider;
+  url?: string;
+  urlHeaders?: CustomHeaders;
+  filePath?: string;
+  data?: FeatureInterface[];
+  bootstrapProvider?: BootstrapProvider;
 }
 
 export class DefaultBootstrapProvider implements BootstrapProvider {
+  private url?: string;
 
-    private url?: string;
+  private urlHeaders?: CustomHeaders;
 
-    private urlHeaders?: CustomHeaders;
+  private filePath?: string;
 
-    private filePath?: string;
+  private data?: FeatureInterface[];
 
-    private data?: FeatureInterface[];
-    
-    private appName: string;
-    
-    private instanceId: string;
+  private appName: string;
 
-    constructor(options: BootstrapOptions, appName: string, instanceId: string) {
-        this.url = options.url;
-        this.urlHeaders = options.urlHeaders;
-        this.filePath = options.filePath;
-        this.data = options.data;
+  private instanceId: string;
 
-        this.appName = appName;
-        this.instanceId = instanceId;
+  constructor(options: BootstrapOptions, appName: string, instanceId: string) {
+    this.url = options.url;
+    this.urlHeaders = options.urlHeaders;
+    this.filePath = options.filePath;
+    this.data = options.data;
+
+    this.appName = appName;
+    this.instanceId = instanceId;
+  }
+
+  private async loadFromUrl(bootstrapUrl: string): Promise<ClientFeaturesResponse | undefined> {
+    const response = await fetch(bootstrapUrl, {
+      method: 'GET',
+      timeout: 10_000,
+      headers: buildHeaders(this.appName, this.instanceId, undefined, undefined, this.urlHeaders),
+      retry: {
+        retries: 2,
+        maxTimeout: 10_000,
+      },
+    });
+    if (response.ok) {
+      return response.json();
+    }
+    return undefined;
+  }
+
+  private async loadFromFile(filePath: string): Promise<ClientFeaturesResponse | undefined> {
+    const fileContent = await promises.readFile(filePath, 'utf8');
+    return JSON.parse(fileContent);
+  }
+
+  async readBootstrap(): Promise<ClientFeaturesResponse | undefined> {
+    if (this.data) {
+      return { version: 2, features: [...this.data] };
+    }
+    if (this.url) {
+      return this.loadFromUrl(this.url);
+    }
+    if (this.filePath) {
+      return this.loadFromFile(this.filePath);
     }
 
-    private async loadFromUrl(bootstrapUrl: string): Promise<ClientFeaturesResponse | undefined> {
-        const response = await fetch(bootstrapUrl, {
-            method: 'GET',
-            timeout: 10_000,
-            headers: buildHeaders(
-                this.appName, this.instanceId, undefined, undefined, this.urlHeaders),
-            retry: {
-              retries: 2,
-              maxTimeout: 10_000,
-            },
-          });
-        if(response.ok) {
-            return response.json();
-        } 
-        return undefined;
-        
-    }
-
-    private async loadFromFile(filePath: string): Promise<ClientFeaturesResponse | undefined> {
-        const fileContent = await promises.readFile(filePath, 'utf8');
-        return JSON.parse(fileContent);
-    }
-
-    async readBootstrap(): Promise<ClientFeaturesResponse | undefined> {
-        if(this.data) {
-            return {version: 2, features: [...this.data]};
-        } if(this.url) {
-            return this.loadFromUrl(this.url);
-        } if(this.filePath) {
-            return this.loadFromFile(this.filePath);
-        } 
-
-        return undefined;
-    }
-
+    return undefined;
+  }
 }
 
 export function resolveBootstrapProvider(
-    options: BootstrapOptions, appName: string, instanceId: string): BootstrapProvider {
-    return options.bootstrapProvider || new DefaultBootstrapProvider(options, appName, instanceId);
+  options: BootstrapOptions,
+  appName: string,
+  instanceId: string,
+): BootstrapProvider {
+  return options.bootstrapProvider || new DefaultBootstrapProvider(options, appName, instanceId);
 }

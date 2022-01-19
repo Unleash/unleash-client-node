@@ -13,6 +13,6 @@ export interface FeatureInterface {
 
 export interface ClientFeaturesResponse {
   version: number;
-  features: FeatureInterface[]
+  features: FeatureInterface[];
   query?: any;
 }

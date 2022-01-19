@@ -101,7 +101,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.tags = tags;
     this.bootstrapProvider = bootstrapProvider;
     this.storageProvider = storageProvider;
-    process.nextTick(async () => this.start())
+    process.nextTick(async () => this.start());
   }
 
   timedFetch() {
@@ -134,26 +134,21 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async start(): Promise<void> {
-    await Promise.all([
-      this.fetch(),
-      this.loadBackup(),
-      this.loadBootstrap(),
-    ])
+    await Promise.all([this.fetch(), this.loadBackup(), this.loadBootstrap()]);
   }
 
   async loadBackup(): Promise<void> {
     try {
       const content = await this.storageProvider.load();
-      if(this.isReady) {
-        return
+      if (this.isReady) {
+        return;
       }
 
-      if(content && this.notEmpty(content)) {
+      if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
       }
       this.setReady();
-      
-    } catch (err){
+    } catch (err) {
       this.emit(UnleashEvents.error, err);
     }
   }
@@ -162,7 +157,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     const doEmitReady = this.isReady === false;
     this.isReady = true;
 
-    if(doEmitReady) {
+    if (doEmitReady) {
       process.nextTick(() => {
         this.emit(UnleashEvents.ready);
       });
@@ -183,7 +178,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   async loadBootstrap(): Promise<void> {
     const content = await this.bootstrapProvider.readBootstrap();
 
-    if(content && this.notEmpty(content)) {
+    if (content && this.notEmpty(content)) {
       await this.save(content);
     }
   }
