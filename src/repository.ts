@@ -1,43 +1,44 @@
 import { EventEmitter } from 'events';
-import { Storage } from './storage';
-import { FeatureInterface } from './feature';
+import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { get } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import getUrl from './url-utils';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
-
-export type StorageImpl = typeof Storage;
+import { BootstrapProvider } from './repository/bootstrap-provider';
+import { StorageProvider } from './repository/storage-provider';
+import { UnleashEvents } from './events';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;
   getToggles(): FeatureInterface[];
   stop(): void;
+  start(): Promise<void>;
 }
 export interface RepositoryOptions {
-  backupPath: string;
   url: string;
   appName: string;
   instanceId: string;
   projectName?: string;
   refreshInterval?: number;
-  StorageImpl?: StorageImpl;
   timeout?: number;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
   httpOptions?: HttpOptions;
   namePrefix?: string;
   tags?: Array<TagFilter>;
-  bootstrap?: FeatureInterface[];
-  bootstrapOverride?: boolean;
+  bootstrapProvider: BootstrapProvider;
+  storageProvider: StorageProvider<ClientFeaturesResponse>;
+}
+
+interface FeatureToggleData {
+  [key: string]: FeatureInterface;
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
   private timer: NodeJS.Timer | undefined;
 
   private url: string;
-
-  private storage: Storage;
 
   private etag: string | undefined;
 
@@ -63,26 +64,28 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private readonly tags?: Array<TagFilter>;
 
-  private bootstrap?: FeatureInterface[];
-  
-  private bootstrapOverride?: boolean;
+  private bootstrapProvider: BootstrapProvider;
+
+  private storageProvider: StorageProvider<ClientFeaturesResponse>;
+
+  private isReady: boolean = false;
+
+  private data: FeatureToggleData = {};
 
   constructor({
-    backupPath,
     url,
     appName,
     instanceId,
     projectName,
     refreshInterval,
-    StorageImpl = Storage,
     timeout,
     headers,
     customHeadersFunction,
     httpOptions,
     namePrefix,
     tags,
-    bootstrap,
-    bootstrapOverride,
+    bootstrapProvider,
+    storageProvider,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -96,14 +99,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.httpOptions = httpOptions;
     this.namePrefix = namePrefix;
     this.tags = tags;
-    this.bootstrap = bootstrap && bootstrap.length > 0 ? bootstrap : undefined;
-    this.bootstrapOverride = bootstrapOverride;
-
-    this.storage = new StorageImpl({ backupPath, appName });
-    this.storage.on('error', (err) => this.emit('error', err));
-    this.storage.on('ready', () => this.emit('ready'));
-
-    process.nextTick(() => this.fetch());
+    this.bootstrapProvider = bootstrapProvider;
+    this.storageProvider = storageProvider;
+    process.nextTick(async () => this.start())
   }
 
   timedFetch() {
@@ -131,31 +129,85 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     if (errors.length > 0) {
       const err = new Error(errors.join(', '));
-      this.emit('error', err);
+      this.emit(UnleashEvents.error, err);
     }
   }
 
-  async fetch() {
+  async start(): Promise<void> {
+    await Promise.all([
+      this.fetch(),
+      this.loadBackup(),
+      this.loadBootstrap(),
+    ])
+  }
+
+  async loadBackup(): Promise<void> {
+    try {
+      const content = await this.storageProvider.load();
+      if(this.isReady) {
+        return
+      }
+
+      if(content && this.notEmpty(content)) {
+        this.data = this.convertToMap(content.features);
+      }
+      this.setReady();
+      
+    } catch (err){
+      this.emit(UnleashEvents.error, err);
+    }
+  }
+
+  setReady(): void {
+    const doEmitReady = this.isReady === false;
+    this.isReady = true;
+
+    if(doEmitReady) {
+      process.nextTick(() => {
+        this.emit(UnleashEvents.ready);
+      });
+    }
+  }
+
+  async save(response: ClientFeaturesResponse): Promise<void> {
+    this.data = this.convertToMap(response.features);
+    this.setReady();
+    this.emit(UnleashEvents.changed, [...response.features]);
+    this.storageProvider.save(response);
+  }
+
+  notEmpty(content: ClientFeaturesResponse): boolean {
+    return content.features.length > 0;
+  }
+
+  async loadBootstrap(): Promise<void> {
+    const content = await this.bootstrapProvider.readBootstrap();
+
+    if(content && this.notEmpty(content)) {
+      await this.save(content);
+    }
+  }
+
+  private convertToMap(features: FeatureInterface[]): FeatureToggleData {
+    const obj = features.reduce(
+      (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
+        const a = { ...o };
+        this.validateFeature(feature);
+        a[feature.name] = feature;
+        return a;
+      },
+      {} as { [s: string]: FeatureInterface },
+    );
+
+    return obj;
+  }
+
+  async fetch(): Promise<void> {
     if (this.stopped) {
       return;
     }
 
     try {
-      if (this.bootstrap && (this.bootstrapOverride || this.getToggles().length === 0)) {
-        this.storage.reset(
-          this.bootstrap.reduce(
-            (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
-              const a = { ...o };
-              this.validateFeature(feature);
-              a[feature.name] = feature;
-              return a;
-            },
-            {} as { [s: string]: FeatureInterface },
-          ),
-        );
-        this.emit('changed', this.storage.getAll());
-        return;
-      }
       let mergedTags;
       if (this.tags) {
         mergedTags = this.mergeTagsToStringArray(this.tags);
@@ -178,34 +230,25 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (res.status === 304) {
         // No new data
-        this.emit('unchanged');
+        this.emit(UnleashEvents.unchanged);
       } else if (!res.ok) {
-        this.emit('error', new Error(`Response was not statusCode 2XX, but was ${res.status}`));
+        const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
+        this.emit(UnleashEvents.error, error);
       } else {
         try {
-          const data: any = await res.json();
-          const obj = data.features.reduce(
-            (o: { [s: string]: FeatureInterface }, feature: FeatureInterface) => {
-              const a = { ...o };
-              this.validateFeature(feature);
-              a[feature.name] = feature;
-              return a;
-            },
-            {} as { [s: string]: FeatureInterface },
-          );
-          this.storage.reset(obj);
+          const data: ClientFeaturesResponse = await res.json();
           if (res.headers.get('etag') !== null) {
             this.etag = res.headers.get('etag') as string;
           } else {
             this.etag = undefined;
           }
-          this.emit('changed', this.storage.getAll());
+          await this.save(data);
         } catch (err) {
-          this.emit('error', err);
+          this.emit(UnleashEvents.error, err);
         }
       }
     } catch (err) {
-      this.emit('error', err);
+      this.emit(UnleashEvents.error, err);
     } finally {
       this.timedFetch();
     }
@@ -221,15 +264,13 @@ export default class Repository extends EventEmitter implements EventEmitter {
       clearTimeout(this.timer);
     }
     this.removeAllListeners();
-    this.storage.removeAllListeners();
   }
 
   getToggle(name: string): FeatureInterface {
-    return this.storage.get(name);
+    return this.data[name];
   }
 
   getToggles(): FeatureInterface[] {
-    const toggles = this.storage.getAll();
-    return Object.keys(toggles).map((key) => toggles[key]);
+    return Object.keys(this.data).map((key) => this.data[key]);
   }
 }

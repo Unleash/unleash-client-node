@@ -10,3 +10,9 @@ export interface FeatureInterface {
   strategies: StrategyTransportInterface[];
   variants: VariantDefinition[];
 }
+
+export interface ClientFeaturesResponse {
+  version: number;
+  features: FeatureInterface[]
+  query?: any;
+}

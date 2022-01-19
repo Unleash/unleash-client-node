@@ -55,7 +55,7 @@ test.cb('should be able to call isEnabled eventually', (t) => {
     throw err;
   });
 
-  instance.on('ready', () => {
+  instance.on('synchronized', () => {
     t.true(isEnabled('feature') === true);
     t.end();
     destroy();

@@ -1,31 +1,12 @@
 import test from 'ava';
-import { EventEmitter } from 'events';
 import nock from 'nock';
 
+import InMemStorageProvider from '../lib/repository/storage-provider-in-mem';
 import Repository from '../lib/repository';
+import { DefaultBootstrapProvider } from '../lib/repository/bootstrap-provider';
 
 const appName = 'foo';
 const instanceId = 'bar';
-
-class MockStorage extends EventEmitter {
-  constructor() {
-    super();
-    this.data = {};
-    process.nextTick(() => this.emit('ready'));
-  }
-
-  reset(data) {
-    this.data = data;
-  }
-
-  get(name) {
-    return this.data[name];
-  }
-
-  getAll() {
-    return this.data;
-  }
-}
 
 function setup(url, toggles, headers = {}) {
   return nock(url)
@@ -53,19 +34,18 @@ test.cb('should fetch from endpoint', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
   });
 
   repo.once('changed', () => {
-    const savedFeature = repo.storage.data[feature.name];
-    t.true(savedFeature.enabled === feature.enabled);
-    t.true(savedFeature.strategies[0].name === feature.strategies[0].name);
+    const savedFeature = repo.getToggle(feature.name);
+    t.is(savedFeature.enabled, feature.enabled);
+    t.is(savedFeature.strategies[0].name, feature.strategies[0].name);
 
     const featureToggles = repo.getToggles();
-    t.true(featureToggles[0].name === 'feature');
+    t.is(featureToggles[0].name, 'feature');
 
-    const featureToggle = repo.getToggle('feature');
-    t.truthy(featureToggle);
     t.end();
   });
 });
@@ -80,7 +60,8 @@ test('should poll for changes', t =>
       appName,
       instanceId,
       refreshInterval: 10,
-      StorageImpl: MockStorage,
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
     });
 
     let assertCount = 5;
@@ -111,7 +92,8 @@ test('should retry even if custom header function fails', t =>
       customHeadersFunction: () => {
         throw new Error('custom function fails');
       },
-      StorageImpl: MockStorage,
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
     });
 
     let assertCount = 2;
@@ -137,7 +119,8 @@ test('should store etag', t =>
       appName,
       instanceId,
       refreshInterval: 0,
-      StorageImpl: MockStorage,
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
     });
 
     repo.once('unchanged', resolve);
@@ -162,7 +145,8 @@ test.cb('should request with etag', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
   });
 
   repo.etag = '12345-1';
@@ -190,7 +174,8 @@ test.cb('should request with custom headers', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
     headers: {
       randomKey,
     },
@@ -201,7 +186,7 @@ test.cb('should request with custom headers', t => {
     t.end();
   });
   repo.once('changed', () => {
-    t.true(repo.etag === '12345-3');
+    t.is(repo.etag, '12345-3');
     t.end();
   });
 });
@@ -223,7 +208,8 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
     headers: {
       randomKey,
     },
@@ -235,7 +221,7 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     t.end();
   });
   repo.once('changed', () => {
-    t.true(repo.etag === '12345-3');
+    t.is(repo.etag, '12345-3');
     t.end();
   });
 });
@@ -253,7 +239,8 @@ test.cb('should handle 404 request error and emit error event', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
   });
 
   repo.on('error', err => {
@@ -279,7 +266,8 @@ test('should handle 304 as silent ok', t => {
       appName,
       instanceId,
       refreshInterval: 0,
-      StorageImpl: MockStorage,
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
     });
     repo.on('error', reject);
     repo.on('unchanged', resolve);
@@ -301,7 +289,8 @@ test('should handle invalid JSON response', t =>
       appName,
       instanceId,
       refreshInterval: 0,
-      StorageImpl: MockStorage,
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
     });
     repo.on('error', err => {
       t.truthy(err);
@@ -357,7 +346,8 @@ test.cb('should emit errors on invalid features', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
   });
 
   repo.once('error', err => {
@@ -386,7 +376,8 @@ test.cb('should emit errors on invalid variant', t => {
     appName,
     instanceId,
     refreshInterval: 0,
-    StorageImpl: MockStorage,
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
   });
 
   repo.once('error', err => {

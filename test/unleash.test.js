@@ -18,8 +18,7 @@ class EnvironmentStrategy extends Strategy {
   }
 }
 
-let counter = 1;
-const getUrl = () => `http://test2${counter++}.app/`;
+const getUrl = () => `http://test2${Math.round(Math.random() * 100000)}.app/`;
 
 function getRandomBackupPath() {
   const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
@@ -31,7 +30,7 @@ const defaultToggles = [
   {
     name: 'feature',
     enabled: true,
-    strategies: [],
+    strategies: [{ name: 'default' }],
   },
   {
     name: 'f-context',
@@ -110,7 +109,7 @@ test('should handle url without ending /', (t) => {
   instance.destroy();
 });
 
-test('should re-emit error from repository, storage and metrics', (t) => {
+test('should re-emit error from repository and metrics', (t) => {
   const url = mockNetwork([]);
 
   const instance = new Unleash({
@@ -121,12 +120,11 @@ test('should re-emit error from repository, storage and metrics', (t) => {
     url,
   });
 
-  t.plan(3);
+  t.plan(2);
   instance.on('error', (e) => {
     t.truthy(e);
   });
   instance.repository.emit('error', new Error());
-  instance.repository.storage.emit('error', new Error());
   instance.metrics.emit('error', new Error());
 
   instance.destroy();
@@ -202,7 +200,7 @@ test('should consider known feature-toggle as active', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('feature') === true);
       instance.destroy();
       resolve();
@@ -219,7 +217,7 @@ test('should consider unknown feature-toggle as disabled', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('unknown') === false);
       instance.destroy();
       resolve();
@@ -247,7 +245,7 @@ test('should return fallback value until online', (t) =>
     t.true(instance.isEnabled('feature', {}, true) === true);
     t.true(warnCounter === 3);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('feature') === true);
       t.true(instance.isEnabled('feature', {}, false) === true);
       instance.destroy();
@@ -266,7 +264,7 @@ test('should call fallback function for unknown feature-toggle', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const fallbackFunc = sinon.spy(() => false);
       const name = 'unknown';
       const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
@@ -300,7 +298,7 @@ test('should not throw when os.userInfo throws', (t) => {
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       resolve();
     });
   });
@@ -316,7 +314,7 @@ test('should return known feature-toggle definition', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggle = instance.getFeatureToggleDefinition('feature');
       t.truthy(toggle);
       instance.destroy();
@@ -334,7 +332,7 @@ test('should return feature-toggles', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggles = instance.getFeatureToggleDefinitions();
       t.deepEqual(toggles, defaultToggles);
       instance.destroy();
@@ -352,7 +350,7 @@ test('returns undefined for unknown feature-toggle definition', (t) =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggle = instance.getFeatureToggleDefinition('unknown');
       t.falsy(toggle);
       instance.destroy();
@@ -391,7 +389,7 @@ test('should add static context fields', (t) =>
       strategies: [new EnvironmentStrategy()],
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('f-context') === true);
       instance.destroy();
       resolve();
@@ -502,7 +500,7 @@ test('should distribute variants according to stickiness', async (t) => {
   const genRandomValue = () => String(Math.round(Math.random() * 100000));
 
   return new Promise((resolve) => {
-    unleash.on('ready', () => {
+    unleash.on('synchronized', () => {
       for (let i = 0; i < 10000; i++) {
         const variant = unleash.getVariant('toggle-with-variants', { someField: genRandomValue() });
         counts[variant.name]++;
@@ -573,7 +571,7 @@ test('should distribute variants according to default stickiness', async (t) => 
   const genRandomValue = () => String(Math.round(Math.random() * 100000));
 
   return new Promise((resolve) => {
-    unleash.on('ready', () => {
+    unleash.on('synchronized', () => {
       for (let i = 0; i < 10000; i++) {
         const variant = unleash.getVariant('toggle-with-variants', { userId: genRandomValue() });
         counts[variant.name]++;
@@ -604,7 +602,7 @@ test('should emit "synchronized" when data is received', (t) =>
     }).on('error', reject);
 
     instance.on('synchronized', () => {
-      t.true(instance.isEnabled('feature') === true);
+      t.is(instance.isEnabled('feature'), true);
       instance.destroy();
       resolve();
     });
@@ -616,7 +614,9 @@ test('should emit "synchronized" only first time', (t) =>
     let synchronizedCount = 0;
 
     const url = getUrl();
-    nock(url).get('/client/features').times(3).reply(200, { features: defaultToggles });
+    nock(url)
+      .get('/client/features')
+      .times(3).reply(200, { features: defaultToggles });
 
     const instance = new Unleash({
       appName: 'foo',
@@ -640,17 +640,32 @@ test('should emit "synchronized" only first time', (t) =>
     });
   }));
 
-test('should bootstrap data when bootstrap is provided', (t) =>
-  new Promise((resolve, reject) => {
+
+test('should use provided bootstrap data', (t) =>
+  new Promise((resolve) => {
+    const url = getUrl();
+    nock(url)
+      .get('/client/features')
+      .reply(500);
     const instance = new Unleash({
       appName: 'foo',
-      url: 'http://unleash.herokuapp.com/api/',
-    }).on('error', reject);
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+      bootstrap: {
+        data: [{
+          name: 'bootstrappedToggle', 
+          enabled: true,
+          strategies: [{ name: 'default' }],
+        }]
+      }
+    });
+
+    instance.on('error', () => {})
 
     instance.on('ready', () => {
-      const toggles = instance.getFeatureToggleDefinitions();
-      t.deepEqual(toggles, defaultToggles);
+      t.true(instance.isEnabled('bootstrappedToggle') === true);
       instance.destroy();
       resolve();
     });
-  }));
+}));

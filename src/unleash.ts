@@ -12,6 +12,11 @@ import { Variant, getDefaultVariant } from './variant';
 import { FallbackFunction, createFallbackFunction } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
+import { 
+  BootstrapOptions,
+  resolveBootstrapProvider
+} from './repository/bootstrap-provider';
+import { FileStorageProvider } from './repository/storage-provider';
 
 export { Strategy };
 
@@ -35,8 +40,7 @@ export interface UnleashConfig {
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
-  bootstrap?: FeatureInterface[];
-  bootstrapOverride?: boolean;
+  bootstrap?: BootstrapOptions;
 }
 
 export interface StaticContext {
@@ -73,8 +77,7 @@ export class Unleash extends EventEmitter {
     timeout,
     httpOptions,
     tags,
-    bootstrap,
-    bootstrapOverride = true,
+    bootstrap = {},
   }: UnleashConfig) {
     super();
 
@@ -118,10 +121,12 @@ export class Unleash extends EventEmitter {
 
     this.staticContext = { appName, environment };
 
+    const bootstrapProvider = resolveBootstrapProvider(
+      bootstrap, appName, unleashInstanceId);
+
     this.repository =
       repository ||
       new Repository({
-        backupPath,
         projectName,
         url: unleashUrl,
         appName,
@@ -133,14 +138,14 @@ export class Unleash extends EventEmitter {
         httpOptions,
         namePrefix,
         tags,
-        bootstrap,
-        bootstrapOverride,
+        bootstrapProvider,
+        storageProvider: new FileStorageProvider({ backupPath, appName }),
       });
 
-    const strats = strategies.concat(defaultStrategies);
+    const supportedStrategies = strategies.concat(defaultStrategies);
 
     this.repository.on('ready', () => {
-      this.client = new Client(this.repository, strats);
+      this.client = new Client(this.repository, supportedStrategies);
       this.client.on('error', (err) => this.emit('error', err));
       this.client.on('warn', (msg) => this.emit('warn', msg));
       process.nextTick(() => {
@@ -172,11 +177,13 @@ export class Unleash extends EventEmitter {
       }
     });
 
+    // process.nextTick(async () => this.repository.start());
+
     this.metrics = new Metrics({
       disableMetrics,
       appName,
       instanceId: unleashInstanceId,
-      strategies: strats.map((strategy: Strategy) => strategy.name),
+      strategies: supportedStrategies.map((strategy: Strategy) => strategy.name),
       metricsInterval,
       url: unleashUrl,
       headers: customHeaders,

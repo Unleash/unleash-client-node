@@ -42,12 +42,22 @@ const client = initialize({
   customHeaders: {
     Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
   },
-  bootstrap: data,
+  bootstrap: {
+    data
+  },
 });
 
 client.on('error', console.error);
 client.on('warn', console.log);
+client.on('changed', () => console.log('changed'));
+client.on('unchanged', () => console.log('unchanged'));
+client.on('synchronized', () => console.log('synchronized'));
 
 client.on('ready', () => {
-  console.log(getFeatureToggleDefinitions());
+  console.log('ready')
+  // console.log(getFeatureToggleDefinitions());
 });
+
+setInterval(() => {
+  // console.log(client.getFeatureToggleDefinitions());
+}, 1000)
