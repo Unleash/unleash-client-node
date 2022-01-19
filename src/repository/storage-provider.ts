@@ -1,35 +1,38 @@
 import { join } from 'path';
 import { promises } from 'fs';
-import { ClientFeaturesResponse } from '../feature';
-import { safeAppName } from '../helpers';
+import { safeName } from '../helpers';
 
 const { writeFile, readFile } = promises;
 
 export interface StorageProvider<T> {
-  save(data: T): Promise<void>;
-  load(): Promise<T | undefined>;
+  set(key: string, data: T): Promise<void>;
+  get(key: string): Promise<T | undefined>;
 }
 
 export interface StorageOptions {
   backupPath: string;
-  appName: string;
 }
 
-export class FileStorageProvider implements StorageProvider<ClientFeaturesResponse> {
-  private path: string;
+export class FileStorageProvider<T> implements StorageProvider<T> {
+  private backupPath: string;
 
-  constructor({ backupPath, appName }: StorageOptions) {
-    this.path = join(backupPath, `/unleash-repo-schema-v2-${safeAppName(appName)}.json`);
+  constructor({ backupPath }: StorageOptions) {
+    this.backupPath = backupPath;
   }
 
-  async save(data: ClientFeaturesResponse): Promise<void> {
-    return writeFile(this.path, JSON.stringify(data));
+  private getPath(key: string): string {
+    return join(this.backupPath, `/unleash-backup-${safeName(key)}.json`)
   }
 
-  async load(): Promise<ClientFeaturesResponse | undefined> {
+  async set(key: string, data: T): Promise<void> {
+    return writeFile(this.getPath(key), JSON.stringify(data));
+  }
+
+  async get(key: string): Promise<T | undefined> {
+    const path = this.getPath(key);
     let data;
     try {
-      data = await readFile(this.path, 'utf8');
+      data = await readFile(path, 'utf8');
     } catch (error: any) {
       if (error.code !== 'ENOENT') {
         throw error;
@@ -42,7 +45,7 @@ export class FileStorageProvider implements StorageProvider<ClientFeaturesRespon
       return JSON.parse(data);
     } catch (error: any) {
       if (error instanceof Error) {
-        error.message = `Unleash storage failed parsing file ${this.path}: ${error.message}`;
+        error.message = `Unleash storage failed parsing file ${path}: ${error.message}`;
       }
       throw error;
     }

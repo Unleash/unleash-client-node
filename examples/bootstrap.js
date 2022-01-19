@@ -37,26 +37,40 @@ const data = [
 
 const client = initialize({
   appName: 'my-application',
-  url: 'http://unleash.herokuapp.com/api/',
+  url: 'http://bogous-url:3000/proxy/',
   customHeaders: {
-    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
+    Authorization: 'bootstrap',
   },
+
   bootstrap: {
-    data
+   url: 'http://localhost:3000/proxy/client/features',
+   urlHeaders: {
+     Authorization: 'bootstrap',
+   }
   },
 });
 
-client.on('error', console.error);
+client.on('error', () => console.log("\x1b[31m", 'Unable to fetch feature toggles', "\x1b[0m"));
 client.on('warn', console.log);
-client.on('changed', () => console.log('changed'));
-client.on('unchanged', () => console.log('unchanged'));
-client.on('synchronized', () => console.log('synchronized'));
-
-client.on('ready', () => {
-  console.log('ready')
-  // console.log(getFeatureToggleDefinitions());
+// client.on('changed', () => console.log('changed'));
+// client.on('unchanged', () => console.log('unchanged'));
+client.on('synchronized', () => {
+  console.log('synchronized')
+  /*
+  console.log(
+    `Feature toggle 'demoApp.step1' is:`, 
+    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
+    '\x1b[0m',
+  );
+  */
 });
+client.on('ready', () => console.log('ready'));
+
 
 setInterval(() => {
-  // console.log(client.getFeatureToggleDefinitions());
-}, 1000)
+  console.log(
+    `Feature toggle 'demoApp.step1' is:`, 
+    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
+    '\x1b[0m',
+  );
+}, 100)

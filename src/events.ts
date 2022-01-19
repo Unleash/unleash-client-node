@@ -1,7 +1,9 @@
 // eslint-disable-next-line import/prefer-default-export
 export enum UnleashEvents {
-  ready = 'ready',
-  error = 'error',
-  unchanged = 'unchanged',
-  changed = 'changed',
+  Ready = 'ready',
+  Error = 'error',
+  Warn = 'warn',
+  Unchanged = 'unchanged',
+  Changed = 'changed',
+  Synchronized = 'synchronized',
 }

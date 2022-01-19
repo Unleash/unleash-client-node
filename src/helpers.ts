@@ -26,6 +26,6 @@ export function resolveContextValue(context: Context, field: string) {
   return undefined;
 }
 
-export function safeAppName(appName: string = '') {
-  return appName.replace(/\//g, '_');
+export function safeName(str: string = '') {
+  return str.replace(/\//g, '_');
 }

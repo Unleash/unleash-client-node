@@ -135,7 +135,7 @@ export class Unleash extends EventEmitter {
         namePrefix,
         tags,
         bootstrapProvider,
-        storageProvider: new FileStorageProvider({ backupPath, appName }),
+        storageProvider: new FileStorageProvider({ backupPath }),
       });
 
     const supportedStrategies = strategies.concat(defaultStrategies);

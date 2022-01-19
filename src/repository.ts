@@ -129,7 +129,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     if (errors.length > 0) {
       const err = new Error(errors.join(', '));
-      this.emit(UnleashEvents.error, err);
+      this.emit(UnleashEvents.Error, err);
     }
   }
 
@@ -139,7 +139,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async loadBackup(): Promise<void> {
     try {
-      const content = await this.storageProvider.load();
+      const content = await this.storageProvider.get(this.appName);
       if (this.isReady) {
         return;
       }
@@ -149,7 +149,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
       }
       this.setReady();
     } catch (err) {
-      this.emit(UnleashEvents.error, err);
+      this.emit(UnleashEvents.Error, err);
     }
   }
 
@@ -159,7 +159,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     if (doEmitReady) {
       process.nextTick(() => {
-        this.emit(UnleashEvents.ready);
+        this.emit(UnleashEvents.Ready);
       });
     }
   }
@@ -167,8 +167,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
   async save(response: ClientFeaturesResponse): Promise<void> {
     this.data = this.convertToMap(response.features);
     this.setReady();
-    this.emit(UnleashEvents.changed, [...response.features]);
-    this.storageProvider.save(response);
+    this.emit(UnleashEvents.Changed, [...response.features]);
+    this.storageProvider.set(this.appName, response);
   }
 
   notEmpty(content: ClientFeaturesResponse): boolean {
@@ -225,10 +225,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (res.status === 304) {
         // No new data
-        this.emit(UnleashEvents.unchanged);
+        this.emit(UnleashEvents.Unchanged);
       } else if (!res.ok) {
         const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
-        this.emit(UnleashEvents.error, error);
+        this.emit(UnleashEvents.Error, error);
       } else {
         try {
           const data: ClientFeaturesResponse = await res.json();
@@ -239,11 +239,11 @@ export default class Repository extends EventEmitter implements EventEmitter {
           }
           await this.save(data);
         } catch (err) {
-          this.emit(UnleashEvents.error, err);
+          this.emit(UnleashEvents.Error, err);
         }
       }
     } catch (err) {
-      this.emit(UnleashEvents.error, err);
+      this.emit(UnleashEvents.Error, err);
     } finally {
       this.timedFetch();
     }

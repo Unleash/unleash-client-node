@@ -1,15 +1,14 @@
-import { ClientFeaturesResponse } from '../feature';
 import { StorageProvider } from './storage-provider';
 
-export default class InMemStorageProvider implements StorageProvider<ClientFeaturesResponse> {
-  private data?: ClientFeaturesResponse;
+export default class InMemStorageProvider<T> implements StorageProvider<T> {
+  private store: Map<string, T> = new Map<string, T>();
 
-  async save(data: ClientFeaturesResponse): Promise<void> {
-    this.data = data;
+  async set(key: string, data: T): Promise<void> {
+    this.store.set(key, data);
     return Promise.resolve();
   }
 
-  async load(): Promise<ClientFeaturesResponse | undefined> {
-    return Promise.resolve(this.data);
+  async get(key: string): Promise<T | undefined> {
+    return Promise.resolve(this.store.get(key));
   }
 }
