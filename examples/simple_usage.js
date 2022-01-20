@@ -1,4 +1,4 @@
-const { initialize } = require('../lib');
+const { initialize, isEnabled } = require('../lib');
 
 const client = initialize({
   appName: 'my-application',
@@ -15,9 +15,8 @@ client.on('ready', () => {
   console.log('ready!')
 });
 
-setInterval(() => {
-  const context = { properties: {email: 'ivar@getunleash.ai'}};
-  const toggleStatus = client.isEnabled('TestOperator', context);
+console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
-  console.log(`TestOperator: ${toggleStatus ? 'on' : 'off'}`);
+setInterval(() => {
+  console.log(`featureX enabled: ${isEnabled('featureX')}`);
 }, 1000);
