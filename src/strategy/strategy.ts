@@ -36,6 +36,9 @@ export class Strategy {
   checkConstraint(constraint: Constraint, context: Context) {
     const field = constraint.contextName;
     const contextValue = resolveContextValue(context, field);
+    if(!contextValue) {
+      return false;
+    }
     switch (constraint.operator) {
       case Operator.IN:
       case Operator.NOT_IN: {
@@ -43,21 +46,12 @@ export class Strategy {
         return constraint.operator === Operator.IN ? isIn : !isIn;
       }
       case Operator.ENDS_WITH: {
-        if(!contextValue) {
-          return false;
-        }
         return constraint.values.some((val) => contextValue.endsWith(val.trim()));
       }
       case Operator.STARTS_WITH: {
-        if(!contextValue) {
-          return false;
-        }
         return constraint.values.some((val) => contextValue.startsWith(val.trim()));
       }
       case Operator.CONTAINS: {
-        if(!contextValue) {
-          return false;
-        }
         return constraint.values.some((val) => contextValue.includes(val.trim()));
       }
       default: 
