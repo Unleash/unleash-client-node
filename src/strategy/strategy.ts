@@ -14,8 +14,11 @@ export interface Constraint {
 }
 
 export enum Operator {
-  IN = <any>'IN',
-  NOT_IN = <any>'NOT_IN',
+  IN = 'IN',
+  NOT_IN = 'NOT_IN',
+  ENDS_WITH = 'ENDS_WITH',
+  STARTS_WITH = 'STARTS_WITH',
+  CONTAINS = 'CONTAINS',
 }
 
 export class Strategy {
@@ -28,11 +31,39 @@ export class Strategy {
     this.returnValue = returnValue;
   }
 
+  
+
   checkConstraint(constraint: Constraint, context: Context) {
     const field = constraint.contextName;
     const contextValue = resolveContextValue(context, field);
-    const isIn = constraint.values.some((val) => val.trim() === contextValue);
-    return constraint.operator === Operator.IN ? isIn : !isIn;
+    switch (constraint.operator) {
+      case Operator.IN:
+      case Operator.NOT_IN: {
+        const isIn = constraint.values.some((val) => val.trim() === contextValue);
+        return constraint.operator === Operator.IN ? isIn : !isIn;
+      }
+      case Operator.ENDS_WITH: {
+        if(!contextValue) {
+          return false;
+        }
+        return constraint.values.some((val) => contextValue.endsWith(val.trim()));
+      }
+      case Operator.STARTS_WITH: {
+        if(!contextValue) {
+          return false;
+        }
+        return constraint.values.some((val) => contextValue.startsWith(val.trim()));
+      }
+      case Operator.CONTAINS: {
+        if(!contextValue) {
+          return false;
+        }
+        return constraint.values.some((val) => contextValue.includes(val.trim()));
+      }
+      default: 
+        return false;
+    }
+    
   }
 
   checkConstraints(context: Context, constraints?: Constraint[]) {

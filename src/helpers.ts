@@ -17,12 +17,12 @@ export function createFallbackFunction(
   return () => false;
 }
 
-export function resolveContextValue(context: Context, field: string) {
+export function resolveContextValue(context: Context, field: string): string | undefined {
   if (context[field]) {
-    return context[field];
+    return context[field] as string;
   }
   if (context.properties && context.properties[field]) {
-    return context.properties[field];
+    return context.properties[field] as string;
   }
   return undefined;
 }

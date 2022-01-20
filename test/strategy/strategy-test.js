@@ -105,3 +105,56 @@ test('should be enabled when cosutomerId is in constraint', (t) => {
   };
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
+
+
+test('should be enabled when email startsWith', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'email', operator: 'STARTS_WITH', values: ['example'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example@getunleash.ai' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when email endsWith', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'email', operator: 'ENDS_WITH', values: ['@getunleash.ai'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example@getunleash.ai' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should not enabled when email does not endsWith', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'email', operator: 'ENDS_WITH', values: ['@getunleash.ai'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example@something-else.ai' },
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when email contains', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'email', operator: 'CONTAINS', values: ['some'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example-some@getunleash.ai' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
