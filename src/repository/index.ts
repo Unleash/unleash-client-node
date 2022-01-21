@@ -20,7 +20,7 @@ export interface RepositoryOptions {
   appName: string;
   instanceId: string;
   projectName?: string;
-  refreshInterval?: number;
+  refreshInterval: number;
   timeout?: number;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
@@ -28,6 +28,7 @@ export interface RepositoryOptions {
   namePrefix?: string;
   tags?: Array<TagFilter>;
   bootstrapProvider: BootstrapProvider;
+  bootstrapOverride?: boolean;
   storageProvider: StorageProvider<ClientFeaturesResponse>;
 }
 
@@ -46,7 +47,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private instanceId: string;
 
-  private refreshInterval?: number;
+  private refreshInterval: number;
 
   private headers?: CustomHeaders;
 
@@ -66,6 +67,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private bootstrapProvider: BootstrapProvider;
 
+  private bootstrapOverride: boolean;
+
   private storageProvider: StorageProvider<ClientFeaturesResponse>;
 
   private ready: boolean = false;
@@ -79,7 +82,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     appName,
     instanceId,
     projectName,
-    refreshInterval,
+    refreshInterval = 15_000,
     timeout,
     headers,
     customHeadersFunction,
@@ -87,6 +90,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     namePrefix,
     tags,
     bootstrapProvider,
+    bootstrapOverride = true,
     storageProvider,
   }: RepositoryOptions) {
     super();
@@ -102,11 +106,12 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.namePrefix = namePrefix;
     this.tags = tags;
     this.bootstrapProvider = bootstrapProvider;
+    this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
   }
 
   timedFetch() {
-    if (this.refreshInterval != null && this.refreshInterval > 0) {
+    if (this.refreshInterval > 0) {
       this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
@@ -140,7 +145,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async loadBackup(): Promise<void> {
     try {
+      
       const content = await this.storageProvider.get(this.appName);
+
       if (this.ready) {
         return;
       }
@@ -173,7 +180,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
       // Only allow bootstrap if not connected
       this.data = this.convertToMap(response.features);
     }
-    
+
     this.setReady();
     this.emit(UnleashEvents.Changed, [...response.features]);
     this.storageProvider.set(this.appName, response);
@@ -186,6 +193,11 @@ export default class Repository extends EventEmitter implements EventEmitter {
   async loadBootstrap(): Promise<void> {
     try {
       const content = await this.bootstrapProvider.readBootstrap();
+
+      if(!this.bootstrapOverride && this.ready) {
+        // early exit if we already have backup data and should not override it.
+        return;
+      }
 
       if (content && this.notEmpty(content)) {
         await this.save(content, false);
@@ -212,7 +224,7 @@ Message: ${err.message}`);
   }
 
   async fetch(): Promise<void> {
-    if (this.stopped) {
+    if (this.stopped || !(this.refreshInterval > 0)) {
       return;
     }
 

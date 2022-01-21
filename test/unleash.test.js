@@ -161,7 +161,6 @@ test.cb('repository should surface error when invalid basePath', (t) => {
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
-    refreshInterval: 0,
     url: `${url}bougus`,
     backupPath,
   });

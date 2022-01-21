@@ -39,6 +39,7 @@ export interface UnleashConfig {
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
   bootstrap?: BootstrapOptions;
+  bootstrapOverride?: boolean;
   storageProvider?: StorageProvider<ClientFeaturesResponse>,
   disableAutoStart?: boolean;
 }
@@ -80,6 +81,7 @@ export class Unleash extends EventEmitter {
     httpOptions,
     tags,
     bootstrap = {},
+    bootstrapOverride,
     storageProvider,
     disableAutoStart = false,
   }: UnleashConfig) {
@@ -115,6 +117,7 @@ export class Unleash extends EventEmitter {
         namePrefix,
         tags,
         bootstrapProvider,
+        bootstrapOverride,
         storageProvider: storageProvider || new FileStorageProvider(backupPath),
       });
 

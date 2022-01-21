@@ -37,7 +37,7 @@ test.cb('should fetch from endpoint', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
+    refreshInterval: 1000,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -60,7 +60,6 @@ test('should poll for changes', t =>
     const url = 'http://unleash-test-2.app';
     setup(url, []);
     const repo = new Repository({
-      backupPath: 'foo-bar',
       url,
       appName,
       instanceId,
@@ -124,7 +123,7 @@ test('should store etag', t =>
       url,
       appName,
       instanceId,
-      refreshInterval: 0,
+      refreshInterval: 1000,
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
     });
@@ -150,7 +149,7 @@ test.cb('should request with etag', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
+    refreshInterval: 1000,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -179,7 +178,7 @@ test.cb('should request with custom headers', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
+    refreshInterval: 1000,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
     headers: {
@@ -213,7 +212,7 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
+    refreshInterval: 1000,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
     headers: {
@@ -244,7 +243,7 @@ test.cb('should handle 404 request error and emit error event', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
+    refreshInterval: 10000,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -294,7 +293,6 @@ test('should handle invalid JSON response', t =>
       url,
       appName,
       instanceId,
-      refreshInterval: 0,
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
     });
@@ -350,7 +348,6 @@ test.cb('should emit errors on invalid features', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -381,7 +378,6 @@ test.cb('should emit errors on invalid variant', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -437,7 +433,6 @@ test.cb('should load bootstrap first if faster than unleash-api', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
     bootstrapProvider: new DefaultBootstrapProvider({url: bootstrap}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -496,7 +491,6 @@ test.cb('bootstrap should not override actual data', t => {
     url,
     appName,
     instanceId,
-    refreshInterval: 0,
     bootstrapProvider: new DefaultBootstrapProvider({url: bootstrap}),
     storageProvider: new InMemStorageProvider(),
   });
@@ -581,6 +575,7 @@ test.cb('should not crash on bogus bootstrap', t => {
 });
 
 test.cb('should load backup-file', t => {
+  const appNameLocal = 'some-backup';
   const url = 'http://unleash-test-backup-api-url.app';
   nock(url)
     .persist()
@@ -589,7 +584,7 @@ test.cb('should load backup-file', t => {
     .reply(408);
 
   const backupPath = join(tmpdir());
-  const backupFile = join(backupPath, `/unleash-backup-${appName}.json`)
+  const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`)
   writeFileSync(backupFile, JSON.stringify({ features: [
     {
       name: 'feature-backup',
@@ -607,11 +602,11 @@ test.cb('should load backup-file', t => {
 
   const repo = new Repository({
     url,
-    appName,
+    appName: appNameLocal,
     instanceId,
     refreshInterval: 0,
     bootstrapProvider: new DefaultBootstrapProvider({}),
-    storageProvider: new FileStorageProvider({backupPath}),
+    storageProvider: new FileStorageProvider(backupPath),
   });
 
   repo.on('ready', () => {
@@ -619,4 +614,124 @@ test.cb('should load backup-file', t => {
     t.end();
   });
   repo.start();
+});
+
+test.cb('bootstrap should override load backup-file', t => {
+  const appNameLocal = 'should_override';
+  const url = 'http://unleash-test-backup-api-url.app';
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .delay(100)
+    .reply(408);
+
+  const backupPath = join(tmpdir());
+  const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`)
+  writeFileSync(backupFile, JSON.stringify({ features: [
+    {
+      name: 'feature-backup',
+      enabled: true,
+      strategies: [
+        {
+          name: 'default',
+        },
+        {
+          name: 'backup',
+        },
+      ],
+    },
+  ]}));
+
+  const repo = new Repository({
+    url,
+    appName: appNameLocal,
+    instanceId,
+    refreshInterval: 0,
+    disableFetch: true,
+    bootstrapProvider: new DefaultBootstrapProvider({
+      data: [{
+        name: 'feature-backup',
+        enabled: false,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'bootstrap',
+          },
+        ],
+      }]}),
+    storageProvider: new FileStorageProvider(backupPath),
+  });
+
+  repo.on('changed', () => {
+    t.is(repo.getToggle('feature-backup').enabled, false);
+    t.end();
+  });
+  repo.on('error', () => {});
+  repo.start();
+});
+
+
+test('bootstrap should not override load backup-file', async t => {
+  const appNameLocal = 'should_not_override';
+  const url = 'http://unleash-test-backup-api-url.app';
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .reply(408);
+  
+  nock(url)
+    .persist()
+    .get('/bootstrap')
+    .delay(1)
+    .reply(200, { features: [
+      {
+        name: 'feature-backup',
+        enabled: false,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'bootstrap',
+          },
+        ],
+      },
+    ]});
+
+  const storeImp = new InMemStorageProvider();
+  storeImp.set(appNameLocal, { features: [
+    {
+      name: 'feature-backup',
+      enabled: true,
+      strategies: [
+        {
+          name: 'default',
+        },
+        {
+          name: 'backup',
+        },
+      ],
+    },
+  ]});
+
+
+  const repo = new Repository({
+    url,
+    appName: appNameLocal,
+    instanceId,
+    refreshInterval: 0,
+    bootstrapProvider: new DefaultBootstrapProvider({
+      url: `${url}/bootstrap`
+    }),
+    bootstrapOverride: false,
+    storageProvider: storeImp,
+  });
+
+  repo.on('error', () => {});
+
+  await repo.start();
+
+  t.is(repo.getToggle('feature-backup').enabled, true);
 });
