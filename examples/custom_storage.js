@@ -21,7 +21,8 @@ class MyRedisStore {
 
 const client = initialize({
   appName: 'my-application',
-  url: 'http://asd:3000/proxy/',
+  url: 'http://localhost:3000/proxy/',
+  refreshInterval: 2000,
   customHeaders: {
     Authorization: 'bootstrap',
   },
@@ -32,9 +33,10 @@ client.on('error', () => console.log("\x1b[31m", 'Unable to fetch feature toggle
 client.on('warn', console.log);
 client.on('synchronized', () => {
   console.log('synchronized')
+  const enabled = client.isEnabled('BootstrapDemo');
   console.log(
-    `Feature toggle 'demoApp.step1' is:`, 
-    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
+    `BootstrapDemo: `, 
+    `${enabled ? '\x1b[32m' : '\x1b[31m'}`,`${enabled}`,
     '\x1b[0m',
   );
 });
@@ -42,9 +44,10 @@ client.on('ready', () => console.log('ready'));
 
 
 setInterval(() => {
+  const enabled = client.isEnabled('BootstrapDemo');
   console.log(
-    `Feature toggle 'demoApp.step1' is:`, 
-    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
+    `BootstrapDemo: `, 
+    `${enabled ? '\x1b[32m' : '\x1b[31m'}`,`${enabled}`,
     '\x1b[0m',
   );
 }, 100)

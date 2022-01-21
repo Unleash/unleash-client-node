@@ -115,7 +115,7 @@ export class Unleash extends EventEmitter {
         namePrefix,
         tags,
         bootstrapProvider,
-        storageProvider: storageProvider || new FileStorageProvider({ backupPath }),
+        storageProvider: storageProvider || new FileStorageProvider(backupPath),
       });
 
     this.repository.on(UnleashEvents.Ready, () => {

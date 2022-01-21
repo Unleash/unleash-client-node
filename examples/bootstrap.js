@@ -3,48 +3,29 @@ const { initialize } = require('../lib');
 
 const data = [
   {
-    enabled: true,
-    name: 'bbbbbb',
-    description: '',
-    project: 'default',
-    stale: false,
-    type: 'experiment',
-    variants: [],
-    strategies: [],
-  },
-  {
-    enabled: true,
-    name: 'undefinedunleash-e2e-22',
-    description: 'hellowrdada',
-    project: 'default',
-    stale: false,
-    type: 'release',
-    variants: [],
-    strategies: [],
-  },
-  {
     enabled: false,
-    name: 'you',
+    name: 'BootstrapDemo',
     description: '',
     project: 'default',
     stale: false,
     type: 'release',
     variants: [],
-    strategies: [],
+    strategies: [{ name: 'default' }],
   },
 ];
 
 const client = initialize({
   appName: 'my-application',
-  url: 'http://bogous-url:3000/proxy/',
+  url: 'https://app.unleash-hosted2.com/demo/api/',
   customHeaders: {
-    Authorization: 'bootstrap',
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
   },
-
+  refreshInterval: 2000,
   bootstrap: {
+    // data,
    url: 'http://localhost:3000/proxy/client/features',
-   urlHeaders: {
-     Authorization: 'bootstrap',
+    urlHeaders: {
+    Authorization: 'bootstrap',
    }
   },
 });
@@ -67,9 +48,10 @@ client.on('ready', () => console.log('ready'));
 
 
 setInterval(() => {
+  const enabled = client.isEnabled('BootstrapDemo');
   console.log(
-    `Feature toggle 'demoApp.step1' is:`, 
-    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
+    `BootstrapDemo: `, 
+    `${enabled ? '\x1b[32m' : '\x1b[31m'}`,`${enabled}`,
     '\x1b[0m',
   );
 }, 100)
