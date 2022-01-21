@@ -328,6 +328,66 @@ const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
 const featureToggles = getFeatureToggleDefinitions();
 ```
 
+## Custom Store Provider
+
+(Available from v3.11.x)
+
+By default this SDK will use a store provider that writes a backup of the feature toggle configuration to **file on disk**. This happens every time it receives updated configuration from the Unleash API. You can swap out the store provider with either the provided in-memory store-provider or a custom store provider implemented by you. 
+
+**1. Use InMemStorageProvider**
+
+```js
+const {
+  initialize,
+  InMemStorageProvider,
+} = require('unleash-client');
+
+const client = initialize({
+  appName: 'my-application',
+  url: 'http://localhost:3000/api/',
+  customHeaders: {
+    Authorization: 'my-key',
+  },
+  storageProvider: new InMemStorageProvider(),
+});
+```
+
+**2. Custom Store Provider backed by redis**
+
+```js
+const {
+  initialize,
+  InMemStorageProvider,
+} = require('unleash-client');
+
+const { createClient } = require('redis');
+
+class CustomRedisStore {
+  async set(key, data) {
+    const client = createClient();
+    await client.connect();
+    await client.set(key, JSON.stringify(data));
+
+  }
+  async get(key) {
+    const client = createClient();
+    await client.connect();
+    const data = await client.get(key);
+    return JSON.parse(data);
+  } 
+}
+
+const client = initialize({
+  appName: 'my-application',
+  url: 'http://localhost:3000/api/',
+  customHeaders: {
+    Authorization: 'my-key',
+  },
+  storageProvider: new CustomRedisStore(),
+});
+```
+
+
 ## Custom repository
 
 You can manage the underlying data layer yourself if you want to. This enables you to use unleash
