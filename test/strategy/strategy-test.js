@@ -158,3 +158,68 @@ test('should be enabled when email contains', (t) => {
   };
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
+
+test('should be enabled when someVal "equals"', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_EQ', values: ['42'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { someVal: '42' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when someVal "equals" number', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_EQ', values: ['42'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { someVal: 42 },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when someVal "greater than" number', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_GT', values: ['42'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { someVal: '44' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be disable when someVal is not "greater than" number', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_GT', values: ['42'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { someVal: '42' },
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when someVal "lower than" number', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_LT', values: ['42'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { someVal: '0' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});

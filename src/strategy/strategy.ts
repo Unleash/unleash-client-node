@@ -19,6 +19,9 @@ export enum Operator {
   ENDS_WITH = 'ENDS_WITH',
   STARTS_WITH = 'STARTS_WITH',
   CONTAINS = 'CONTAINS',
+  NUM_GT = 'NUM_GT',
+  NUM_LT = 'NUM_LT',
+  NUM_EQ = 'NUM_EQ',
 }
 
 export class Strategy {
@@ -36,23 +39,35 @@ export class Strategy {
   checkConstraint(constraint: Constraint, context: Context) {
     const field = constraint.contextName;
     const contextValue = resolveContextValue(context, field);
+    const values = constraint.values
+      .filter(v => !!v)
+      .map(v => v.trim());
     if(!contextValue) {
       return false;
     }
     switch (constraint.operator) {
       case Operator.IN:
       case Operator.NOT_IN: {
-        const isIn = constraint.values.some((val) => val.trim() === contextValue);
+        const isIn = values.some(val => val === contextValue);
         return constraint.operator === Operator.IN ? isIn : !isIn;
       }
       case Operator.ENDS_WITH: {
-        return constraint.values.some((val) => contextValue.endsWith(val.trim()));
+        return values.some(val => contextValue.endsWith(val));
       }
       case Operator.STARTS_WITH: {
-        return constraint.values.some((val) => contextValue.startsWith(val.trim()));
+        return values.some(val => contextValue.startsWith(val));
       }
       case Operator.CONTAINS: {
-        return constraint.values.some((val) => contextValue.includes(val.trim()));
+        return values.some(val => contextValue.includes(val));
+      }
+      case Operator.NUM_EQ: {
+        return Number(values[0]) === Number(contextValue);
+      }
+      case Operator.NUM_GT: {
+        return Number(values[0]) < Number(contextValue);
+      }
+      case Operator.NUM_LT: {
+        return Number(values[0]) > Number(contextValue);
       }
       default: 
         return false;
