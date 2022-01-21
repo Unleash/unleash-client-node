@@ -31,18 +31,8 @@ const client = initialize({
 });
 
 client.on('error', () => console.log("\x1b[31m", 'Unable to fetch feature toggles', "\x1b[0m"));
-client.on('warn', console.log);
-// client.on('changed', () => console.log('changed'));
-// client.on('unchanged', () => console.log('unchanged'));
 client.on('synchronized', () => {
   console.log('synchronized')
-  /*
-  console.log(
-    `Feature toggle 'demoApp.step1' is:`, 
-    '\x1b[32m',`${client.isEnabled('demoApp.step1')}`,
-    '\x1b[0m',
-  );
-  */
 });
 client.on('ready', () => console.log('ready'));
 
