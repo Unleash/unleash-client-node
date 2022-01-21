@@ -7,10 +7,10 @@ import { UnleashEvents } from './events';
 import { ClientFeaturesResponse } from './feature';
 import InMemStorageProvider from './repository/storage-provider-in-mem'
 
+// exports
 export { Strategy } from './strategy/index';
-export { Context, Variant, Unleash, TagFilter, InMemStorageProvider };
-
-export type { ClientFeaturesResponse, UnleashEvents, UnleashConfig }; 
+export { Context, Variant, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
+export type { ClientFeaturesResponse, UnleashConfig }; 
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
