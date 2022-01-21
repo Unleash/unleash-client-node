@@ -235,6 +235,75 @@ unleash.once('changed', () => {
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}`)
 ```
 
+## Bootstrap 
+
+(Available from v3.11.x)
+
+The Node.SDK supports a bootstrap parameter, allowing you to load the initial feature toggle configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an argument directly to the SDK, as a `filePath` to load or as a `URL` to fetch the content from. Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle configuration from the bootstrap location, even if the Unleash API should be unavailable at startup. 
+
+**1. Bootstrap with data passed as an argument**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted2.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+    data: [
+      {
+        enabled: false,
+        name: 'BootstrapDemo',
+        description: '',
+        project: 'default',
+        stale: false,
+        type: 'release',
+        variants: [],
+        strategies: [{ name: 'default' }],
+      },
+    ]
+  },
+});
+
+```
+
+
+**2. Bootstrap via a URL**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+    url: 'http://localhost:3000/proxy/client/features',
+    urlHeaders: {
+    Authorization: 'bootstrap',
+   }
+  },
+});
+
+```
+
+**3. Bootstrap from a File**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+   filePath: '/tmp/some-bootstrap.json',
+  },
+});
+
+```
+
 ## Toggle definitions
 
 Sometimes you might be interested in the raw feature toggle definitions.

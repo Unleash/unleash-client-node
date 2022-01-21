@@ -1,17 +1,20 @@
 const { EventEmitter } = require('events');
-const { initialize, isEnabled } = require('../lib');
-const { UnleashEvents } = require('../lib/events');
+const { initialize, isEnabled, UnleashEvents } = require('../lib');
 
 class MyRepo extends EventEmitter {
   constructor() {
     super();
     this.data = {
-      name: 'my-feature',
+      name: 'THE-feature',
       description: 'foo',
       enabled: true,
-      strategies: [],
+      strategies: [{ name: 'default' }],
       variants: [],
     };
+  }
+
+  start () {
+
   }
 
   stop() {
@@ -23,12 +26,14 @@ class MyRepo extends EventEmitter {
   }
 }
 const repo = new MyRepo();
+
 const client = initialize({
   appName: 'my-application',
   url: 'not-needed',
   disableMetrics: true,
   repository: repo,
 });
+
 repo.emit(UnleashEvents.Ready);
 
 client.on('error', console.error);
