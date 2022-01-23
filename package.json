@@ -30,7 +30,8 @@
   "dependencies": {
     "ip": "^1.1.5",
     "make-fetch-happen": "^9.0.4",
-    "murmurhash3js": "^3.0.1"
+    "murmurhash3js": "^3.0.1",
+    "nodemon": "^2.0.15"
   },
   "engines": {
     "node": ">=10",
@@ -61,11 +62,12 @@
     "husky": "7.0.4",
     "lint-staged": "12.1.3",
     "mkdirp": "1.0.4",
-    "nock": "13.2.1",
+    "nock": "13.2.2",
     "nyc": "15.1.0",
     "prettier": "2.5.1",
+    "redis": "4.0.2",
     "sinon": "12.0.1",
-    "typescript": "4.5.4"
+    "typescript": "4.5.5"
   },
   "resolutions": {
     "ansi-regex": "^5.0.1",

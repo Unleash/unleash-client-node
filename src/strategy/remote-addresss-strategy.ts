@@ -12,20 +12,18 @@ export default class RemoteAddressStrategy extends Strategy {
     if (!parameters.IPs) {
       return false;
     }
-    return parameters.IPs.split(/\s*,\s*/).some(
-      (range: string): Boolean => {
-        if (range === context.remoteAddress) {
-          return true;
+    return parameters.IPs.split(/\s*,\s*/).some((range: string): Boolean => {
+      if (range === context.remoteAddress) {
+        return true;
+      }
+      if (!ip.isV6Format(range)) {
+        try {
+          return ip.cidrSubnet(range).contains(context.remoteAddress);
+        } catch (err) {
+          return false;
         }
-        if (!ip.isV6Format(range)) {
-          try {
-            return ip.cidrSubnet(range).contains(context.remoteAddress);
-          } catch (err) {
-            return false;
-          }
-        }
-        return false;
-      },
-    );
+      }
+      return false;
+    });
   }
 }

@@ -3,14 +3,20 @@ import { Unleash, UnleashConfig } from './unleash';
 import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
+import { UnleashEvents } from './events';
+import { ClientFeaturesResponse } from './feature';
+import InMemStorageProvider from './repository/storage-provider-in-mem'
 
+// exports
 export { Strategy } from './strategy/index';
-export { Context, Variant, Unleash, TagFilter };
+export { Context, Variant, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
+export type { ClientFeaturesResponse, UnleashConfig }; 
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
   if (instance) {
-    instance.emit('warn', 'This global unleash instance is initialized multiple times.');
+    instance.emit(UnleashEvents.Warn, 
+      'This global unleash instance is initialized multiple times.');
   }
   instance = new Unleash(options);
   instance.on('error', () => {});

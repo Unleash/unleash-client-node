@@ -4,7 +4,7 @@
 ![npm](https://img.shields.io/npm/dm/unleash-client)
 [![Build Status](https://github.com/Unleash/unleash-client-node/workflows/Build/badge.svg)](https://github.com/Unleash/unleash-client-node/actions)
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
-[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=master)](https://coveralls.io/github/Unleash/unleash-client-node?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
 
 Unleash Client SDK for Node.js. It is compatible with:
 
@@ -96,12 +96,12 @@ The client comes with implementations for the built-in activation strategies pro
 - ApplicationHostnameStrategy
 
 Read more about the strategies in
-[activation-strategy.md](https://github.com/Unleash/unleash/blob/master/docs/activation-strategies.md).
+[activation-strategy.md](https://github.com/Unleash/unleash/blob/main/docs/activation-strategies.md).
 
 ### Unleash context
 
 In order to use some of the common activation strategies you must provide a
-[unleash-context](https://github.com/Unleash/unleash/blob/master/docs/unleash-context.md). This
+[unleash-context](https://github.com/Unleash/unleash/blob/main/docs/unleash-context.md). This
 client SDK allows you to send in the unleash context as part of the `isEnabled` call:
 
 ```javascript
@@ -135,7 +135,7 @@ The initialize method takes the following arguments:
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`. 
+- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
@@ -194,7 +194,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | event        | payload                          | description                                                                                                                                                                                                                                  |
 | ------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ready        | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
-| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API and has all the latest feature toggle configuration available.                                                                                                    |
+| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API, or when it has been bootstrapped, and has all the latest feature toggle configuration available.                                                                                                    |
 | registered   | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
@@ -235,6 +235,75 @@ unleash.once('changed', () => {
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}`)
 ```
 
+## Bootstrap 
+
+(Available from v3.11.x)
+
+The Node.SDK supports a bootstrap parameter, allowing you to load the initial feature toggle configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an argument directly to the SDK, as a `filePath` to load or as a `URL` to fetch the content from. Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle configuration from the bootstrap location, even if the Unleash API should be unavailable at startup. 
+
+**1. Bootstrap with data passed as an argument**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted2.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+    data: [
+      {
+        enabled: false,
+        name: 'BootstrapDemo',
+        description: '',
+        project: 'default',
+        stale: false,
+        type: 'release',
+        variants: [],
+        strategies: [{ name: 'default' }],
+      },
+    ]
+  },
+});
+
+```
+
+
+**2. Bootstrap via a URL**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+    url: 'http://localhost:3000/proxy/client/features',
+    urlHeaders: {
+    Authorization: 'bootstrap',
+   }
+  },
+});
+
+```
+
+**3. Bootstrap from a File**
+
+```js
+const client = initialize({
+  appName: 'my-application',
+  url: 'https://app.unleash-hosted.com/demo/api/',
+  customHeaders: {
+    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+  },
+  bootstrap: {
+   filePath: '/tmp/some-bootstrap.json',
+  },
+});
+
+```
+
 ## Toggle definitions
 
 Sometimes you might be interested in the raw feature toggle definitions.
@@ -255,9 +324,69 @@ initialize({
   instanceId: 'my-unique-instance-id',
 });
 
-const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
+const featureToggleX = getFeatureToggleDefinition('app.ToggleX');
 const featureToggles = getFeatureToggleDefinitions();
 ```
+
+## Custom Store Provider
+
+(Available from v3.11.x)
+
+By default this SDK will use a store provider that writes a backup of the feature toggle configuration to **file on disk**. This happens every time it receives updated configuration from the Unleash API. You can swap out the store provider with either the provided in-memory store-provider or a custom store provider implemented by you. 
+
+**1. Use InMemStorageProvider**
+
+```js
+const {
+  initialize,
+  InMemStorageProvider,
+} = require('unleash-client');
+
+const client = initialize({
+  appName: 'my-application',
+  url: 'http://localhost:3000/api/',
+  customHeaders: {
+    Authorization: 'my-key',
+  },
+  storageProvider: new InMemStorageProvider(),
+});
+```
+
+**2. Custom Store Provider backed by redis**
+
+```js
+const {
+  initialize,
+  InMemStorageProvider,
+} = require('unleash-client');
+
+const { createClient } = require('redis');
+
+class CustomRedisStore {
+  async set(key, data) {
+    const client = createClient();
+    await client.connect();
+    await client.set(key, JSON.stringify(data));
+
+  }
+  async get(key) {
+    const client = createClient();
+    await client.connect();
+    const data = await client.get(key);
+    return JSON.parse(data);
+  } 
+}
+
+const client = initialize({
+  appName: 'my-application',
+  url: 'http://localhost:3000/api/',
+  customHeaders: {
+    Authorization: 'my-key',
+  },
+  storageProvider: new CustomRedisStore(),
+});
+```
+
 
 ## Custom repository
 
