@@ -194,7 +194,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | event        | payload                          | description                                                                                                                                                                                                                                  |
 | ------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ready        | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
-| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API and has all the latest feature toggle configuration available.                                                                                                    |
+| synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API, or when it has been bootstrapped, and has all the latest feature toggle configuration available.                                                                                                    |
 | registered   | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
@@ -324,7 +324,7 @@ initialize({
   instanceId: 'my-unique-instance-id',
 });
 
-const featureToogleX = getFeatureToggleDefinition('app.ToggleX');
+const featureToggleX = getFeatureToggleDefinition('app.ToggleX');
 const featureToggles = getFeatureToggleDefinitions();
 ```
 
