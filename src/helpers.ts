@@ -1,3 +1,4 @@
+import { userInfo, hostname } from 'os';
 import { Context } from './context';
 
 export type FallbackFunction = (name: string, context: Context) => boolean;
@@ -24,4 +25,26 @@ export function resolveContextValue(context: Context, field: string) {
     return context.properties[field];
   }
   return undefined;
+}
+
+export function safeName(str: string = '') {
+  return str.replace(/\//g, '_');
+}
+
+
+export function generateInstanceId(instanceId?: string): string {
+  if(instanceId) {
+    return instanceId;
+  } 
+  let info;
+  try {
+    info = userInfo();
+  } catch (e) {
+    // unable to read info;
+  }
+
+  const prefix = info
+    ? info.username
+    : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
+  return `${prefix}-${hostname()}`;
 }

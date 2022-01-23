@@ -81,7 +81,7 @@ test('should be enabled for satisfied constraint', (t) => new Promise((resolve, 
   });
 
   instance.on('error', reject);
-  instance.on('ready', () => {
+  instance.on('synchronized', () => {
     const result = instance.isEnabled('toggle.with.constraint.enabled');
     t.is(result, true);
     instance.destroy();
@@ -103,7 +103,7 @@ test('should be enabled for satisfied NOT_IN constraint', (t) => new Promise((re
   });
 
   instance.on('error', reject);
-  instance.on('ready', () => {
+  instance.on('synchronized', () => {
     const result = instance.isEnabled('toggle.with.constraint.not_in.enabled', {
       userId: '123',
     });

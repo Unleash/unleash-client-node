@@ -42,11 +42,11 @@ const httpsAgent = new https.Agent({
 
 export const getAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
 export const buildHeaders = (
-  appName: string | undefined,
-  instanceId: string | undefined,
-  etag: string | undefined,
-  contentType: string | undefined,
-  custom: CustomHeaders | undefined,
+  appName?: string,
+  instanceId?: string,
+  etag?: string,
+  contentType?: string,
+  custom?: CustomHeaders,
 ): Record<string, string> => {
   const head: Record<string, string> = {};
   if (appName) {
