@@ -18,8 +18,7 @@ class EnvironmentStrategy extends Strategy {
   }
 }
 
-let counter = 1;
-const getUrl = () => `http://test2${counter++}.app/`;
+const getUrl = () => `http://test2${Math.round(Math.random() * 100000)}.app/`;
 
 function getRandomBackupPath() {
   const path = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
@@ -31,7 +30,7 @@ const defaultToggles = [
   {
     name: 'feature',
     enabled: true,
-    strategies: [],
+    strategies: [{ name: 'default' }],
   },
   {
     name: 'f-context',
@@ -48,19 +47,17 @@ const defaultToggles = [
 ];
 
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
-  nock(url)
-    .get('/client/features')
-    .reply(200, { features: toggles });
+  nock(url).get('/client/features').reply(200, { features: toggles });
   return url;
 }
 
-test('should error when missing url', t => {
+test('should error when missing url', (t) => {
   t.throws(() => new Unleash({}));
   t.throws(() => new Unleash({ url: false }));
   t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
 });
 
-test('calling destroy synchronously should avoid network activity', t => {
+test('calling destroy synchronously should avoid network activity', (t) => {
   const url = getUrl();
   // Don't call mockNetwork. If destroy didn't work, then we would have an
   // uncaught exception.
@@ -73,7 +70,7 @@ test('calling destroy synchronously should avoid network activity', t => {
   t.true(true);
 });
 
-test.cb('should handle old url', t => {
+test.cb('should handle old url', (t) => {
   const url = mockNetwork([]);
 
   const instance = new Unleash({
@@ -85,7 +82,7 @@ test.cb('should handle old url', t => {
   });
 
   t.plan(1);
-  instance.on('warn', e => {
+  instance.on('warn', (e) => {
     t.truthy(e);
     t.end();
   });
@@ -93,7 +90,7 @@ test.cb('should handle old url', t => {
   instance.destroy();
 });
 
-test('should handle url without ending /', t => {
+test('should handle url without ending /', (t) => {
   const baseUrl = `${getUrl()}api`;
 
   mockNetwork([], baseUrl);
@@ -112,7 +109,7 @@ test('should handle url without ending /', t => {
   instance.destroy();
 });
 
-test('should re-emit error from repository, storage and metrics', t => {
+test('should re-emit error from repository and metrics', (t) => {
   const url = mockNetwork([]);
 
   const instance = new Unleash({
@@ -123,18 +120,17 @@ test('should re-emit error from repository, storage and metrics', t => {
     url,
   });
 
-  t.plan(3);
-  instance.on('error', e => {
+  t.plan(2);
+  instance.on('error', (e) => {
     t.truthy(e);
   });
   instance.repository.emit('error', new Error());
-  instance.repository.storage.emit('error', new Error());
   instance.metrics.emit('error', new Error());
 
   instance.destroy();
 });
 
-test('should re-emit events from repository and metrics', t => {
+test('should re-emit events from repository and metrics', (t) => {
   const url = mockNetwork();
   const instance = new Unleash({
     appName: 'foo',
@@ -144,10 +140,10 @@ test('should re-emit events from repository and metrics', t => {
   });
 
   t.plan(5);
-  instance.on('warn', e => t.truthy(e));
-  instance.on('sent', e => t.truthy(e));
-  instance.on('registered', e => t.truthy(e));
-  instance.on('count', e => t.truthy(e));
+  instance.on('warn', (e) => t.truthy(e));
+  instance.on('sent', (e) => t.truthy(e));
+  instance.on('registered', (e) => t.truthy(e));
+  instance.on('count', (e) => t.truthy(e));
 
   instance.repository.emit('warn', true);
   instance.metrics.emit('warn', true);
@@ -158,24 +154,20 @@ test('should re-emit events from repository and metrics', t => {
   instance.destroy();
 });
 
-test.cb('repository should surface error when invalid basePath', t => {
+test.cb('repository should surface error when invalid basePath', (t) => {
   const url = 'http://unleash-surface.app/';
-  nock(url)
-    .get('/client/features')
-    .delay(100)
-    .reply(200, { features: [] });
+  nock(url).get('/client/features').delay(100).reply(200, { features: [] });
   const backupPath = join(tmpdir(), `test-tmp-${Math.round(Math.random() * 100000)}`);
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
-    refreshInterval: 0,
-    url,
+    url: `${url}bougus`,
     backupPath,
   });
 
-  instance.once('error', err => {
+  instance.once('error', (err) => {
     t.truthy(err);
-    t.true(err.code === 'ENOENT');
+    t.is(err.code, 'ERR_NOCK_NO_MATCH');
 
     instance.destroy();
 
@@ -183,21 +175,21 @@ test.cb('repository should surface error when invalid basePath', t => {
   });
 });
 
-test('should allow request even before unleash is initialized', t => {
+test('should allow request even before unleash is initialized', (t) => {
   const url = mockNetwork();
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
     url,
     backupPath: getRandomBackupPath(),
-  }).on('error', err => {
+  }).on('error', (err) => {
     throw err;
   });
   t.true(instance.isEnabled('unknown') === false);
   instance.destroy();
 });
 
-test('should consider known feature-toggle as active', t =>
+test('should consider known feature-toggle as active', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -207,14 +199,14 @@ test('should consider known feature-toggle as active', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('feature') === true);
       instance.destroy();
       resolve();
     });
   }));
 
-test('should consider unknown feature-toggle as disabled', t =>
+test('should consider unknown feature-toggle as disabled', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -224,14 +216,14 @@ test('should consider unknown feature-toggle as disabled', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('unknown') === false);
       instance.destroy();
       resolve();
     });
   }));
 
-test('should return fallback value until online', t =>
+test('should return fallback value until online', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -247,12 +239,12 @@ test('should return fallback value until online', t =>
     });
 
     t.true(instance.isEnabled('feature') === false);
-    t.true(warnCounter === 1);
+    t.is(warnCounter, 1);
     t.true(instance.isEnabled('feature', {}, false) === false);
     t.true(instance.isEnabled('feature', {}, true) === true);
-    t.true(warnCounter === 3);
+    t.is(warnCounter, 3);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('feature') === true);
       t.true(instance.isEnabled('feature', {}, false) === true);
       instance.destroy();
@@ -260,7 +252,7 @@ test('should return fallback value until online', t =>
     });
   }));
 
-test('should call fallback function for unknown feature-toggle', t =>
+test('should call fallback function for unknown feature-toggle', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -271,7 +263,7 @@ test('should call fallback function for unknown feature-toggle', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const fallbackFunc = sinon.spy(() => false);
       const name = 'unknown';
       const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
@@ -289,7 +281,7 @@ test('should call fallback function for unknown feature-toggle', t =>
     });
   }));
 
-test('should not throw when os.userInfo throws', t => {
+test('should not throw when os.userInfo throws', (t) => {
   t.plan(0);
 
   return new Promise((resolve, reject) => {
@@ -305,13 +297,13 @@ test('should not throw when os.userInfo throws', t => {
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       resolve();
     });
   });
 });
 
-test('should return known feature-toggle definition', t =>
+test('should return known feature-toggle definition', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -321,7 +313,7 @@ test('should return known feature-toggle definition', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggle = instance.getFeatureToggleDefinition('feature');
       t.truthy(toggle);
       instance.destroy();
@@ -329,7 +321,7 @@ test('should return known feature-toggle definition', t =>
     });
   }));
 
-test('should return feature-toggles', t =>
+test('should return feature-toggles', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -339,7 +331,7 @@ test('should return feature-toggles', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggles = instance.getFeatureToggleDefinitions();
       t.deepEqual(toggles, defaultToggles);
       instance.destroy();
@@ -347,7 +339,7 @@ test('should return feature-toggles', t =>
     });
   }));
 
-test('returns undefined for unknown feature-toggle definition', t =>
+test('returns undefined for unknown feature-toggle definition', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -357,7 +349,7 @@ test('returns undefined for unknown feature-toggle definition', t =>
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       const toggle = instance.getFeatureToggleDefinition('unknown');
       t.falsy(toggle);
       instance.destroy();
@@ -365,7 +357,7 @@ test('returns undefined for unknown feature-toggle definition', t =>
     });
   }));
 
-test('should use the injected repository', t =>
+test('should use the injected repository', (t) =>
   new Promise((resolve, reject) => {
     const repo = new FakeRepo();
     const url = mockNetwork();
@@ -384,7 +376,7 @@ test('should use the injected repository', t =>
     repo.emit('ready');
   }));
 
-test('should add static context fields', t =>
+test('should add static context fields', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -396,14 +388,14 @@ test('should add static context fields', t =>
       strategies: [new EnvironmentStrategy()],
     }).on('error', reject);
 
-    instance.on('ready', () => {
+    instance.on('synchronized', () => {
       t.true(instance.isEnabled('f-context') === true);
       instance.destroy();
       resolve();
     });
   }));
 
-test('should local context should take precedence over static context fields', t =>
+test('should local context should take precedence over static context fields', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -422,14 +414,11 @@ test('should local context should take precedence over static context fields', t
     });
   }));
 
-test('should call client/features with projectName query parameter if projectName is set', t => {
+test('should call client/features with projectName query parameter if projectName is set', (t) => {
   const baseUrl = getUrl();
   const project = 'myProject';
 
-  nock(baseUrl)
-    .get('/client/features')
-    .query({ project })
-    .reply(200, { features: [] });
+  nock(baseUrl).get('/client/features').query({ project }).reply(200, { features: [] });
 
   const instance = new Unleash({
     appName: 'foo',
@@ -440,9 +429,11 @@ test('should call client/features with projectName query parameter if projectNam
   });
 
   t.assert(instance.repository.projectName === 'myProject');
+
+  instance.destroy();
 });
 
-test('should call client/features if no projectname set', t => {
+test('should call client/features if no projectname set', (t) => {
   const baseUrl = getUrl();
   mockNetwork([], baseUrl);
 
@@ -454,37 +445,44 @@ test('should call client/features if no projectname set', t => {
   });
 
   t.assert(instance.repository.projectName === undefined);
+  instance.destroy();
 });
 
-test('should distribute variants according to stickiness', async t => {
+test('should distribute variants according to stickiness', async (t) => {
   const baseUrl = getUrl();
   nock(baseUrl)
     .get('/client/features')
-    .reply(200, { features: [{
-      name: 'toggle-with-variants',
-      enabled: true,
-      strategies: [{ name: 'default' }],
-      variants: [{
-        name: 'blue',
-        weight: 1,
-        stickiness: 'customField',
-      },
-      {
-        name: 'red',
-        weight: 1,
-        stickiness: 'customField',
-      },
-      {
-        name: 'green',
-        weight: 1,
-        stickiness: 'customField',
-      },
-      {
-        name: 'yellow',
-        weight: 1,
-        stickiness: 'customField',
-      }],
-    }] });
+    .reply(200, {
+      features: [
+        {
+          name: 'toggle-with-variants',
+          enabled: true,
+          strategies: [{ name: 'default' }],
+          variants: [
+            {
+              name: 'blue',
+              weight: 1,
+              stickiness: 'customField',
+            },
+            {
+              name: 'red',
+              weight: 1,
+              stickiness: 'customField',
+            },
+            {
+              name: 'green',
+              weight: 1,
+              stickiness: 'customField',
+            },
+            {
+              name: 'yellow',
+              weight: 1,
+              stickiness: 'customField',
+            },
+          ],
+        },
+      ],
+    });
 
   const unleash = new Unleash({
     appName: 'foo-variants',
@@ -495,7 +493,7 @@ test('should distribute variants according to stickiness', async t => {
 
   const counts = {
     red: 0,
-    blue:0,
+    blue: 0,
     green: 0,
     yellow: 0,
     sum: 0,
@@ -504,18 +502,17 @@ test('should distribute variants according to stickiness', async t => {
   const genRandomValue = () => String(Math.round(Math.random() * 100000));
 
   return new Promise((resolve) => {
-    unleash.on('ready', () => {
-
+    unleash.on('synchronized', () => {
       for (let i = 0; i < 10000; i++) {
         const variant = unleash.getVariant('toggle-with-variants', { someField: genRandomValue() });
-        counts[variant.name] ++;
-        counts.sum ++;
+        counts[variant.name]++;
+        counts.sum++;
       }
 
-      const red = Math.round(counts.red / counts.sum * 100);
-      const blue = Math.round(counts.blue / counts.sum * 100);
-      const green = Math.round(counts.green / counts.sum * 100);
-      const yellow = Math.round(counts.yellow / counts.sum * 100);
+      const red = Math.round((counts.red / counts.sum) * 100);
+      const blue = Math.round((counts.blue / counts.sum) * 100);
+      const green = Math.round((counts.green / counts.sum) * 100);
+      const yellow = Math.round((counts.yellow / counts.sum) * 100);
 
       t.true(red > 23 && red < 27, `red not within range: ${red}`);
       t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
@@ -526,32 +523,37 @@ test('should distribute variants according to stickiness', async t => {
   });
 });
 
-
-test('should distribute variants according to default stickiness', async t => {
+test('should distribute variants according to default stickiness', async (t) => {
   const baseUrl = getUrl();
   nock(baseUrl)
     .get('/client/features')
-    .reply(200, { features: [{
-      name: 'toggle-with-variants',
-      enabled: true,
-      strategies: [{ name: 'default' }],
-      variants: [{
-        name: 'blue',
-        weight: 1,
-      },
-      {
-        name: 'red',
-        weight: 1,
-      },
-      {
-        name: 'green',
-        weight: 1,
-      },
-      {
-        name: 'yellow',
-        weight: 1,
-      }],
-    }] });
+    .reply(200, {
+      features: [
+        {
+          name: 'toggle-with-variants',
+          enabled: true,
+          strategies: [{ name: 'default' }],
+          variants: [
+            {
+              name: 'blue',
+              weight: 1,
+            },
+            {
+              name: 'red',
+              weight: 1,
+            },
+            {
+              name: 'green',
+              weight: 1,
+            },
+            {
+              name: 'yellow',
+              weight: 1,
+            },
+          ],
+        },
+      ],
+    });
 
   const unleash = new Unleash({
     appName: 'foo-variants',
@@ -562,7 +564,7 @@ test('should distribute variants according to default stickiness', async t => {
 
   const counts = {
     red: 0,
-    blue:0,
+    blue: 0,
     green: 0,
     yellow: 0,
     sum: 0,
@@ -571,18 +573,17 @@ test('should distribute variants according to default stickiness', async t => {
   const genRandomValue = () => String(Math.round(Math.random() * 100000));
 
   return new Promise((resolve) => {
-    unleash.on('ready', () => {
-
+    unleash.on('synchronized', () => {
       for (let i = 0; i < 10000; i++) {
         const variant = unleash.getVariant('toggle-with-variants', { userId: genRandomValue() });
-        counts[variant.name] ++;
-        counts.sum ++;
+        counts[variant.name]++;
+        counts.sum++;
       }
 
-      const red = Math.round(counts.red / counts.sum * 100);
-      const blue = Math.round(counts.blue / counts.sum * 100);
-      const green = Math.round(counts.green / counts.sum * 100);
-      const yellow = Math.round(counts.yellow / counts.sum * 100);
+      const red = Math.round((counts.red / counts.sum) * 100);
+      const blue = Math.round((counts.blue / counts.sum) * 100);
+      const green = Math.round((counts.green / counts.sum) * 100);
+      const yellow = Math.round((counts.yellow / counts.sum) * 100);
 
       t.true(red > 23 && red < 27, `red not within range: ${red}`);
       t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
@@ -592,7 +593,7 @@ test('should distribute variants according to default stickiness', async t => {
     });
   });
 });
-test('should emit "synchronized" when data is received', t =>
+test('should emit "synchronized" when data is received', (t) =>
   new Promise((resolve, reject) => {
     const url = mockNetwork();
     const instance = new Unleash({
@@ -603,13 +604,13 @@ test('should emit "synchronized" when data is received', t =>
     }).on('error', reject);
 
     instance.on('synchronized', () => {
-      t.true(instance.isEnabled('feature') === true);
+      t.is(instance.isEnabled('feature'), true);
       instance.destroy();
       resolve();
     });
   }));
 
-test('should emit "synchronized" only first time', t =>
+test('should emit "synchronized" only first time', (t) =>
   new Promise((resolve, reject) => {
     let changedCount = 0;
     let synchronizedCount = 0;
@@ -617,8 +618,7 @@ test('should emit "synchronized" only first time', t =>
     const url = getUrl();
     nock(url)
       .get('/client/features')
-      .times(3)
-      .reply(200, { features: defaultToggles });
+      .times(3).reply(200, { features: defaultToggles });
 
     const instance = new Unleash({
       appName: 'foo',
@@ -642,3 +642,32 @@ test('should emit "synchronized" only first time', t =>
     });
   }));
 
+
+test('should use provided bootstrap data', (t) =>
+  new Promise((resolve) => {
+    const url = getUrl();
+    nock(url)
+      .get('/client/features')
+      .reply(500);
+    const instance = new Unleash({
+      appName: 'foo',
+      disableMetrics: true,
+      url,
+      backupPath: getRandomBackupPath(),
+      bootstrap: {
+        data: [{
+          name: 'bootstrappedToggle', 
+          enabled: true,
+          strategies: [{ name: 'default' }],
+        }]
+      }
+    });
+
+    instance.on('error', () => {})
+
+    instance.on('ready', () => {
+      t.true(instance.isEnabled('bootstrappedToggle') === true);
+      instance.destroy();
+      resolve();
+    });
+}));

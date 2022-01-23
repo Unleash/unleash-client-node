@@ -70,6 +70,7 @@ test.cb('should sendMetrics and register when metricsInterval is a positive numb
     metrics.stop();
     t.end();
   });
+  metrics.start();
 });
 
 test.cb('should sendMetrics', (t) => {
@@ -107,6 +108,7 @@ test.cb('should sendMetrics', (t) => {
     metrics.stop();
     t.end();
   });
+  metrics.start();
 });
 
 test.cb('should send custom headers', (t) => {
@@ -134,6 +136,7 @@ test.cb('should send custom headers', (t) => {
     metrics.stop();
     t.end();
   });
+  metrics.start();
 });
 
 test.cb('should send content-type header', (t) => {
@@ -155,6 +158,7 @@ test.cb('should send content-type header', (t) => {
     metrics.stop();
     t.end();
   });
+  metrics.start();
 });
 
 test.cb('request with customHeadersFunction should take precedence over customHeaders', (t) => {
@@ -188,6 +192,7 @@ test.cb('request with customHeadersFunction should take precedence over customHe
     metrics.stop();
     t.end();
   });
+  metrics.start();
 });
 
 /*
@@ -218,6 +223,7 @@ test.only('should respect timeout', t =>
         });
         metrics.on('sent', reject);
         metrics.count('toggle-x', true);
+        metrics.start();
     }));
 */
 
@@ -239,6 +245,7 @@ test('registerInstance should warn when non 200 statusCode', async (t) => {
   });
 
   await metrics.registerInstance();
+  metrics.start();
 });
 
 test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', (t) => {
@@ -254,6 +261,7 @@ test.cb('sendMetrics should stop/disable metrics if endpoint returns 404', (t) =
     t.true(metrics.disabled);
     t.end();
   });
+  metrics.start();
 
   metrics.count('x-y-z', true);
 
@@ -274,6 +282,7 @@ test.cb('sendMetrics should emit warn on non 200 statusCode', (t) => {
     t.true(metEP.isDone());
     t.end();
   });
+  metrics.start();
 
   metrics.count('x-y-z', true);
 
@@ -287,6 +296,7 @@ test.cb('sendMetrics should not send empty buckets', (t) => {
   const metrics = new Metrics({
     url,
   });
+  metrics.start();
 
   metrics.sendMetrics().then((result) => {
     t.true(result);
@@ -303,6 +313,7 @@ test('count should increment yes and no counters', (t) => {
   const metrics = new Metrics({
     url,
   });
+  metrics.start();
 
   const name = `name-${Math.round(Math.random() * 1000)}`;
 
@@ -331,6 +342,7 @@ test('count should increment yes and no counters with variants', (t) => {
   const metrics = new Metrics({
     url,
   });
+  metrics.start();
 
   const name = `name-${Math.round(Math.random() * 1000)}`;
 
@@ -365,6 +377,7 @@ test('getClientData should return a object', (t) => {
   const metrics = new Metrics({
     url,
   });
+  metrics.start();
 
   const result = metrics.getClientData();
   t.true(typeof result === 'object');
@@ -375,6 +388,7 @@ test('getMetricsData should return a bucket', (t) => {
   const metrics = new Metrics({
     url,
   });
+  metrics.start();
 
   const result = metrics.getMetricsData();
   t.true(typeof result === 'object');

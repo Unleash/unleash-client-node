@@ -1,4 +1,4 @@
-import { tmpdir, userInfo, hostname } from 'os';
+import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
@@ -7,13 +7,16 @@ import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
-import { FeatureInterface } from './feature';
+import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
-import { FallbackFunction, createFallbackFunction } from './helpers';
+import { FallbackFunction, createFallbackFunction, generateInstanceId } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
+import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
+import { FileStorageProvider, StorageProvider } from './repository/storage-provider';
+import { UnleashEvents } from './events';
 
-export { Strategy };
+export { Strategy, UnleashEvents };
 
 const BACKUP_PATH: string = tmpdir();
 
@@ -35,6 +38,10 @@ export interface UnleashConfig {
   repository?: RepositoryInterface;
   httpOptions?: HttpOptions;
   tags?: Array<TagFilter>;
+  bootstrap?: BootstrapOptions;
+  bootstrapOverride?: boolean;
+  storageProvider?: StorageProvider<ClientFeaturesResponse>,
+  disableAutoStart?: boolean;
 }
 
 export interface StaticContext {
@@ -45,13 +52,15 @@ export interface StaticContext {
 export class Unleash extends EventEmitter {
   private repository: RepositoryInterface;
 
-  private client: Client | undefined;
+  private client: Client;
 
   private metrics: Metrics;
 
   private staticContext: StaticContext;
 
   private synchronized: boolean = false;
+
+  private ready: boolean = false;
 
   constructor({
     appName,
@@ -71,53 +80,31 @@ export class Unleash extends EventEmitter {
     timeout,
     httpOptions,
     tags,
+    bootstrap = {},
+    bootstrapOverride,
+    storageProvider,
+    disableAutoStart = false,
   }: UnleashConfig) {
     super();
 
     if (!url) {
-      throw new Error('Unleash server URL missing');
+      throw new Error('Unleash API "url" is required');
     }
-    let unleashUrl = url;
-    if (unleashUrl.endsWith('/features')) {
-      const oldUrl = unleashUrl;
-      process.nextTick(() =>
-        this.emit(
-          'warn',
-          `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
-        ),
-      );
-      unleashUrl = unleashUrl.replace(/\/features$/, '');
-    }
-
-    if (!unleashUrl.endsWith('/')) {
-      unleashUrl += '/';
-    }
-
     if (!appName) {
-      throw new Error('Unleash client appName missing');
+      throw new Error('Unleash client "appName" is required');
     }
+    
+    const unleashUrl = this.cleanUnleashUrl(url);
 
-    let unleashInstanceId = instanceId;
-    if (!unleashInstanceId) {
-      let info;
-      try {
-        info = userInfo();
-      } catch (e) {
-        // unable to read info;
-      }
-
-      const prefix = info
-        ? info.username
-        : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
-      unleashInstanceId = `${prefix}-${hostname()}`;
-    }
+    const unleashInstanceId = generateInstanceId(instanceId);
 
     this.staticContext = { appName, environment };
+
+    const bootstrapProvider = resolveBootstrapProvider(bootstrap, appName, unleashInstanceId);
 
     this.repository =
       repository ||
       new Repository({
-        backupPath,
         projectName,
         url: unleashUrl,
         appName,
@@ -129,48 +116,47 @@ export class Unleash extends EventEmitter {
         httpOptions,
         namePrefix,
         tags,
+        bootstrapProvider,
+        bootstrapOverride,
+        storageProvider: storageProvider || new FileStorageProvider(backupPath),
       });
 
-    const strats = strategies.concat(defaultStrategies);
-
-    this.repository.on('ready', () => {
-      this.client = new Client(this.repository, strats);
-      this.client.on('error', (err) => this.emit('error', err));
-      this.client.on('warn', (msg) => this.emit('warn', msg));
+    this.repository.on(UnleashEvents.Ready, () => {
+      this.ready = true;
       process.nextTick(() => {
-        this.emit('ready');
+        this.emit(UnleashEvents.Ready);
       });
     });
 
-    this.repository.on('error', (err) => {
+    this.repository.on(UnleashEvents.Error, (err) => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Repository error: ${err.message}`;
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
     });
 
-    this.repository.on('warn', (msg) => {
-      this.emit('warn', msg);
-    });
+    this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg))
 
-    this.repository.on('unchanged', () => {
-      this.emit('unchanged');
-    });
-
-    this.repository.on('changed', (data) => {
-      this.emit('changed', data);
+    this.repository.on(UnleashEvents.Changed, (data) => {
+      this.emit(UnleashEvents.Changed, data);
 
       // Only emit the fully synchronized event the first time.
       if (!this.synchronized) {
         this.synchronized = true;
-        process.nextTick(() => this.emit('synchronized'));
+        process.nextTick(() => this.emit(UnleashEvents.Synchronized));
       }
     });
+
+    // setup client
+    const supportedStrategies = strategies.concat(defaultStrategies);
+    this.client = new Client(this.repository, supportedStrategies);
+    this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
+    this.client.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
 
     this.metrics = new Metrics({
       disableMetrics,
       appName,
       instanceId: unleashInstanceId,
-      strategies: strats.map((strategy: Strategy) => strategy.name),
+      strategies: supportedStrategies.map((strategy: Strategy) => strategy.name),
       metricsInterval,
       url: unleashUrl,
       headers: customHeaders,
@@ -179,33 +165,56 @@ export class Unleash extends EventEmitter {
       httpOptions,
     });
 
-    this.metrics.on('error', (err) => {
+    this.metrics.on(UnleashEvents.Error, (err) => {
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Metrics error: ${err.message}`;
-      this.emit('error', err);
+      this.emit(UnleashEvents.Error, err);
     });
 
-    this.metrics.on('warn', (msg) => {
-      this.emit('warn', msg);
+    this.metrics.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
+    this.metrics.on(UnleashEvents.Sent, (payload) => this.emit(UnleashEvents.Sent, payload));
+
+    this.metrics.on(UnleashEvents.Count, (name, enabled) => {
+      this.emit(UnleashEvents.Count, name, enabled);
+    });
+    this.metrics.on(UnleashEvents.Registered, (payload) => {
+      this.emit(UnleashEvents.Registered, payload);
     });
 
-    this.metrics.on('count', (name, enabled) => {
-      this.emit('count', name, enabled);
-    });
+    if(!disableAutoStart) {
+      process.nextTick(async () => this.start());
+    }
+  }
 
-    this.metrics.on('sent', (payload) => {
-      this.emit('sent', payload);
-    });
+  private cleanUnleashUrl(url: string): string {
+    let unleashUrl = url;
+    if (unleashUrl.endsWith('/features')) {
+      const oldUrl = unleashUrl;
+      process.nextTick(() =>
+        this.emit(
+          UnleashEvents.Warn,
+          `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
+        ),
+      );
+      unleashUrl = unleashUrl.replace(/\/features$/, '');
+    }
 
-    this.metrics.on('registered', (payload) => {
-      this.emit('registered', payload);
-    });
+    if (!unleashUrl.endsWith('/')) {
+      unleashUrl += '/';
+    }
+    return unleashUrl;
+  }
+
+  async start(): Promise<void> {
+    await Promise.all([
+      this.repository.start(),
+      this.metrics.start()
+    ]);
   }
 
   destroy() {
     this.repository.stop();
     this.metrics.stop();
-    this.client = undefined;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
@@ -215,12 +224,12 @@ export class Unleash extends EventEmitter {
     const fallbackFunc = createFallbackFunction(name, enhancedContext, fallback);
 
     let result;
-    if (this.client !== undefined) {
+    if (this.ready) {
       result = this.client.isEnabled(name, enhancedContext, fallbackFunc);
     } else {
       result = fallbackFunc();
       this.emit(
-        'warn',
+        UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }
@@ -231,12 +240,12 @@ export class Unleash extends EventEmitter {
   getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result;
-    if (this.client !== undefined) {
+    if (this.ready) {
       result = this.client.getVariant(name, enhancedContext, fallbackVariant);
     } else {
       result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
       this.emit(
-        'warn',
+        UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }

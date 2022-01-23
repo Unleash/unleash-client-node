@@ -42,7 +42,7 @@ specs.forEach((testName) => {
         });
 
         instance.on('error', reject);
-        instance.on('ready', () => {
+        instance.on('synchronized', () => {
           const result = instance.isEnabled(testCase.toggleName, testCase.context);
           t.is(result, testCase.expectedResult);
           instance.destroy();
@@ -67,7 +67,7 @@ specs.forEach((testName) => {
         });
 
         instance.on('error', reject);
-        instance.on('ready', () => {
+        instance.on('synchronized', () => {
           const result = instance.getVariant(testCase.toggleName, testCase.context);
           t.deepEqual(result, testCase.expectedResult);
 
