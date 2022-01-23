@@ -1,5 +1,48 @@
 # Changelog
 
+# 3.11.0
+
+- feat: add bootstrap capability (#283)
+- fix: Update prs.yaml (#248)
+- fix: require json-schema 0.4.0 or higher
+- fix: remove package-lock.json (we are using yarn.lock)
+- chore(deps): update dependency lint-staged to v12.3.1 (#281)
+- build(deps): bump trim-off-newlines from 1.0.1 to 1.0.3 (#291)
+- chore(deps): update dependency @types/node to v14.18.9
+- chore(deps): update dependency eslint to v8.7.0
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.10.0 (#277)
+- chore(deps): update dependency eslint-plugin-import to v2.25.4 (#285)
+- chore(deps): update dependency nock to v13.2.2 (#287)
+- chore(deps): update dependency typescript to v4.5.5 (#288)
+- chore(deps): pin dependency redis to 4.0.2 (#290)
+- chore(workflows): update with new branch names (#280)
+- chore(deps): update dependency eslint to v8.5.0 (#275)
+- chore(deps): update dependency lint-staged to v12.1.3 (#276)
+- chore(deps): update dependency @types/node to v14.18.2 (#278)
+- chore(deps): update dependency @types/node to v14.18.1 (#274)
+- chore(deps): update dependency eslint to v8 (#267)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5 (#266)
+- chore(deps): update dependency eslint-config-airbnb-base to v15 (#268)
+- chore(deps): update dependency eslint-plugin-prettier to v4 (#270)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v4.33.0 (#259)
+- chore(deps): update dependency typescript to v4.5.4 (#273)
+- chore(deps): update dependency typescript to v4.5.3 (#255)
+- chore(deps): update dependency lint-staged to v12 (#271)
+- chore(deps): update metcalfc/changelog-generator action to v3 (#272)
+- chore(deps): update dependency @types/node to v14.18.0 (#258)
+- chore(deps): update dependency eslint-plugin-import to v2.25.3 (#260)
+- chore(deps): update dependency lint-staged to v11.2.6 (#261)
+- chore(deps): update actions/setup-node action to v2 (#263)
+- chore(deps): update dependency prettier to v2.5.1 (#262)
+- chore(deps): update c-hive/gha-yarn-cache action to v2 (#264)
+- chore(deps): update dependency husky to v7.0.4 (#257)
+- chore(deps): update dependency eslint-plugin-prettier to v3.4.1 (#256)
+- chore(deps): update dependency nock to v13.2.1 (#253)
+- chore(deps): update dependency sinon to v12 (#254)
+- chore(deps): update dependency @types/make-fetch-happen to v9.0.1 (#250)
+- chore(deps): pin dependencies (#249)
+- chore(deps): add renovate.json (#242)
+
 # 3.10.1
 
 - fix: expose TagFilter enum
