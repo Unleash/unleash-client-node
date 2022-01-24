@@ -235,11 +235,11 @@ unleash.once('changed', () => {
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}`)
 ```
 
-## Bootstrap 
+## Bootstrap
 
 (Available from v3.11.x)
 
-The Node.SDK supports a bootstrap parameter, allowing you to load the initial feature toggle configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an argument directly to the SDK, as a `filePath` to load or as a `URL` to fetch the content from. Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle configuration from the bootstrap location, even if the Unleash API should be unavailable at startup. 
+The Node.js SDK supports a bootstrap parameter, allowing you to load the initial feature toggle configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an argument directly to the SDK, as a `filePath` to load or as a `url` to fetch the content from. Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle configuration from the bootstrap location, even if the Unleash API should be unavailable at startup.
 
 **1. Bootstrap with data passed as an argument**
 
@@ -332,7 +332,7 @@ const featureToggles = getFeatureToggleDefinitions();
 
 (Available from v3.11.x)
 
-By default this SDK will use a store provider that writes a backup of the feature toggle configuration to **file on disk**. This happens every time it receives updated configuration from the Unleash API. You can swap out the store provider with either the provided in-memory store-provider or a custom store provider implemented by you. 
+By default this SDK will use a store provider that writes a backup of the feature toggle configuration to a **file on disk**. This happens every time it receives updated configuration from the Unleash API. You can swap out the store provider with either the provided in-memory store provider or a custom store provider implemented by you.
 
 **1. Use InMemStorageProvider**
 
@@ -374,7 +374,7 @@ class CustomRedisStore {
     await client.connect();
     const data = await client.get(key);
     return JSON.parse(data);
-  } 
+  }
 }
 
 const client = initialize({
