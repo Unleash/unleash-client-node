@@ -7,6 +7,7 @@ export interface FeatureInterface {
   description?: string;
   enabled: boolean;
   stale: boolean;
+  impressionData: boolean;
   strategies: StrategyTransportInterface[];
   variants: VariantDefinition[];
 }
