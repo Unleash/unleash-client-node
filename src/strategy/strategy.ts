@@ -1,3 +1,4 @@
+import { gt as semverGt, lt as semverLt, eq as semverEq } from 'semver';
 import { Context } from '../context';
 import { resolveContextValue } from '../helpers';
 
@@ -29,6 +30,9 @@ export enum Operator {
   NUM_LTE = 'NUM_LTE',
   DATE_AFTER = 'DATE_AFTER',
   DATE_BEFORE = 'DATE_BEFORE',
+  SEMVER_EQ = 'SEMVER_EQ',
+  SEMVER_GT = 'SEMVER_GT',
+  SEMVER_LT = 'SEMVER_LT',
 }
 
 export type OperatorImpl = (constraint: Constraint, context: Context) => boolean;
@@ -65,6 +69,24 @@ const StringOperator = (constraint: Constraint, context: Context) => {
     return values.some(val => contextValue?.endsWith(val));
   } if(operator === Operator.STR_CONTAINS) {
     return values.some(val => contextValue?.includes(val));
+  } 
+    return false;
+}
+
+const SemverOperator = (constraint: Constraint, context: Context) => {
+  const { contextName, operator} = constraint;
+  const value = constraint.value as string;
+  const contextValue = resolveContextValue(context, contextName);
+  if(!contextValue) {
+    return false;
+  }
+
+  if(operator === Operator.SEMVER_EQ) {
+    return semverEq(contextValue, value); 
+  } if(operator === Operator.SEMVER_LT) {
+    return semverLt(contextValue, value); 
+  } if(operator === Operator.SEMVER_GT) {
+    return semverGt(contextValue, value); 
   } 
     return false;
 }
@@ -119,6 +141,9 @@ operators.set(Operator.NUM_GT, NumberOperator);
 operators.set(Operator.NUM_GTE, NumberOperator);
 operators.set(Operator.DATE_AFTER, DateOperator);
 operators.set(Operator.DATE_BEFORE, DateOperator);
+operators.set(Operator.SEMVER_EQ, SemverOperator);
+operators.set(Operator.SEMVER_GT, SemverOperator);
+operators.set(Operator.SEMVER_LT, SemverOperator);
 export class Strategy {
   public name: string;
 
