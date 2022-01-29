@@ -13,6 +13,7 @@ export interface Constraint {
   inverted: boolean;
   values: string[];
   value?: string | number | Date;
+  caseInsensitive?: boolean;
 }
 
 export enum Operator {
@@ -26,6 +27,8 @@ export enum Operator {
   NUM_GTE = 'NUM_GTE',
   NUM_LT = 'NUM_LT',
   NUM_LTE = 'NUM_LTE',
+  DATE_AFTER = 'DATE_AFTER',
+  DATE_BEFORE = 'DATE_BEFORE',
 }
 
 export type OperatorImpl = (constraint: Constraint, context: Context) => boolean;
@@ -47,22 +50,36 @@ const InOperator = (constraint: Constraint, context: Context) => {
 }
 
 const StringOperator = (constraint: Constraint, context: Context) => {
-  const field = constraint.contextName;
-  const {operator} = constraint;
-  const values = cleanValues(constraint.values);
-  const contextValue = resolveContextValue(context, field);
-  if(!contextValue) {
-    return false;
+  const { contextName, operator, caseInsensitive} = constraint;
+  let values = cleanValues(constraint.values);
+  let contextValue = resolveContextValue(context, contextName);
+
+  if(caseInsensitive) {
+    values = values.map(v => v.toLocaleLowerCase());
+    contextValue = contextValue?.toLocaleLowerCase();
   }
 
   if(operator === Operator.STR_STARTS_WITH) {
-    return values.some(val => contextValue.startsWith(val)); 
+    return values.some(val => contextValue?.startsWith(val)); 
   } if(operator === Operator.STR_ENDS_WITH) {
-    return values.some(val => contextValue.endsWith(val));
+    return values.some(val => contextValue?.endsWith(val));
   } if(operator === Operator.STR_CONTAINS) {
-    return values.some(val => contextValue.includes(val));
+    return values.some(val => contextValue?.includes(val));
   } 
     return false;
+}
+
+const DateOperator = (constraint: Constraint, context: Context) => {
+  const { operator } = constraint;
+  const value = constraint.value as Date;
+  const currentTime = context.currentTime || new Date();
+
+  if(operator === Operator.DATE_AFTER) {
+    return currentTime > value;
+  } if(operator === Operator.DATE_BEFORE) {
+    return currentTime < value;
+  }
+  return false;
 }
 
 const NumberOperator = (constraint: Constraint, context: Context) => {
@@ -100,7 +117,8 @@ operators.set(Operator.NUM_LT, NumberOperator);
 operators.set(Operator.NUM_LTE, NumberOperator);
 operators.set(Operator.NUM_GT, NumberOperator);
 operators.set(Operator.NUM_GTE, NumberOperator);
-
+operators.set(Operator.DATE_AFTER, DateOperator);
+operators.set(Operator.DATE_BEFORE, DateOperator);
 export class Strategy {
   public name: string;
 
@@ -115,7 +133,7 @@ export class Strategy {
 
   checkConstraint(constraint: Constraint, context: Context) {
     const evaluator = operators.get(constraint.operator);
-    
+
     if(!evaluator) {
       return false;
     }

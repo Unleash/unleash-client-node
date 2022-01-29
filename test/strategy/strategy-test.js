@@ -147,6 +147,35 @@ test('should be enabled when email endsWith', (t) => {
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
 
+test('should be enabled when email endsWith, ignoring case', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [{
+    contextName: 'email',
+    operator: 'STR_ENDS_WITH',
+    values: ['@getunleash.ai'],
+    caseInsensitive: true,
+  }];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example@GETunleash.ai' },
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should not be enabled when email endsWith, caring about case', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'email', operator: 'STR_ENDS_WITH', values: ['@getunleash.ai'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: { email: 'example@GETunleash.ai' },
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
 test('should be enabled when email NOT endsWith (inverted)', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
@@ -315,4 +344,71 @@ test('should be enabled when someVal "greater than or eq" number', (t) => {
     properties: { someVal: 42 },
   };
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+
+test('should be enabled when date is after', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-29T13:00:00.000Z") },
+  ];
+  const context = {
+    environment: 'dev',
+    currentTime: new Date("2022-01-29T14:00:00.000Z"),
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be disabled when date is not after', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-29T13:00:00.000Z") },
+  ];
+  const context = {
+    environment: 'dev',
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when date is after implicit currentTime', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-28T14:00:00.000Z")},
+  ];
+  const context = {
+    environment: 'dev',
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled when date is before', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', 
+    operator: 'DATE_BEFORE', value: new Date("2022-01-29T13:00:00.000Z") },
+  ];
+  const context = {
+    environment: 'dev',
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
+  };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be disabled when date is not before', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'someVal', 
+    operator: 'DATE_BEFORE', value: new Date("2022-01-25T13:00:00.000Z") },
+  ];
+  const context = {
+    environment: 'dev',
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 });
