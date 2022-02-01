@@ -1,5 +1,7 @@
 # Changelog
 
+# 3.11.1
+- fix: add impression data property to feature configuration (#293)
 # 3.11.0
 
 - feat: add bootstrap capability (#283)
