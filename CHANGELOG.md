@@ -1,5 +1,7 @@
 # Changelog
 
+# 3.11.2
+- fix: ready should not be emitted if local backup is empty
 # 3.11.1
 - fix: add impression data property to feature configuration (#293)
 # 3.11.0
