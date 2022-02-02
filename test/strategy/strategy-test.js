@@ -351,7 +351,7 @@ test('should be enabled when date is after', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-29T13:00:00.000Z") },
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: "2022-01-29T13:00:00.000Z" },
   ];
   const context = {
     environment: 'dev',
@@ -364,7 +364,7 @@ test('should be disabled when date is not after', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-29T13:00:00.000Z") },
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: "2022-01-29T13:00:00.000Z" },
   ];
   const context = {
     environment: 'dev',

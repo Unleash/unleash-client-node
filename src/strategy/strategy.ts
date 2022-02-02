@@ -93,8 +93,8 @@ const SemverOperator = (constraint: Constraint, context: Context) => {
 
 const DateOperator = (constraint: Constraint, context: Context) => {
   const { operator } = constraint;
-  const value = constraint.value as Date;
-  const currentTime = context.currentTime || new Date();
+  const value = new Date(constraint.value as string);
+  const currentTime = context.currentTime ? new Date(context.currentTime) : new Date();
 
   if(operator === Operator.DATE_AFTER) {
     return currentTime > value;
