@@ -154,8 +154,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
+        this.setReady();
       }
-      this.setReady();
+      
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }

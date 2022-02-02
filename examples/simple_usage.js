@@ -4,12 +4,15 @@ const client = initialize({
   appName: 'my-application',
   url: 'http://unleash.herokuapp.com/api/',
   customHeaders: {
-    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
+    Authorization: '*:development.ba76487db29d7ef2557977a25b477c2e6288e2d9334fd1b91f63e2a9',
   }
 });
 
 client.on('error', console.error);
 client.on('warn', console.log);
+client.on('ready', () => {
+  console.log('ready!')
+});
 
 console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
