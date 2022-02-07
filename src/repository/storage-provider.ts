@@ -44,6 +44,10 @@ export class FileStorageProvider<T> implements StorageProvider<T> {
       }
     }
 
+    if(!data || data.trim().length === 0) {
+        return undefined;
+    }
+
     try {
       return JSON.parse(data);
     } catch (error: any) {
