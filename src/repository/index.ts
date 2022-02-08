@@ -184,7 +184,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
     this.setReady();
     this.emit(UnleashEvents.Changed, [...response.features]);
-    this.storageProvider.set(this.appName, response);
+    await this.storageProvider.set(this.appName, response);
   }
 
   notEmpty(content: ClientFeaturesResponse): boolean {
