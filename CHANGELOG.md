@@ -1,5 +1,7 @@
 # Changelog
 
+# 3.11.3
+- fix: should handle empty backups (#303)
 # 3.11.2
 - fix: ready should not be emitted if local backup is empty
 # 3.11.1
