@@ -117,25 +117,25 @@ unleash.isEnabled('someToggle', unleashContext);
 
 The initialize method takes the following arguments:
 
-- **url** - the url to fetch toggles from. (required)
-- **appName** - the application name / codebase name (required)
-- **environment** - the active environment this application is running in. Automatically populated to the Unleash Context. (Optional)
-- **instanceId** - an unique identifier, should/could be somewhat unique
-- **refreshInterval** - The poll-intervall to check for updates. Defaults to 15000ms.
+- **url** - The url to fetch toggles from (required).
+- **appName** - The application name / codebase name (required).
+- **environment** - The active environment this application is running in. Automatically populated in the Unleash Context (optional).
+- **instanceId** - A unique identifier, should/could be somewhat unique.
+- **refreshInterval** - The poll interval to check for updates. Defaults to 15000ms.
 - **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
   60000ms.
 - **strategies** - Custom activation strategies to be used.
-- **disableMetrics** - disable metrics
-- **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server
+- **disableMetrics** - Disable metrics.
+- **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server.
 - **customHeadersFunction** - Provide a function that return a Promise resolving as custom headers
   to be sent to unleash-server. When options are set, this will take precedence over `customHeaders`
   option.
-- **timeout** - specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
-- **repository** - Provide a custom repository implementation to manage the underlying data
+- **timeout** - Specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
+- **repository** - Provide a custom repository implementation to manage the underlying data.
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
-  options as they may compromise your application security
+  options as they may compromise your application security.
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags. Eg: `[{type: 'simple', value: 'proxy'}]`.
+- **tags** - Only fetch feature toggles tagged with the list of tags. E.g.: `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
