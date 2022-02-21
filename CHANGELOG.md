@@ -1,5 +1,7 @@
 # Changelog
 
+# 3.12.0
+- feat: add support for new constraint operators (#289)
 # 3.11.3
 - fix: should handle empty backups (#303)
 # 3.11.2
