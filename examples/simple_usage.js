@@ -1,11 +1,16 @@
 const { initialize, isEnabled } = require('../lib');
 
+const url = 'https://app.unleash-hosted.com/demo/api/';
+const apiToken = '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0';
+const toggleName = 'demo001';
+const unleashContext = {userId: '1232'};
+
 const client = initialize({
   appName: 'my-application',
-  url: 'http://localhost:3000/api/',
+  url,
   refreshInterval: 1000,
   customHeaders: {
-    Authorization: '*:development.ba76487db29d7ef2557977a25b477c2e6288e2d9334fd1b91f63e2a9',
+    Authorization: apiToken,
   }
 });
 
@@ -15,8 +20,9 @@ client.on('ready', () => {
   console.log('ready!')
 });
 
-console.log('Fetching toggles from: http://unleash.herokuapp.com');
+console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
-  console.log(`featureX enabled: ${isEnabled('featureX')}`);
+  const enabled = isEnabled(toggleName, unleashContext);
+  console.log(`Enabled: ${enabled}`);
 }, 1000);
