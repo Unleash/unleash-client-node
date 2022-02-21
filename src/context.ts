@@ -3,7 +3,8 @@ export interface Properties {
 }
 
 export interface Context {
-  [key: string]: string | undefined | number | Properties;
+  [key: string]: string | Date | undefined | number | Properties;
+  currentTime?: Date;
   userId?: string;
   sessionId?: string;
   remoteAddress?: string;

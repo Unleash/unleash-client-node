@@ -528,6 +528,11 @@
   resolved "https://registry.npmjs.org/@types/retry/-/retry-0.12.1.tgz"
   integrity sha512-xoDlM2S4ortawSWORYqsdU+2rxdh4LRW9ytc3zmT37RIKQh6IHyKwwtKhKis9ah8ol07DCkZxPt8BBvPjC6v4g==
 
+"@types/semver@^7.3.9":
+  version "7.3.9"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.9.tgz#152c6c20a7688c30b967ec1841d31ace569863fc"
+  integrity sha512-L/TMpyURfBkf+o/526Zb6kd/tchUP3iBDEPjqjb+U2MAJhVRxxrmr2fwpe08E7QsV7YLcpq0tUaQ9O9x97ZIxQ==
+
 "@types/ssri@*":
   version "7.1.1"
   resolved "https://registry.npmjs.org/@types/ssri/-/ssri-7.1.1.tgz"
@@ -649,10 +654,10 @@
     "@typescript-eslint/types" "5.10.0"
     eslint-visitor-keys "^3.0.0"
 
-"@unleash/client-specification@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/@unleash/client-specification/-/client-specification-4.0.0.tgz"
-  integrity sha512-K5JoOqGz8g1EYIV5oJiM3sCEKd4EHUKj1/zLq3Z2ExZ/+aQ/04kQDeJ62aTNtjErbIDH6toOBQ1BgS/1Bie0wg==
+"@unleash/client-specification@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.1.0.tgz#14cf8b5d476ed2ef04129ae6e8c5713965f2edda"
+  integrity sha512-bDshwPDhUlN0JXXCCYmfAb/QdMb+2DhsqzmBs7aXHc7+5HxHaq91uSNkrVPQIBoOpQotgVODF87/HRPoKq8UiA==
 
 abbrev@1:
   version "1.1.1"
