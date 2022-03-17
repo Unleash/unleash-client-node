@@ -37,96 +37,103 @@ export enum Operator {
 
 export type OperatorImpl = (constraint: Constraint, context: Context) => boolean;
 
-const cleanValues = (values: string[]) => values
-  .filter(v => !!v)
-  .map(v => v.trim())
+const cleanValues = (values: string[]) => values.filter((v) => !!v).map((v) => v.trim());
 
 const InOperator = (constraint: Constraint, context: Context) => {
   const field = constraint.contextName;
   const values = cleanValues(constraint.values);
   const contextValue = resolveContextValue(context, field);
-  if(!contextValue) {
+  if (!contextValue) {
     return false;
   }
-  
-  const isIn = values.some(val => val === contextValue);
+
+  const isIn = values.some((val) => val === contextValue);
   return constraint.operator === Operator.IN ? isIn : !isIn;
-}
+};
 
 const StringOperator = (constraint: Constraint, context: Context) => {
-  const { contextName, operator, caseInsensitive} = constraint;
+  const { contextName, operator, caseInsensitive } = constraint;
   let values = cleanValues(constraint.values);
   let contextValue = resolveContextValue(context, contextName);
 
-  if(caseInsensitive) {
-    values = values.map(v => v.toLocaleLowerCase());
+  if (caseInsensitive) {
+    values = values.map((v) => v.toLocaleLowerCase());
     contextValue = contextValue?.toLocaleLowerCase();
   }
 
-  if(operator === Operator.STR_STARTS_WITH) {
-    return values.some(val => contextValue?.startsWith(val)); 
-  } if(operator === Operator.STR_ENDS_WITH) {
-    return values.some(val => contextValue?.endsWith(val));
-  } if(operator === Operator.STR_CONTAINS) {
-    return values.some(val => contextValue?.includes(val));
-  } 
-    return false;
-}
+  if (operator === Operator.STR_STARTS_WITH) {
+    return values.some((val) => contextValue?.startsWith(val));
+  }
+  if (operator === Operator.STR_ENDS_WITH) {
+    return values.some((val) => contextValue?.endsWith(val));
+  }
+  if (operator === Operator.STR_CONTAINS) {
+    return values.some((val) => contextValue?.includes(val));
+  }
+  return false;
+};
 
 const SemverOperator = (constraint: Constraint, context: Context) => {
-  const { contextName, operator} = constraint;
+  const { contextName, operator } = constraint;
   const value = constraint.value as string;
   const contextValue = resolveContextValue(context, contextName);
-  if(!contextValue) {
+  if (!contextValue) {
     return false;
   }
 
-  if(operator === Operator.SEMVER_EQ) {
-    return semverEq(contextValue, value); 
-  } if(operator === Operator.SEMVER_LT) {
-    return semverLt(contextValue, value); 
-  } if(operator === Operator.SEMVER_GT) {
-    return semverGt(contextValue, value); 
-  } 
-    return false;
-}
+  if (operator === Operator.SEMVER_EQ) {
+    return semverEq(contextValue, value);
+  }
+  if (operator === Operator.SEMVER_LT) {
+    return semverLt(contextValue, value);
+  }
+  if (operator === Operator.SEMVER_GT) {
+    return semverGt(contextValue, value);
+  }
+  return false;
+};
 
 const DateOperator = (constraint: Constraint, context: Context) => {
   const { operator } = constraint;
   const value = new Date(constraint.value as string);
   const currentTime = context.currentTime ? new Date(context.currentTime) : new Date();
 
-  if(operator === Operator.DATE_AFTER) {
+  if (operator === Operator.DATE_AFTER) {
     return currentTime > value;
-  } if(operator === Operator.DATE_BEFORE) {
+  }
+  if (operator === Operator.DATE_BEFORE) {
     return currentTime < value;
   }
   return false;
-}
+};
 
 const NumberOperator = (constraint: Constraint, context: Context) => {
   const field = constraint.contextName;
-  const {operator} = constraint;
+  const { operator } = constraint;
   const value = Number(constraint.value);
   const contextValue = Number(resolveContextValue(context, field));
 
-  if(Number.isNaN(value) || Number.isNaN(contextValue)) {
+  if (Number.isNaN(value) || Number.isNaN(contextValue)) {
     return false;
   }
 
-  if(operator === Operator.NUM_EQ) {
-    return contextValue === value; 
-  } if(operator === Operator.NUM_GT) {
+  if (operator === Operator.NUM_EQ) {
+    return contextValue === value;
+  }
+  if (operator === Operator.NUM_GT) {
     return contextValue > value;
-  } if(operator === Operator.NUM_GTE) {
+  }
+  if (operator === Operator.NUM_GTE) {
     return contextValue >= value;
-  } if(operator === Operator.NUM_LT) {
+  }
+  if (operator === Operator.NUM_LT) {
     return contextValue < value;
-  } if(operator === Operator.NUM_LTE) {
+  }
+  if (operator === Operator.NUM_LTE) {
     return contextValue <= value;
   }
-    return false;
-}
+  return false;
+};
 
 const operators = new Map<Operator, OperatorImpl>();
 operators.set(Operator.IN, InOperator);
@@ -154,21 +161,18 @@ export class Strategy {
     this.returnValue = returnValue;
   }
 
-  
-
   checkConstraint(constraint: Constraint, context: Context) {
     const evaluator = operators.get(constraint.operator);
 
-    if(!evaluator) {
+    if (!evaluator) {
       return false;
     }
-    
-    if(constraint.inverted) {
+
+    if (constraint.inverted) {
       return !evaluator(constraint, context);
-    } 
-    
+    }
+
     return evaluator(constraint, context);
-    
   }
 
   checkConstraints(context: Context, constraints?: Constraint[]) {
