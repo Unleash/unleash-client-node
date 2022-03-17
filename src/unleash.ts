@@ -40,7 +40,7 @@ export interface UnleashConfig {
   tags?: Array<TagFilter>;
   bootstrap?: BootstrapOptions;
   bootstrapOverride?: boolean;
-  storageProvider?: StorageProvider<ClientFeaturesResponse>,
+  storageProvider?: StorageProvider<ClientFeaturesResponse>;
   disableAutoStart?: boolean;
 }
 
@@ -93,7 +93,7 @@ export class Unleash extends EventEmitter {
     if (!appName) {
       throw new Error('Unleash client "appName" is required');
     }
-    
+
     const unleashUrl = this.cleanUnleashUrl(url);
 
     const unleashInstanceId = generateInstanceId(instanceId);
@@ -134,7 +134,7 @@ export class Unleash extends EventEmitter {
       this.emit(UnleashEvents.Error, err);
     });
 
-    this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg))
+    this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
 
     this.repository.on(UnleashEvents.Changed, (data) => {
       this.emit(UnleashEvents.Changed, data);
@@ -181,7 +181,7 @@ export class Unleash extends EventEmitter {
       this.emit(UnleashEvents.Registered, payload);
     });
 
-    if(!disableAutoStart) {
+    if (!disableAutoStart) {
       process.nextTick(async () => this.start());
     }
   }
@@ -206,10 +206,7 @@ export class Unleash extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    await Promise.all([
-      this.repository.start(),
-      this.metrics.start()
-    ]);
+    await Promise.all([this.repository.start(), this.metrics.start()]);
   }
 
   destroy() {
@@ -242,6 +239,27 @@ export class Unleash extends EventEmitter {
     let result;
     if (this.ready) {
       result = this.client.getVariant(name, enhancedContext, fallbackVariant);
+    } else {
+      result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
+      this.emit(
+        UnleashEvents.Warn,
+        `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
+      );
+    }
+    if (result.name) {
+      this.countVariant(name, result.name);
+    } else {
+      this.count(name, result.enabled);
+    }
+
+    return result;
+  }
+
+  forceGetVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
+    const enhancedContext = { ...this.staticContext, ...context };
+    let result;
+    if (this.ready) {
+      result = this.client.forceGetVariant(name, enhancedContext, fallbackVariant);
     } else {
       result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
       this.emit(
