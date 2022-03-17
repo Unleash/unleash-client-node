@@ -81,14 +81,18 @@ const SemverOperator = (constraint: Constraint, context: Context) => {
     return false;
   }
 
-  if (operator === Operator.SEMVER_EQ) {
-    return semverEq(contextValue, value);
-  }
-  if (operator === Operator.SEMVER_LT) {
-    return semverLt(contextValue, value);
-  }
-  if (operator === Operator.SEMVER_GT) {
-    return semverGt(contextValue, value);
+  try {
+    if (operator === Operator.SEMVER_EQ) {
+      return semverEq(contextValue, value);
+    }
+    if (operator === Operator.SEMVER_LT) {
+      return semverLt(contextValue, value);
+    }
+    if (operator === Operator.SEMVER_GT) {
+      return semverGt(contextValue, value);
+    }
+  } catch (e) {
+    return false;
   }
   return false;
 };

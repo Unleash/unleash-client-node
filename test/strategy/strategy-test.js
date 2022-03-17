@@ -193,7 +193,7 @@ test('should be enabled when email endsWith (multi)', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'email', operator: 'STR_ENDS_WITH', 
+    { contextName: 'email', operator: 'STR_ENDS_WITH',
     values: ['@getunleash.ai', '@somerandom-email.com'] },
   ];
   const context = {
@@ -389,7 +389,7 @@ test('should be enabled when date is before', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', 
+    { contextName: 'someVal',
     operator: 'DATE_BEFORE', value: new Date("2022-01-29T13:00:00.000Z") },
   ];
   const context = {
@@ -403,7 +403,7 @@ test('should be disabled when date is not before', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', 
+    { contextName: 'someVal',
     operator: 'DATE_BEFORE', value: new Date("2022-01-25T13:00:00.000Z") },
   ];
   const context = {
@@ -418,7 +418,7 @@ test('should be enabled when semver eq', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'version', 
+    { contextName: 'version',
     operator: 'SEMVER_EQ', value: '1.2.2' },
   ];
   const context = {
@@ -432,7 +432,7 @@ test('should be enabled when semver lt', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'version', 
+    { contextName: 'version',
     operator: 'SEMVER_LT', value: '1.2.2' },
   ];
   const context = {
@@ -446,7 +446,7 @@ test('should be enabled when semver gt', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'version', 
+    { contextName: 'version',
     operator: 'SEMVER_GT', value: '1.2.2' },
   ];
   const context = {
@@ -478,7 +478,7 @@ test('should be disabled when semver out of range', (t) => {
     { contextName: 'version', operator: 'SEMVER_GT', value: '1.2.2' },
     { contextName: 'version', operator: 'SEMVER_LT', value: '2.0.0' },
   ];
-  
+
   const context = {
     environment: 'dev',
     properties: { version: '1.2.0' },
@@ -493,10 +493,25 @@ test('should be disabled when semver larger than range', (t) => {
     { contextName: 'version', operator: 'SEMVER_GT', value: '1.2.2' },
     { contextName: 'version', operator: 'SEMVER_LT', value: '2.0.0' },
   ];
-  
+
   const context = {
     environment: 'dev',
     properties: { version: '2.2.1' },
   };
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 });
+
+test('should return false when passed an invalid semver', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'version', operator: 'SEMVER_GT', value: 'not_a_semver' },
+    { contextName: 'version', operator: 'SEMVER_LT', value: 'definitely_not_a_semver' },
+  ];
+
+  const context = {
+    environment: 'dev',
+    properties: { version: 'also_not_a_semver' },
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+})
