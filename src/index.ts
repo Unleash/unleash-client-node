@@ -10,12 +10,12 @@ import InMemStorageProvider from './repository/storage-provider-in-mem'
 // exports
 export { Strategy } from './strategy/index';
 export { Context, Variant, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
-export type { ClientFeaturesResponse, UnleashConfig }; 
+export type { ClientFeaturesResponse, UnleashConfig };
 
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
   if (instance) {
-    instance.emit(UnleashEvents.Warn, 
+    instance.emit(UnleashEvents.Warn,
       'This global unleash instance is initialized multiple times.');
   }
   instance = new Unleash(options);
@@ -52,6 +52,15 @@ export function getVariant(
 ): Variant {
   const variant = fallbackVariant || getDefaultVariant();
   return instance ? instance.getVariant(name, context, variant) : variant;
+}
+
+export function forceGetVariant(
+  name: string,
+  context: Context = {},
+  fallbackVariant?: Variant,
+): Variant {
+  const variant = fallbackVariant || getDefaultVariant();
+  return instance ? instance.forceGetVariant(name, context, variant) : variant;
 }
 
 export function count(toggleName: string, enabled: boolean) {

@@ -95,6 +95,22 @@ export default class UnleashClient extends EventEmitter {
   }
 
   getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+    return this.resolveVariant(name, context, true, fallbackVariant);
+  }
+
+  // This function is intended to close an issue in the proxy where feature enabled
+  // state gets checked twice when resolving a variant with random stickiness and
+  // gradual rollout. This is not intended for general use, prefer getVariant instead
+  forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+    return this.resolveVariant(name, context, false, fallbackVariant);
+  }
+
+  private resolveVariant(
+    name: string,
+    context: Context,
+    checkToggle: boolean,
+    fallbackVariant?: Variant,
+  ): Variant {
     const fallback = fallbackVariant || getDefaultVariant();
     const feature = this.repository.getToggle(name);
     if (
@@ -106,11 +122,14 @@ export default class UnleashClient extends EventEmitter {
       return fallback;
     }
 
-    const enabled = this.isFeatureEnabled(feature, context, () =>
-      fallbackVariant ? fallbackVariant.enabled : false,
-    );
-    if (!enabled) {
-      return fallback;
+    let enabled = true;
+    if (checkToggle) {
+      enabled = this.isFeatureEnabled(feature, context, () =>
+        fallbackVariant ? fallbackVariant.enabled : false,
+      );
+      if (!enabled) {
+        return fallback;
+      }
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
@@ -121,7 +140,7 @@ export default class UnleashClient extends EventEmitter {
     return {
       name: variant.name,
       payload: variant.payload,
-      enabled,
+      enabled: !checkToggle || enabled,
     };
   }
 }
