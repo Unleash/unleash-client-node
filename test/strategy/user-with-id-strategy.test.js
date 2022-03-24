@@ -5,6 +5,7 @@ import UserWithIdStrategy from '../../lib/strategy/user-with-id-strategy';
 test('default strategy should have correct name', (t) => {
   const strategy = new UserWithIdStrategy();
   t.deepEqual(strategy.name, 'userWithId');
+  t.false(strategy.isEnabled({}, {}));
 });
 
 test('user-with-id-strategy should be enabled for userId', (t) => {
