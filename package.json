@@ -1,6 +1,6 @@
 {
   "name": "unleash-client",
-  "version": "3.13.1",
+  "version": "3.13.2",
   "description": "Unleash Client for Node",
   "license": "Apache-2.0",
   "main": "./lib/index.js",
