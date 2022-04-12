@@ -1,9 +1,9 @@
 # Changelog
 
-# 3.12.3
+# 3.13.3
 - fix: getVariant should also count usage
 
-# 3.12.2
+# 3.13.2
 - fix: remove unused dependency nodemon (#315)
 
 # 3.12.0
