@@ -1,5 +1,11 @@
 # Changelog
 
+# 3.12.3
+- fix: getVariant should also count usage
+
+# 3.12.2
+- fix: remove unused dependency nodemon (#315)
+
 # 3.12.0
 - feat: add support for new constraint operators (#289)
 # 3.11.3
