@@ -248,9 +248,8 @@ export class Unleash extends EventEmitter {
     }
     if (result.name) {
       this.countVariant(name, result.name);
-    } else {
-      this.count(name, result.enabled);
-    }
+    } 
+    this.count(name, result.enabled);
 
     return result;
   }
@@ -269,9 +268,8 @@ export class Unleash extends EventEmitter {
     }
     if (result.name) {
       this.countVariant(name, result.name);
-    } else {
-      this.count(name, result.enabled);
     }
+    this.count(name, result.enabled);
 
     return result;
   }
