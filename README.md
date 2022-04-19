@@ -46,10 +46,27 @@ unleash.on('synchronized', () => {
   const variant = unleash.getVariant('app.ToggleY');
 });
 ```
+Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this method multiple times the global instance will be changed. 
 
-Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this
-method multiple times the global instance will be changed. If you prefer to handle the instance
-yourself you should [construct your own Unleash instance](#alternative-usage).
+#### <u>Constructing the Unleash client directly</u>
+If you prefer to construct the Unleash instance yourself rather than using the global `initialize` method you can do so e.g.:
+```js
+const { Unleash } = require('unleash-client');
+
+const unleash = new Unleash({
+  appName: 'my-app-name',
+  url: 'http://unleash.herokuapp.com',
+  customHeaders: {
+    Authorization: 'API token',
+  },
+});
+
+unleash.on('ready', console.log.bind(console, 'ready'));
+
+// required error handling when using unleash directly  
+unleash.on('error', console.error);
+```
+**_IMPORTANT:_** When using unleash directly, error handling is required by adding an event listener for the error event. Otherwise your application may either not start up, or crash if its running when the application can't reach the unleash server.
 
 #### Block until Unleash SDK has synchronized
 
@@ -164,27 +181,6 @@ initialize({
   },
   strategies: [new ActiveForUserWithEmailStrategy()],
 });
-```
-
-## Alternative usage
-
-Its also possible to ship the unleash instance around yourself, instead of using on the default
-`require.cache` to have share one instance.
-
-```js
-const { Unleash } = require('unleash-client');
-
-const unleash = new Unleash({
-  appName: 'my-app-name',
-  url: 'http://unleash.herokuapp.com',
-  customHeaders: {
-    Authorization: 'API token',
-  },
-});
-
-unleash.on('ready', console.log.bind(console, 'ready'));
-// required error handling when using unleash directly
-unleash.on('error', console.error);
 ```
 
 ## Events
