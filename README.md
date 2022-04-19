@@ -48,7 +48,7 @@ unleash.on('synchronized', () => {
 ```
 Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this method multiple times the global instance will be changed. 
 
-#### <u>Constructing the Unleash client directly</u>
+#### Constructing the Unleash client directly
 If you prefer to construct the Unleash instance yourself rather than using the global `initialize` method you can do so e.g.:
 ```js
 const { Unleash } = require('unleash-client');
