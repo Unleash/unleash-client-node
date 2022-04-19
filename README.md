@@ -66,7 +66,7 @@ unleash.on('ready', console.log.bind(console, 'ready'));
 // required error handling when using unleash directly  
 unleash.on('error', console.error);
 ```
-**_IMPORTANT:_** When using unleash directly, error handling is required by adding an event listener for the error event. Otherwise your application may either not start up, or crash if its running when the application can't reach the unleash server.
+**Important:** When Using unleash directly, you **must** handle errors yourself. This can be done by attaching an event listener to the `error` event, as shown in the example below. If you don't do this, your application may crash either on startup or at runtime if it can't reach the Unleash server or if it encounters other errors.
 
 #### Block until Unleash SDK has synchronized
 
