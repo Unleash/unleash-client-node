@@ -46,10 +46,14 @@ unleash.on('synchronized', () => {
   const variant = unleash.getVariant('app.ToggleY');
 });
 ```
-Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this method multiple times the global instance will be changed. 
+Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this method multiple times the global instance will be changed.
 
 #### Constructing the Unleash client directly
-If you prefer to construct the Unleash instance yourself rather than using the global `initialize` method you can do so e.g.:
+
+You can also construct the Unleash instance yourself instead of via the `initialize` method.
+
+**Important:** When using the Unleash client directly, you **must** handle errors yourself. Do this by attaching an event listener to the `error` event, as shown in the example below. If you don't do this, your application may crash either on startup or at runtime if it can't reach the Unleash server or if it encounters other errors.
+
 ```js
 const { Unleash } = require('unleash-client');
 
@@ -63,10 +67,9 @@ const unleash = new Unleash({
 
 unleash.on('ready', console.log.bind(console, 'ready'));
 
-// required error handling when using unleash directly  
+// required error handling when using unleash directly
 unleash.on('error', console.error);
 ```
-**Important:** When Using unleash directly, you **must** handle errors yourself. This can be done by attaching an event listener to the `error` event, as shown in the example below. If you don't do this, your application may crash either on startup or at runtime if it can't reach the Unleash server or if it encounters other errors.
 
 #### Block until Unleash SDK has synchronized
 
