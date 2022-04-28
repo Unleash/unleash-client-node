@@ -7,7 +7,7 @@ export default class UserWithIdStrategy extends Strategy {
   }
 
   isEnabled(parameters: any, context: Context) {
-    const userIdList = parameters.userIds.split(/\s*,\s*/);
+    const userIdList = parameters.userIds ? parameters.userIds.split(/\s*,\s*/) : [];
     return userIdList.includes(context.userId);
   }
 }
