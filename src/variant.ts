@@ -10,7 +10,7 @@ enum PayloadType {
 
 interface Override {
   contextName: string;
-  values: String[];
+  values: string[];
 }
 
 export interface Payload {
