@@ -8,6 +8,7 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
+import { Segment } from '../strategy/strategy';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;
@@ -77,6 +78,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private data: FeatureToggleData = {};
 
+  private knownSegments?: Segment[];
+
   constructor({
     url,
     appName,
@@ -108,6 +111,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapProvider = bootstrapProvider;
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
+    this.knownSegments = [];
   }
 
   timedFetch() {
@@ -154,6 +158,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
+        this.knownSegments = content.segments;
         this.setReady();
       }
       
@@ -174,12 +179,14 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
-    if(fromApi) {
+    if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
-    } else if(!this.connected) {
+      this.knownSegments = response.segments;
+    } else if (!this.connected) {
       // Only allow bootstrap if not connected
       this.data = this.convertToMap(response.features);
+      this.knownSegments = response.segments;
     }
 
     this.setReady();
@@ -195,7 +202,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     try {
       const content = await this.bootstrapProvider.readBootstrap();
 
-      if(!this.bootstrapOverride && this.ready) {
+      if (!this.bootstrapOverride && this.ready) {
         // early exit if we already have backup data and should not override it.
         return;
       }
@@ -203,7 +210,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
       if (content && this.notEmpty(content)) {
         await this.save(content, false);
       }
-  
+
     } catch (err: any) {
       this.emit(UnleashEvents.Warn, `Unleash SDK was unable to load bootstrap.
 Message: ${err.message}`);
@@ -288,11 +295,38 @@ Message: ${err.message}`);
     this.removeAllListeners();
   }
 
+  resolveSegment(segmentId: number): Segment | undefined {
+    return this.knownSegments?.find((segment) => segment.id === segmentId);
+  }
+
+  unpackSegments(feature: FeatureInterface): FeatureInterface {
+    if (!feature?.strategies || !this.knownSegments) {
+      return feature;
+    }
+    const transformedStrategies = feature?.strategies?.map((strategy) => {
+      const segmentConstraints =
+        strategy.segments
+          ?.map((segmentId) => {
+            const foundSegment = this.resolveSegment(segmentId);
+            const constraints = foundSegment?.constraints || [];
+            return constraints;
+          })
+          ?.reduce((prev, next) => prev.concat(next), []) || [];
+      const safeConstraints = strategy?.constraints || [];
+      const safeSegmentConstraints = segmentConstraints || [];
+      return {
+        ...strategy,
+        constraints: [...safeConstraints, ...safeSegmentConstraints],
+      };
+    });
+    return { ...feature, strategies: transformedStrategies };
+  }
+
   getToggle(name: string): FeatureInterface {
-    return this.data[name];
+    return this.unpackSegments(this.data[name]);
   }
 
   getToggles(): FeatureInterface[] {
-    return Object.keys(this.data).map((key) => this.data[key]);
+    return Object.keys(this.data).map((key) => this.unpackSegments(this.data[key]));
   }
 }

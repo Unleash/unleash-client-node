@@ -6,6 +6,7 @@ export interface StrategyTransportInterface {
   name: string;
   parameters: any;
   constraints: Constraint[];
+  segments?: number[]
 }
 
 export interface Constraint {
@@ -15,6 +16,15 @@ export interface Constraint {
   values: string[];
   value?: string | number | Date;
   caseInsensitive?: boolean;
+}
+
+export interface Segment {
+  id: number,
+  name: string,
+  description?: string,
+  constraints: Constraint[],
+  createdBy: string,
+  createdAt: Date
 }
 
 export enum Operator {

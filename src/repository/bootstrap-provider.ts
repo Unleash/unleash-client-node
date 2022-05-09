@@ -3,6 +3,7 @@ import * as fetch from 'make-fetch-happen';
 import { ClientFeaturesResponse, FeatureInterface } from '../feature';
 import { CustomHeaders } from '../headers';
 import { buildHeaders } from '../request';
+import { Segment } from '../strategy/strategy';
 
 export interface BootstrapProvider {
   readBootstrap(): Promise<ClientFeaturesResponse | undefined>;
@@ -13,6 +14,7 @@ export interface BootstrapOptions {
   urlHeaders?: CustomHeaders;
   filePath?: string;
   data?: FeatureInterface[];
+  segments?: Segment[];
   bootstrapProvider?: BootstrapProvider;
 }
 
@@ -25,6 +27,8 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
 
   private data?: FeatureInterface[];
 
+  private segments?: Segment[];
+
   private appName: string;
 
   private instanceId: string;
@@ -34,6 +38,7 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
     this.urlHeaders = options.urlHeaders;
     this.filePath = options.filePath;
     this.data = options.data;
+    this.segments = options.segments;
 
     this.appName = appName;
     this.instanceId = instanceId;
@@ -62,7 +67,7 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
 
   async readBootstrap(): Promise<ClientFeaturesResponse | undefined> {
     if (this.data) {
-      return { version: 2, features: [...this.data] };
+      return { version: 2, segments: this.segments, features: [...this.data] };
     }
     if (this.url) {
       return this.loadFromUrl(this.url);
