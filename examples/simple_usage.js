@@ -7,7 +7,7 @@ const unleashContext = {
 };
 
 const client = initialize({
-  appName: 'BOB',
+  appName: 'my-application',
   url,
   refreshInterval: 1000,
   customHeaders: {
