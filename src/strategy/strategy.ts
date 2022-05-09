@@ -24,7 +24,7 @@ export interface Segment {
   description?: string,
   constraints: Constraint[],
   createdBy: string,
-  createdAt: Date
+  createdAt: string
 }
 
 export enum Operator {
