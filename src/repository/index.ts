@@ -78,7 +78,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private data: FeatureToggleData = {};
 
-  private knownSegments?: Segment[];
+  private segments?: Segment[];
 
   constructor({
     url,
@@ -111,7 +111,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapProvider = bootstrapProvider;
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
-    this.knownSegments = [];
+    this.segments = [];
   }
 
   timedFetch() {
@@ -149,7 +149,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async loadBackup(): Promise<void> {
     try {
-      
+
       const content = await this.storageProvider.get(this.appName);
 
       if (this.ready) {
@@ -158,10 +158,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
-        this.knownSegments = content.segments;
+        this.segments = content.segments;
         this.setReady();
       }
-      
+
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }
@@ -182,11 +182,11 @@ export default class Repository extends EventEmitter implements EventEmitter {
     if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
-      this.knownSegments = response.segments;
+      this.segments = response.segments;
     } else if (!this.connected) {
       // Only allow bootstrap if not connected
       this.data = this.convertToMap(response.features);
-      this.knownSegments = response.segments;
+      this.segments = response.segments;
     }
 
     this.setReady();
@@ -295,19 +295,19 @@ Message: ${err.message}`);
     this.removeAllListeners();
   }
 
-  resolveSegment(segmentId: number): Segment | undefined {
-    return this.knownSegments?.find((segment) => segment.id === segmentId);
+  findSegmentById(segmentId: number): Segment | undefined {
+    return this.segments?.find((segment) => segment.id === segmentId);
   }
 
-  unpackSegments(feature: FeatureInterface): FeatureInterface {
-    if (!feature?.strategies || !this.knownSegments) {
+  inlineSegmentConstraints(feature: FeatureInterface): FeatureInterface {
+    if (!feature?.strategies || !this.segments) {
       return feature;
     }
     const transformedStrategies = feature?.strategies?.map((strategy) => {
       const segmentConstraints =
         strategy.segments
           ?.map((segmentId) => {
-            const foundSegment = this.resolveSegment(segmentId);
+            const foundSegment = this.findSegmentById(segmentId);
             const constraints = foundSegment?.constraints || [];
             return constraints;
           })
@@ -323,10 +323,10 @@ Message: ${err.message}`);
   }
 
   getToggle(name: string): FeatureInterface {
-    return this.unpackSegments(this.data[name]);
+    return this.inlineSegmentConstraints(this.data[name]);
   }
 
   getToggles(): FeatureInterface[] {
-    return Object.keys(this.data).map((key) => this.unpackSegments(this.data[key]));
+    return Object.keys(this.data).map((key) => this.inlineSegmentConstraints(this.data[key]));
   }
 }
