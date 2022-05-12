@@ -231,7 +231,7 @@ unleash.once('changed', () => {
     console.log(`Demo is enabled: ${unleash.isEnabled('Demo')}`);
 });
 
-unleash.on('count', (name, enabled) => console.log(`isEnabled(${name}`)
+unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})`));
 ```
 
 ## Bootstrap
