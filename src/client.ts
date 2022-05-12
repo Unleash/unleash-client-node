@@ -92,28 +92,32 @@ export default class UnleashClient extends EventEmitter {
     );
   }
 
-  *yieldConstraintsFor(strategy: StrategyTransportInterface): IterableIterator<Constraint> {
+  *yieldConstraintsFor(
+    strategy: StrategyTransportInterface,
+  ): IterableIterator<Constraint | undefined> {
     if (!strategy.constraints) {
       return;
     }
     yield* strategy.constraints;
-    const segments = strategy.segments
-      ?.map((segmentId) => this.repository.getSegment(segmentId))
-      .filter((segment): segment is Segment => !!segment);
+    const segments = strategy.segments?.map((segmentId) => this.repository.getSegment(segmentId));
     if (!segments) {
       return;
     }
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  *yieldSegmentConstraints(segments: Segment[]): IterableIterator<Constraint> {
+  *yieldSegmentConstraints(
+    segments: (Segment | undefined)[],
+  ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax
     for (const segment of segments) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const constraint of segment?.constraints) {
-        if (constraint) {
+      if (segment) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const constraint of segment?.constraints) {
           yield constraint;
         }
+      } else {
+        yield undefined;
       }
     }
   }

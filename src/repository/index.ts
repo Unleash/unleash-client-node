@@ -8,7 +8,7 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
-import { Constraint, Segment } from '../strategy/strategy';
+import { Segment } from '../strategy/strategy';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;
@@ -305,10 +305,6 @@ Message: ${err.message}`,
 
   getSegment(segmentId: number): Segment | undefined {
     return this.segments.get(segmentId);
-  }
-
-  getSegmentConstraints(segmentId: number): Constraint[] | undefined {
-    return this.segments.get(segmentId)?.constraints;
   }
 
   getToggle(name: string): FeatureInterface {

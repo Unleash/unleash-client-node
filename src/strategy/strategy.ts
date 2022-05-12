@@ -189,13 +189,13 @@ export class Strategy {
     return evaluator(constraint, context);
   }
 
-  checkConstraints(context: Context, constraints?: IterableIterator<Constraint>) {
+  checkConstraints(context: Context, constraints?: IterableIterator<Constraint | undefined>) {
     if (!constraints) {
       return true;
     }
     // eslint-disable-next-line no-restricted-syntax
     for (const constraint of constraints) {
-      if (!this.checkConstraint(constraint, context)) {
+      if (!constraint || !this.checkConstraint(constraint, context)) {
         return false;
       }
     }
@@ -210,7 +210,7 @@ export class Strategy {
   isEnabledWithConstraints(
     parameters: any,
     context: Context,
-    constraints: IterableIterator<Constraint>,
+    constraints: IterableIterator<Constraint | undefined>,
   ) {
     return this.checkConstraints(context, constraints) && this.isEnabled(parameters, context);
   }

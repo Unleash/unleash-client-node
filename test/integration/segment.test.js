@@ -65,7 +65,7 @@ test('should use global segments for constraint calculation', (t) =>
     });
   }));
 
-test('should gracefully degrade if segment is unknown', (t) =>
+test('should resolve to false if required global segment cannot be found', (t) =>
   new Promise((resolve, reject) => {
     const togglesWithoutGlobalSegment = {...toggles}
     togglesWithoutGlobalSegment.segments = undefined;
@@ -82,7 +82,7 @@ test('should gracefully degrade if segment is unknown', (t) =>
     instance.on('error', reject);
     instance.on('synchronized', () => {
       const result = instance.isEnabled('toggle.with.global.segment');
-      t.is(result, true);
+      t.is(result, false);
       instance.destroy();
       resolve();
     });
