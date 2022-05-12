@@ -6,7 +6,7 @@ export interface StrategyTransportInterface {
   name: string;
   parameters: any;
   constraints: Constraint[];
-  segments?: number[]
+  segments?: number[];
 }
 
 export interface Constraint {
@@ -19,12 +19,12 @@ export interface Constraint {
 }
 
 export interface Segment {
-  id: number,
-  name: string,
-  description?: string,
-  constraints: Constraint[],
-  createdBy: string,
-  createdAt: string
+  id: number;
+  name: string;
+  description?: string;
+  constraints: Constraint[];
+  createdBy: string;
+  createdAt: string;
 }
 
 export enum Operator {
@@ -189,11 +189,17 @@ export class Strategy {
     return evaluator(constraint, context);
   }
 
-  checkConstraints(context: Context, constraints?: Constraint[]) {
-    if (!constraints || constraints.length === 0) {
+  checkConstraints(context: Context, constraints?: IterableIterator<Constraint>) {
+    if (!constraints) {
       return true;
     }
-    return constraints.every((constraint) => this.checkConstraint(constraint, context));
+    // eslint-disable-next-line no-restricted-syntax
+    for (const constraint of constraints) {
+      if (!this.checkConstraint(constraint, context)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -201,7 +207,11 @@ export class Strategy {
     return this.returnValue;
   }
 
-  isEnabledWithConstraints(parameters: any, context: Context, constraints: Constraint[] = []) {
+  isEnabledWithConstraints(
+    parameters: any,
+    context: Context,
+    constraints: IterableIterator<Constraint>,
+  ) {
     return this.checkConstraints(context, constraints) && this.isEnabled(parameters, context);
   }
 }

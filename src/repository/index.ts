@@ -8,11 +8,12 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
-import { Segment } from '../strategy/strategy';
+import { Constraint, Segment } from '../strategy/strategy';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;
   getToggles(): FeatureInterface[];
+  getSegment(id: number): Segment | undefined;
   stop(): void;
   start(): Promise<void>;
 }
@@ -78,7 +79,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private data: FeatureToggleData = {};
 
-  private segments?: Segment[];
+  private segments: Map<number, Segment>;
 
   constructor({
     url,
@@ -111,7 +112,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapProvider = bootstrapProvider;
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
-    this.segments = [];
+    this.segments = new Map();
   }
 
   timedFetch() {
@@ -149,7 +150,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async loadBackup(): Promise<void> {
     try {
-
       const content = await this.storageProvider.get(this.appName);
 
       if (this.ready) {
@@ -158,10 +158,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
-        this.segments = content.segments;
+        this.segments = this.createSegmentLookup(content.segments);
         this.setReady();
       }
-
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }
@@ -178,15 +177,22 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
   }
 
+  createSegmentLookup(segments: Segment[] | undefined): Map<number, Segment> {
+    if (!segments) {
+      return new Map();
+    }
+    return new Map(segments.map((segment) => [segment.id, segment]));
+  }
+
   async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
     if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
-      this.segments = response.segments;
+      this.segments = this.createSegmentLookup(response.segments);
     } else if (!this.connected) {
       // Only allow bootstrap if not connected
       this.data = this.convertToMap(response.features);
-      this.segments = response.segments;
+      this.segments = this.createSegmentLookup(response.segments);
     }
 
     this.setReady();
@@ -210,10 +216,12 @@ export default class Repository extends EventEmitter implements EventEmitter {
       if (content && this.notEmpty(content)) {
         await this.save(content, false);
       }
-
     } catch (err: any) {
-      this.emit(UnleashEvents.Warn, `Unleash SDK was unable to load bootstrap.
-Message: ${err.message}`);
+      this.emit(
+        UnleashEvents.Warn,
+        `Unleash SDK was unable to load bootstrap.
+Message: ${err.message}`,
+      );
     }
   }
 
@@ -295,38 +303,19 @@ Message: ${err.message}`);
     this.removeAllListeners();
   }
 
-  findSegmentById(segmentId: number): Segment | undefined {
-    return this.segments?.find((segment) => segment.id === segmentId);
+  getSegment(segmentId: number): Segment | undefined {
+    return this.segments.get(segmentId);
   }
 
-  inlineSegmentConstraints(feature: FeatureInterface): FeatureInterface {
-    if (!feature?.strategies || !this.segments) {
-      return feature;
-    }
-    const transformedStrategies = feature?.strategies?.map((strategy) => {
-      const segmentConstraints =
-        strategy.segments
-          ?.map((segmentId) => {
-            const foundSegment = this.findSegmentById(segmentId);
-            const constraints = foundSegment?.constraints || [];
-            return constraints;
-          })
-          ?.reduce((prev, next) => prev.concat(next), []) || [];
-      const safeConstraints = strategy?.constraints || [];
-      const safeSegmentConstraints = segmentConstraints || [];
-      return {
-        ...strategy,
-        constraints: [...safeConstraints, ...safeSegmentConstraints],
-      };
-    });
-    return { ...feature, strategies: transformedStrategies };
+  getSegmentConstraints(segmentId: number): Constraint[] | undefined {
+    return this.segments.get(segmentId)?.constraints;
   }
 
   getToggle(name: string): FeatureInterface {
-    return this.inlineSegmentConstraints(this.data[name]);
+    return this.data[name];
   }
 
   getToggles(): FeatureInterface[] {
-    return Object.keys(this.data).map((key) => this.inlineSegmentConstraints(this.data[key]));
+    return Object.keys(this.data).map((key) => this.data[key]);
   }
 }

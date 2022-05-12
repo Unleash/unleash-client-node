@@ -10,7 +10,8 @@
     "declarationMap": true,
     "resolveJsonModule": true,
     "strict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "downlevelIteration": true
   },
   "exclude": ["examples/", "lib/", "node_modules/"]
 }

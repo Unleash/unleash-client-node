@@ -4,6 +4,7 @@ import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
 import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
 import { Context } from './context';
+import { Constraint, Segment } from './strategy/strategy';
 
 interface BooleanMap {
   [key: string]: boolean;
@@ -85,13 +86,36 @@ export default class UnleashClient extends EventEmitter {
           this.warnOnce(strategySelector.name, feature.name, feature.strategies);
           return false;
         }
-        return strategy.isEnabledWithConstraints(
-          strategySelector.parameters,
-          context,
-          strategySelector.constraints,
-        );
+        const constraints = this.yieldConstraintsFor(strategySelector);
+        return strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
       })
     );
+  }
+
+  *yieldConstraintsFor(strategy: StrategyTransportInterface): IterableIterator<Constraint> {
+    if (!strategy.constraints) {
+      return;
+    }
+    yield* strategy.constraints;
+    const segments = strategy.segments
+      ?.map((segmentId) => this.repository.getSegment(segmentId))
+      .filter((segment): segment is Segment => !!segment);
+    if (!segments) {
+      return;
+    }
+    yield* this.yieldSegmentConstraints(segments);
+  }
+
+  *yieldSegmentConstraints(segments: Segment[]): IterableIterator<Constraint> {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const segment of segments) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const constraint of segment?.constraints) {
+        if (constraint) {
+          yield constraint;
+        }
+      }
+    }
   }
 
   getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
