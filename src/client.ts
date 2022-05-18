@@ -95,10 +95,9 @@ export default class UnleashClient extends EventEmitter {
   *yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
-    if (!strategy.constraints) {
-      return;
+    if (strategy.constraints) {
+      yield* strategy.constraints;
     }
-    yield* strategy.constraints;
     const segments = strategy.segments?.map((segmentId) => this.repository.getSegment(segmentId));
     if (!segments) {
       return;
