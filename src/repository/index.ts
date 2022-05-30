@@ -8,10 +8,12 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
+import { Segment } from '../strategy/strategy';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface;
   getToggles(): FeatureInterface[];
+  getSegment(id: number): Segment | undefined;
   stop(): void;
   start(): Promise<void>;
 }
@@ -77,6 +79,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private data: FeatureToggleData = {};
 
+  private segments: Map<number, Segment>;
+
   constructor({
     url,
     appName,
@@ -108,6 +112,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapProvider = bootstrapProvider;
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
+    this.segments = new Map();
   }
 
   timedFetch() {
@@ -145,7 +150,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async loadBackup(): Promise<void> {
     try {
-      
       const content = await this.storageProvider.get(this.appName);
 
       if (this.ready) {
@@ -154,9 +158,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
       if (content && this.notEmpty(content)) {
         this.data = this.convertToMap(content.features);
+        this.segments = this.createSegmentLookup(content.segments);
         this.setReady();
       }
-      
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }
@@ -173,13 +177,22 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
   }
 
+  createSegmentLookup(segments: Segment[] | undefined): Map<number, Segment> {
+    if (!segments) {
+      return new Map();
+    }
+    return new Map(segments.map((segment) => [segment.id, segment]));
+  }
+
   async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
-    if(fromApi) {
+    if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
-    } else if(!this.connected) {
+      this.segments = this.createSegmentLookup(response.segments);
+    } else if (!this.connected) {
       // Only allow bootstrap if not connected
       this.data = this.convertToMap(response.features);
+      this.segments = this.createSegmentLookup(response.segments);
     }
 
     this.setReady();
@@ -195,7 +208,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     try {
       const content = await this.bootstrapProvider.readBootstrap();
 
-      if(!this.bootstrapOverride && this.ready) {
+      if (!this.bootstrapOverride && this.ready) {
         // early exit if we already have backup data and should not override it.
         return;
       }
@@ -203,10 +216,12 @@ export default class Repository extends EventEmitter implements EventEmitter {
       if (content && this.notEmpty(content)) {
         await this.save(content, false);
       }
-  
     } catch (err: any) {
-      this.emit(UnleashEvents.Warn, `Unleash SDK was unable to load bootstrap.
-Message: ${err.message}`);
+      this.emit(
+        UnleashEvents.Warn,
+        `Unleash SDK was unable to load bootstrap.
+Message: ${err.message}`,
+      );
     }
   }
 
@@ -286,6 +301,10 @@ Message: ${err.message}`);
       clearTimeout(this.timer);
     }
     this.removeAllListeners();
+  }
+
+  getSegment(segmentId: number): Segment | undefined {
+    return this.segments.get(segmentId);
   }
 
   getToggle(name: string): FeatureInterface {

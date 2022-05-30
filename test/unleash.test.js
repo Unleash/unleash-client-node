@@ -30,7 +30,7 @@ const defaultToggles = [
   {
     name: 'feature',
     enabled: true,
-    strategies: [{ name: 'default' }],
+    strategies: [{ name: 'default', constraints: [] }],
   },
   {
     name: 'f-context',
@@ -38,6 +38,7 @@ const defaultToggles = [
     strategies: [
       {
         name: 'EnvironmentStrategy',
+        constraints: [],
         parameters: {
           environments: 'prod',
         },
@@ -616,9 +617,7 @@ test('should emit "synchronized" only first time', (t) =>
     let synchronizedCount = 0;
 
     const url = getUrl();
-    nock(url)
-      .get('/client/features')
-      .times(3).reply(200, { features: defaultToggles });
+    nock(url).get('/client/features').times(3).reply(200, { features: defaultToggles });
 
     const instance = new Unleash({
       appName: 'foo',
@@ -642,32 +641,31 @@ test('should emit "synchronized" only first time', (t) =>
     });
   }));
 
-
 test('should use provided bootstrap data', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
-    nock(url)
-      .get('/client/features')
-      .reply(500);
+    nock(url).get('/client/features').reply(500);
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
       url,
       backupPath: getRandomBackupPath(),
       bootstrap: {
-        data: [{
-          name: 'bootstrappedToggle', 
-          enabled: true,
-          strategies: [{ name: 'default' }],
-        }]
-      }
+        data: [
+          {
+            name: 'bootstrappedToggle',
+            enabled: true,
+            strategies: [{ name: 'default' }],
+          },
+        ],
+      },
     });
 
-    instance.on('error', () => {})
+    instance.on('error', () => {});
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('bootstrappedToggle') === true);
       instance.destroy();
       resolve();
     });
-}));
+  }));
