@@ -40,7 +40,7 @@ const httpsAgent = new https.Agent({
   timeout: 10 * 1000,
 });
 
-export const getAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
+export const getDefaultAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
 export const buildHeaders = (
   appName?: string,
   instanceId?: string,
@@ -80,7 +80,7 @@ export const post = ({
   fetch(url, {
     timeout: timeout || 10000,
     method: 'POST',
-    agent: getAgent,
+    agent: httpOptions?.agent || getDefaultAgent,
     headers: buildHeaders(appName, instanceId, undefined, 'application/json', headers),
     body: JSON.stringify(json),
     strictSSL: httpOptions?.rejectUnauthorized,
@@ -98,7 +98,7 @@ export const get = ({
   fetch(url, {
     method: 'GET',
     timeout: timeout || 10_000,
-    agent: getAgent,
+    agent: httpOptions?.agent || getDefaultAgent,
     headers: buildHeaders(appName, instanceId, etag, undefined, headers),
     retry: {
       retries: 2,
