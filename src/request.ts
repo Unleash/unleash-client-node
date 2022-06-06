@@ -15,6 +15,7 @@ export interface GetRequestOptions extends RequestOptions {
   etag?: string;
   appName?: string;
   instanceId?: string;
+  supportedSpecVersion?: string;
   httpOptions?: HttpOptions;
 }
 
@@ -47,6 +48,7 @@ export const buildHeaders = (
   etag?: string,
   contentType?: string,
   custom?: CustomHeaders,
+  specVersionSupported?: string,
 ): Record<string, string> => {
   const head: Record<string, string> = {};
   if (appName) {
@@ -61,6 +63,9 @@ export const buildHeaders = (
   }
   if (contentType) {
     head['Content-Type'] = contentType;
+  }
+  if (specVersionSupported) {
+    head['Unleash-Client-Spec'] = specVersionSupported;
   }
   if (custom) {
     Object.assign(head, custom);
@@ -94,12 +99,13 @@ export const get = ({
   instanceId,
   headers,
   httpOptions,
+  supportedSpecVersion,
 }: GetRequestOptions) =>
   fetch(url, {
     method: 'GET',
     timeout: timeout || 10_000,
     agent: httpOptions?.agent || getDefaultAgent,
-    headers: buildHeaders(appName, instanceId, etag, undefined, headers),
+    headers: buildHeaders(appName, instanceId, etag, undefined, headers, supportedSpecVersion),
     retry: {
       retries: 2,
       maxTimeout: timeout || 10_000,
