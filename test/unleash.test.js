@@ -669,3 +669,118 @@ test('should use provided bootstrap data', (t) =>
       resolve();
     });
   }));
+
+  test('should emit impression events for isEnabled', async (t) => {
+    const baseUrl = getUrl();
+    nock(baseUrl)
+      .get('/client/features')
+      .reply(200, {
+        features: [
+          {
+            name: 'toggle-impressions',
+            enabled: true,
+            strategies: [{ name: 'default' }],
+            variants: [
+              {
+                name: 'blue',
+                weight: 1,
+              },
+              {
+                name: 'red',
+                weight: 1,
+              },
+              {
+                name: 'green',
+                weight: 1,
+              },
+              {
+                name: 'yellow',
+                weight: 1,
+              },
+            ],
+          },
+        ],
+      });
+  
+    const unleash = new Unleash({
+      appName: 'foo-variants',
+      disableMetrics: true,
+      backupPath: getRandomBackupPath(),
+      url: baseUrl,
+    });
+
+    const context = { userId: '123', properties: {tenantId: 't12'} };
+  
+    return new Promise((resolve) => {
+      unleash.on('impression', (evt) => {
+        t.is(evt.featureName, 'toggle-impressions');
+        t.is(evt.enabled, true);
+        t.is(evt.eventType, 'isEnabled')
+        t.is(evt.context.userId, context.userId);
+        t.deepEqual(evt.context.properties, context.properties);
+        resolve();
+      })
+
+      unleash.on('synchronized', () => {
+        unleash.isEnabled('toggle-impressions', context);
+      });
+    });
+  });
+
+  test('should emit impression events for getVariant', async (t) => {
+    const baseUrl = getUrl();
+    nock(baseUrl)
+      .get('/client/features')
+      .reply(200, {
+        features: [
+          {
+            name: 'toggle-impressions',
+            enabled: true,
+            strategies: [{ name: 'default' }],
+            variants: [
+              {
+                name: 'blue',
+                weight: 1,
+              },
+              {
+                name: 'red',
+                weight: 1,
+              },
+              {
+                name: 'green',
+                weight: 1,
+              },
+              {
+                name: 'yellow',
+                weight: 1,
+              },
+            ],
+          },
+        ],
+      });
+  
+    const unleash = new Unleash({
+      appName: 'foo-variants',
+      disableMetrics: true,
+      backupPath: getRandomBackupPath(),
+      url: baseUrl,
+    });
+
+    const context = { userId: '123', properties: {tenantId: 't12'} };
+  
+    return new Promise((resolve) => {
+      unleash.on('impression', (evt) => {
+        t.is(evt.featureName, 'toggle-impressions');
+        t.is(evt.enabled, true);
+        t.is(evt.eventType, 'getVariant');
+        t.is(evt.variant, 'blue');
+        t.is(evt.context.userId, context.userId);
+        t.deepEqual(evt.context.properties, context.properties);
+        resolve();
+      })
+
+      unleash.on('synchronized', () => {
+        unleash.getVariant('toggle-impressions', context);
+      });
+    });
+  });

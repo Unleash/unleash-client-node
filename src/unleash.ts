@@ -14,7 +14,7 @@ import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { FileStorageProvider, StorageProvider } from './repository/storage-provider';
-import { UnleashEvents } from './events';
+import { ImpressionEvent, UnleashEvents } from './events';
 
 export { Strategy, UnleashEvents };
 
@@ -150,7 +150,8 @@ export class Unleash extends EventEmitter {
     const supportedStrategies = strategies.concat(defaultStrategies);
     this.client = new Client(this.repository, supportedStrategies);
     this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
-    this.client.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
+    this.client.on(UnleashEvents.Impression, (e: ImpressionEvent) =>
+      this.emit(UnleashEvents.Impression, e));
 
     this.metrics = new Metrics({
       disableMetrics,
