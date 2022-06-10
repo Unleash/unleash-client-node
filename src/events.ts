@@ -24,6 +24,6 @@ export interface ImpressionEvent {
 }
 
 // Wrapper to provide type checking.
-export function createImpressionEvent(evt: ImpressionEvent) {
+export function createImpressionEvent(evt: ImpressionEvent): ImpressionEvent {
   return evt;
 }
