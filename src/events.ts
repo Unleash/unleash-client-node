@@ -16,7 +16,7 @@ export enum UnleashEvents {
 }
 
 export interface ImpressionEvent {
-  eventType: "isEnabled" | "getVariant";
+  eventType: 'isEnabled' | 'getVariant';
   context: Context;
   enabled: boolean;
   featureName: string;
