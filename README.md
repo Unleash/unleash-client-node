@@ -201,7 +201,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | error        | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
 | unchanged    | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
 | changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
-| impression   | `object` data                    | is emitted for every user impressions (isEnabled / getVariant)                                                                                                                                                                               |
+| impression   | `object` data                    | is emitted for every user impression (isEnabled / getVariant)                                                                                                                                                                               |
 
 Example usage:
 
