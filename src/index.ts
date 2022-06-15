@@ -32,7 +32,7 @@ export async function startUnleash(options: UnleashConfig): Promise<Unleash> {
 }
 
 export function isEnabled(name: string, context: Context = {}, fallbackValue?: boolean): boolean {
-  return !!instance && instance.isEnabled(name, context, fallbackValue);
+  return instance ? instance.isEnabled(name, context, fallbackValue) : !!fallbackValue;
 }
 
 export function destroy() {
