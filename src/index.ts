@@ -36,7 +36,10 @@ export function isEnabled(name: string, context: Context = {}, fallbackValue?: b
 }
 
 export function destroy() {
-  return instance && instance.destroy();
+  if (instance ) {
+    instance.destroy();
+  }
+  instance = undefined;
 }
 
 export function getFeatureToggleDefinition(toggleName: string) {
