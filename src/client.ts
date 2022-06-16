@@ -5,6 +5,7 @@ import { RepositoryInterface } from './repository';
 import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
 import { Context } from './context';
 import { Constraint, Segment } from './strategy/strategy';
+import { createImpressionEvent, UnleashEvents } from './events';
 
 interface BooleanMap {
   [key: string]: boolean;
@@ -44,7 +45,7 @@ export default class UnleashClient extends EventEmitter {
     if (!this.warned[missingStrategy + name]) {
       this.warned[missingStrategy + name] = true;
       this.emit(
-        'warn',
+        UnleashEvents.Warn,
         `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
           .map(({ name: n }) => n)
           .join(', ')}" are supported before using this toggle`,
@@ -54,7 +55,14 @@ export default class UnleashClient extends EventEmitter {
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    return this.isFeatureEnabled(feature, context, fallback);
+    const enabled = this.isFeatureEnabled(feature, context, fallback);
+    this.emit(UnleashEvents.Impression, createImpressionEvent({
+      featureName: name,
+      context,
+      enabled,
+      eventType: 'isEnabled'
+    }));
+    return enabled;
   }
 
   isFeatureEnabled(feature: FeatureInterface, context: Context, fallback: Function): boolean {
@@ -67,10 +75,8 @@ export default class UnleashClient extends EventEmitter {
     }
 
     if (!Array.isArray(feature.strategies)) {
-      this.emit(
-        'error',
-        new Error(`Malformed feature, strategies not an array, is a ${typeof feature.strategies}`),
-      );
+      const msg = `Malformed feature, strategies not an array, is a ${typeof feature.strategies}`;
+      this.emit(UnleashEvents.Error, new Error(msg));
       return false;
     }
 
@@ -122,7 +128,15 @@ export default class UnleashClient extends EventEmitter {
   }
 
   getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
-    return this.resolveVariant(name, context, true, fallbackVariant);
+    const variant = this.resolveVariant(name, context, true, fallbackVariant);
+    this.emit(UnleashEvents.Impression, createImpressionEvent({
+      featureName: name,
+      context,
+      enabled: variant.enabled,
+      eventType: 'getVariant',
+      variant: variant.name,
+    }));
+    return variant;
   }
 
   // This function is intended to close an issue in the proxy where feature enabled
