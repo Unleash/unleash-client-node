@@ -17,14 +17,14 @@ export class FileStorageProvider<T> implements StorageProvider<T> {
   private backupPath: string;
 
   constructor(backupPath: string) {
-    if(!backupPath) {
-      throw new Error("backup Path is required");
+    if (!backupPath) {
+      throw new Error('backup Path is required');
     }
     this.backupPath = backupPath;
   }
 
   private getPath(key: string): string {
-    return join(this.backupPath, `/unleash-backup-${safeName(key)}.json`)
+    return join(this.backupPath, `/unleash-backup-${safeName(key)}.json`);
   }
 
   async set(key: string, data: T): Promise<void> {
@@ -44,8 +44,8 @@ export class FileStorageProvider<T> implements StorageProvider<T> {
       }
     }
 
-    if(!data || data.trim().length === 0) {
-        return undefined;
+    if (!data || data.trim().length === 0) {
+      return undefined;
     }
 
     try {

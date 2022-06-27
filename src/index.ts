@@ -5,7 +5,7 @@ import { Context } from './context';
 import { TagFilter } from './tags';
 import { UnleashEvents } from './events';
 import { ClientFeaturesResponse } from './feature';
-import InMemStorageProvider from './repository/storage-provider-in-mem'
+import InMemStorageProvider from './repository/storage-provider-in-mem';
 
 // exports
 export { Strategy } from './strategy/index';
@@ -15,8 +15,10 @@ export type { ClientFeaturesResponse, UnleashConfig };
 let instance: Unleash | undefined;
 export function initialize(options: UnleashConfig): Unleash {
   if (instance) {
-    instance.emit(UnleashEvents.Warn,
-      'This global unleash instance is initialized multiple times.');
+    instance.emit(
+      UnleashEvents.Warn,
+      'This global unleash instance is initialized multiple times.',
+    );
   }
   instance = new Unleash(options);
   instance.on('error', () => {});
@@ -30,11 +32,14 @@ export async function startUnleash(options: UnleashConfig): Promise<Unleash> {
 }
 
 export function isEnabled(name: string, context: Context = {}, fallbackValue?: boolean): boolean {
-  return !!instance && instance.isEnabled(name, context, fallbackValue);
+  return instance ? instance.isEnabled(name, context, fallbackValue) : !!fallbackValue;
 }
 
 export function destroy() {
-  return instance && instance.destroy();
+  if (instance ) {
+    instance.destroy();
+  }
+  instance = undefined;
 }
 
 export function getFeatureToggleDefinition(toggleName: string) {

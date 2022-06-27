@@ -31,11 +31,10 @@ export function safeName(str: string = '') {
   return str.replace(/\//g, '_');
 }
 
-
 export function generateInstanceId(instanceId?: string): string {
-  if(instanceId) {
+  if (instanceId) {
     return instanceId;
-  } 
+  }
   let info;
   try {
     info = userInfo();

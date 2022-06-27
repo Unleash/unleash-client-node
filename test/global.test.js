@@ -63,3 +63,10 @@ test.cb('should be able to call isEnabled eventually', (t) => {
 
   t.true(isEnabled('feature') === false);
 });
+
+test.cb('should return fallbackValue if init was not called', (t) => {
+  t.true(isEnabled('feature') === false);
+  t.true(isEnabled('feature', {}, false) === false);
+  t.true(isEnabled('feature', {}, true) === true);
+  t.end();
+})
