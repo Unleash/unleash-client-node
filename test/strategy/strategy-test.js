@@ -515,3 +515,27 @@ test('should return false when passed an invalid semver', (t) => {
   };
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 })
+
+test('should NOT be enabled for unknown field', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [{ contextName: 'someField', operator: 'IN', values: ['s1'] }];
+  const context = { };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled for undefined field when NOT_IN', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [{ contextName: 'someField', operator: 'NOT_IN', values: ['s1'] }];
+  const context = { properties: { someField: undefined } };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
+test('should be enabled for missing field when NOT_IN', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [{ contextName: 'someField', operator: 'NOT_IN', values: ['s1'] }];
+  const context = { };
+  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+});
