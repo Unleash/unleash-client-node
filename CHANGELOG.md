@@ -1,5 +1,52 @@
 # Changelog
 
+# 3.15.0
+- feat: add impression events (#336)
+- fix: string operator needs to guard against non-string values (#343)
+- fix(deps): update dependency make-fetch-happen to v10 (#300)
+- fix: NOT_IN operator for missing contextField should return true. (#340)
+- fix: Use fallback value if not initialised (#339)
+- chore(deps): update dependency @types/node to v14.18.21 (#341)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.29.0 (#294)
+- chore(deps): update dependency eslint-plugin-import to v2.26.0 (#322)
+- chore(deps): update dependency @types/semver to v7.3.10 (#342)
+- chore(deps): update dependency eslint to v8.18.0 (#298)
+- chore(deps): update dependency prettier to v2.7.1 (#323)
+- chore(deps): update dependency typescript to v4.7.4 (#324)
+- chore(deps): update actions/checkout action to v3 (#325)
+- chore(deps): update actions/setup-node action to v3 (#326)
+
+# 3.14.1
+- feat: pass spec header so global segments can be toggled (#335)
+- chore: Update build-details
+- chore: Update build-details
+
+# 3.14.0
+- feat: Added agent to the HttpOptions (#332)
+- feat: Add support for handling global segments (#329)
+- fix: force semver operators to resolve to false against non strict semver (#333)
+- fix: Type is missing from FeatureInterface used by getFeatureDefinitions and more (#328)
+- docs: fix example usage in readme (#330)
+- meta: add external PRs to project board
+- meta: add 'new items to project board' workflow
+- chore: upgrade unleash client spec to 4.2.0
+- chore: Update build-details
+
+# 3.13.4
+- fix: Cannot read property 'split' of undefined in UserWithIdStrategy (#311)
+- fix: Use string[] instead of String[] for Override values (#320)
+- docs: Add remaining change requests from #318 (#319)
+- docs: Clearer client alternative usage and highlight the require use of error handling (#318)
+- chore(deps): update dependency @types/node to v14.18.16 (#321)
+- chore(deps): update dependency sinon to v13 (#299)
+- chore(deps): update dependency lint-staged to v12.4.1 (#295)
+- chore(deps): update dependency nock to v13.2.4 (#301)
+- chore(deps): update dependency @types/make-fetch-happen to v9.0.2 (#312)
+- chore(deps): update dependency eslint-config-prettier to v8.5.0 (#317)
+- chore(deps): pin dependencies (#306)
+- chore(deps): update dependency redis to v4.0.6 (#314)
+- chore: correct changelog
+- chore: Update build-details
 # 3.13.3
 - fix: getVariant should also count usage
 
