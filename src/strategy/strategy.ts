@@ -54,11 +54,9 @@ const InOperator = (constraint: Constraint, context: Context) => {
   const field = constraint.contextName;
   const values = cleanValues(constraint.values);
   const contextValue = resolveContextValue(context, field);
-  if (!contextValue) {
-    return false;
-  }
 
   const isIn = values.some((val) => val === contextValue);
+  
   return constraint.operator === Operator.IN ? isIn : !isIn;
 };
 
