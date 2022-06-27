@@ -176,6 +176,21 @@ test('should not be enabled when email endsWith, caring about case', (t) => {
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 });
 
+test('should not be enabled when email endsWith, missing field', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [
+    { contextName: 'companyId', operator: 'STR_ENDS_WITH', values: ['@getunleash.ai'] },
+  ];
+  const context = {
+    environment: 'dev',
+    properties: {
+      companyId: 123
+    }
+  };
+  t.false(strategy.isEnabledWithConstraints(params, context, constraints));
+});
+
 test('should be enabled when email NOT endsWith (inverted)', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};

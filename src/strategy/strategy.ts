@@ -70,6 +70,10 @@ const StringOperator = (constraint: Constraint, context: Context) => {
     contextValue = contextValue?.toLocaleLowerCase();
   }
 
+  if(typeof contextValue !== 'string') {
+    return false;
+  }
+
   if (operator === Operator.STR_STARTS_WITH) {
     return values.some((val) => contextValue?.startsWith(val));
   }
