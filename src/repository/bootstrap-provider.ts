@@ -2,8 +2,9 @@ import { promises } from 'fs';
 import * as fetch from 'make-fetch-happen';
 import { ClientFeaturesResponse, FeatureInterface } from '../feature';
 import { CustomHeaders } from '../headers';
-import { buildHeaders } from '../request';
+import { buildHeaders, getDefaultAgent } from '../request';
 import { Segment } from '../strategy/strategy';
+import { HttpOptions } from '../http-options';
 
 export interface BootstrapProvider {
   readBootstrap(): Promise<ClientFeaturesResponse | undefined>;
@@ -16,6 +17,7 @@ export interface BootstrapOptions {
   data?: FeatureInterface[];
   segments?: Segment[];
   bootstrapProvider?: BootstrapProvider;
+  httpOptions?: HttpOptions
 }
 
 export class DefaultBootstrapProvider implements BootstrapProvider {
@@ -33,6 +35,8 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
 
   private instanceId: string;
 
+  private httpOptions?: HttpOptions;
+
   constructor(options: BootstrapOptions, appName: string, instanceId: string) {
     this.url = options.url;
     this.urlHeaders = options.urlHeaders;
@@ -42,6 +46,7 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
 
     this.appName = appName;
     this.instanceId = instanceId;
+    this.httpOptions = options.httpOptions;
   }
 
   private async loadFromUrl(bootstrapUrl: string): Promise<ClientFeaturesResponse | undefined> {
@@ -53,6 +58,8 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
         retries: 2,
         maxTimeout: 10_000,
       },
+      agent: this.httpOptions?.agent || getDefaultAgent,
+      strictSSL: this.httpOptions?.rejectUnauthorized,
     });
     if (response.ok) {
       return response.json();
