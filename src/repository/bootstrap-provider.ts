@@ -43,10 +43,10 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
     this.filePath = options.filePath;
     this.data = options.data;
     this.segments = options.segments;
+    this.httpOptions = options.httpOptions;
 
     this.appName = appName;
     this.instanceId = instanceId;
-    this.httpOptions = options.httpOptions;
   }
 
   private async loadFromUrl(bootstrapUrl: string): Promise<ClientFeaturesResponse | undefined> {
