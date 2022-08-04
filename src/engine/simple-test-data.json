@@ -1,0 +1,73 @@
+{
+  "name": "01-simple-examples",
+  "state": {
+    "version": 1,
+    "features": [
+      {
+        "name": "Feature.A",
+        "description": "Enabled toggle",
+        "enabled": true,
+        "strategies": [
+          {
+            "name": "default"
+          }
+        ]
+      },
+      {
+        "name": "Feature.B",
+        "description": "Disabled toggle",
+        "enabled": false,
+        "strategies": [
+          {
+            "name": "default"
+          }
+        ]
+      },
+      {
+        "name": "Feature.C",
+        "enabled": true,
+        "strategies": []
+      }
+    ]
+  },
+  "tests": [
+    {
+      "description": "Feature.A should be enabled",
+      "context": {},
+      "toggleName": "Feature.A",
+      "expectedResult": true
+    },
+    {
+      "description": "Feature.B should be disabled",
+      "context": {},
+      "toggleName": "Feature.B",
+      "expectedResult": false
+    },
+    {
+      "description": "Feature.C should be enabled when strategy missing",
+      "context": {},
+      "toggleName": "Feature.C",
+      "expectedResult": true
+    },
+    {
+      "description": "Unknown feature toggle should be disabled",
+      "context": {},
+      "toggleName": "Unknown",
+      "expectedResult": false
+    },
+    {
+      "description": "Should allow all context values",
+      "context": {
+        "userId": "123",
+        "sessionId": "asd123",
+        "remoteAddress": "127.0.0.1",
+        "properties": {
+          "customName": "customValue",
+          "anotherName": "anotherValue"
+        }
+      },
+      "toggleName": "Feature.A",
+      "expectedResult": true
+    }
+  ]
+}
