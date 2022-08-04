@@ -56,7 +56,7 @@ export class ToggleEngine {
     }
 
     if (feature.strategies.length === 0) {
-      return false;
+      return feature.enabled;
     }
 
     return (
