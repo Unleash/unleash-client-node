@@ -652,10 +652,10 @@
     "@typescript-eslint/types" "5.29.0"
     eslint-visitor-keys "^3.3.0"
 
-"@unleash/client-specification@4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.2.1.tgz#32e0070ce8a1edd1602c886ab3086b61750af31a"
-  integrity sha512-wXDWAPkbClA9TNbBPqkqeF8ub8/WJA+/CVeBsxCBF1q6Cdt5GRXCylmBFF2iPx5QhYzuqfuEC7+I45O53/xkWA==
+"@unleash/client-specification@4.2.2":
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.2.2.tgz#01fef308227bce8ab5ab98abf881e342e5d24558"
+  integrity sha512-HMpnZqX5M1LgFK7UgGkuy47vzAFKV3NxTw6yuAxTpMgESt0OGwXKHWlWAla2Es+EalEVxMgBoTs7WHrl9Rhfqw==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
