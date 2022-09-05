@@ -6,6 +6,7 @@ import { VariantDefinition } from './variant';
 export interface FeatureInterface {
   name: string;
   type: string;
+  project: string;
   description?: string;
   enabled: boolean;
   stale: boolean;
