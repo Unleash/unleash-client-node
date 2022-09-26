@@ -79,14 +79,7 @@ an exhaustive list of all the events the SDK can emit.
 
 You can also construct the Unleash instance yourself instead of via the `initialize` method.
 
----
-
-⚠️ **Important:** When using the Unleash client directly, you **must** handle errors yourself. Do
-this by attaching an event listener to the `error` event, as shown in the example below. If you
-don't do this, your application may crash either on startup or at runtime if it can't reach the
-Unleash server or if it encounters other errors.
-
----
+**Important:** When using the Unleash client directly, you **must** make sure to not create new Unleash instances in request scope. Most applications is expected to only have a single Unleash instance (singleton). Each SDK instance will maintain a connection to the Unleash API, which may result in flooding the Unleash API. 
 
 ```js
 const { Unleash } = require('unleash-client');
@@ -97,7 +90,9 @@ const unleash = new Unleash({
   customHeaders: { Authorization: 'SOME-SECRET' },
 });
 
-// required error handling when using unleash directly
+unleash.on('ready', console.log.bind(console, 'ready'));
+
+// optional error handling when using unleash directly
 unleash.on('error', console.error);
 ```
 

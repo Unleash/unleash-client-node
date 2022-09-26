@@ -50,6 +50,10 @@ export interface StaticContext {
 }
 
 export class Unleash extends EventEmitter {
+  private static instance?: Unleash;
+
+  private static instanceCount: 0;
+
   private repository: RepositoryInterface;
 
   private client: Client;
@@ -86,6 +90,14 @@ export class Unleash extends EventEmitter {
     disableAutoStart = false,
   }: UnleashConfig) {
     super();
+
+    Unleash.instanceCount++;
+
+    if(Unleash.instanceCount > 10) {
+      console.warn('The unleash SDK has been initialized more than 10 times')
+    }
+
+    this.on('error', console.error);
 
     if (!url) {
       throw new Error('Unleash API "url" is required');
@@ -187,6 +199,16 @@ export class Unleash extends EventEmitter {
     if (!disableAutoStart) {
       process.nextTick(async () => this.start());
     }
+    Unleash.instance = this;
+  }
+
+  static getInstance(config: UnleashConfig) {
+    if(Unleash.instance) {
+      return Unleash.instance;
+    } 
+    const instance = new Unleash(config);
+    Unleash.instance = instance;
+    return instance;
   }
 
   private cleanUnleashUrl(url: string): string {
@@ -215,6 +237,7 @@ export class Unleash extends EventEmitter {
   destroy() {
     this.repository.stop();
     this.metrics.stop();
+    Unleash.instance = undefined;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
@@ -292,4 +315,4 @@ export class Unleash extends EventEmitter {
   countVariant(toggleName: string, variantName: string) {
     this.metrics.countVariant(toggleName, variantName);
   }
-}
+};
