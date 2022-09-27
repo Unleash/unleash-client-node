@@ -75,6 +75,8 @@ unleash.on('synchronized', () => {
 Refer to the [events reference](#events) later in this document for more information on events and
 an exhaustive list of all the events the SDK can emit.
 
+The `initialize` function will configure and creates a _global_ Unleash instance. When a global instance exists, calling this method has no effect. Call the `destroy` function to remove the globally configured instance.
+
 #### Constructing the Unleash client directly
 
 You can also construct the Unleash instance yourself instead of via the `initialize` method.
