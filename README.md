@@ -81,7 +81,7 @@ The `initialize` function will configure and creates a _global_ Unleash instance
 
 You can also construct the Unleash instance yourself instead of via the `initialize` method.
 
-**Important:** When using the Unleash client directly, you **must** make sure to not create new Unleash instances in request scope. Most applications is expected to only have a single Unleash instance (singleton). Each SDK instance will maintain a connection to the Unleash API, which may result in flooding the Unleash API. 
+When using the Unleash client directly, you **should not create new Unleash instances on every request**. Most applications are expected to only have a single Unleash instance (singleton). Each Unleash instance will maintain a connection to the Unleash API, which may result in flooding the Unleash API. 
 
 ```js
 const { Unleash } = require('unleash-client');
