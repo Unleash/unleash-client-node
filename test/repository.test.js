@@ -308,6 +308,27 @@ test('should handle invalid JSON response', t =>
     repo.on('changed', reject);
     repo.start();
   }));
+
+/*test('should poll at exponentially larger refresh intervals if 429', async t => {
+  const url = 'http://unleash-test-429.app';
+  nock(url)
+    .get('/client/features')
+    .twice()
+    .reply(429);
+
+  const repo = new Repository({
+    url,
+    refreshInterval: 1,
+    appName: 'tester',
+    instanceId: 'test-1',
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  await repo.fetch();
+  t.is(repo.currentInterval(), 2);
+  await repo.fetch();
+  t.is(repo.currentInterval(), 4);
+});*/
 /*
 test('should respect timeout', t =>
     new Promise((resolve, reject) => {
@@ -680,7 +701,7 @@ test('bootstrap should not override load backup-file', async t => {
     .persist()
     .get('/client/features')
     .reply(408);
-  
+
   nock(url)
     .persist()
     .get('/bootstrap')

@@ -55,6 +55,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private headers?: CustomHeaders;
 
+  private currentRefreshInterval: number;
+
   private customHeadersFunction?: CustomHeadersFunction;
 
   private timeout?: number;
@@ -102,6 +104,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     super();
     this.url = url;
     this.refreshInterval = refreshInterval;
+    this.currentRefreshInterval = refreshInterval;
     this.instanceId = instanceId;
     this.appName = appName;
     this.projectName = projectName;
@@ -118,12 +121,16 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   timedFetch() {
-    if (this.refreshInterval > 0) {
+    if (this.currentRefreshInterval > 0) {
       this.timer = setTimeout(() => this.fetch(), this.refreshInterval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
       }
     }
+  }
+
+  currentInterval(): number {
+    return this.currentRefreshInterval
   }
 
   validateFeature(feature: FeatureInterface) {
@@ -271,6 +278,10 @@ Message: ${err.message}`,
       if (res.status === 304) {
         // No new data
         this.emit(UnleashEvents.Unchanged);
+        this.currentRefreshInterval = this.refreshInterval;
+      } else if (res.status === 429) {
+        // Unleash is telling us to back off, so increase by a factor of 2
+        this.currentRefreshInterval *= 2;
       } else if (!res.ok) {
         const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
         this.emit(UnleashEvents.Error, error);
@@ -283,6 +294,7 @@ Message: ${err.message}`,
             this.etag = undefined;
           }
           await this.save(data, true);
+          this.currentRefreshInterval = this.refreshInterval;
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
         }
