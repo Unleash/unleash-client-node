@@ -1,7 +1,7 @@
 const { initialize, isEnabled } = require('../lib');
 
-const url = 'https://app.unleash-hosted.com/demo/api/';
-const apiToken = '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0';
+const url = process.env.UNLEASH_API_URL || 'https://app.unleash-hosted.com/demo/api/';
+const apiToken = process.env.UNLEASH_API_KEY || '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0';
 const toggleName = 'demo001';
 const unleashContext = {userId: '1232'};
 
