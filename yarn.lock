@@ -503,10 +503,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/murmurhash3js@3.0.2":
-  version "3.0.2"
-  resolved "https://registry.npmjs.org/@types/murmurhash3js/-/murmurhash3js-3.0.2.tgz"
-  integrity sha512-xx8QZPFSzd5520I/EVZCNYUEzTPHYkKf+V0CBDPMA/X0vRRQRkFiEjTfoM3Yd+oE0jTKR/qZ+vDWF+2PMaVXMg==
+"@types/murmurhash3js@3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@types/murmurhash3js/-/murmurhash3js-3.0.3.tgz#57148071a2a8e4ffbe241a632a4f90f024645917"
+  integrity sha512-Fk89Nt3pqOPBbv1fTrD0nN+bqPu0pens6qCmdbGpRKg19b/pS0dsQQxaFIvw6swaaK+hcvySDzes4Z35XMV9mg==
 
 "@types/node-fetch@*":
   version "2.6.1"
