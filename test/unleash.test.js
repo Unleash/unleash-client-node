@@ -140,13 +140,17 @@ test('should re-emit events from repository and metrics', (t) => {
     url,
   });
 
-  t.plan(5);
+  t.plan(7);
   instance.on('warn', (e) => t.truthy(e));
   instance.on('sent', (e) => t.truthy(e));
   instance.on('registered', (e) => t.truthy(e));
   instance.on('count', (e) => t.truthy(e));
+  instance.on('unchanged', (e) => t.truthy(e));
+  instance.on('changed', (e) => t.truthy(e));
 
   instance.repository.emit('warn', true);
+  instance.repository.emit('changed', true);
+  instance.repository.emit('unchanged', true);
   instance.metrics.emit('warn', true);
   instance.metrics.emit('sent', true);
   instance.metrics.emit('registered', true);

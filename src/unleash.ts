@@ -136,6 +136,8 @@ export class Unleash extends EventEmitter {
 
     this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
 
+    this.repository.on(UnleashEvents.Unchanged, (msg) => this.emit(UnleashEvents.Unchanged, msg));
+
     this.repository.on(UnleashEvents.Changed, (data) => {
       this.emit(UnleashEvents.Changed, data);
 
