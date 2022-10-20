@@ -6,7 +6,7 @@ import mkdirp from 'mkdirp';
 import sinon from 'sinon';
 import FakeRepo from './fake_repo';
 
-import { Strategy, Unleash } from '../lib/unleash';
+import { Strategy, Unleash, UnleashEvents } from '../lib/unleash';
 
 class EnvironmentStrategy extends Strategy {
   constructor() {
@@ -140,17 +140,21 @@ test('should re-emit events from repository and metrics', (t) => {
     url,
   });
 
-  t.plan(5);
-  instance.on('warn', (e) => t.truthy(e));
-  instance.on('sent', (e) => t.truthy(e));
-  instance.on('registered', (e) => t.truthy(e));
-  instance.on('count', (e) => t.truthy(e));
+  t.plan(7);
+  instance.on(UnleashEvents.Warn, (e) => t.truthy(e));
+  instance.on(UnleashEvents.Sent, (e) => t.truthy(e));
+  instance.on(UnleashEvents.Registered, (e) => t.truthy(e));
+  instance.on(UnleashEvents.Count, (e) => t.truthy(e));
+  instance.on(UnleashEvents.Unchanged, (e) => t.truthy(e));
+  instance.on(UnleashEvents.Changed, (e) => t.truthy(e));
 
-  instance.repository.emit('warn', true);
-  instance.metrics.emit('warn', true);
-  instance.metrics.emit('sent', true);
-  instance.metrics.emit('registered', true);
-  instance.metrics.emit('count', true);
+  instance.repository.emit(UnleashEvents.Warn, true);
+  instance.repository.emit(UnleashEvents.Changed, true);
+  instance.repository.emit(UnleashEvents.Unchanged, true);
+  instance.metrics.emit(UnleashEvents.Warn, true);
+  instance.metrics.emit(UnleashEvents.Sent, true);
+  instance.metrics.emit(UnleashEvents.Registered, true);
+  instance.metrics.emit(UnleashEvents.Count, true);
 
   instance.destroy();
 });
