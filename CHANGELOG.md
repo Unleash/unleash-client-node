@@ -1,5 +1,28 @@
 # Changelog
 
+
+# 3.16.1
+- fix: handle socket hang up gracefully. (#392)
+- chore(deps): update dependency @types/semver to v7.3.13 (#383)
+- chore(deps): update dependency lint-staged to v12.5.0 (#369)
+- chore(deps): update dependency @types/node to v14.18.32 (#365)
+- chore: Update build-details
+
+# 3.16.0
+
+- fix: Emit "unchanged" event (#376)
+- chore(deps): update dependency @types/murmurhash3js to v3.0.3 (#373)
+- Add project to payload (#364)
+- chore(deps): update dependency eslint to v8.23.0 (#363)
+- chore(deps): update dependency typescript to v4.8.2 (#362)
+- chore(deps): update dependency @types/semver to v7.3.12 (#361)
+- chore(deps): update dependency eslint to v8.22.0 (#356)
+- chore(deps): update dependency @types/make-fetch-happen to v10 (#357)
+- chore(deps): update dependency @unleash/client-specification to v4.2.2 (#355)
+- chore(deps): update dependency @types/node to v14.18.26 (#354)
+- meta: add stale bot config (reference unleash/.github) (#352)
+- chore: Update build-details
+
 # 3.15.0
 - feat: add impression events (#336)
 - fix: string operator needs to guard against non-string values (#343)
