@@ -30,7 +30,7 @@
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
     "ip": "^1.1.5",
-    "make-fetch-happen": "^10.0.0",
+    "make-fetch-happen": "^10.2.1",
     "murmurhash3js": "^3.0.1",
     "semver": "^7.3.5"
   },
@@ -45,7 +45,7 @@
   "devDependencies": {
     "@ava/babel": "2.0.0",
     "@types/ip": "1.1.0",
-    "@types/make-fetch-happen": "10.0.0",
+    "@types/make-fetch-happen": "10.0.1",
     "@types/murmurhash3js": "3.0.3",
     "@types/node": "14.18.32",
     "@types/semver": "7.3.13",
