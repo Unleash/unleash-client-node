@@ -1,7 +1,7 @@
 # Unleash Client SDK for Node.js
 
-![npm](https://img.shields.io/npm/v/unleash-client)
-![npm](https://img.shields.io/npm/dm/unleash-client)
+[![Unleash node SDK on npm](https://img.shields.io/npm/v/unleash-client)](https://www.npmjs.com/package/unleash-client)
+![npm downloads](https://img.shields.io/npm/dm/unleash-client)
 [![Build Status](https://github.com/Unleash/unleash-client-node/workflows/Build/badge.svg)](https://github.com/Unleash/unleash-client-node/actions)
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
