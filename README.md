@@ -6,90 +6,167 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
 
-Unleash Client SDK for Node.js. It is compatible with:
-
-- [Unleash Enterprise](https://www.unleash-hosted.com)
-- [Unleash Open-Source](https://github.com/Unleash/unleash)
+The official Unleash client SDK for Node.js.
 
 ## Getting started
 
 ### 1. Install the unleash-client into your project
 
 ```bash
-$ npm install unleash-client --save
+npm install unleash-client
 ```
+
+or
+
+```bash
+yarn add unleash-client
+```
+
+(Or any other tool you like.)
 
 ### 2. Initialize unleash-client
 
-It is recommended to initialize the Unleash client SDK as early as possible in your node.js
-application. The SDK will set-up a in-memory repository, and poll updates from the unleash-server at
-regular intervals.
+Once installed, you must initialize the SDK in your application. By default, Unleash initialization
+is asynchronous, but if you need it to be synchronous, you can
+[block until the SDK has synchronized with the server](#synchronous-initialization).
+
+Note that until the SDK has synchronized with the API, all features will evaluate to `false` unless
+you a [bootstrapped configuration](#bootstrap).
+
+---
+
+💡 **Tip**: All code samples in this section will initialize the SDK and try to connect to the
+Unleash instance you point it to. You will need an Unleash instance and a
+[server-side API token](https://docs.getunleash.io/reference/api-tokens-and-client-keys#client-tokens)
+for the connection to be successful.
+
+---
+
+We recommend that you initialize the Unleash client SDK **as early as possible** in your
+application. The SDK will set up an in-memory repository and poll for updates from the Unleash
+server at regular intervals.
 
 ```js
-const { initialize } = require('unleash-client');
-const unleash = initialize({
-  url: 'http://unleash.herokuapp.com/api/',
-  appName: 'my-app-name',
-  instanceId: 'my-unique-instance-id',
-  customHeaders: {
-    Authorization: 'API token',
-  },
-});
+const unleash = require('unleash-client');
 
-unleash.on('synchronized', () => {
-  // Unleash is ready to serve updated feature toggles.
-
-  // Check a feature flag
-  const isEnabled = unleash.isEnabled('some-toggle');
-
-  // Check the variant
-  const variant = unleash.getVariant('app.ToggleY');
+unleash.initialize({
+  url: 'https://YOUR-API-URL',
+  appName: 'my-node-name',
+  customHeaders: { Authorization: 'SOME-SECRET' },
 });
 ```
-Be aware that the `initialize` function will configure a _global_ Unleash instance. If you call this method multiple times the global instance will be changed.
+
+The `initialize` function will configure a **global** Unleash instance. If you call this method
+multiple times, the global instance will be changed. You will **not** create multiple instances.
+
+#### How do I know when it's ready?
+
+Because the SDK takes care of talking to the server in the background, it can be difficult to know
+exactly when it has connected and is ready to evaluate toggles. If you want to run some code when
+the SDK becomes ready, you can listen for the `'synchronized'` event:
+
+```js
+unleash.on('synchronized', () => {
+  // the SDK has synchronized with the server
+  // and is ready to serve
+});
+```
+
+Refer to the [events reference](#events) later in this document for more information on events and
+an exhaustive list of all the events the SDK can emit.
 
 #### Constructing the Unleash client directly
 
 You can also construct the Unleash instance yourself instead of via the `initialize` method.
 
-**Important:** When using the Unleash client directly, you **must** handle errors yourself. Do this by attaching an event listener to the `error` event, as shown in the example below. If you don't do this, your application may crash either on startup or at runtime if it can't reach the Unleash server or if it encounters other errors.
+---
+
+⚠️ **Important:** When using the Unleash client directly, you **must** handle errors yourself. Do
+this by attaching an event listener to the `error` event, as shown in the example below. If you
+don't do this, your application may crash either on startup or at runtime if it can't reach the
+Unleash server or if it encounters other errors.
+
+---
 
 ```js
 const { Unleash } = require('unleash-client');
 
 const unleash = new Unleash({
-  appName: 'my-app-name',
-  url: 'http://unleash.herokuapp.com',
-  customHeaders: {
-    Authorization: 'API token',
-  },
+  url: 'https://YOUR-API-URL',
+  appName: 'my-node-name',
+  customHeaders: { Authorization: 'SOME-SECRET' },
 });
-
-unleash.on('ready', console.log.bind(console, 'ready'));
 
 // required error handling when using unleash directly
 unleash.on('error', console.error);
 ```
 
-#### Block until Unleash SDK has synchronized
+#### Synchronous initialization
 
-You can also use the `startUnleash` function, and `await` for the SDK to have fully synchronized
-with the unleash-api. This allows you to secure that the SDK is not operating on locally and
-potential stale feature toggle configuration.
+You can also use the `startUnleash` function and `await` to wait for the SDK to have fully
+synchronized with the Unleash API. This guarantees that the SDK is not operating on local and
+potentially stale feature toggle configuration.
 
 ```js
 const { startUnleash } = require('unleash-client');
 
 const unleash = await startUnleash({
-  appName: 'async-unleash',
-  url: 'http://unleash.herokuapp.com/api/',
-  customHeaders: {
-    Authorization: 'API token',
-  },
+  url: 'https://YOUR-API-URL',
+  appName: 'my-node-name',
+  customHeaders: { Authorization: 'SOME-SECRET' },
 });
 
 // Unleash SDK has now fresh state from the unleash-api
 const isEnabled = unleash.isEnabled('Demo');
+```
+
+### 3. Check features
+
+With the SDK initialized, you can use it to check the states of your feature toggles in your
+application.
+
+The primary way to check feature toggle status is to use the `isEnabled` method on the SDK. It takes
+the name of the feature and returns `true` or `false` based on whether the feature is enabled or
+not.
+
+```javascript
+setInterval(() => {
+  if (unleash.isEnabled('DemoToggle')) {
+    console.log('Toggle enabled');
+  } else {
+    console.log('Toggle disabled');
+  }
+}, 1000);
+```
+
+👀 **Note**: In this example, we've wrapped the `isEnabled` call inside a `setInterval` function. In
+the event that all your app does is to start the SDK and check a feature status, this is will keep a
+node app running until the SDK has synchronized with the Unleash API. It is **not** required in
+normal apps.
+
+#### Providing an Unleash context
+
+Calling the `isEnabled` method with just a feature name will work in simple use cases, but in many
+cases you'll also want to provide an
+[Unleash context](https://docs.getunleash.io/reference/unleash-context). The SDK uses the Unleash
+context to evaluate any
+[activation strategy](https://docs.getunleash.io/reference/activation-strategies) with
+[strategy constraints](https://docs.getunleash.io/reference/strategy-constraints), and also to
+evaluate some of the built-in strategies.
+
+The `isEnabled` accepts an Unleash context object as a second argument:
+
+```js
+const unleashContext = {
+  userId: '123',
+  sessionId: 'some-session-id',
+  remoteAddress: '127.0.0.1',
+  properties: {
+    region: 'EMEA',
+  },
+};
+
+const enabled = unleash.isEnabled('someToggle', unleashContext);
 ```
 
 ### 4. Stop unleash
@@ -104,25 +181,16 @@ destroy();
 
 ### Built in activation strategies
 
-The client comes with implementations for the built-in activation strategies provided by unleash.
+The client comes supports all built-in activation strategies provided by Unleash.
 
-- DefaultStrategy
-- UserIdStrategy
-- FlexibleRolloutStrategy
-- GradualRolloutUserIdStrategy
-- GradualRolloutSessionIdStrategy
-- GradualRolloutRandomStrategy
-- RemoteAddressStrategy
-- ApplicationHostnameStrategy
-
-Read more about the strategies in
-[activation-strategy.md](https://github.com/Unleash/unleash/blob/main/docs/activation-strategies.md).
+Read more about
+[activation strategies in the official docs](https://docs.getunleash.io/reference/activation-strategies).
 
 ### Unleash context
 
-In order to use some of the common activation strategies you must provide a
-[unleash-context](https://github.com/Unleash/unleash/blob/main/docs/unleash-context.md). This
-client SDK allows you to send in the unleash context as part of the `isEnabled` call:
+In order to use some of the common activation strategies you must provide an
+[Unleash context](https://docs.getunleash.io/reference/unleash-context). This client SDK allows you
+to send in the unleash context as part of the `isEnabled` call:
 
 ```javascript
 const unleashContext = {
@@ -139,7 +207,8 @@ The initialize method takes the following arguments:
 
 - **url** - The url to fetch toggles from (required).
 - **appName** - The application name / codebase name (required).
-- **environment** - The active environment this application is running in. Automatically populated in the Unleash Context (optional).
+- **environment** - The active environment this application is running in. Automatically populated
+  in the Unleash Context (optional).
 - **instanceId** - A unique identifier, should/could be somewhat unique.
 - **refreshInterval** - The poll interval to check for updates. Defaults to 15000ms.
 - **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
@@ -155,7 +224,8 @@ The initialize method takes the following arguments:
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security.
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags. E.g.: `[{type: 'simple', value: 'proxy'}]`.
+- **tags** - Only fetch feature toggles tagged with the list of tags. E.g.:
+  `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
@@ -201,7 +271,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | error        | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
 | unchanged    | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
 | changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
-| impression   | `object` data                    | is emitted for every user impression (isEnabled / getVariant)                                                                                                                                                                               |
+| impression   | `object` data                    | is emitted for every user impression (isEnabled / getVariant)                                                                                                                                                                                |
 
 Example usage:
 
@@ -209,9 +279,9 @@ Example usage:
 const { initialize } = require('unleash-client');
 
 const unleash = initialize({
-    appName: 'my-app-name',
-    url: 'http://unleash.herokuapp.com/api/',
-    customHeaders: {
+  appName: 'my-app-name',
+  url: 'http://unleash.herokuapp.com/api/',
+  customHeaders: {
     Authorization: 'API token',
   },
 });
@@ -223,12 +293,12 @@ unleash.on('error', console.error);
 unleash.on('warn', console.warn);
 
 unleash.once('registered', () => {
-    // Do something after the client has registered with the server api.
-    // NB! It might not have received updated feature toggles yet.
+  // Do something after the client has registered with the server api.
+  // NB! It might not have received updated feature toggles yet.
 });
 
 unleash.once('changed', () => {
-    console.log(`Demo is enabled: ${unleash.isEnabled('Demo')}`);
+  console.log(`Demo is enabled: ${unleash.isEnabled('Demo')}`);
 });
 
 unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})`));
@@ -238,7 +308,11 @@ unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})`));
 
 (Available from v3.11.x)
 
-The Node.js SDK supports a bootstrap parameter, allowing you to load the initial feature toggle configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an argument directly to the SDK, as a `filePath` to load or as a `url` to fetch the content from. Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle configuration from the bootstrap location, even if the Unleash API should be unavailable at startup.
+The Node.js SDK supports a bootstrap parameter, allowing you to load the initial feature toggle
+configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an
+argument directly to the SDK, as a `filePath` to load or as a `url` to fetch the content from.
+Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle
+configuration from the bootstrap location, even if the Unleash API should be unavailable at startup.
 
 **1. Bootstrap with data passed as an argument**
 
@@ -261,12 +335,10 @@ const client = initialize({
         variants: [],
         strategies: [{ name: 'default' }],
       },
-    ]
+    ],
   },
 });
-
 ```
-
 
 **2. Bootstrap via a URL**
 
@@ -280,11 +352,10 @@ const client = initialize({
   bootstrap: {
     url: 'http://localhost:3000/proxy/client/features',
     urlHeaders: {
-    Authorization: 'bootstrap',
-   }
+      Authorization: 'bootstrap',
+    },
   },
 });
-
 ```
 
 **3. Bootstrap from a File**
@@ -297,10 +368,9 @@ const client = initialize({
     Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
   },
   bootstrap: {
-   filePath: '/tmp/some-bootstrap.json',
+    filePath: '/tmp/some-bootstrap.json',
   },
 });
-
 ```
 
 ## Toggle definitions
@@ -331,15 +401,15 @@ const featureToggles = getFeatureToggleDefinitions();
 
 (Available from v3.11.x)
 
-By default this SDK will use a store provider that writes a backup of the feature toggle configuration to a **file on disk**. This happens every time it receives updated configuration from the Unleash API. You can swap out the store provider with either the provided in-memory store provider or a custom store provider implemented by you.
+By default this SDK will use a store provider that writes a backup of the feature toggle
+configuration to a **file on disk**. This happens every time it receives updated configuration from
+the Unleash API. You can swap out the store provider with either the provided in-memory store
+provider or a custom store provider implemented by you.
 
 **1. Use InMemStorageProvider**
 
 ```js
-const {
-  initialize,
-  InMemStorageProvider,
-} = require('unleash-client');
+const { initialize, InMemStorageProvider } = require('unleash-client');
 
 const client = initialize({
   appName: 'my-application',
@@ -354,10 +424,7 @@ const client = initialize({
 **2. Custom Store Provider backed by redis**
 
 ```js
-const {
-  initialize,
-  InMemStorageProvider,
-} = require('unleash-client');
+const { initialize, InMemStorageProvider } = require('unleash-client');
 
 const { createClient } = require('redis');
 
@@ -366,7 +433,6 @@ class CustomRedisStore {
     const client = createClient();
     await client.connect();
     await client.set(key, JSON.stringify(data));
-
   }
   async get(key) {
     const client = createClient();
@@ -385,7 +451,6 @@ const client = initialize({
   storageProvider: new CustomRedisStore(),
 });
 ```
-
 
 ## Custom repository
 
