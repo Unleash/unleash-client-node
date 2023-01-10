@@ -42,6 +42,7 @@ export interface UnleashConfig {
   bootstrapOverride?: boolean;
   storageProvider?: StorageProvider<ClientFeaturesResponse>;
   disableAutoStart?: boolean;
+  skipInstanceCountWarning?: boolean;
 }
 
 export interface StaticContext {
@@ -88,16 +89,18 @@ export class Unleash extends EventEmitter {
     bootstrapOverride,
     storageProvider,
     disableAutoStart = false,
+    skipInstanceCountWarning = false,
   }: UnleashConfig) {
     super();
 
     Unleash.instanceCount++;
 
-    if(Unleash.instanceCount > 10) {
-      console.warn('The unleash SDK has been initialized more than 10 times')
-    }
+    this.on(UnleashEvents.Error, console.error);
 
-    this.on('error', console.error);
+    if(!skipInstanceCountWarning && Unleash.instanceCount > 10) {
+      const error = new Error('The unleash SDK has been initialized more than 10 times');
+      this.emit(UnleashEvents.Error, error);
+    }
 
     if (!url) {
       throw new Error('Unleash API "url" is required');
