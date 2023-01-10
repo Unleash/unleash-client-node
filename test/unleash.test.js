@@ -788,3 +788,26 @@ test('should use provided bootstrap data', (t) =>
       });
     });
   });
+
+  test.skip('should only instantiate once', (t) => {
+    const baseUrl = `${getUrl()}api`;
+    mockNetwork([], baseUrl);
+
+    const i1 = Unleash.getInstance({
+      appName: 'get-instance-1',
+      refreshInterval: 0,
+      disableMetrics: true,
+      url: baseUrl,
+    });
+    const i2 = Unleash.getInstance({
+      appName: 'get-instance-1',
+      refreshInterval: 0,
+      disableMetrics: true,
+      url: baseUrl,
+    });
+
+    t.is(i1, i2);
+    
+    i1.destroy();
+    i2.destroy();
+  });

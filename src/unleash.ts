@@ -9,7 +9,9 @@ import { Strategy, defaultStrategies } from './strategy';
 
 import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
-import { FallbackFunction, createFallbackFunction, generateInstanceId } from './helpers';
+import { 
+  FallbackFunction,
+  createFallbackFunction, generateInstanceId, generateHashOfObject } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
@@ -51,6 +53,8 @@ export interface StaticContext {
 }
 
 export class Unleash extends EventEmitter {
+  private static configSignature?: string;
+
   private static instance?: Unleash;
 
   private static instanceCount: 0;
@@ -95,7 +99,9 @@ export class Unleash extends EventEmitter {
 
     Unleash.instanceCount++;
 
-    this.on(UnleashEvents.Error, console.error);
+    this.on(UnleashEvents.Error, (err) => {
+      console.error(err?.message);
+    });
 
     if(!skipInstanceCountWarning && Unleash.instanceCount > 10) {
       const error = new Error('The unleash SDK has been initialized more than 10 times');
@@ -205,12 +211,23 @@ export class Unleash extends EventEmitter {
     Unleash.instance = this;
   }
 
+  /**
+   * Will only give you an instance the first time you call the method, 
+   * and then return the same instance. 
+   * @param config The Unleash Config. 
+   * @returns the Unleash instance
+   */
   static getInstance(config: UnleashConfig) {
+    const configSignature = generateHashOfObject(config);
     if(Unleash.instance) {
+      if(configSignature !== Unleash.configSignature) {
+        throw new Error('You already have an Unleash instance with a different configuration.');
+      }
       return Unleash.instance;
     } 
     const instance = new Unleash(config);
     Unleash.instance = instance;
+    Unleash.configSignature = configSignature;
     return instance;
   }
 
@@ -241,6 +258,7 @@ export class Unleash extends EventEmitter {
     this.repository.stop();
     this.metrics.stop();
     Unleash.instance = undefined;
+    Unleash.configSignature = undefined;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
