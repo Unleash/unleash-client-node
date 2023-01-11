@@ -29,10 +29,10 @@
   },
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
-    "ip": "^1.1.5",
+    "ip": "^1.1.8",
     "make-fetch-happen": "^10.2.1",
     "murmurhash3js": "^3.0.1",
-    "semver": "^7.3.5"
+    "semver": "^7.3.8"
   },
   "engines": {
     "node": ">=10",
