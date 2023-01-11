@@ -1,5 +1,28 @@
 # Changelog
 
+- feat: Only initialize the SDK once. (#368)
+- fix: upgrade semver to 7.3.8
+- fix: add resolution for debug
+- fix: add resolution for minimatch
+- fix: add resolution for qs
+- fix: add resolution for json5
+- fix: update yarn.lock
+- docs: Update the readme with info from docs.getunleash (#399)
+- docs: minor fix in README
+- chore(deps): update dependency debug to v4 (#402)
+- chore(deps): update dependency json5 to v2 (#401)
+- chore(deps): update dependency eslint to v8.31.0 (#394)
+- chore(deps): update dependency nock to v13.3.0 (#400)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.48.1 (#395)
+- chore(deps): update dependency eslint-config-prettier to v8.6.0 (#396)
+- chore(deps): update dependency prettier to v2.8.2 (#398)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.47.1 (#346)
+- chore(deps): update dependency typescript to v4.9.4 (#386)
+- chore(deps): update dependency sinon to v15 (#391)
+- chore(deps): update dependency @types/node to v18 (#380)
+- chore(deps): update dependency @types/node to v14.18.36 (#382)
+- chore(deps): update dependency eslint to v8.30.0 (#367)
+- chore(deps): update dependency prettier to v2.8.1 (#387)
 
 # 3.16.1
 - fix: handle socket hang up gracefully. (#392)
