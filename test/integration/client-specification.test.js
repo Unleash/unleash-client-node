@@ -37,6 +37,7 @@ specs.forEach((testName) => {
         const instance = new Unleash({
           appName: testName,
           disableMetrics: true,
+          skipInstanceCountWarning: true,
           url,
           backupPath: getRandomBackupPath(definition.name),
         });
@@ -62,6 +63,7 @@ specs.forEach((testName) => {
         const instance = new Unleash({
           appName: testName,
           disableMetrics: true,
+          skipInstanceCountWarning: true,
           url,
           backupPath: getRandomBackupPath(definition.name),
         });

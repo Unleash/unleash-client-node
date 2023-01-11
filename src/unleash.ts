@@ -57,7 +57,7 @@ export class Unleash extends EventEmitter {
 
   private static instance?: Unleash;
 
-  private static instanceCount: 0;
+  private static instanceCount: number = 0;
 
   private repository: RepositoryInterface;
 
@@ -98,14 +98,21 @@ export class Unleash extends EventEmitter {
     super();
 
     Unleash.instanceCount++;
+    
 
-    this.on(UnleashEvents.Error, (err) => {
-      console.error(err?.message);
+    this.on(UnleashEvents.Error, (error) => {
+      // Only if there does not exist other listeners for this event.
+      if(this.listenerCount(UnleashEvents.Error) === 1)  {
+        console.error(error);  
+      }
+      
     });
 
     if(!skipInstanceCountWarning && Unleash.instanceCount > 10) {
-      const error = new Error('The unleash SDK has been initialized more than 10 times');
-      this.emit(UnleashEvents.Error, error);
+      process.nextTick(() => {
+        const error = new Error('The unleash SDK has been initialized more than 10 times');
+        this.emit(UnleashEvents.Error, error);
+      })
     }
 
     if (!url) {
@@ -208,7 +215,6 @@ export class Unleash extends EventEmitter {
     if (!disableAutoStart) {
       process.nextTick(async () => this.start());
     }
-    Unleash.instance = this;
   }
 
   /**
@@ -259,6 +265,7 @@ export class Unleash extends EventEmitter {
     this.metrics.stop();
     Unleash.instance = undefined;
     Unleash.configSignature = undefined;
+    Unleash.instanceCount--;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;

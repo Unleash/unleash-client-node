@@ -53,9 +53,9 @@ function mockNetwork(toggles = defaultToggles, url = getUrl()) {
 }
 
 test('should error when missing url', (t) => {
-  t.throws(() => new Unleash({}));
-  t.throws(() => new Unleash({ url: false }));
-  t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
+  t.throws(() => new Unleash({ skipInstanceCountWarning: true, }));
+  t.throws(() => new Unleash({ url: false, skipInstanceCountWarning: true, }));
+  t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false, skipInstanceCountWarning: true, }));
 });
 
 test('calling destroy synchronously should avoid network activity', (t) => {
@@ -63,6 +63,7 @@ test('calling destroy synchronously should avoid network activity', (t) => {
   // Don't call mockNetwork. If destroy didn't work, then we would have an
   // uncaught exception.
   const instance = new Unleash({
+    skipInstanceCountWarning: true,
     appName: 'foo',
     url,
     disableMetrics: true,
@@ -79,6 +80,7 @@ test.cb('should handle old url', (t) => {
     refreshInterval: 0,
     metricsInterval: 0,
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url: `${url}features`,
   });
 
@@ -101,6 +103,7 @@ test('should handle url without ending /', (t) => {
     refreshInterval: 0,
     metricsInterval: 0,
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url: baseUrl,
   });
 
@@ -118,6 +121,7 @@ test('should re-emit error from repository and metrics', (t) => {
     refreshInterval: 0,
     metricsInterval: 0,
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url,
   });
 
@@ -137,6 +141,7 @@ test('should re-emit events from repository and metrics', (t) => {
     appName: 'foo',
     refreshInterval: 0,
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url,
   });
 
@@ -166,6 +171,7 @@ test.cb('repository should surface error when invalid basePath', (t) => {
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url: `${url}bougus`,
     backupPath,
   });
@@ -185,6 +191,7 @@ test('should allow request even before unleash is initialized', (t) => {
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     url,
     backupPath: getRandomBackupPath(),
   }).on('error', (err) => {
@@ -200,6 +207,7 @@ test('should consider known feature-toggle as active', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -217,6 +225,7 @@ test('should consider unknown feature-toggle as disabled', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -234,6 +243,7 @@ test('should return fallback value until online', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -264,6 +274,7 @@ test('should call fallback function for unknown feature-toggle', (t) =>
       appName: 'foo',
       environment: 'test',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -298,6 +309,7 @@ test('should not throw when os.userInfo throws', (t) => {
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -314,6 +326,7 @@ test('should return known feature-toggle definition', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -332,6 +345,7 @@ test('should return feature-toggles', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -350,6 +364,7 @@ test('returns undefined for unknown feature-toggle definition', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -369,6 +384,7 @@ test('should use the injected repository', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
       repository: repo,
@@ -387,6 +403,7 @@ test('should add static context fields', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
       environment: 'prod',
@@ -406,6 +423,7 @@ test('should local context should take precedence over static context fields', (
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
       environment: 'prod',
@@ -428,6 +446,7 @@ test('should call client/features with projectName query parameter if projectNam
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     backupPath: getRandomBackupPath(),
     url: baseUrl,
     projectName: project,
@@ -445,6 +464,7 @@ test('should call client/features if no projectname set', (t) => {
   const instance = new Unleash({
     appName: 'foo',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     backupPath: getRandomBackupPath(),
     url: baseUrl,
   });
@@ -490,8 +510,9 @@ test('should distribute variants according to stickiness', async (t) => {
     });
 
   const unleash = new Unleash({
-    appName: 'foo-variants',
+    appName: 'foo-variants-1',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     backupPath: getRandomBackupPath(),
     url: baseUrl,
   });
@@ -523,6 +544,7 @@ test('should distribute variants according to stickiness', async (t) => {
       t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
       t.true(green > 23 && green < 27, `green not within range: ${green}`);
       t.true(yellow > 23 && yellow < 27, `yellow not within range: ${yellow}`);
+      unleash.destroy();
       resolve();
     });
   });
@@ -561,8 +583,9 @@ test('should distribute variants according to default stickiness', async (t) => 
     });
 
   const unleash = new Unleash({
-    appName: 'foo-variants',
+    appName: 'foo-variants-2',
     disableMetrics: true,
+    skipInstanceCountWarning: true,
     backupPath: getRandomBackupPath(),
     url: baseUrl,
   });
@@ -594,6 +617,7 @@ test('should distribute variants according to default stickiness', async (t) => 
       t.true(blue > 23 && blue < 27, `blue not within range: ${blue}`);
       t.true(green > 23 && green < 27, `green not within range: ${green}`);
       t.true(yellow > 23 && yellow < 27, `yellow not within range: ${yellow}`);
+      unleash.destroy();
       resolve();
     });
   });
@@ -604,6 +628,7 @@ test('should emit "synchronized" when data is received', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
     }).on('error', reject);
@@ -626,6 +651,7 @@ test('should emit "synchronized" only first time', (t) =>
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       refreshInterval: 1,
       url,
       backupPath: getRandomBackupPath(),
@@ -648,10 +674,11 @@ test('should emit "synchronized" only first time', (t) =>
 test('should use provided bootstrap data', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
-    nock(url).get('/client/features').reply(500);
+    nock(url).get('/client/features').times(3).reply(500);
     const instance = new Unleash({
       appName: 'foo',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       url,
       backupPath: getRandomBackupPath(),
       bootstrap: {
@@ -707,8 +734,9 @@ test('should use provided bootstrap data', (t) =>
       });
   
     const unleash = new Unleash({
-      appName: 'foo-variants',
+      appName: 'foo-variants-3',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       backupPath: getRandomBackupPath(),
       url: baseUrl,
     });
@@ -722,6 +750,7 @@ test('should use provided bootstrap data', (t) =>
         t.is(evt.eventType, 'isEnabled')
         t.is(evt.context.userId, context.userId);
         t.deepEqual(evt.context.properties, context.properties);
+        unleash.destroy();
         resolve();
       })
 
@@ -764,8 +793,9 @@ test('should use provided bootstrap data', (t) =>
       });
   
     const unleash = new Unleash({
-      appName: 'foo-variants',
+      appName: 'foo-variants-4',
       disableMetrics: true,
+      skipInstanceCountWarning: true,
       backupPath: getRandomBackupPath(),
       url: baseUrl,
     });
@@ -780,6 +810,7 @@ test('should use provided bootstrap data', (t) =>
         t.is(evt.variant, 'blue');
         t.is(evt.context.userId, context.userId);
         t.deepEqual(evt.context.properties, context.properties);
+        unleash.destroy();
         resolve();
       })
 
@@ -789,18 +820,20 @@ test('should use provided bootstrap data', (t) =>
     });
   });
 
-  test.skip('should only instantiate once', (t) => {
+  test('should only instantiate once', (t) => {
     const baseUrl = `${getUrl()}api`;
     mockNetwork([], baseUrl);
 
     const i1 = Unleash.getInstance({
       appName: 'get-instance-1',
+      skipInstanceCountWarning: true,
       refreshInterval: 0,
       disableMetrics: true,
       url: baseUrl,
     });
     const i2 = Unleash.getInstance({
       appName: 'get-instance-1',
+      skipInstanceCountWarning: true,
       refreshInterval: 0,
       disableMetrics: true,
       url: baseUrl,
@@ -810,4 +843,27 @@ test('should use provided bootstrap data', (t) =>
     
     i1.destroy();
     i2.destroy();
+  });
+
+  test('should throw when getInstantiate called with different unleash-config ', (t) => {
+    const baseUrl = `${getUrl()}api`;
+    mockNetwork([], baseUrl);
+
+    const i1 = Unleash.getInstance({
+      appName: 'get-instance-1',
+      refreshInterval: 0,
+      disableMetrics: true,
+      skipInstanceCountWarning: true,
+      url: baseUrl,
+    });
+
+    t.throws(() => Unleash.getInstance({
+      appName: 'get-instance-2',
+      refreshInterval: 0,
+      disableMetrics: true,
+      skipInstanceCountWarning: true,
+      url: baseUrl,
+    }));
+    
+    i1.destroy();
   });
