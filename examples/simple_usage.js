@@ -5,7 +5,7 @@ const apiToken = '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495
 const toggleName = 'demo001';
 const unleashContext = {userId: '1232'};
 
-const client = initialize({
+const unleash = initialize({
   appName: 'my-application',
   url,
   refreshInterval: 1000,
@@ -14,9 +14,9 @@ const client = initialize({
   }
 });
 
-client.on('error', console.error);
-client.on('warn', console.log);
-client.on('ready', () => {
+unleash.on('error', console.error);
+unleash.on('warn', console.log);
+unleash.on('ready', () => {
   console.log('ready!')
 });
 

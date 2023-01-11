@@ -47,9 +47,9 @@ application. The SDK will set up an in-memory repository and poll for updates fr
 server at regular intervals.
 
 ```js
-const unleash = require('unleash-client');
+const { initialize } = require('unleash-client');
 
-unleash.initialize({
+const unleash = initialize({
   url: 'https://YOUR-API-URL',
   appName: 'my-node-name',
   customHeaders: { Authorization: 'SOME-SECRET' },
