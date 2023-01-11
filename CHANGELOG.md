@@ -1,5 +1,7 @@
 # Changelog
 
+# 3.17.0
+
 - feat: Only initialize the SDK once. (#368)
 - fix: upgrade semver to 7.3.8
 - fix: add resolution for debug
