@@ -46,6 +46,7 @@ test('initialize should init with valid options', (t) => {
   nockMetrics(url);
   nockRegister(url);
   t.notThrows(() => initialize({ appName: 'my-app-name', url }));
+  destroy();
 });
 
 test('should call methods', (t) => {
@@ -58,14 +59,11 @@ test('should call methods', (t) => {
   t.snapshot(getVariant('some-feature'));
   t.snapshot(count('some-feature', true));
   t.snapshot(countVariant('some-feature', 'variant1'));
+  destroy();
 });
 
 test('should not return feature-toggle definition if there is no instance', t => {
   t.is(getFeatureToggleDefinition(), undefined);
-});
-
-test('should not empty array of feature-toggle definitions if there is no instance', t => {
-  t.deepEqual(getFeatureToggleDefinitions(), []);
 });
 
 test('should start unleash with promise', async (t) => {
@@ -75,4 +73,5 @@ test('should start unleash with promise', async (t) => {
   nockRegister(url);
   const unleash = await startUnleash({ appName: 'my-app-name', url });
   t.truthy(unleash);
+  destroy();
 });

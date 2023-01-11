@@ -12,16 +12,12 @@ export { Strategy } from './strategy/index';
 export { Context, Variant, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
 export type { ClientFeaturesResponse, UnleashConfig };
 
-let instance: Unleash | undefined;
+let instance: undefined | Unleash;
+
+
 export function initialize(options: UnleashConfig): Unleash {
-  if (instance) {
-    instance.emit(
-      UnleashEvents.Warn,
-      'This global unleash instance is initialized multiple times.',
-    );
-  }
-  instance = new Unleash(options);
-  instance.on('error', () => {});
+  instance = Unleash.getInstance(options);
+
   return instance;
 }
 

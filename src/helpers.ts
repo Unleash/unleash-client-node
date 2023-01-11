@@ -1,4 +1,5 @@
 import { userInfo, hostname } from 'os';
+import * as murmurHash3 from 'murmurhash3js';
 import { Context } from './context';
 
 export type FallbackFunction = (name: string, context: Context) => boolean;
@@ -46,4 +47,10 @@ export function generateInstanceId(instanceId?: string): string {
     ? info.username
     : `generated-${Math.round(Math.random() * 1000000)}-${process.pid}`;
   return `${prefix}-${hostname()}`;
+}
+
+
+export function generateHashOfObject(o: Object): string {
+  const oAsString = JSON.stringify(o);
+  return murmurHash3.x86.hash128(oAsString);
 }

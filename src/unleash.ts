@@ -9,7 +9,9 @@ import { Strategy, defaultStrategies } from './strategy';
 
 import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
-import { FallbackFunction, createFallbackFunction, generateInstanceId } from './helpers';
+import { 
+  FallbackFunction,
+  createFallbackFunction, generateInstanceId, generateHashOfObject } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
@@ -42,6 +44,7 @@ export interface UnleashConfig {
   bootstrapOverride?: boolean;
   storageProvider?: StorageProvider<ClientFeaturesResponse>;
   disableAutoStart?: boolean;
+  skipInstanceCountWarning?: boolean;
 }
 
 export interface StaticContext {
@@ -50,6 +53,12 @@ export interface StaticContext {
 }
 
 export class Unleash extends EventEmitter {
+  private static configSignature?: string;
+
+  private static instance?: Unleash;
+
+  private static instanceCount: number = 0;
+
   private repository: RepositoryInterface;
 
   private client: Client;
@@ -84,8 +93,27 @@ export class Unleash extends EventEmitter {
     bootstrapOverride,
     storageProvider,
     disableAutoStart = false,
+    skipInstanceCountWarning = false,
   }: UnleashConfig) {
     super();
+
+    Unleash.instanceCount++;
+    
+
+    this.on(UnleashEvents.Error, (error) => {
+      // Only if there does not exist other listeners for this event.
+      if(this.listenerCount(UnleashEvents.Error) === 1)  {
+        console.error(error);  
+      }
+      
+    });
+
+    if(!skipInstanceCountWarning && Unleash.instanceCount > 10) {
+      process.nextTick(() => {
+        const error = new Error('The unleash SDK has been initialized more than 10 times');
+        this.emit(UnleashEvents.Error, error);
+      })
+    }
 
     if (!url) {
       throw new Error('Unleash API "url" is required');
@@ -189,6 +217,26 @@ export class Unleash extends EventEmitter {
     }
   }
 
+  /**
+   * Will only give you an instance the first time you call the method, 
+   * and then return the same instance. 
+   * @param config The Unleash Config. 
+   * @returns the Unleash instance
+   */
+  static getInstance(config: UnleashConfig) {
+    const configSignature = generateHashOfObject(config);
+    if(Unleash.instance) {
+      if(configSignature !== Unleash.configSignature) {
+        throw new Error('You already have an Unleash instance with a different configuration.');
+      }
+      return Unleash.instance;
+    } 
+    const instance = new Unleash(config);
+    Unleash.instance = instance;
+    Unleash.configSignature = configSignature;
+    return instance;
+  }
+
   private cleanUnleashUrl(url: string): string {
     let unleashUrl = url;
     if (unleashUrl.endsWith('/features')) {
@@ -215,6 +263,9 @@ export class Unleash extends EventEmitter {
   destroy() {
     this.repository.stop();
     this.metrics.stop();
+    Unleash.instance = undefined;
+    Unleash.configSignature = undefined;
+    Unleash.instanceCount--;
   }
 
   isEnabled(name: string, context?: Context, fallbackFunction?: FallbackFunction): boolean;
@@ -292,4 +343,4 @@ export class Unleash extends EventEmitter {
   countVariant(toggleName: string, variantName: string) {
     this.metrics.countVariant(toggleName, variantName);
   }
-}
+};
