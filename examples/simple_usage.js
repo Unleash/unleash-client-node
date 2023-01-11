@@ -14,19 +14,6 @@ const client = initialize({
   }
 });
 
-const client2 = initialize({
-  appName: 'my-application',
-  url,
-  refreshInterval: 1000,
-  customHeaders: {
-    Authorization: apiToken,
-  },
-  customHeadersFunction: () => {
-    const a = "test";
-    return {a};
-  },
-});
-
 client.on('error', console.error);
 client.on('warn', console.log);
 client.on('ready', () => {
@@ -37,11 +24,5 @@ console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
   const enabled = isEnabled(toggleName, unleashContext);
-  console.log(`Enabled: ${enabled}`);
-}, 1000);
-
-
-setInterval(() => {
-  const enabled = client2.isEnabled(toggleName, unleashContext);
   console.log(`Enabled: ${enabled}`);
 }, 1000);
