@@ -74,7 +74,8 @@
   },
   "resolutions": {
     "ansi-regex": "^5.0.1",
-    "json-schema": "^0.4.0"
+    "json-schema": "^0.4.0",
+    "json5": "^1.0.2"
   },
   "nyc": {
     "lines": 95,
