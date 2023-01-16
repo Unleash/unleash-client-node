@@ -82,8 +82,8 @@ test.cb('should sendMetrics', (t) => {
       t.truthy(payload.bucket.start);
       t.truthy(payload.bucket.stop);
       t.deepEqual(payload.bucket.toggles, {
-        'toggle-x': { yes: 1, no: 1 },
-        'toggle-y': { yes: 1, no: 0 },
+        'toggle-x': { yes: 1, no: 1, variants: { }},
+        'toggle-y': { yes: 1, no: 0, variants: { } },
       });
       return true;
     })
@@ -390,7 +390,42 @@ test('getMetricsData should return a bucket', (t) => {
   });
   metrics.start();
 
-  const result = metrics.getMetricsData();
+  const result = metrics.createMetricsData();
   t.true(typeof result === 'object');
   t.true(typeof result.bucket === 'object');
+});
+
+test.cb('should keep metrics if send is failing', (t) => {
+  const url = getUrl();
+  t.plan(4);
+  nock(url)
+    .post(metricsUrl)
+    .reply(500, '');
+
+  nockRegister(url);
+
+  const metrics = new Metrics({
+    url,
+    metricsInterval: 50,
+  });
+
+  metrics.count('toggle-x', true);
+  metrics.count('toggle-x', false);
+  
+  // variant 
+  metrics.count('toggle-y', true);
+  metrics.countVariant('toggle-y', 'a');
+
+  metrics.on('warn', () => {
+    // additional count after warn
+    metrics.count('toggle-y', true);
+
+    metrics.stop();
+    t.is(metrics.bucket.toggles['toggle-x'].yes, 1)
+    t.is(metrics.bucket.toggles['toggle-x'].no, 1)
+    t.is(metrics.bucket.toggles['toggle-y'].yes, 2)
+    t.is(metrics.bucket.toggles['toggle-y'].variants.a, 1)
+    t.end();
+  });
+  metrics.start();
 });

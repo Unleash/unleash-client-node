@@ -1,10 +1,9 @@
 import { EventEmitter } from 'events';
-import { resolve } from 'url';
-import { post, Data } from './request';
+import { post } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
-import { suffixSlash } from './url-utils';
+import { suffixSlash, resolve } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 
@@ -28,12 +27,27 @@ interface VariantBucket {
 
 interface Bucket {
   start: Date;
-  stop: Date | null;
-  toggles: { [s: string]: { yes: number; no: number; variants?: VariantBucket } };
+  stop?: Date;
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket } };
+}
+
+interface MetricsData {
+  appName: string;
+  instanceId: string;
+  bucket: Bucket;
+}
+
+interface RegistrationData {
+  appName:    string;
+  instanceId: string;
+  sdkVersion: string;
+  strategies: string[];
+  started:    Date;
+  interval:   number
 }
 
 export default class Metrics extends EventEmitter {
-  private bucket: Bucket | undefined;
+  private bucket: Bucket;
 
   private appName: string;
 
@@ -89,7 +103,7 @@ export default class Metrics extends EventEmitter {
     this.customHeadersFunction = customHeadersFunction;
     this.started = new Date();
     this.timeout = timeout;
-    this.resetBucket();
+    this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
   }
 
@@ -152,7 +166,7 @@ export default class Metrics extends EventEmitter {
         this.emit(UnleashEvents.Registered, payload);
       }
     } catch (err) {
-      this.emit(UnleashEvents.Error, err);
+      this.emit(UnleashEvents.Warn, err);
     }
     return true;
   }
@@ -167,7 +181,7 @@ export default class Metrics extends EventEmitter {
       return true;
     }
     const url = resolve(suffixSlash(this.url), './client/metrics');
-    const payload = this.getPayload();
+    const payload = this.createMetricsData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
@@ -187,92 +201,117 @@ export default class Metrics extends EventEmitter {
         this.stop();
       }
       if (!res.ok) {
+        this.reAddBucket(payload.bucket);
         this.emit(UnleashEvents.Warn, `${url} returning ${res.status}`, await res.text());
       } else {
         this.emit(UnleashEvents.Sent, payload);
       }
     } catch (err) {
-      this.emit(UnleashEvents.Error, err);
+      this.reAddBucket(payload.bucket);
+      this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }
     return true;
   }
 
   assertBucket(name: string) {
-    if (this.disabled || !this.bucket) {
+    if (this.disabled) {
       return false;
     }
     if (!this.bucket.toggles[name]) {
       this.bucket.toggles[name] = {
         yes: 0,
         no: 0,
+        variants: {},
       };
     }
     return true;
   }
 
   count(name: string, enabled: boolean): boolean {
-    if (this.disabled || !this.bucket) {
+    if (this.disabled) {
       return false;
     }
-    this.assertBucket(name);
-    this.bucket.toggles[name][enabled ? 'yes' : 'no']++;
+    this.increaseCounter(name, enabled, 1);
     this.emit(UnleashEvents.Count, name, enabled);
     return true;
   }
 
   countVariant(name: string, variantName: string) {
-    if (this.disabled || !this.bucket) {
+    if (this.disabled) {
       return false;
     }
-    this.assertBucket(name);
-    const { variants } = this.bucket.toggles[name];
-    if (typeof variants !== 'undefined') {
-      if (!variants[variantName]) {
-        variants[variantName] = 1;
-      } else {
-        variants[variantName]++;
-      }
-    } else {
-      this.bucket.toggles[name].variants = {
-        [variantName]: 1,
-      };
-    }
+    this.increaseVariantCounter(name, variantName, 1);
 
     this.emit(UnleashEvents.CountVariant, name, variantName);
     return true;
   }
 
-  private bucketIsEmpty() {
-    if (!this.bucket) {
+  private increaseCounter(name: string, enabled: boolean, inc = 1): boolean {
+    if(inc === 0) {
       return false;
     }
+    this.assertBucket(name);
+    this.bucket.toggles[name][enabled ? 'yes' : 'no'] += inc;
+    return true;
+  }
+
+  private increaseVariantCounter(name: string, variantName: string, inc = 1): boolean {
+    this.assertBucket(name);
+    if(this.bucket.toggles[name].variants[variantName]) {
+      this.bucket.toggles[name].variants[variantName]+=inc 
+    } else {
+      this.bucket.toggles[name].variants[variantName] = inc;
+    }
+    return true;
+  }
+
+  private bucketIsEmpty() {
     return Object.keys(this.bucket.toggles).length === 0;
   }
 
-  private resetBucket() {
-    const bucket: Bucket = {
+  private createBucket(): Bucket {
+    return {
       start: new Date(),
-      stop: null,
+      stop: undefined,
       toggles: {},
     };
-    this.bucket = bucket;
   }
 
-  private closeBucket() {
-    if (this.bucket) {
-      this.bucket.stop = new Date();
+  private resetBucket(): Bucket {
+    const bucket = {...this.bucket, stop: new Date()};
+    this.bucket = this.createBucket();
+    return bucket;
+  }
+
+  createMetricsData(): MetricsData {
+    const bucket = this.resetBucket();
+    return {
+      appName: this.appName,
+      instanceId: this.instanceId,
+      bucket,
+    };
+  }
+
+  private reAddBucket(bucket: Bucket) {
+    if(this.disabled) {
+      return;
     }
+    this.bucket.start = bucket.start;
+
+    const { toggles } = bucket;
+    Object.keys(toggles).forEach(toggleName => {
+      const toggle = toggles[toggleName];      
+      this.increaseCounter(toggleName, true, toggle.yes);
+      this.increaseCounter(toggleName, false, toggle.no);
+
+      Object.keys(toggle.variants).forEach(variant => {
+        this.increaseVariantCounter(toggleName, variant, toggle.variants[variant]);
+      })
+    });
   }
 
-  private getPayload(): Data {
-    this.closeBucket();
-    const payload = this.getMetricsData();
-    this.resetBucket();
-    return payload;
-  }
-
-  getClientData(): Data {
+  getClientData(): RegistrationData {
     return {
       appName: this.appName,
       instanceId: this.instanceId,
@@ -280,14 +319,6 @@ export default class Metrics extends EventEmitter {
       strategies: this.strategies,
       started: this.started,
       interval: this.metricsInterval,
-    };
-  }
-
-  getMetricsData(): Data {
-    return {
-      appName: this.appName,
-      instanceId: this.instanceId,
-      bucket: this.bucket,
     };
   }
 }
