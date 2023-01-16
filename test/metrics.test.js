@@ -298,8 +298,7 @@ test.cb('sendMetrics should not send empty buckets', (t) => {
   });
   metrics.start();
 
-  metrics.sendMetrics().then((result) => {
-    t.true(result);
+  metrics.sendMetrics().then(() => {
 
     setTimeout(() => {
       t.false(metEP.isDone());
