@@ -30,6 +30,7 @@ export interface UnleashConfig {
   refreshInterval?: number;
   projectName?: string;
   metricsInterval?: number;
+  metricsJitter?: number;
   namePrefix?: string;
   disableMetrics?: boolean;
   backupPath?: string;
@@ -79,6 +80,7 @@ export class Unleash extends EventEmitter {
     url,
     refreshInterval = 15 * 1000,
     metricsInterval = 60 * 1000,
+    metricsJitter = 0,
     disableMetrics = false,
     backupPath = BACKUP_PATH,
     strategies = [],
@@ -189,6 +191,7 @@ export class Unleash extends EventEmitter {
       instanceId: unleashInstanceId,
       strategies: supportedStrategies.map((strategy: Strategy) => strategy.name),
       metricsInterval,
+      metricsJitter,
       url: unleashUrl,
       headers: customHeaders,
       customHeadersFunction,

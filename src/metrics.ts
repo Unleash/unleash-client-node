@@ -12,8 +12,8 @@ export interface MetricsOptions {
   instanceId: string;
   strategies: string[];
   metricsInterval: number;
+  metricsJitter?: number;
   disableMetrics?: boolean;
-  bucketInterval?: number;
   url: string;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
@@ -44,9 +44,9 @@ export default class Metrics extends EventEmitter {
 
   private metricsInterval: number;
 
-  private disabled: boolean;
+  private metricsJitter: number;
 
-  private bucketInterval: number | undefined;
+  private disabled: boolean;
 
   private url: string;
 
@@ -67,6 +67,7 @@ export default class Metrics extends EventEmitter {
     instanceId,
     strategies,
     metricsInterval = 0,
+    metricsJitter = 0,
     disableMetrics = false,
     url,
     headers,
@@ -77,6 +78,7 @@ export default class Metrics extends EventEmitter {
     super();
     this.disabled = disableMetrics;
     this.metricsInterval = metricsInterval;
+    this.metricsJitter = metricsJitter;
     this.appName = appName;
     this.instanceId = instanceId;
     this.sdkVersion = sdkVersion;
@@ -90,13 +92,18 @@ export default class Metrics extends EventEmitter {
     this.httpOptions = httpOptions;
   }
 
+  private getAppliedJitter() {
+    const jitter = Math.random() * this.metricsJitter;
+    return Math.random() < 0.5 ? -jitter : jitter;
+  }
+
   private startTimer() {
     if (this.disabled) {
       return false;
     }
     this.timer = setTimeout(() => {
       this.sendMetrics();
-    }, this.metricsInterval);
+    }, this.metricsInterval + this.getAppliedJitter());
 
     if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
       this.timer.unref();
