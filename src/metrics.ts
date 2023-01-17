@@ -201,13 +201,13 @@ export default class Metrics extends EventEmitter {
         this.stop();
       }
       if (!res.ok) {
-        this.reAddBucket(payload.bucket);
+        this.restoreBucket(payload.bucket);
         this.emit(UnleashEvents.Warn, `${url} returning ${res.status}`, await res.text());
       } else {
         this.emit(UnleashEvents.Sent, payload);
       }
     } catch (err) {
-      this.reAddBucket(payload.bucket);
+      this.restoreBucket(payload.bucket);
       this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }
@@ -293,7 +293,7 @@ export default class Metrics extends EventEmitter {
     };
   }
 
-  private reAddBucket(bucket: Bucket) {
+  private restoreBucket(bucket: Bucket) {
     if(this.disabled) {
       return;
     }
