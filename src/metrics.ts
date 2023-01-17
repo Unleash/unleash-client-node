@@ -107,13 +107,13 @@ export default class Metrics extends EventEmitter {
     this.httpOptions = httpOptions;
   }
 
-  private getAppliedJitter() {
+  private getAppliedJitter(): number {
     return getAppliedJitter(this.metricsJitter);
   }
 
-  private startTimer() {
+  private startTimer(): void {
     if (this.disabled) {
-      return false;
+      return;
     }
     this.timer = setTimeout(() => {
       this.sendMetrics();
@@ -122,17 +122,16 @@ export default class Metrics extends EventEmitter {
     if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
       this.timer.unref();
     }
-    return true;
   }
 
-  start() {
+  start(): void {
     if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
       this.startTimer();
       this.registerInstance();
     }
   }
 
-  stop() {
+  stop(): void {
     if (this.timer) {
       clearInterval(this.timer);
       delete this.timer;
@@ -214,9 +213,9 @@ export default class Metrics extends EventEmitter {
     return true;
   }
 
-  assertBucket(name: string) {
+  assertBucket(name: string): void {
     if (this.disabled) {
-      return false;
+      return;
     }
     if (!this.bucket.toggles[name]) {
       this.bucket.toggles[name] = {
@@ -225,7 +224,6 @@ export default class Metrics extends EventEmitter {
         variants: {},
       };
     }
-    return true;
   }
 
   count(name: string, enabled: boolean): void {
@@ -262,7 +260,7 @@ export default class Metrics extends EventEmitter {
     }
   }
 
-  private bucketIsEmpty() {
+  private bucketIsEmpty(): boolean {
     return Object.keys(this.bucket.toggles).length === 0;
   }
 
@@ -274,14 +272,13 @@ export default class Metrics extends EventEmitter {
     };
   }
 
-  private resetBucket(): Bucket {
-    const bucket = {...this.bucket, stop: new Date()};
+  private resetBucket(): void {
     this.bucket = this.createBucket();
-    return bucket;
   }
 
   createMetricsData(): MetricsData {
-    const bucket = this.resetBucket();
+    const bucket = {...this.bucket, stop: new Date()};
+    this.resetBucket();
     return {
       appName: this.appName,
       instanceId: this.instanceId,
@@ -289,7 +286,7 @@ export default class Metrics extends EventEmitter {
     };
   }
 
-  private restoreBucket(bucket: Bucket) {
+  private restoreBucket(bucket: Bucket): void {
     if(this.disabled) {
       return;
     }
