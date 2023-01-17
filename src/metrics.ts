@@ -3,7 +3,7 @@ import { post } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
-import { suffixSlash, resolve } from './url-utils';
+import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 
@@ -144,7 +144,7 @@ export default class Metrics extends EventEmitter {
     if (this.disabled) {
       return false;
     }
-    const url = resolve(suffixSlash(this.url), './client/register');
+    const url = resolveUrl(suffixSlash(this.url), './client/register');
     const payload = this.getClientData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
@@ -180,7 +180,7 @@ export default class Metrics extends EventEmitter {
       this.startTimer();
       return true;
     }
-    const url = resolve(suffixSlash(this.url), './client/metrics');
+    const url = resolveUrl(suffixSlash(this.url), './client/metrics');
     const payload = this.createMetricsData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;

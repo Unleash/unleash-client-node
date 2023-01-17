@@ -1,4 +1,4 @@
-export function resolve(from: string, to: string) {
+export function resolveUrl(from: string, to: string) {
   const resolvedUrl = new URL(to, new URL(from, 'resolve://'));
   if (resolvedUrl.protocol === 'resolve:') {
     // `from` is a relative URL.
@@ -14,7 +14,7 @@ const getUrl = (
   namePrefix?: string,
   tags?: Array<string>,
 ): string => {
-  const url = resolve(base, './client/features');
+  const url = resolveUrl(base, './client/features');
   const params = new URLSearchParams();
   if (projectName) {
     params.append('project', projectName);
