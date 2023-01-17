@@ -6,6 +6,7 @@ import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
 import { suffixSlash } from './url-utils';
 import { UnleashEvents } from './events';
+import { getAppliedJitter } from './helpers';
 
 export interface MetricsOptions {
   appName: string;
@@ -93,8 +94,7 @@ export default class Metrics extends EventEmitter {
   }
 
   private getAppliedJitter() {
-    const jitter = Math.random() * this.metricsJitter;
-    return Math.random() < 0.5 ? -jitter : jitter;
+    return getAppliedJitter(this.metricsJitter);
   }
 
   private startTimer() {
