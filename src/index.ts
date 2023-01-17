@@ -71,3 +71,11 @@ export function count(toggleName: string, enabled: boolean) {
 export function countVariant(toggleName: string, variantName: string) {
   return instance && instance.countVariant(toggleName, variantName);
 }
+
+export async function flushMetrics(): Promise<void> {
+  return instance && instance.flushMetrics();
+}
+
+export async function destroyWithFlush(): Promise<void> {
+  return instance && instance.destroyWithFlush();
+}

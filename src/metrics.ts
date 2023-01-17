@@ -170,14 +170,14 @@ export default class Metrics extends EventEmitter {
     return true;
   }
 
-  async sendMetrics(): Promise<boolean> {
+  async sendMetrics(): Promise<void> {
     if (this.disabled) {
-      return false;
+      return;
     }
     if (this.bucketIsEmpty()) {
       this.resetBucket();
       this.startTimer();
-      return true;
+      return;
     }
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
     const payload = this.createMetricsData();
@@ -210,7 +210,6 @@ export default class Metrics extends EventEmitter {
       this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }
-    return true;
   }
 
   assertBucket(name: string): void {

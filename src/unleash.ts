@@ -346,4 +346,13 @@ export class Unleash extends EventEmitter {
   countVariant(toggleName: string, variantName: string) {
     this.metrics.countVariant(toggleName, variantName);
   }
+
+  flushMetrics(): Promise<void> {
+    return this.metrics.sendMetrics();
+  }
+
+  async destroyWithFlush(): Promise<void> {
+    await this.flushMetrics()
+    this.destroy();
+  }
 };
