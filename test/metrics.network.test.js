@@ -12,7 +12,7 @@ test.cb('registerInstance should emit error when request error', (t) => {
   const metrics = new Metrics({
     url,
   });
-  metrics.on('error', (e) => {
+  metrics.on('warn', (e) => {
     t.truthy(e);
   });
 
@@ -29,7 +29,7 @@ test.cb('sendMetrics should emit error when request error', (t) => {
   const metrics = new Metrics({
     url,
   });
-  metrics.on('error', (e) => {
+  metrics.on('warn', (e) => {
     t.truthy(e);
   });
 

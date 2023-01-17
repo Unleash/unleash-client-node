@@ -1,10 +1,9 @@
 import { EventEmitter } from 'events';
-import { resolve } from 'url';
-import { post, Data } from './request';
+import { post } from './request';
 import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { sdkVersion } from './details.json';
 import { HttpOptions } from './http-options';
-import { suffixSlash } from './url-utils';
+import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 
@@ -28,12 +27,27 @@ interface VariantBucket {
 
 interface Bucket {
   start: Date;
-  stop: Date | null;
-  toggles: { [s: string]: { yes: number; no: number; variants?: VariantBucket } };
+  stop?: Date;
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket } };
+}
+
+interface MetricsData {
+  appName: string;
+  instanceId: string;
+  bucket: Bucket;
+}
+
+interface RegistrationData {
+  appName:    string;
+  instanceId: string;
+  sdkVersion: string;
+  strategies: string[];
+  started:    Date;
+  interval:   number
 }
 
 export default class Metrics extends EventEmitter {
-  private bucket: Bucket | undefined;
+  private bucket: Bucket;
 
   private appName: string;
 
@@ -89,17 +103,17 @@ export default class Metrics extends EventEmitter {
     this.customHeadersFunction = customHeadersFunction;
     this.started = new Date();
     this.timeout = timeout;
-    this.resetBucket();
+    this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
   }
 
-  private getAppliedJitter() {
+  private getAppliedJitter(): number {
     return getAppliedJitter(this.metricsJitter);
   }
 
-  private startTimer() {
+  private startTimer(): void {
     if (this.disabled) {
-      return false;
+      return;
     }
     this.timer = setTimeout(() => {
       this.sendMetrics();
@@ -108,17 +122,16 @@ export default class Metrics extends EventEmitter {
     if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
       this.timer.unref();
     }
-    return true;
   }
 
-  start() {
+  start(): void {
     if (typeof this.metricsInterval === 'number' && this.metricsInterval > 0) {
       this.startTimer();
       this.registerInstance();
     }
   }
 
-  stop() {
+  stop(): void {
     if (this.timer) {
       clearInterval(this.timer);
       delete this.timer;
@@ -130,7 +143,7 @@ export default class Metrics extends EventEmitter {
     if (this.disabled) {
       return false;
     }
-    const url = resolve(suffixSlash(this.url), './client/register');
+    const url = resolveUrl(suffixSlash(this.url), './client/register');
     const payload = this.getClientData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
@@ -152,7 +165,7 @@ export default class Metrics extends EventEmitter {
         this.emit(UnleashEvents.Registered, payload);
       }
     } catch (err) {
-      this.emit(UnleashEvents.Error, err);
+      this.emit(UnleashEvents.Warn, err);
     }
     return true;
   }
@@ -166,8 +179,8 @@ export default class Metrics extends EventEmitter {
       this.startTimer();
       return true;
     }
-    const url = resolve(suffixSlash(this.url), './client/metrics');
-    const payload = this.getPayload();
+    const url = resolveUrl(suffixSlash(this.url), './client/metrics');
+    const payload = this.createMetricsData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
@@ -187,92 +200,111 @@ export default class Metrics extends EventEmitter {
         this.stop();
       }
       if (!res.ok) {
+        this.restoreBucket(payload.bucket);
         this.emit(UnleashEvents.Warn, `${url} returning ${res.status}`, await res.text());
       } else {
         this.emit(UnleashEvents.Sent, payload);
       }
     } catch (err) {
-      this.emit(UnleashEvents.Error, err);
+      this.restoreBucket(payload.bucket);
+      this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }
     return true;
   }
 
-  assertBucket(name: string) {
-    if (this.disabled || !this.bucket) {
-      return false;
+  assertBucket(name: string): void {
+    if (this.disabled) {
+      return;
     }
     if (!this.bucket.toggles[name]) {
       this.bucket.toggles[name] = {
         yes: 0,
         no: 0,
+        variants: {},
       };
     }
-    return true;
   }
 
-  count(name: string, enabled: boolean): boolean {
-    if (this.disabled || !this.bucket) {
-      return false;
+  count(name: string, enabled: boolean): void {
+    if (this.disabled) {
+      return;
     }
-    this.assertBucket(name);
-    this.bucket.toggles[name][enabled ? 'yes' : 'no']++;
+    this.increaseCounter(name, enabled, 1);
     this.emit(UnleashEvents.Count, name, enabled);
-    return true;
   }
 
-  countVariant(name: string, variantName: string) {
-    if (this.disabled || !this.bucket) {
-      return false;
+  countVariant(name: string, variantName: string): void {
+    if (this.disabled) {
+      return;
     }
-    this.assertBucket(name);
-    const { variants } = this.bucket.toggles[name];
-    if (typeof variants !== 'undefined') {
-      if (!variants[variantName]) {
-        variants[variantName] = 1;
-      } else {
-        variants[variantName]++;
-      }
-    } else {
-      this.bucket.toggles[name].variants = {
-        [variantName]: 1,
-      };
-    }
+    this.increaseVariantCounter(name, variantName, 1);
 
     this.emit(UnleashEvents.CountVariant, name, variantName);
-    return true;
   }
 
-  private bucketIsEmpty() {
-    if (!this.bucket) {
-      return false;
+  private increaseCounter(name: string, enabled: boolean, inc = 1): void {
+    if(inc === 0) {
+      return;
     }
+    this.assertBucket(name);
+    this.bucket.toggles[name][enabled ? 'yes' : 'no'] += inc;
+  }
+
+  private increaseVariantCounter(name: string, variantName: string, inc = 1): void {
+    this.assertBucket(name);
+    if(this.bucket.toggles[name].variants[variantName]) {
+      this.bucket.toggles[name].variants[variantName]+=inc 
+    } else {
+      this.bucket.toggles[name].variants[variantName] = inc;
+    }
+  }
+
+  private bucketIsEmpty(): boolean {
     return Object.keys(this.bucket.toggles).length === 0;
   }
 
-  private resetBucket() {
-    const bucket: Bucket = {
+  private createBucket(): Bucket {
+    return {
       start: new Date(),
-      stop: null,
+      stop: undefined,
       toggles: {},
     };
-    this.bucket = bucket;
   }
 
-  private closeBucket() {
-    if (this.bucket) {
-      this.bucket.stop = new Date();
-    }
+  private resetBucket(): void {
+    this.bucket = this.createBucket();
   }
 
-  private getPayload(): Data {
-    this.closeBucket();
-    const payload = this.getMetricsData();
+  createMetricsData(): MetricsData {
+    const bucket = {...this.bucket, stop: new Date()};
     this.resetBucket();
-    return payload;
+    return {
+      appName: this.appName,
+      instanceId: this.instanceId,
+      bucket,
+    };
   }
 
-  getClientData(): Data {
+  private restoreBucket(bucket: Bucket): void {
+    if(this.disabled) {
+      return;
+    }
+    this.bucket.start = bucket.start;
+
+    const { toggles } = bucket;
+    Object.keys(toggles).forEach(toggleName => {
+      const toggle = toggles[toggleName];      
+      this.increaseCounter(toggleName, true, toggle.yes);
+      this.increaseCounter(toggleName, false, toggle.no);
+
+      Object.keys(toggle.variants).forEach(variant => {
+        this.increaseVariantCounter(toggleName, variant, toggle.variants[variant]);
+      })
+    });
+  }
+
+  getClientData(): RegistrationData {
     return {
       appName: this.appName,
       instanceId: this.instanceId,
@@ -280,14 +312,6 @@ export default class Metrics extends EventEmitter {
       strategies: this.strategies,
       started: this.started,
       interval: this.metricsInterval,
-    };
-  }
-
-  getMetricsData(): Data {
-    return {
-      appName: this.appName,
-      instanceId: this.instanceId,
-      bucket: this.bucket,
     };
   }
 }

@@ -18,8 +18,12 @@ test.cb('should emit network errors', (t) => {
     backupPath,
   });
 
-  unleash.on('error', (e) => {
+  unleash.on('warn', (e) => {
     t.truthy(e);
+  });
+
+  unleash.on('error', () => {
+    // silence
   });
 
   unleash.isEnabled('some-toggle');
