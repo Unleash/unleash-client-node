@@ -228,42 +228,38 @@ export default class Metrics extends EventEmitter {
     return true;
   }
 
-  count(name: string, enabled: boolean): boolean {
+  count(name: string, enabled: boolean): void {
     if (this.disabled) {
-      return false;
+      return;
     }
     this.increaseCounter(name, enabled, 1);
     this.emit(UnleashEvents.Count, name, enabled);
-    return true;
   }
 
-  countVariant(name: string, variantName: string) {
+  countVariant(name: string, variantName: string): void {
     if (this.disabled) {
-      return false;
+      return;
     }
     this.increaseVariantCounter(name, variantName, 1);
 
     this.emit(UnleashEvents.CountVariant, name, variantName);
-    return true;
   }
 
-  private increaseCounter(name: string, enabled: boolean, inc = 1): boolean {
+  private increaseCounter(name: string, enabled: boolean, inc = 1): void {
     if(inc === 0) {
-      return false;
+      return;
     }
     this.assertBucket(name);
     this.bucket.toggles[name][enabled ? 'yes' : 'no'] += inc;
-    return true;
   }
 
-  private increaseVariantCounter(name: string, variantName: string, inc = 1): boolean {
+  private increaseVariantCounter(name: string, variantName: string, inc = 1): void {
     this.assertBucket(name);
     if(this.bucket.toggles[name].variants[variantName]) {
       this.bucket.toggles[name].variants[variantName]+=inc 
     } else {
       this.bucket.toggles[name].variants[variantName] = inc;
     }
-    return true;
   }
 
   private bucketIsEmpty() {
