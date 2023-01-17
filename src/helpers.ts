@@ -49,8 +49,12 @@ export function generateInstanceId(instanceId?: string): string {
   return `${prefix}-${hostname()}`;
 }
 
-
 export function generateHashOfObject(o: Object): string {
   const oAsString = JSON.stringify(o);
   return murmurHash3.x86.hash128(oAsString);
+}
+
+export function getAppliedJitter(jitter: number): number {
+  const appliedJitter = Math.random() * jitter;
+  return Math.random() < 0.5 ? -appliedJitter : appliedJitter;
 }
