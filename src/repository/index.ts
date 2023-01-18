@@ -164,7 +164,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         this.setReady();
       }
     } catch (err) {
-      this.emit(UnleashEvents.Error, err);
+      this.emit(UnleashEvents.Warn, err);
     }
   }
 
