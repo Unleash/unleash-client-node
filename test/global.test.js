@@ -54,7 +54,7 @@ test.cb('should load if backup file is corrupted', (t) => {
     appName: 'with-corrupted-JSON',
     metricsInterval: 0,
     url,
-    backupPath: backupPath,
+    backupPath,
     refreshInterval: 0,
   });
 
