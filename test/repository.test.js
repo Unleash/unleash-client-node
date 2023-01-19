@@ -680,7 +680,7 @@ test('bootstrap should not override load backup-file', async t => {
     .persist()
     .get('/client/features')
     .reply(408);
-  
+
   nock(url)
     .persist()
     .get('/bootstrap')
