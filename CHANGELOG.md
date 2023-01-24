@@ -7,6 +7,7 @@ feat/flush metrics (#415)
 feat: add metrics jitter support (#412)
 fix: Allow SDK to startup when backup data is corrupt (#418)
 fix: flexible-rollout random stickiness is not random enough (#417)
+fix: build correct version on npm version
 chore(deps): update dependency eslint-plugin-import to v2.27.5 (#416)
 chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.48.2 (#413)
 chore(deps): update dependency eslint to v8.32.0 (#410)
