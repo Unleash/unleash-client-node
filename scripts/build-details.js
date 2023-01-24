@@ -9,5 +9,4 @@ const details = {
   version: newUnleashVersion,
   sdkVersion: `${name}:${newUnleashVersion}`,
 };
-
 fs.writeFileSync('./src/details.json', JSON.stringify(details));
