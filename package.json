@@ -6,7 +6,7 @@
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "scripts": {
-    "postversion": "./scripts/update-build-details.sh",
+    "preversion": "./scripts/update-build-details.sh $npm_package_version",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
     "prebuild": "del-cli --force lib",
