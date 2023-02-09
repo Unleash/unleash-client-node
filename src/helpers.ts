@@ -1,7 +1,7 @@
 import { userInfo, hostname } from 'os';
 import * as murmurHash3 from 'murmurhash3js';
 import { Context } from './context';
-import { UnleashConfig } from './unleash';
+import { UnleashConfig } from './unleash-config';
 
 export type FallbackFunction = (name: string, context: Context) => boolean;
 

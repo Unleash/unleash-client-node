@@ -1,11 +1,12 @@
 import { once } from 'events';
-import { Unleash, UnleashConfig } from './unleash';
+import { Unleash } from './unleash';
 import { Variant, getDefaultVariant } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
 import { UnleashEvents } from './events';
 import { ClientFeaturesResponse } from './feature';
 import InMemStorageProvider from './repository/storage-provider-in-mem';
+import { UnleashConfig } from './unleash-config';
 
 // exports
 export { Strategy } from './strategy/index';

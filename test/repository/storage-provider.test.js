@@ -2,7 +2,7 @@ import test from 'ava';
 import { writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { FileStorageProvider } from '../../lib/repository/storage-provider';
+import FileStorageProvider from '../../lib/repository/storage-provider-file';
 
 test('should handle empty string', async t => {
     const appNameLocal = 'test-sp';

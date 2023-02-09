@@ -3,50 +3,22 @@ import { EventEmitter } from 'events';
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
 import Metrics from './metrics';
-import { CustomHeaders, CustomHeadersFunction } from './headers';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
-import { ClientFeaturesResponse, FeatureInterface } from './feature';
+import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { 
   FallbackFunction,
   createFallbackFunction, generateInstanceId, generateHashOfConfig } from './helpers';
-import { HttpOptions } from './http-options';
-import { TagFilter } from './tags';
-import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
-import { FileStorageProvider, StorageProvider } from './repository/storage-provider';
+import { resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { ImpressionEvent, UnleashEvents } from './events';
+import { UnleashConfig } from './unleash-config';
+import FileStorageProvider from './repository/storage-provider-file';
 
 export { Strategy, UnleashEvents };
 
 const BACKUP_PATH: string = tmpdir();
-
-export interface UnleashConfig {
-  appName: string;
-  environment?: string;
-  instanceId?: string;
-  url: string;
-  refreshInterval?: number;
-  projectName?: string;
-  metricsInterval?: number;
-  metricsJitter?: number;
-  namePrefix?: string;
-  disableMetrics?: boolean;
-  backupPath?: string;
-  strategies?: Strategy[];
-  customHeaders?: CustomHeaders;
-  customHeadersFunction?: CustomHeadersFunction;
-  timeout?: number;
-  repository?: RepositoryInterface;
-  httpOptions?: HttpOptions;
-  tags?: Array<TagFilter>;
-  bootstrap?: BootstrapOptions;
-  bootstrapOverride?: boolean;
-  storageProvider?: StorageProvider<ClientFeaturesResponse>;
-  disableAutoStart?: boolean;
-  skipInstanceCountWarning?: boolean;
-}
 
 export interface StaticContext {
   appName: string;
