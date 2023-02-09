@@ -29,13 +29,5 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Notify Slack of pipeline completion
-        uses: 8398a7/action-slack@v2
-        if: always()
-        with:
-          status: ${{ job.status }}
-          author_name: Github Action
-          text: Build on Node SDK ${{ matrix.node-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
