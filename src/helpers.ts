@@ -1,7 +1,6 @@
 import { userInfo, hostname } from 'os';
 import * as murmurHash3 from 'murmurhash3js';
 import { Context } from './context';
-import { UnleashConfig } from './unleash-config';
 
 export type FallbackFunction = (name: string, context: Context) => boolean;
 
@@ -50,14 +49,8 @@ export function generateInstanceId(instanceId?: string): string {
   return `${prefix}-${hostname()}`;
 }
 
-export function generateHashOfConfig(config: UnleashConfig): string {
-  const cleanConfig = {
-    ...config,
-    repository: undefined,
-    customHeadersFunction: undefined,
-    storageProvider: undefined
-  };
-  const oAsString = JSON.stringify(cleanConfig);
+export function generateHashOfConfig(o: Object): string {
+  const oAsString = JSON.stringify(o);
   return murmurHash3.x86.hash128(oAsString);
 }
 

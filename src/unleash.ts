@@ -199,7 +199,14 @@ export class Unleash extends EventEmitter {
    * @returns the Unleash instance
    */
   static getInstance(config: UnleashConfig) {
-    const configSignature = generateHashOfConfig(config);
+    const cleanConfig = {
+      ...config,
+      // Remove complex objects
+      repository: undefined,
+      customHeadersFunction: undefined,
+      storageProvider: undefined
+    };
+    const configSignature = generateHashOfConfig(cleanConfig);
     if(Unleash.instance) {
       if(configSignature !== Unleash.configSignature) {
         throw new Error('You already have an Unleash instance with a different configuration.');
