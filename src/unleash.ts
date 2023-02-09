@@ -11,7 +11,7 @@ import { ClientFeaturesResponse, FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
 import { 
   FallbackFunction,
-  createFallbackFunction, generateInstanceId, generateHashOfObject } from './helpers';
+  createFallbackFunction, generateInstanceId, generateHashOfConfig } from './helpers';
 import { HttpOptions } from './http-options';
 import { TagFilter } from './tags';
 import { BootstrapOptions, resolveBootstrapProvider } from './repository/bootstrap-provider';
@@ -227,7 +227,7 @@ export class Unleash extends EventEmitter {
    * @returns the Unleash instance
    */
   static getInstance(config: UnleashConfig) {
-    const configSignature = generateHashOfObject(config);
+    const configSignature = generateHashOfConfig(config);
     if(Unleash.instance) {
       if(configSignature !== Unleash.configSignature) {
         throw new Error('You already have an Unleash instance with a different configuration.');
