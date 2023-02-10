@@ -7,6 +7,7 @@ import sinon from 'sinon';
 import FakeRepo from './fake_repo';
 
 import { Strategy, Unleash, UnleashEvents } from '../lib/unleash';
+import { InMemStorageProvider } from '../lib';
 
 class EnvironmentStrategy extends Strategy {
   constructor() {
@@ -867,3 +868,49 @@ test('should use provided bootstrap data', (t) =>
     
     i1.destroy();
   });
+
+  test('should allow custom repository', (t) =>
+  new Promise((resolve) => {
+    const url = getUrl();
+    
+    const instance = Unleash.getInstance({
+      appName: 'foo',
+      disableMetrics: true,
+      skipInstanceCountWarning: true,
+      refreshInterval: 0,
+      url,
+      backupPath: getRandomBackupPath(),
+      bootstrap: {
+        data: [
+          {
+            name: 'bootstrappedToggle',
+            enabled: true,
+            strategies: [{ name: 'default' }],
+          },
+        ],
+      },
+      storageProvider: new InMemStorageProvider(),
+      repository: {
+        getToggle: () => ({name: 'test', enabled: true, strategies: [{ name: 'default'}]}),
+        getToggles: () => [],
+        getSegment: () => undefined,
+        stop: () => {},
+        start: () => {
+          setInterval(() => {}, 1000)
+        },
+        on: (evt, fun) => {
+          if(evt === 'ready') {
+            setTimeout(() => fun(), 100)
+          }
+        }
+      }
+    });
+
+    instance.on('error', () => {});
+
+    instance.on('ready', () => {
+      t.true(instance.isEnabled('test') === true);
+      instance.destroy();
+      resolve();
+    });
+  }));
