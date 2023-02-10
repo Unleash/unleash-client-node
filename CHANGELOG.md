@@ -1,5 +1,14 @@
 # Changelog
 
+# 3.18.1
+
+fix: add testcase for config-hash
+chore(deps): bump http-cache-semantics from 4.1.0 to 4.1.1 (#423)
+fix: cyclic dependencies
+fix: only produce hash of primitive values
+chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.51.0 (#419)
+
+
 # 3.18.0 
 
 feat: gracefully handle unsuccessful metrics post (#414)
