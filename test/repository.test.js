@@ -301,7 +301,7 @@ test('should handle invalid JSON response', t =>
       t.true(
         err.message.indexOf('Unexpected token') > -1 ||
                     err.message.indexOf('Unexpected end of JSON input') > -1 ||
-                    err.message.indexOf(' Unterminated string in JSON') > -1,
+                    err.message.indexOf('Unterminated string in JSON') > -1,
       );
       resolve();
     });
