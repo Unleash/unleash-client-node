@@ -204,8 +204,9 @@ The initialize method takes the following arguments:
 
 - **url** - The url to fetch toggles from (required).
 - **appName** - The application name / codebase name (required).
-- **environment** - The active environment this application is running in. Automatically populated
-  in the Unleash Context (optional).
+- **environment** - The value to put in the Unleash context's `environment` property. Automatically
+  populated in the Unleash Context (optional). This does **not** set the SDK's
+  [Unleash environment](https://docs.getunleash.io/reference/environments).
 - **instanceId** - A unique identifier, should/could be somewhat unique.
 - **refreshInterval** - The poll interval to check for updates. Defaults to 15000ms.
 - **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
