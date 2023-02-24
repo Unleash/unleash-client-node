@@ -9,16 +9,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [14.x]
-
     steps:
     - uses: actions/checkout@v3
     - name: Publish to npm
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: lts/*
         registry-url: 'https://registry.npmjs.org'
     - run: |
         yarn install --frozen-lockfile
