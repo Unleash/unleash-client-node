@@ -1,17 +1,14 @@
 {
+  "extends": "@tsconfig/node12/tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./lib",
-    "lib": ["es5", "es6"],
-    "target": "es5",
-    "module": "commonjs",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "resolveJsonModule": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "downlevelIteration": true
+    "esModuleInterop": false,
+    "skipLibCheck": false
   },
   "exclude": ["examples/", "lib/", "node_modules/"]
 }
