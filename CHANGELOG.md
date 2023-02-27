@@ -1,27 +1,38 @@
 # Changelog
 
+# 3.19.0
+
+- fix: use base node12 tsconfig (#427)
+- chore: use builtin caching of `actions/setup-node` (#429)
+- chore: run CI on node versions 18 and 19 (#428)
+- docs: mention that `environment` is not environment (#431)
+- chore(deps): update dependency prettier to v2.8.4 (#425)
+- chore(deps): update dependency typescript to v4.9.5 (#422)
+- chore(deps): update dependency eslint to v8.34.0 (#421)
+- chore(deps): update dependency @types/node to v18.14.1 (#424)
+
 # 3.18.1
 
-fix: add testcase for config-hash
-chore(deps): bump http-cache-semantics from 4.1.0 to 4.1.1 (#423)
-fix: cyclic dependencies
-fix: only produce hash of primitive values
-chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.51.0 (#419)
+- fix: add testcase for config-hash
+- chore(deps): bump http-cache-semantics from 4.1.0 to 4.1.1 (#423)
+- fix: cyclic dependencies
+- fix: only produce hash of primitive values
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.51.0 (#419)
 
 
 # 3.18.0 
 
-feat: gracefully handle unsuccessful metrics post (#414)
-feat/flush metrics (#415)
-feat: add metrics jitter support (#412)
-fix: Allow SDK to startup when backup data is corrupt (#418)
-fix: flexible-rollout random stickiness is not random enough (#417)
-fix: build correct version on npm version
-chore(deps): update dependency eslint-plugin-import to v2.27.5 (#416)
-chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.48.2 (#413)
-chore(deps): update dependency eslint to v8.32.0 (#410)
-chore(deps): update dependency prettier to v2.8.3 (#406)
-chore(deps): update dependency eslint-plugin-import to v2.27.4 (#404)
+- feat: gracefully handle unsuccessful metrics post (#414)
+- feat/flush metrics (#415)
+- feat: add metrics jitter support (#412)
+- fix: Allow SDK to startup when backup data is corrupt (#418)
+- fix: flexible-rollout random stickiness is not random enough (#417)
+- fix: build correct version on npm version
+- chore(deps): update dependency eslint-plugin-import to v2.27.5 (#416)
+- chore(deps): update dependency @typescript-eslint/eslint-plugin to v5.48.2 (#413)
+- chore(deps): update dependency eslint to v8.32.0 (#410)
+- chore(deps): update dependency prettier to v2.8.3 (#406)
+- chore(deps): update dependency eslint-plugin-import to v2.27.4 (#404)
 
 # 3.17.0
 
