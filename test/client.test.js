@@ -4,13 +4,15 @@ import { Strategy } from '../lib/strategy';
 
 import CustomStrategy from './true_custom_strategy';
 import CustomFalseStrategy from './false_custom_strategy';
+import { UnleashEvents } from '../lib/events';
 
-function buildToggle(name, active, strategies, variants = []) {
+function buildToggle(name, active, strategies, variants = [], impressionData= false) {
   return {
     name,
     enabled: active,
     strategies: strategies || [{ name: 'default' }],
     variants,
+    impressionData
   };
 }
 
@@ -259,4 +261,45 @@ test('should always return defaultVariant if missing variant', (t) => {
 
   const result3 = client.getVariant('missing-feature-x', {});
   t.deepEqual(result3, defaultVariant);
+});
+
+test('should not trigger events if impressionData is false', (t) => {
+  let called=false
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', false, undefined, undefined, false);
+    },
+  };
+  const client = new Client(repo, []);
+  client.on(UnleashEvents.Impression, ()=> {
+    called=true;
+  });
+
+  client.isEnabled('feature-x', {}, () => false);
+  client.getVariant('feature-x', {});
+  t.false(called)
+});
+
+test('should trigger events on isEnabled if impressionData is true', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', false, undefined, undefined, true);
+    },
+  };
+  const client = new Client(repo, []);
+  client.on(UnleashEvents.Impression, ()=> t.pass());
+
+  client.isEnabled('feature-x', {}, () => false);
+});
+
+test('should trigger events on getVariant if impressionData is true', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', false, undefined, undefined, true);
+    },
+  };
+  const client = new Client(repo, []);
+  client.on(UnleashEvents.Impression, ()=> t.pass());
+
+  client.getVariant('feature-x', {}, );
 });
