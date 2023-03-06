@@ -56,13 +56,16 @@ export default class UnleashClient extends EventEmitter {
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
     const enabled = this.isFeatureEnabled(feature, context, fallback);
-    if(feature?.impressionData) {
-      this.emit(UnleashEvents.Impression, createImpressionEvent({
-        featureName: name,
-        context,
-        enabled,
-        eventType: 'isEnabled',
-      }));
+    if (feature?.impressionData) {
+      this.emit(
+        UnleashEvents.Impression,
+        createImpressionEvent({
+          featureName: name,
+          context,
+          enabled,
+          eventType: 'isEnabled',
+        }),
+      );
     }
     return enabled;
   }
@@ -132,14 +135,17 @@ export default class UnleashClient extends EventEmitter {
   getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
     const feature = this.repository.getToggle(name);
     const variant = this.resolveVariant(feature, context, true, fallbackVariant);
-    if(feature?.impressionData){
-      this.emit(UnleashEvents.Impression, createImpressionEvent({
-        featureName: name,
-        context,
-        enabled: variant.enabled,
-        eventType: 'getVariant',
-        variant: variant.name,
-      }));
+    if (feature?.impressionData) {
+      this.emit(
+        UnleashEvents.Impression,
+        createImpressionEvent({
+          featureName: name,
+          context,
+          enabled: variant.enabled,
+          eventType: 'getVariant',
+          variant: variant.name,
+        }),
+      );
     }
     return variant;
   }

@@ -281,25 +281,32 @@ test('should not trigger events if impressionData is false', (t) => {
 });
 
 test('should trigger events on isEnabled if impressionData is true', (t) => {
+  let called = false
   const repo = {
     getToggle() {
       return buildToggle('feature-x', false, undefined, undefined, true);
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, ()=> t.pass());
-
+  client.on(UnleashEvents.Impression, ()=> {
+    called=true;
+  });
   client.isEnabled('feature-x', {}, () => false);
+  t.true(called)
+
 });
 
 test('should trigger events on getVariant if impressionData is true', (t) => {
+  let called = false
   const repo = {
     getToggle() {
       return buildToggle('feature-x', false, undefined, undefined, true);
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, ()=> t.pass());
-
+  client.on(UnleashEvents.Impression, ()=> {
+    called=true;
+  });
   client.getVariant('feature-x', {}, );
+  t.true(called)
 });
