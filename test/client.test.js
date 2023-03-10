@@ -6,7 +6,7 @@ import CustomStrategy from './true_custom_strategy';
 import CustomFalseStrategy from './false_custom_strategy';
 import { UnleashEvents } from '../lib/events';
 
-function buildToggle(name, active, strategies, variants = [], impressionData= false) {
+function buildToggle(name, active, strategies, variants = [], impressionData = false) {
   return {
     name,
     enabled: active,
