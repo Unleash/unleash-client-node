@@ -712,6 +712,7 @@ test('should use provided bootstrap data', (t) =>
             name: 'toggle-impressions',
             enabled: true,
             strategies: [{ name: 'default' }],
+            impressionData: true,
             variants: [
               {
                 name: 'blue',
@@ -733,7 +734,7 @@ test('should use provided bootstrap data', (t) =>
           },
         ],
       });
-  
+
     const unleash = new Unleash({
       appName: 'foo-variants-3',
       disableMetrics: true,
@@ -743,7 +744,7 @@ test('should use provided bootstrap data', (t) =>
     });
 
     const context = { userId: '123', properties: {tenantId: 't12'} };
-  
+
     return new Promise((resolve) => {
       unleash.on('impression', (evt) => {
         t.is(evt.featureName, 'toggle-impressions');
@@ -771,6 +772,7 @@ test('should use provided bootstrap data', (t) =>
             name: 'toggle-impressions',
             enabled: true,
             strategies: [{ name: 'default' }],
+            impressionData: true,
             variants: [
               {
                 name: 'blue',
@@ -792,7 +794,7 @@ test('should use provided bootstrap data', (t) =>
           },
         ],
       });
-  
+
     const unleash = new Unleash({
       appName: 'foo-variants-4',
       disableMetrics: true,
@@ -802,7 +804,7 @@ test('should use provided bootstrap data', (t) =>
     });
 
     const context = { userId: '123', properties: {tenantId: 't12'} };
-  
+
     return new Promise((resolve) => {
       unleash.on('impression', (evt) => {
         t.is(evt.featureName, 'toggle-impressions');
@@ -841,7 +843,7 @@ test('should use provided bootstrap data', (t) =>
     });
 
     t.is(i1, i2);
-    
+
     i1.destroy();
     i2.destroy();
   });
@@ -865,14 +867,14 @@ test('should use provided bootstrap data', (t) =>
       skipInstanceCountWarning: true,
       url: baseUrl,
     }));
-    
+
     i1.destroy();
   });
 
   test('should allow custom repository', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
-    
+
     const instance = Unleash.getInstance({
       appName: 'foo',
       disableMetrics: true,

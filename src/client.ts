@@ -56,12 +56,17 @@ export default class UnleashClient extends EventEmitter {
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
     const enabled = this.isFeatureEnabled(feature, context, fallback);
-    this.emit(UnleashEvents.Impression, createImpressionEvent({
-      featureName: name,
-      context,
-      enabled,
-      eventType: 'isEnabled'
-    }));
+    if (feature?.impressionData) {
+      this.emit(
+        UnleashEvents.Impression,
+        createImpressionEvent({
+          featureName: name,
+          context,
+          enabled,
+          eventType: 'isEnabled',
+        }),
+      );
+    }
     return enabled;
   }
 
@@ -128,14 +133,20 @@ export default class UnleashClient extends EventEmitter {
   }
 
   getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
-    const variant = this.resolveVariant(name, context, true, fallbackVariant);
-    this.emit(UnleashEvents.Impression, createImpressionEvent({
-      featureName: name,
-      context,
-      enabled: variant.enabled,
-      eventType: 'getVariant',
-      variant: variant.name,
-    }));
+    const feature = this.repository.getToggle(name);
+    const variant = this.resolveVariant(feature, context, true, fallbackVariant);
+    if (feature?.impressionData) {
+      this.emit(
+        UnleashEvents.Impression,
+        createImpressionEvent({
+          featureName: name,
+          context,
+          enabled: variant.enabled,
+          eventType: 'getVariant',
+          variant: variant.name,
+        }),
+      );
+    }
     return variant;
   }
 
@@ -143,17 +154,17 @@ export default class UnleashClient extends EventEmitter {
   // state gets checked twice when resolving a variant with random stickiness and
   // gradual rollout. This is not intended for general use, prefer getVariant instead
   forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
-    return this.resolveVariant(name, context, false, fallbackVariant);
+    const feature = this.repository.getToggle(name);
+    return this.resolveVariant(feature, context, false, fallbackVariant);
   }
 
   private resolveVariant(
-    name: string,
+    feature: FeatureInterface,
     context: Context,
     checkToggle: boolean,
     fallbackVariant?: Variant,
   ): Variant {
     const fallback = fallbackVariant || getDefaultVariant();
-    const feature = this.repository.getToggle(name);
     if (
       typeof feature === 'undefined' ||
       !feature.variants ||
