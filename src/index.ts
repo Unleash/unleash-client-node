@@ -24,7 +24,9 @@ export function initialize(options: UnleashConfig): Unleash {
 
 export async function startUnleash(options: UnleashConfig): Promise<Unleash> {
   const unleash = initialize(options);
-  await once(unleash, 'synchronized');
+  if (!unleash.isSynchronized()) {
+    await once(unleash, 'synchronized');
+  }
   return unleash;
 }
 
