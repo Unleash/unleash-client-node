@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.19.1
+
+- fix: always resolve startUnleash promise (#442)
+
 # 3.19.0
 
 - fix: use base node12 tsconfig (#427)
