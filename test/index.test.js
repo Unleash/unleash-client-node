@@ -66,12 +66,25 @@ test('should not return feature-toggle definition if there is no instance', t =>
   t.is(getFeatureToggleDefinition(), undefined);
 });
 
-test('should start unleash with promise', async (t) => {
+test.serial('should start unleash with promise', async (t) => {
   const url = getUrl();
   nockFeatures(url);
   nockMetrics(url);
   nockRegister(url);
   const unleash = await startUnleash({ appName: 'my-app-name', url });
   t.truthy(unleash);
+  destroy();
+});
+
+test.serial('should start unleash with promise multiple times', async (t) => {
+  const url = getUrl();
+  nockFeatures(url);
+  nockMetrics(url);
+  nockRegister(url);
+  const config = { appName: 'my-app-name', url };
+  const unleash1 = await startUnleash(config);
+  t.truthy(unleash1);
+  const unleash2 = await startUnleash(config);
+  t.truthy(unleash2);
   destroy();
 });

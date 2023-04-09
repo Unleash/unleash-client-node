@@ -238,6 +238,10 @@ export class Unleash extends EventEmitter {
     return unleashUrl;
   }
 
+  isSynchronized() {
+    return this.synchronized;
+  }
+
   async start(): Promise<void> {
     await Promise.all([this.repository.start(), this.metrics.start()]);
   }
