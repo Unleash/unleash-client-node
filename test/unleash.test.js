@@ -916,3 +916,37 @@ test('should use provided bootstrap data', (t) =>
       resolve();
     });
   }));
+
+test('should report variant metrics', async (t) => {
+  const url = getUrl();
+  const repository = new FakeRepo({
+    name: 'toggle-with-variants',
+    enabled: true,
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
+  });
+  const instance = new Unleash({
+    skipInstanceCountWarning: true,
+    appName: 'foo',
+    metricsInterval: 10,
+    repository,
+    url,
+  });
+  nock(url).post('/client/metrics').reply(200);
+  repository.emit(UnleashEvents.Ready);
+  const capturedData = [];
+  instance.on(UnleashEvents.Sent, data => {
+    capturedData.push(data);
+  });
+
+  instance.getVariant('toggle-with-variants');
+
+  await instance.destroyWithFlush();
+  t.deepEqual(capturedData[0].bucket.toggles, {
+    'toggle-with-variants': {
+      yes: 1,
+      no: 0,
+      variants: { 'toggle-variant': 1 },
+    },
+  });
+});
