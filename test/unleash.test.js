@@ -54,9 +54,9 @@ function mockNetwork(toggles = defaultToggles, url = getUrl()) {
 }
 
 test('should error when missing url', (t) => {
-  t.throws(() => new Unleash({ skipInstanceCountWarning: true, }));
-  t.throws(() => new Unleash({ url: false, skipInstanceCountWarning: true, }));
-  t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false, skipInstanceCountWarning: true, }));
+  t.throws(() => new Unleash({ skipInstanceCountWarning: true }));
+  t.throws(() => new Unleash({ url: false, skipInstanceCountWarning: true }));
+  t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false, skipInstanceCountWarning: true }));
 });
 
 test('calling destroy synchronously should avoid network activity', (t) => {
@@ -693,7 +693,8 @@ test('should use provided bootstrap data', (t) =>
       },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('bootstrappedToggle') === true);
@@ -702,176 +703,176 @@ test('should use provided bootstrap data', (t) =>
     });
   }));
 
-  test('should emit impression events for isEnabled', async (t) => {
-    const baseUrl = getUrl();
-    nock(baseUrl)
-      .get('/client/features')
-      .reply(200, {
-        features: [
-          {
-            name: 'toggle-impressions',
-            enabled: true,
-            strategies: [{ name: 'default' }],
-            impressionData: true,
-            variants: [
-              {
-                name: 'blue',
-                weight: 1,
-              },
-              {
-                name: 'red',
-                weight: 1,
-              },
-              {
-                name: 'green',
-                weight: 1,
-              },
-              {
-                name: 'yellow',
-                weight: 1,
-              },
-            ],
-          },
-        ],
-      });
-
-    const unleash = new Unleash({
-      appName: 'foo-variants-3',
-      disableMetrics: true,
-      skipInstanceCountWarning: true,
-      backupPath: getRandomBackupPath(),
-      url: baseUrl,
+test('should emit impression events for isEnabled', async (t) => {
+  const baseUrl = getUrl();
+  nock(baseUrl)
+    .get('/client/features')
+    .reply(200, {
+      features: [
+        {
+          name: 'toggle-impressions',
+          enabled: true,
+          strategies: [{ name: 'default' }],
+          impressionData: true,
+          variants: [
+            {
+              name: 'blue',
+              weight: 1,
+            },
+            {
+              name: 'red',
+              weight: 1,
+            },
+            {
+              name: 'green',
+              weight: 1,
+            },
+            {
+              name: 'yellow',
+              weight: 1,
+            },
+          ],
+        },
+      ],
     });
 
-    const context = { userId: '123', properties: {tenantId: 't12'} };
-
-    return new Promise((resolve) => {
-      unleash.on('impression', (evt) => {
-        t.is(evt.featureName, 'toggle-impressions');
-        t.is(evt.enabled, true);
-        t.is(evt.eventType, 'isEnabled')
-        t.is(evt.context.userId, context.userId);
-        t.deepEqual(evt.context.properties, context.properties);
-        unleash.destroy();
-        resolve();
-      })
-
-      unleash.on('synchronized', () => {
-        unleash.isEnabled('toggle-impressions', context);
-      });
-    });
+  const unleash = new Unleash({
+    appName: 'foo-variants-3',
+    disableMetrics: true,
+    skipInstanceCountWarning: true,
+    backupPath: getRandomBackupPath(),
+    url: baseUrl,
   });
 
-  test('should emit impression events for getVariant', async (t) => {
-    const baseUrl = getUrl();
-    nock(baseUrl)
-      .get('/client/features')
-      .reply(200, {
-        features: [
-          {
-            name: 'toggle-impressions',
-            enabled: true,
-            strategies: [{ name: 'default' }],
-            impressionData: true,
-            variants: [
-              {
-                name: 'blue',
-                weight: 1,
-              },
-              {
-                name: 'red',
-                weight: 1,
-              },
-              {
-                name: 'green',
-                weight: 1,
-              },
-              {
-                name: 'yellow',
-                weight: 1,
-              },
-            ],
-          },
-        ],
-      });
+  const context = { userId: '123', properties: { tenantId: 't12' } };
 
-    const unleash = new Unleash({
-      appName: 'foo-variants-4',
-      disableMetrics: true,
-      skipInstanceCountWarning: true,
-      backupPath: getRandomBackupPath(),
-      url: baseUrl,
+  return new Promise((resolve) => {
+    unleash.on('impression', (evt) => {
+      t.is(evt.featureName, 'toggle-impressions');
+      t.is(evt.enabled, true);
+      t.is(evt.eventType, 'isEnabled');
+      t.is(evt.context.userId, context.userId);
+      t.deepEqual(evt.context.properties, context.properties);
+      unleash.destroy();
+      resolve();
     });
 
-    const context = { userId: '123', properties: {tenantId: 't12'} };
-
-    return new Promise((resolve) => {
-      unleash.on('impression', (evt) => {
-        t.is(evt.featureName, 'toggle-impressions');
-        t.is(evt.enabled, true);
-        t.is(evt.eventType, 'getVariant');
-        t.is(evt.variant, 'blue');
-        t.is(evt.context.userId, context.userId);
-        t.deepEqual(evt.context.properties, context.properties);
-        unleash.destroy();
-        resolve();
-      })
-
-      unleash.on('synchronized', () => {
-        unleash.getVariant('toggle-impressions', context);
-      });
+    unleash.on('synchronized', () => {
+      unleash.isEnabled('toggle-impressions', context);
     });
   });
+});
 
-  test('should only instantiate once', (t) => {
-    const baseUrl = `${getUrl()}api`;
-    mockNetwork([], baseUrl);
-
-    const i1 = Unleash.getInstance({
-      appName: 'get-instance-1',
-      skipInstanceCountWarning: true,
-      refreshInterval: 0,
-      disableMetrics: true,
-      url: baseUrl,
+test('should emit impression events for getVariant', async (t) => {
+  const baseUrl = getUrl();
+  nock(baseUrl)
+    .get('/client/features')
+    .reply(200, {
+      features: [
+        {
+          name: 'toggle-impressions',
+          enabled: true,
+          strategies: [{ name: 'default' }],
+          impressionData: true,
+          variants: [
+            {
+              name: 'blue',
+              weight: 1,
+            },
+            {
+              name: 'red',
+              weight: 1,
+            },
+            {
+              name: 'green',
+              weight: 1,
+            },
+            {
+              name: 'yellow',
+              weight: 1,
+            },
+          ],
+        },
+      ],
     });
-    const i2 = Unleash.getInstance({
-      appName: 'get-instance-1',
-      skipInstanceCountWarning: true,
-      refreshInterval: 0,
-      disableMetrics: true,
-      url: baseUrl,
-    });
 
-    t.is(i1, i2);
-
-    i1.destroy();
-    i2.destroy();
+  const unleash = new Unleash({
+    appName: 'foo-variants-4',
+    disableMetrics: true,
+    skipInstanceCountWarning: true,
+    backupPath: getRandomBackupPath(),
+    url: baseUrl,
   });
 
-  test('should throw when getInstantiate called with different unleash-config ', (t) => {
-    const baseUrl = `${getUrl()}api`;
-    mockNetwork([], baseUrl);
+  const context = { userId: '123', properties: { tenantId: 't12' } };
 
-    const i1 = Unleash.getInstance({
-      appName: 'get-instance-1',
-      refreshInterval: 0,
-      disableMetrics: true,
-      skipInstanceCountWarning: true,
-      url: baseUrl,
+  return new Promise((resolve) => {
+    unleash.on('impression', (evt) => {
+      t.is(evt.featureName, 'toggle-impressions');
+      t.is(evt.enabled, true);
+      t.is(evt.eventType, 'getVariant');
+      t.is(evt.variant, 'blue');
+      t.is(evt.context.userId, context.userId);
+      t.deepEqual(evt.context.properties, context.properties);
+      unleash.destroy();
+      resolve();
     });
 
-    t.throws(() => Unleash.getInstance({
-      appName: 'get-instance-2',
-      refreshInterval: 0,
-      disableMetrics: true,
-      skipInstanceCountWarning: true,
-      url: baseUrl,
-    }));
+    unleash.on('synchronized', () => {
+      unleash.getVariant('toggle-impressions', context);
+    });
+  });
+});
 
-    i1.destroy();
+test('should only instantiate once', (t) => {
+  const baseUrl = `${getUrl()}api`;
+  mockNetwork([], baseUrl);
+
+  const i1 = Unleash.getInstance({
+    appName: 'get-instance-1',
+    skipInstanceCountWarning: true,
+    refreshInterval: 0,
+    disableMetrics: true,
+    url: baseUrl,
+  });
+  const i2 = Unleash.getInstance({
+    appName: 'get-instance-1',
+    skipInstanceCountWarning: true,
+    refreshInterval: 0,
+    disableMetrics: true,
+    url: baseUrl,
   });
 
-  test('should allow custom repository', (t) =>
+  t.is(i1, i2);
+
+  i1.destroy();
+  i2.destroy();
+});
+
+test('should throw when getInstantiate called with different unleash-config ', (t) => {
+  const baseUrl = `${getUrl()}api`;
+  mockNetwork([], baseUrl);
+
+  const i1 = Unleash.getInstance({
+    appName: 'get-instance-1',
+    refreshInterval: 0,
+    disableMetrics: true,
+    skipInstanceCountWarning: true,
+    url: baseUrl,
+  });
+
+  t.throws(() => Unleash.getInstance({
+    appName: 'get-instance-2',
+    refreshInterval: 0,
+    disableMetrics: true,
+    skipInstanceCountWarning: true,
+    url: baseUrl,
+  }));
+
+  i1.destroy();
+});
+
+test('should allow custom repository', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
 
@@ -893,22 +894,25 @@ test('should use provided bootstrap data', (t) =>
       },
       storageProvider: new InMemStorageProvider(),
       repository: {
-        getToggle: () => ({name: 'test', enabled: true, strategies: [{ name: 'default'}]}),
+        getToggle: () => ({ name: 'test', enabled: true, strategies: [{ name: 'default' }] }),
         getToggles: () => [],
         getSegment: () => undefined,
-        stop: () => {},
+        stop: () => {
+        },
         start: () => {
-          setInterval(() => {}, 1000)
+          setInterval(() => {
+          }, 1000);
         },
         on: (evt, fun) => {
-          if(evt === 'ready') {
-            setTimeout(() => fun(), 100)
+          if (evt === 'ready') {
+            setTimeout(() => fun(), 100);
           }
-        }
-      }
+        },
+      },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('test') === true);
@@ -916,3 +920,37 @@ test('should use provided bootstrap data', (t) =>
       resolve();
     });
   }));
+
+test('should report variant metrics', async (t) => {
+  const url = getUrl();
+  const repository = new FakeRepo({
+    name: 'toggle-with-variants',
+    enabled: true,
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
+  });
+  const instance = new Unleash({
+    skipInstanceCountWarning: true,
+    appName: 'foo',
+    metricsInterval: 10,
+    repository,
+    url,
+  });
+  nock(url).post('/client/metrics').reply(200);
+  repository.emit(UnleashEvents.Ready);
+  const capturedData = [];
+  instance.on(UnleashEvents.Sent, data => {
+    capturedData.push(data);
+  });
+
+  instance.getVariant('toggle-with-variants');
+
+  await instance.destroyWithFlush();
+  t.deepEqual(capturedData[0].bucket.toggles, {
+    'toggle-with-variants': {
+      yes: 1,
+      no: 0,
+      variants: { 'toggle-variant': 1 },
+    },
+  });
+});

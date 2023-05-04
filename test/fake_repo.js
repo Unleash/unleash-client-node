@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 
 export default class FakeRepo extends EventEmitter {
-  constructor() {
+  constructor(data) {
     super();
-    this.data = {
+    this.data = data || {
       name: 'fake-feature',
       enabled: false,
       strategies: [],
@@ -15,7 +15,7 @@ export default class FakeRepo extends EventEmitter {
   }
 
   start() {
-    
+
   }
 
   getToggle() {
