@@ -82,7 +82,7 @@ test.cb('should sendMetrics', (t) => {
       t.truthy(payload.bucket.start);
       t.truthy(payload.bucket.stop);
       t.deepEqual(payload.bucket.toggles, {
-        'toggle-x': { yes: 1, no: 1, variants: { }},
+        'toggle-x': { yes: 1, no: 1, variants: { 'variant-a': 2 } },
         'toggle-y': { yes: 1, no: 0, variants: { } },
       });
       return true;
@@ -98,6 +98,8 @@ test.cb('should sendMetrics', (t) => {
   metrics.count('toggle-x', true);
   metrics.count('toggle-x', false);
   metrics.count('toggle-y', true);
+  metrics.countVariant('toggle-x', 'variant-a');
+  metrics.countVariant('toggle-x', 'variant-a');
 
   metrics.on('registered', () => {
     t.true(regEP.isDone());
@@ -410,8 +412,8 @@ test.cb('should keep metrics if send is failing', (t) => {
 
   metrics.count('toggle-x', true);
   metrics.count('toggle-x', false);
-  
-  // variant 
+
+  // variant
   metrics.count('toggle-y', true);
   metrics.countVariant('toggle-y', 'a');
 
