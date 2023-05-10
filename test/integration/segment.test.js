@@ -2,7 +2,7 @@ import test from 'ava';
 import nock from 'nock';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import mkdirp from 'mkdirp';
+import { mkdirp } from 'mkdirp';
 
 import { Unleash } from '../../lib/unleash';
 
@@ -67,7 +67,7 @@ test('should use global segments for constraint calculation', (t) =>
 
 test('should resolve to false if required global segment cannot be found', (t) =>
   new Promise((resolve, reject) => {
-    const togglesWithoutGlobalSegment = {...toggles}
+    const togglesWithoutGlobalSegment = { ...toggles };
     togglesWithoutGlobalSegment.segments = undefined;
     const url = mockNetwork(togglesWithoutGlobalSegment);
 
@@ -88,9 +88,9 @@ test('should resolve to false if required global segment cannot be found', (t) =
     });
   }));
 
-  test('should handle case where segment is not present on strategy', (t) =>
+test('should handle case where segment is not present on strategy', (t) =>
   new Promise((resolve, reject) => {
-    const togglesWithoutSegmentIds = {...toggles}
+    const togglesWithoutSegmentIds = { ...toggles };
     togglesWithoutSegmentIds.features[0].strategies[0].segments = undefined;
     const url = mockNetwork(togglesWithoutSegmentIds);
 
@@ -110,4 +110,3 @@ test('should resolve to false if required global segment cannot be found', (t) =
       resolve();
     });
   }));
-

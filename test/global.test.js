@@ -2,7 +2,7 @@ import test from 'ava';
 import nock from 'nock';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import mkdirp from 'mkdirp';
+import { mkdirp } from 'mkdirp';
 import { writeFileSync } from 'fs';
 import { Unleash } from '../lib/unleash';
 
