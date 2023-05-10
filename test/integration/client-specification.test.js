@@ -2,7 +2,7 @@ import test from 'ava';
 import nock from 'nock';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import mkdirp from 'mkdirp';
+import { mkdirp } from 'mkdirp';
 import specs from '@unleash/client-specification/specifications/index.json';
 
 import { Unleash } from '../../lib/unleash';
@@ -17,9 +17,7 @@ function getRandomBackupPath(testName) {
 }
 
 function mockNetwork(toggles, url = getUrl()) {
-  nock(url)
-    .get('/client/features')
-    .reply(200, toggles);
+  nock(url).get('/client/features').reply(200, toggles);
   return url;
 }
 
@@ -29,54 +27,56 @@ specs.forEach((testName) => {
 
   if (definition.tests) {
     definition.tests.forEach((testCase) => {
-      test(`${testName}:${testCase.description}`, (t) => new Promise((resolve, reject) => {
-        // Mock unleash-api
-        const url = mockNetwork(definition.state);
+      test(`${testName}:${testCase.description}`, (t) =>
+        new Promise((resolve, reject) => {
+          // Mock unleash-api
+          const url = mockNetwork(definition.state);
 
-        // New unleash instance
-        const instance = new Unleash({
-          appName: testName,
-          disableMetrics: true,
-          skipInstanceCountWarning: true,
-          url,
-          backupPath: getRandomBackupPath(definition.name),
-        });
+          // New unleash instance
+          const instance = new Unleash({
+            appName: testName,
+            disableMetrics: true,
+            skipInstanceCountWarning: true,
+            url,
+            backupPath: getRandomBackupPath(definition.name),
+          });
 
-        instance.on('error', reject);
-        instance.on('synchronized', () => {
-          const result = instance.isEnabled(testCase.toggleName, testCase.context);
-          t.is(result, testCase.expectedResult);
-          instance.destroy();
-          resolve();
-        });
-      }));
+          instance.on('error', reject);
+          instance.on('synchronized', () => {
+            const result = instance.isEnabled(testCase.toggleName, testCase.context);
+            t.is(result, testCase.expectedResult);
+            instance.destroy();
+            resolve();
+          });
+        }));
     });
   }
 
   if (definition.variantTests) {
     definition.variantTests.forEach((testCase) => {
-      test(`${testName}:${testCase.description}`, (t) => new Promise((resolve, reject) => {
-        // Mock unleash-api
-        const url = mockNetwork(definition.state);
+      test(`${testName}:${testCase.description}`, (t) =>
+        new Promise((resolve, reject) => {
+          // Mock unleash-api
+          const url = mockNetwork(definition.state);
 
-        // New unleash instance
-        const instance = new Unleash({
-          appName: testName,
-          disableMetrics: true,
-          skipInstanceCountWarning: true,
-          url,
-          backupPath: getRandomBackupPath(definition.name),
-        });
+          // New unleash instance
+          const instance = new Unleash({
+            appName: testName,
+            disableMetrics: true,
+            skipInstanceCountWarning: true,
+            url,
+            backupPath: getRandomBackupPath(definition.name),
+          });
 
-        instance.on('error', reject);
-        instance.on('synchronized', () => {
-          const result = instance.getVariant(testCase.toggleName, testCase.context);
-          t.deepEqual(result, testCase.expectedResult);
+          instance.on('error', reject);
+          instance.on('synchronized', () => {
+            const result = instance.getVariant(testCase.toggleName, testCase.context);
+            t.deepEqual(result, testCase.expectedResult);
 
-          instance.destroy();
-          resolve();
-        });
-      }));
+            instance.destroy();
+            resolve();
+          });
+        }));
     });
   }
 });
