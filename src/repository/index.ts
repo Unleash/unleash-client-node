@@ -13,7 +13,7 @@ import { Segment } from '../strategy/strategy';
 const SUPPORTED_SPEC_VERSION = '4.2.0';
 
 export interface RepositoryInterface extends EventEmitter {
-  getToggle(name: string): FeatureInterface;
+  getToggle(name: string): FeatureInterface | undefined;
   getToggles(): FeatureInterface[];
   getSegment(id: number): Segment | undefined;
   stop(): void;
@@ -117,7 +117,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.segments = new Map();
   }
 
-  timedFetch(interval: number ) {
+  timedFetch(interval: number) {
     if (interval > 0) {
       this.timer = setTimeout(() => this.fetch(), interval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
@@ -290,7 +290,7 @@ Message: ${err.message}`,
       }
     } catch (err) {
       const e = err as { code: string };
-      if(e.code === 'ECONNRESET') {
+      if (e.code === 'ECONNRESET') {
         nextFetch = Math.max(Math.floor(this.refreshInterval / 2), 1000);
         this.emit(UnleashEvents.Warn, `Socket keep alive error, retrying in ${nextFetch}ms`);
       } else {
@@ -317,7 +317,7 @@ Message: ${err.message}`,
     return this.segments.get(segmentId);
   }
 
-  getToggle(name: string): FeatureInterface {
+  getToggle(name: string): FeatureInterface | undefined {
     return this.data[name];
   }
 

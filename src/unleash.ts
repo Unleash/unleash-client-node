@@ -8,9 +8,12 @@ import { Strategy, defaultStrategies } from './strategy';
 
 import { FeatureInterface } from './feature';
 import { Variant, getDefaultVariant } from './variant';
-import { 
+import {
   FallbackFunction,
-  createFallbackFunction, generateInstanceId, generateHashOfConfig } from './helpers';
+  createFallbackFunction,
+  generateInstanceId,
+  generateHashOfConfig,
+} from './helpers';
 import { resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
@@ -72,21 +75,19 @@ export class Unleash extends EventEmitter {
     super();
 
     Unleash.instanceCount++;
-    
 
     this.on(UnleashEvents.Error, (error) => {
       // Only if there does not exist other listeners for this event.
-      if(this.listenerCount(UnleashEvents.Error) === 1)  {
-        console.error(error);  
+      if (this.listenerCount(UnleashEvents.Error) === 1) {
+        console.error(error);
       }
-      
     });
 
-    if(!skipInstanceCountWarning && Unleash.instanceCount > 10) {
+    if (!skipInstanceCountWarning && Unleash.instanceCount > 10) {
       process.nextTick(() => {
         const error = new Error('The unleash SDK has been initialized more than 10 times');
         this.emit(UnleashEvents.Error, error);
-      })
+      });
     }
 
     if (!url) {
@@ -155,7 +156,8 @@ export class Unleash extends EventEmitter {
     this.client = new Client(this.repository, supportedStrategies);
     this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
     this.client.on(UnleashEvents.Impression, (e: ImpressionEvent) =>
-      this.emit(UnleashEvents.Impression, e));
+      this.emit(UnleashEvents.Impression, e),
+    );
 
     this.metrics = new Metrics({
       disableMetrics,
@@ -193,9 +195,9 @@ export class Unleash extends EventEmitter {
   }
 
   /**
-   * Will only give you an instance the first time you call the method, 
-   * and then return the same instance. 
-   * @param config The Unleash Config. 
+   * Will only give you an instance the first time you call the method,
+   * and then return the same instance.
+   * @param config The Unleash Config.
    * @returns the Unleash instance
    */
   static getInstance(config: UnleashConfig) {
@@ -204,15 +206,15 @@ export class Unleash extends EventEmitter {
       // Remove complex objects
       repository: undefined,
       customHeadersFunction: undefined,
-      storageProvider: undefined
+      storageProvider: undefined,
     };
     const configSignature = generateHashOfConfig(cleanConfig);
-    if(Unleash.instance) {
-      if(configSignature !== Unleash.configSignature) {
+    if (Unleash.instance) {
+      if (configSignature !== Unleash.configSignature) {
         throw new Error('You already have an Unleash instance with a different configuration.');
       }
       return Unleash.instance;
-    } 
+    }
     const instance = new Unleash(config);
     Unleash.instance = instance;
     Unleash.configSignature = configSignature;
@@ -314,7 +316,7 @@ export class Unleash extends EventEmitter {
     return result;
   }
 
-  getFeatureToggleDefinition(toggleName: string): FeatureInterface {
+  getFeatureToggleDefinition(toggleName: string): FeatureInterface | undefined {
     return this.repository.getToggle(toggleName);
   }
 
@@ -335,7 +337,7 @@ export class Unleash extends EventEmitter {
   }
 
   async destroyWithFlush(): Promise<void> {
-    await this.flushMetrics()
+    await this.flushMetrics();
     this.destroy();
   }
-};
+}
