@@ -4,8 +4,10 @@ import { FeatureInterface } from './feature';
 import normalizedValue from './strategy/util';
 import { resolveContextValue } from './helpers';
 
-enum PayloadType {
+export enum PayloadType {
   STRING = 'string',
+  JSON = 'json',
+  CSV = 'csv',
 }
 
 interface Override {

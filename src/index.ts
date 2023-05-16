@@ -1,6 +1,6 @@
 import { once } from 'events';
 import { Unleash } from './unleash';
-import { Variant, getDefaultVariant } from './variant';
+import { Variant, getDefaultVariant, PayloadType } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
 import { UnleashEvents } from './events';
@@ -10,11 +10,10 @@ import { UnleashConfig } from './unleash-config';
 
 // exports
 export { Strategy } from './strategy/index';
-export { Context, Variant, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
+export { Context, Variant, PayloadType, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
 export type { ClientFeaturesResponse, UnleashConfig };
 
 let instance: undefined | Unleash;
-
 
 export function initialize(options: UnleashConfig): Unleash {
   instance = Unleash.getInstance(options);
@@ -35,7 +34,7 @@ export function isEnabled(name: string, context: Context = {}, fallbackValue?: b
 }
 
 export function destroy() {
-  if (instance ) {
+  if (instance) {
     instance.destroy();
   }
   instance = undefined;
