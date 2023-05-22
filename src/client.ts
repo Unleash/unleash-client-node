@@ -70,7 +70,11 @@ export default class UnleashClient extends EventEmitter {
     return enabled;
   }
 
-  isFeatureEnabled(feature: FeatureInterface, context: Context, fallback: Function): boolean {
+  isFeatureEnabled(
+    feature: FeatureInterface | undefined,
+    context: Context,
+    fallback: Function,
+  ): boolean {
     if (!feature) {
       return fallback();
     }
@@ -159,7 +163,7 @@ export default class UnleashClient extends EventEmitter {
   }
 
   private resolveVariant(
-    feature: FeatureInterface,
+    feature: FeatureInterface | undefined,
     context: Context,
     checkToggle: boolean,
     fallbackVariant?: Variant,
