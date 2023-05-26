@@ -1,0 +1,16 @@
+name: Run npm version and push tags
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: What version would you like to use?
+
+jobs:
+  npm-version:
+    uses: unleash/.github/.github/workflows/npm-version.yml@main
+    secrets: inherit
