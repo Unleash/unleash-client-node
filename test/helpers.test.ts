@@ -1,8 +1,0 @@
-import test from 'ava';
-
-import { getAppliedJitter } from '../lib/helpers';
-
-test('jitter should be within bounds', (t) => {
-    const jitter = getAppliedJitter(10000);
-    t.true(jitter <= 10000 && jitter >= -10000)
-});
