@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import test from 'ava';
 import * as sinon from 'sinon';
 
@@ -30,7 +31,7 @@ test('should be disabled when stickiness=userId and userId not on context', (t) 
 });
 
 test('should fallback to random if stickiness=default and empty context', (t) => {
-  const randomGenerator = sinon.fake.returns('42');
+  const randomGenerator = sinon.fake.returns('42'); // eslint-disable-line import/namespace
 
   const strategy = new FlexibleRolloutStrategy(randomGenerator);
   const params = { rollout: '100', stickiness: 'default', groupId: 'Demo' };
@@ -47,7 +48,7 @@ test('should NOT be enabled for rollout=10% when userId is 123', (t) => {
   t.false(strategy.isEnabled(params, context));
 });
 
-test('should be disabled when stickiness=customerId and customerId not found on context', t => {
+test('should be disabled when stickiness=customerId and customerId not found on context', (t) => {
   const strategy = new FlexibleRolloutStrategy();
   const params = {
     rollout: '100',
@@ -58,7 +59,7 @@ test('should be disabled when stickiness=customerId and customerId not found on 
   t.false(strategy.isEnabled(params, context));
 });
 
-test('should be enabled when stickiness=customerId and customerId=61', t => {
+test('should be enabled when stickiness=customerId and customerId=61', (t) => {
   const strategy = new FlexibleRolloutStrategy();
   const params = {
     rollout: '100',

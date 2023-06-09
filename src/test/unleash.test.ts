@@ -305,7 +305,7 @@ test('should call fallback function for unknown feature-toggle', (t) =>
     }).on('error', reject);
 
     instance.on('synchronized', () => {
-      const fallbackFunc = sinon.spy(() => false);
+      const fallbackFunc = sinon.spy(() => false); // eslint-disable-line import/namespace
       const name = 'unknown';
       const result = instance.isEnabled(name, { userId: '123' }, fallbackFunc);
       t.true(result === false);
