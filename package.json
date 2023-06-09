@@ -35,8 +35,7 @@
     "semver": "7.5.1"
   },
   "engines": {
-    "node": ">=10",
-    "npm": ">=4.0.0"
+    "node": ">=16"
   },
   "files": [
     "lib",
