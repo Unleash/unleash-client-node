@@ -29,49 +29,55 @@
   },
   "homepage": "https://github.com/Unleash/unleash-client-node",
   "dependencies": {
-    "ip": "^1.1.8",
-    "make-fetch-happen": "^10.2.1",
-    "murmurhash3js": "^3.0.1",
-    "semver": "^7.3.8"
+    "ip": "1.1.8",
+    "make-fetch-happen": "11.1.1",
+    "murmurhash3js": "3.0.1",
+    "semver": "7.5.1"
   },
   "engines": {
-    "node": ">=10",
-    "npm": ">=4.0.0"
+    "node": ">=16"
   },
   "files": [
     "lib",
+    "!lib/test",
     "examples"
   ],
   "devDependencies": {
     "@ava/babel": "2.0.0",
+    "@ava/typescript": "^4.0.0",
     "@tsconfig/node12": "^1.0.11",
+    "@types/express": "^4.17.17",
     "@types/ip": "1.1.0",
     "@types/make-fetch-happen": "10.0.1",
     "@types/murmurhash3js": "3.0.3",
-    "@types/node": "18.14.1",
-    "@types/semver": "7.3.13",
-    "@typescript-eslint/eslint-plugin": "5.51.0",
+    "@types/nock": "^11.1.0",
+    "@types/node": "20.2.5",
+    "@types/semver": "7.5.0",
+    "@types/sinon": "^10.0.15",
+    "@typescript-eslint/eslint-plugin": "5.59.9",
+    "@typescript-eslint/parser": "^5.59.9",
     "@unleash/client-specification": "4.2.2",
-    "ava": "3.15.0",
+    "ava": "5.3.0",
     "coveralls": "3.1.1",
     "cross-env": "7.0.3",
-    "del-cli": "4.0.1",
-    "eslint": "8.34.0",
+    "del-cli": "5.0.0",
+    "eslint": "8.42.0",
     "eslint-config-airbnb-base": "15.0.0",
-    "eslint-config-airbnb-typescript": "12.3.1",
-    "eslint-config-prettier": "8.6.0",
-    "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-prettier": "4.0.0",
+    "eslint-config-airbnb-typescript": "17.0.0",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "4.2.1",
     "esm": "3.2.25",
-    "husky": "7.0.4",
-    "lint-staged": "12.5.0",
+    "husky": "8.0.3",
+    "lint-staged": "13.2.2",
     "mkdirp": "3.0.1",
-    "nock": "13.3.0",
+    "nock": "13.3.1",
     "nyc": "15.1.0",
-    "prettier": "2.8.4",
-    "redis": "4.0.6",
-    "sinon": "15.0.1",
-    "typescript": "4.9.5"
+    "prettier": "2.8.8",
+    "redis": "4.6.7",
+    "sinon": "15.1.0",
+    "typescript": "5.1.3"
   },
   "resolutions": {
     "ansi-regex": "^5.0.1",
@@ -122,14 +128,14 @@
     }
   },
   "ava": {
-    "babel": true,
-    "require": [
-      "esm"
-    ],
+    "typescript": {
+      "rewritePaths": {
+        "src/": "lib/"
+      },
+      "compile": false
+    },
     "files": [
-      "test/**/*",
-      "!test/*_custom_strategy.js",
-      "!test/fake_repo.js"
+      "src/**/*.test.ts"
     ]
   }
 }

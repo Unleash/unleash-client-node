@@ -1,8 +1,7 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import * as express from 'express';
+import * as express from 'express'; // eslint-disable-line import/no-unresolved
 import { Unleash, Strategy } from '../lib/unleash';
 
-const fixture = require('../test/fixtures/format-0.json');
+const fixture = require('./fixtures/format-0.json');
 
 const app = express();
 app.get('/', (req, res) => res.json(fixture));
