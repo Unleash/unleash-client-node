@@ -24,7 +24,22 @@ jobs:
       - name: Yarn
         run: yarn
       - name: Test
-        run: yarn lint && yarn coverage
+        run: yarn lint && yarn test
+
+  report-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+      - name: Yarn
+        run: yarn
+      - name: Test
+        run: yarn coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
