@@ -1,5 +1,11 @@
 # Changelog
 
+---
+
+### ⚠️ No longer in use. See [GitHub Releases](https://github.com/Unleash/unleash-client-node/releases).
+
+---
+
 # 3.19.1
 
 - fix: always resolve startUnleash promise (#442)
