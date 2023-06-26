@@ -7,6 +7,8 @@ import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 
+const formatMemoryUsage = (data: number) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`;
+
 export interface MetricsOptions {
   appName: string;
   instanceId: string;
@@ -19,6 +21,19 @@ export interface MetricsOptions {
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
   httpOptions?: HttpOptions;
+  performance?: PerformanceProfile
+}
+
+export interface PerformanceProfile {
+  cpu: number
+  memory: MemoryMetric
+}
+
+export interface MemoryMetric {
+  totalMemoryAllocated: string
+  heapTotal: string
+  heapUsed: string
+  external: string
 }
 
 interface VariantBucket {
@@ -77,6 +92,12 @@ export default class Metrics extends EventEmitter {
 
   private httpOptions?: HttpOptions;
 
+  private performance?: PerformanceProfile;
+
+  private cpuPreviousValue: NodeJS.CpuUsage;
+
+  private cpuEvaluationTime: number;
+
   constructor({
     appName,
     instanceId,
@@ -89,6 +110,7 @@ export default class Metrics extends EventEmitter {
     customHeadersFunction,
     timeout,
     httpOptions,
+    performance
   }: MetricsOptions) {
     super();
     this.disabled = disableMetrics;
@@ -105,6 +127,10 @@ export default class Metrics extends EventEmitter {
     this.timeout = timeout;
     this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
+    this.performance = performance;
+
+    this.cpuPreviousValue = process.cpuUsage();
+    this.cpuEvaluationTime = Date.now()
   }
 
   private getAppliedJitter(): number {
@@ -157,6 +183,7 @@ export default class Metrics extends EventEmitter {
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
+        performance: this.getPerformanceProfile(),
       });
       if (!res.ok) {
         // status code outside 200 range
@@ -168,6 +195,33 @@ export default class Metrics extends EventEmitter {
       this.emit(UnleashEvents.Warn, err);
     }
     return true;
+  }
+
+  private getCpuPercentage = () => {
+    const usage = process.cpuUsage(this.cpuPreviousValue);
+    const result =
+      100 * (usage.user + usage.system) / ((Date.now() - this.cpuEvaluationTime) * 1000)
+
+    this.cpuEvaluationTime = Date.now();
+    this.cpuPreviousValue = process.cpuUsage()
+
+    return result;
+  }
+
+  private getPerformanceProfile = (): PerformanceProfile => {
+    const memoryData = process.memoryUsage();
+    const memoryUsage: MemoryMetric = {
+      totalMemoryAllocated: `${formatMemoryUsage(memoryData.rss)}`,
+      heapTotal: `${formatMemoryUsage(memoryData.heapTotal)}`,
+      heapUsed: `${formatMemoryUsage(memoryData.heapUsed)}`,
+      external: `${formatMemoryUsage(memoryData.external)}`,
+    };
+    const cpuUsage = this.getCpuPercentage();
+
+    return {
+      memory: memoryUsage,
+      cpu: cpuUsage,
+    }
   }
 
   async sendMetrics(): Promise<void> {
@@ -193,6 +247,7 @@ export default class Metrics extends EventEmitter {
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
+        performance: this.getPerformanceProfile()
       });
       this.startTimer();
       if (res.status === 404) {
@@ -253,7 +308,7 @@ export default class Metrics extends EventEmitter {
   private increaseVariantCounter(name: string, variantName: string, inc = 1): void {
     this.assertBucket(name);
     if(this.bucket.toggles[name].variants[variantName]) {
-      this.bucket.toggles[name].variants[variantName]+=inc 
+      this.bucket.toggles[name].variants[variantName]+=inc
     } else {
       this.bucket.toggles[name].variants[variantName] = inc;
     }
@@ -293,7 +348,7 @@ export default class Metrics extends EventEmitter {
 
     const { toggles } = bucket;
     Object.keys(toggles).forEach(toggleName => {
-      const toggle = toggles[toggleName];      
+      const toggle = toggles[toggleName];
       this.increaseCounter(toggleName, true, toggle.yes);
       this.increaseCounter(toggleName, false, toggle.no);
 
