@@ -1,5 +1,5 @@
 import { tmpdir } from 'os';
-import { hrtime } from 'node:process'
+import { hrtime } from 'node:process';
 import { EventEmitter } from 'events';
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
@@ -28,7 +28,6 @@ export interface StaticContext {
   appName: string;
   environment: string;
 }
-
 
 export type RunProps = {
   toggleName: string;
@@ -355,28 +354,23 @@ export class Unleash extends EventEmitter {
     this.destroy();
   }
 
+  run({ toggleName, context, toggleFallbackValue, onEnabled, onDisabled }: RunProps): void {
+    const isEnabled = this.isEnabled(toggleName, context, toggleFallbackValue);
+    const f = isEnabled ? onEnabled : onDisabled;
+    if (f) {
+      const start = hrtime.bigint();
+      try {
+        f();
+      } catch (e) {
+        this.metrics.countErrors(toggleName, isEnabled);
+        throw e;
+      } finally {
+        const end = hrtime.bigint();
+        const executionTimeNs = end - start;
+        const executionTimeMs = Number(executionTimeNs / BigInt(1_000_000));
 
-run({
-  toggleName,
-  context,
-  toggleFallbackValue,
-  onEnabled,
-  onDisabled,
-}: RunProps): void {
-  const isEnabled = this.isEnabled(toggleName, context, toggleFallbackValue)
-  const f = isEnabled? onEnabled : onDisabled;
-  if (f) {
-    const start = hrtime.bigint()
-    try {
-      f()
-    } finally {
-      const end = hrtime.bigint();
-      const executionTimeNs = end - start;
-      const executionTimeMs = Number(executionTimeNs / BigInt(1_000_000))
-      // console.log(`[${isEnabled}]: execution took ${executionTimeMs} milliseconds`)
-
-      this.metrics.executionTime(toggleName, isEnabled, executionTimeMs)
+        this.metrics.executionTime(toggleName, isEnabled, executionTimeMs);
+      }
     }
   }
-}
 }

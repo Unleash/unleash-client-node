@@ -31,11 +31,12 @@ interface Bucket {
   toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: number, disabled: number } } };
 }
 
+type ExtraData = { executionTime: { totalMs: number, count: number }, errors: number }
 type InternalBucket = {
   start: Date;
   stop?: Date;
-  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: { totalMs: number, count: number }, disabled: { totalMs: number, count: number } } } };
-}
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, extraData: { enabled: ExtraData, disabled: ExtraData } } }
+};
 
 interface MetricsData {
   appName: string;
@@ -189,7 +190,7 @@ export default class Metrics extends EventEmitter {
     const payload = this.createMetricsData();
 
     console.log("\n\nSending metrics data. Toggle data:",
-                JSON.stringify(payload.bucket.toggles.default, null, 2))
+      JSON.stringify(payload.bucket.toggles.default, null, 2))
 
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
@@ -223,11 +224,17 @@ export default class Metrics extends EventEmitter {
   }
 
   executionTime(name: string, enabled: boolean, timeMs: number): void {
-    if (this.disabled){return}
+    if (this.disabled) { return }
 
-    const time = this.bucket.toggles[name].executionTime[ enabled? 'enabled': 'disabled' ]
-    time.count +=1;
+    const time = this.bucket.toggles[name].extraData[enabled ? 'enabled' : 'disabled'].executionTime
+    time.count += 1;
     time.totalMs += timeMs;
+  }
+
+  countErrors(name: string, enabled: boolean): void {
+    if (this.disabled) { return }
+
+    this.bucket.toggles[name].extraData[enabled ? 'enabled' : 'disabled'].errors += 1;
   }
 
   assertBucket(name: string): void {
@@ -239,9 +246,15 @@ export default class Metrics extends EventEmitter {
         yes: 0,
         no: 0,
         variants: {},
-        executionTime: {
-          enabled: {count: 0, totalMs: 0},
-          disabled: {count: 0, totalMs: 0},
+        extraData: {
+          enabled: {
+            executionTime: { count: 0, totalMs: 0 },
+            errors: 0
+          },
+          disabled: {
+            executionTime: { count: 0, totalMs: 0 },
+            errors: 0
+          },
         }
       };
     }
@@ -301,12 +314,19 @@ export default class Metrics extends EventEmitter {
     const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
 
-    const mappedFeatures = Object.fromEntries(Object.entries(bucket.toggles).map(([toggleName, {executionTime, ...data }]) => ([toggleName, ({
+    const mappedFeatures = Object.fromEntries(Object.entries(bucket.toggles).map(([toggleName, { extraData, ...data }]) => ([toggleName, ({
       ...data,
       executionTime: {
-        enabled: Math.round(executionTime.enabled.totalMs / executionTime.enabled.count),
-        disabled: Math.round(executionTime.disabled.totalMs / executionTime.disabled.count),
+        enabled: Math.round(extraData.enabled.executionTime.totalMs
+          / extraData.enabled.executionTime.count),
+        disabled: Math.round(extraData.disabled.executionTime.totalMs
+          / extraData.disabled.executionTime.count),
+      },
+      errors: {
+        enabled: extraData.enabled.errors,
+        disabled: extraData.disabled.errors
       }
+
     })])))
 
     return {
