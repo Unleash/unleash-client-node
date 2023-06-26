@@ -31,6 +31,12 @@ interface Bucket {
   toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: number, disabled: number } } };
 }
 
+type InternalBucket = {
+  start: Date;
+  stop?: Date;
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: { totalMs: number, count: number }, disabled: { totalMs: number, count: number } } } };
+}
+
 interface MetricsData {
   appName: string;
   instanceId: string;
@@ -47,7 +53,7 @@ interface RegistrationData {
 }
 
 export default class Metrics extends EventEmitter {
-  private bucket: Bucket;
+  private bucket: InternalBucket;
 
   private appName: string;
 
@@ -219,9 +225,9 @@ export default class Metrics extends EventEmitter {
   executionTime(name: string, enabled: boolean, timeMs: number): void {
     if (this.disabled){return}
 
-    const toggle = this.bucket.toggles[name]
-
-    toggle.executionTime[ enabled? 'enabled': 'disabled' ] += timeMs
+    const time = this.bucket.toggles[name].executionTime[ enabled? 'enabled': 'disabled' ]
+    time.count +=1;
+    time.totalMs += timeMs;
   }
 
   assertBucket(name: string): void {
@@ -234,8 +240,8 @@ export default class Metrics extends EventEmitter {
         no: 0,
         variants: {},
         executionTime: {
-          enabled: 0,
-          disabled: 0
+          enabled: {count: 0, totalMs: 0},
+          disabled: {count: 0, totalMs: 0},
         }
       };
     }
@@ -279,7 +285,7 @@ export default class Metrics extends EventEmitter {
     return Object.keys(this.bucket.toggles).length === 0;
   }
 
-  private createBucket(): Bucket {
+  private createBucket(): InternalBucket {
     return {
       start: new Date(),
       stop: undefined,
@@ -298,8 +304,8 @@ export default class Metrics extends EventEmitter {
     const mappedFeatures = Object.fromEntries(Object.entries(bucket.toggles).map(([toggleName, {executionTime, ...data }]) => ([toggleName, ({
       ...data,
       executionTime: {
-        enabled: executionTime?.enabled ?? 0 / data.yes,
-        disabled: executionTime?.disabled ?? 0 / data.no,
+        enabled: Math.round(executionTime.enabled.totalMs / executionTime.enabled.count),
+        disabled: Math.round(executionTime.disabled.totalMs / executionTime.disabled.count),
       }
     })])))
 
