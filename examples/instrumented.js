@@ -23,22 +23,26 @@ unleash.on('ready', () => {
 console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
-  const iterations = Math.round(Math.random() * 10_000_000)
+  const iterations = Math.round(Math.random() * 1_000_000);
+
   run({
     toggleName: 'default',
     onEnabled: () => {
-      // console.log(`Toggle is enabled! Running ${iterations}`);
+      if (Math.random() > 0.7) {
+        throw new Error('Whoopsie!');
+      }
+
       Array.from(Array(iterations)).reduce((total, n) => {
-        return total + `${n}`
-      })
+        return total + `${n}`;
+      });
     },
     onDisabled: () => {
-      // console.log('Toggle is disabled!');
+      if (Math.random() > 0.8) {
+        throw new Error('Whoopsie!');
+      }
       Array.from(Array(Math.round(iterations / 2))).reduce((total, n) => {
-        return total + `${n}`
-      })
+        return total + `${n}`;
+      });
     },
   });
-  // const enabled = isEnabled('default', unleashContext);
-  // console.log(`Enabled: ${enabled}`);
 }, 100);
