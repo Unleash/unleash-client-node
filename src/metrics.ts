@@ -28,7 +28,7 @@ interface VariantBucket {
 interface Bucket {
   start: Date;
   stop?: Date;
-  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket } };
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: number, disabled: number } } };
 }
 
 interface MetricsData {
@@ -38,12 +38,12 @@ interface MetricsData {
 }
 
 interface RegistrationData {
-  appName:    string;
+  appName: string;
   instanceId: string;
   sdkVersion: string;
   strategies: string[];
-  started:    Date;
-  interval:   number
+  started: Date;
+  interval: number
 }
 
 export default class Metrics extends EventEmitter {
@@ -182,6 +182,10 @@ export default class Metrics extends EventEmitter {
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
     const payload = this.createMetricsData();
 
+    console.log("\n\nSending metrics data. Toggle data:",
+                JSON.stringify(payload.bucket.toggles.default, null, 2))
+
+
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
     try {
@@ -212,6 +216,14 @@ export default class Metrics extends EventEmitter {
     }
   }
 
+  executionTime(name: string, enabled: boolean, timeMs: number): void {
+    if (this.disabled){return}
+
+    const toggle = this.bucket.toggles[name]
+
+    toggle.executionTime[ enabled? 'enabled': 'disabled' ] += timeMs
+  }
+
   assertBucket(name: string): void {
     if (this.disabled) {
       return;
@@ -221,6 +233,10 @@ export default class Metrics extends EventEmitter {
         yes: 0,
         no: 0,
         variants: {},
+        executionTime: {
+          enabled: 0,
+          disabled: 0
+        }
       };
     }
   }
@@ -243,7 +259,7 @@ export default class Metrics extends EventEmitter {
   }
 
   private increaseCounter(name: string, enabled: boolean, inc = 1): void {
-    if(inc === 0) {
+    if (inc === 0) {
       return;
     }
     this.assertBucket(name);
@@ -252,8 +268,8 @@ export default class Metrics extends EventEmitter {
 
   private increaseVariantCounter(name: string, variantName: string, inc = 1): void {
     this.assertBucket(name);
-    if(this.bucket.toggles[name].variants[variantName]) {
-      this.bucket.toggles[name].variants[variantName]+=inc 
+    if (this.bucket.toggles[name].variants[variantName]) {
+      this.bucket.toggles[name].variants[variantName] += inc
     } else {
       this.bucket.toggles[name].variants[variantName] = inc;
     }
@@ -276,24 +292,33 @@ export default class Metrics extends EventEmitter {
   }
 
   createMetricsData(): MetricsData {
-    const bucket = {...this.bucket, stop: new Date()};
+    const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
+
+    const mappedFeatures = Object.fromEntries(Object.entries(bucket.toggles).map(([toggleName, {executionTime, ...data }]) => ([toggleName, ({
+      ...data,
+      executionTime: {
+        enabled: executionTime?.enabled ?? 0 / data.yes,
+        disabled: executionTime?.disabled ?? 0 / data.no,
+      }
+    })])))
+
     return {
       appName: this.appName,
       instanceId: this.instanceId,
-      bucket,
+      bucket: { ...bucket, toggles: mappedFeatures },
     };
   }
 
   private restoreBucket(bucket: Bucket): void {
-    if(this.disabled) {
+    if (this.disabled) {
       return;
     }
     this.bucket.start = bucket.start;
 
     const { toggles } = bucket;
     Object.keys(toggles).forEach(toggleName => {
-      const toggle = toggles[toggleName];      
+      const toggle = toggles[toggleName];
       this.increaseCounter(toggleName, true, toggle.yes);
       this.increaseCounter(toggleName, false, toggle.no);
 

@@ -7,6 +7,7 @@ const unleashContext = { userId: '1232' };
 const unleash = initialize({
   appName: 'my-application',
   url,
+  metricsInterval: 3000,
   refreshInterval: 1000,
   customHeaders: {
     Authorization: apiToken,
@@ -22,15 +23,22 @@ unleash.on('ready', () => {
 console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
+  const iterations = Math.round(Math.random() * 10_000_000)
   run({
     toggleName: 'default',
     onEnabled: () => {
-      console.log('Toggle is enabled!');
+      // console.log(`Toggle is enabled! Running ${iterations}`);
+      Array.from(Array(iterations)).reduce((total, n) => {
+        return total + `${n}`
+      })
     },
     onDisabled: () => {
-      console.log('Toggle is disabled!');
+      // console.log('Toggle is disabled!');
+      Array.from(Array(Math.round(iterations / 2))).reduce((total, n) => {
+        return total + `${n}`
+      })
     },
   });
-  const enabled = isEnabled('default', unleashContext);
-  console.log(`Enabled: ${enabled}`);
-}, 300);
+  // const enabled = isEnabled('default', unleashContext);
+  // console.log(`Enabled: ${enabled}`);
+}, 100);
