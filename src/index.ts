@@ -83,5 +83,17 @@ export async function destroyWithFlush(): Promise<void> {
 }
 
 export function run(args: RunProps): void {
-  return instance && instance.run(args)
+  return instance && instance.run(args);
+}
+
+export function isEnabledWithTimer(
+  name: string,
+  context: Context = {},
+  fallbackValue?: boolean,
+): { isEnabled: boolean; stopTimer: () => void } {
+  if (instance) {
+    return instance.isEnabledWithTimer(name, context, fallbackValue);
+  } else {
+    return { isEnabled: false, stopTimer: () => {} };
+  }
 }

@@ -373,4 +373,22 @@ export class Unleash extends EventEmitter {
       }
     }
   }
+
+  isEnabledWithTimer(
+    name: string,
+    context?: Context,
+    fallbackValue?: boolean,
+  ): { isEnabled: boolean; stopTimer: () => void } {
+    const isEnabled = this.isEnabled(name, context, fallbackValue);
+    const stopTimer = (start: bigint) => () => {
+      const end = hrtime.bigint();
+
+      const executionTimeNs = end - start;
+      const executionTimeMs = Number(executionTimeNs / BigInt(1_000_000));
+
+      this.metrics.executionTime(name, isEnabled, executionTimeMs);
+    };
+
+    return { isEnabled, stopTimer: stopTimer(hrtime.bigint()) };
+  }
 }
