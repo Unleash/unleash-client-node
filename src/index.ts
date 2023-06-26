@@ -81,3 +81,36 @@ export async function flushMetrics(): Promise<void> {
 export async function destroyWithFlush(): Promise<void> {
   return instance && instance.destroyWithFlush();
 }
+
+type RunProps = {
+  toggleName: string;
+  context?: Context;
+  toggleFallbackValue?: boolean;
+  onEnabled: Function;
+  onDisabled?: Function;
+};
+
+export function run({
+  toggleName,
+  context,
+  toggleFallbackValue,
+  onEnabled,
+  onDisabled,
+}: RunProps): void {
+  if (isEnabled(toggleName, context, toggleFallbackValue)) {
+    try {
+      // start timer
+      onEnabled();
+    } catch (e) {
+      // catch errors?
+    } finally {
+      // stop timer
+      // store times in metrics
+    }
+  } else if (onDisabled) {
+    // start timer
+    onDisabled();
+    // stop timer
+    // store times in metrics
+  }
+}
