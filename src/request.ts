@@ -4,7 +4,6 @@ import * as https from 'https';
 import { URL } from 'url';
 import { CustomHeaders } from './headers';
 import { HttpOptions } from './http-options';
-import {PerformanceProfile} from "./metrics";
 
 export interface RequestOptions {
   url: string;
@@ -29,7 +28,6 @@ export interface PostRequestOptions extends RequestOptions {
   appName?: string;
   instanceId?: string;
   httpOptions?: HttpOptions;
-  performance: PerformanceProfile;
 }
 const httpAgent = new http.Agent({
   keepAlive: true,

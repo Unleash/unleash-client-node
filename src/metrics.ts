@@ -50,6 +50,7 @@ interface MetricsData {
   appName: string;
   instanceId: string;
   bucket: Bucket;
+  performanceProfile: PerformanceProfile
 }
 
 interface RegistrationData {
@@ -183,7 +184,6 @@ export default class Metrics extends EventEmitter {
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
-        performance: this.getPerformanceProfile(),
       });
       if (!res.ok) {
         // status code outside 200 range
@@ -247,7 +247,6 @@ export default class Metrics extends EventEmitter {
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
-        performance: this.getPerformanceProfile()
       });
       this.startTimer();
       if (res.status === 404) {
@@ -337,6 +336,7 @@ export default class Metrics extends EventEmitter {
       appName: this.appName,
       instanceId: this.instanceId,
       bucket,
+      performanceProfile: this.getPerformanceProfile()
     };
   }
 
