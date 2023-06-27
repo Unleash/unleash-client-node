@@ -1,5 +1,5 @@
 import { once } from 'events';
-import { Unleash } from './unleash';
+import { Unleash, RunProps } from './unleash';
 import { Variant, getDefaultVariant, PayloadType } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
@@ -80,4 +80,20 @@ export async function flushMetrics(): Promise<void> {
 
 export async function destroyWithFlush(): Promise<void> {
   return instance && instance.destroyWithFlush();
+}
+
+export function run(args: RunProps): void {
+  return instance && instance.run(args);
+}
+
+export function isEnabledWithTimer(
+  name: string,
+  context: Context = {},
+  fallbackValue?: boolean,
+): { isEnabled: boolean; stopTimer: () => void } {
+  if (instance) {
+    return instance.isEnabledWithTimer(name, context, fallbackValue);
+  } else {
+    return { isEnabled: false, stopTimer: () => {} };
+  }
 }

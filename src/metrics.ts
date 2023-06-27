@@ -43,8 +43,15 @@ interface VariantBucket {
 interface Bucket {
   start: Date;
   stop?: Date;
-  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket } };
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, executionTime: { enabled: number, disabled: number } } };
 }
+
+type ExtraData = { executionTime: { totalMs: number, count: number }, errors: number }
+type InternalBucket = {
+  start: Date;
+  stop?: Date;
+  toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket, extraData: { enabled: ExtraData, disabled: ExtraData } } }
+};
 
 interface MetricsData {
   appName: string;
@@ -54,16 +61,16 @@ interface MetricsData {
 }
 
 interface RegistrationData {
-  appName:    string;
+  appName: string;
   instanceId: string;
   sdkVersion: string;
   strategies: string[];
-  started:    Date;
-  interval:   number
+  started: Date;
+  interval: number
 }
 
 export default class Metrics extends EventEmitter {
-  private bucket: Bucket;
+  private bucket: InternalBucket;
 
   private appName: string;
 
@@ -236,6 +243,10 @@ export default class Metrics extends EventEmitter {
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
     const payload = this.createMetricsData();
 
+    console.log("\n\nSending metrics data. Toggle data:",
+      JSON.stringify(payload.bucket.toggles.default, null, 2))
+
+
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
     try {
@@ -266,6 +277,20 @@ export default class Metrics extends EventEmitter {
     }
   }
 
+  executionTime(name: string, enabled: boolean, timeMs: number): void {
+    if (this.disabled) { return }
+
+    const time = this.bucket.toggles[name].extraData[enabled ? 'enabled' : 'disabled'].executionTime
+    time.count += 1;
+    time.totalMs += timeMs;
+  }
+
+  countErrors(name: string, enabled: boolean): void {
+    if (this.disabled) { return }
+
+    this.bucket.toggles[name].extraData[enabled ? 'enabled' : 'disabled'].errors += 1;
+  }
+
   assertBucket(name: string): void {
     if (this.disabled) {
       return;
@@ -275,6 +300,16 @@ export default class Metrics extends EventEmitter {
         yes: 0,
         no: 0,
         variants: {},
+        extraData: {
+          enabled: {
+            executionTime: { count: 0, totalMs: 0 },
+            errors: 0
+          },
+          disabled: {
+            executionTime: { count: 0, totalMs: 0 },
+            errors: 0
+          },
+        }
       };
     }
   }
@@ -297,7 +332,7 @@ export default class Metrics extends EventEmitter {
   }
 
   private increaseCounter(name: string, enabled: boolean, inc = 1): void {
-    if(inc === 0) {
+    if (inc === 0) {
       return;
     }
     this.assertBucket(name);
@@ -306,8 +341,8 @@ export default class Metrics extends EventEmitter {
 
   private increaseVariantCounter(name: string, variantName: string, inc = 1): void {
     this.assertBucket(name);
-    if(this.bucket.toggles[name].variants[variantName]) {
-      this.bucket.toggles[name].variants[variantName]+=inc
+    if (this.bucket.toggles[name].variants[variantName]) {
+      this.bucket.toggles[name].variants[variantName] += inc
     } else {
       this.bucket.toggles[name].variants[variantName] = inc;
     }
@@ -317,7 +352,7 @@ export default class Metrics extends EventEmitter {
     return Object.keys(this.bucket.toggles).length === 0;
   }
 
-  private createBucket(): Bucket {
+  private createBucket(): InternalBucket {
     return {
       start: new Date(),
       stop: undefined,
@@ -330,18 +365,34 @@ export default class Metrics extends EventEmitter {
   }
 
   createMetricsData(): MetricsData {
-    const bucket = {...this.bucket, stop: new Date()};
+    const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
+
+    const mappedFeatures = Object.fromEntries(Object.entries(bucket.toggles).map(([toggleName, { extraData, ...data }]) => ([toggleName, ({
+      ...data,
+      executionTime: {
+        enabled: Math.round(extraData.enabled.executionTime.totalMs
+          / extraData.enabled.executionTime.count),
+        disabled: Math.round(extraData.disabled.executionTime.totalMs
+          / extraData.disabled.executionTime.count),
+      },
+      errors: {
+        enabled: extraData.enabled.errors,
+        disabled: extraData.disabled.errors
+      }
+
+    })])))
+
     return {
       appName: this.appName,
       instanceId: this.instanceId,
-      bucket,
+      bucket: { ...bucket, toggles: mappedFeatures },
       performanceProfile: this.getPerformanceProfile()
     };
   }
 
   private restoreBucket(bucket: Bucket): void {
-    if(this.disabled) {
+    if (this.disabled) {
       return;
     }
     this.bucket.start = bucket.start;

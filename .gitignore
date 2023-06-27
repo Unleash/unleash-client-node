@@ -26,3 +26,8 @@ build/Release
 # typescript lives in src, output in lib
 lib/
 .vscode
+
+# Devenv
+.devenv*
+devenv.local.nix
+
