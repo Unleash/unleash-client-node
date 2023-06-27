@@ -276,7 +276,7 @@ export default class Metrics extends EventEmitter {
 
   executionTime(name: string, enabled: boolean, timeMs: number): void {
     if (this.disabled) { return }
-
+    this.assertBucket(name);
     const time = this.bucket.toggles[name].extraData[enabled ? 'yes' : 'no'].executionTime
     time.count += 1;
     time.totalMs += timeMs;
