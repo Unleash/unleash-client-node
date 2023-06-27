@@ -244,10 +244,6 @@ export default class Metrics extends EventEmitter {
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
     const payload = this.createMetricsData();
 
-    console.log("\n\nSending metrics data. Toggle data:",
-      JSON.stringify(payload.bucket.toggles.default, null, 2))
-
-
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
     try {
