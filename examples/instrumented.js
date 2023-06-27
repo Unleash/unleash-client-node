@@ -8,7 +8,7 @@ const unleash = initialize({
   appName: 'my-application',
   url,
   metricsInterval: 3000,
-  refreshInterval: 1000,
+  refreshInterval: 60000,
   customHeaders: {
     Authorization: apiToken,
   },
@@ -25,36 +25,36 @@ console.log(`Fetching toggles from: ${url}`);
 setInterval(() => {
   const iterations = Math.round(Math.random() * 1_000_000);
 
+  const doSomething = (iterations, errorRate) => {
+    if (Math.random() > 1 - errorRate) {
+      throw new Error('Whoopsie!');
+    }
+
+    Array.from(Array(iterations)).reduce((total, n) => {
+      return total + `${n}`;
+    });
+  };
+
+  // run in a closure tracked by unleash
   try {
     run({
       toggleName: 'default',
       onEnabled: () => {
-        if (Math.random() > 0.7) {
-          throw new Error('Whoopsie!');
-        }
-
-        Array.from(Array(iterations)).reduce((total, n) => {
-          return total + `${n}`;
-        });
+        doSomething(iterations, 0.3);
       },
       onDisabled: () => {
-        if (Math.random() > 0.8) {
-          throw new Error('Whoopsie!');
-        }
-        Array.from(Array(Math.round(iterations / 2))).reduce((total, n) => {
-          return total + `${n}`;
-        });
+        doSomething(Math.round(iterations / 2), 0.2);
       },
     });
   } catch {
     // ignore
   }
 
+  // return a timer, and stop it yourself
   const { stopTimer, isEnabled } = isEnabledWithTimer('default');
   if (isEnabled) {
-    Array.from(Array(iterations)).reduce((total, n) => {
-      return total + `${n}`;
-    });
+    doSomething(iterations, 0);
   }
   stopTimer();
+  //
 }, 100);
