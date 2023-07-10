@@ -105,12 +105,17 @@ export default class UnleashClient extends EventEmitter {
           return false;
         }
         const constraints = this.yieldConstraintsFor(strategySelector);
-        const enabled = strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
-        if(enabled && strategySelector?.parameters?.variant) {
-          if(typeof strategySelector?.parameters?.variant === 'string') {
-            featureVariant = {name: strategySelector?.parameters?.variant, payload: {type: 'string', value: strategySelector?.parameters?.variant}}
+        const enabled =
+          strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
+        const variantParam = strategySelector?.parameters?.variant;
+        if (enabled && variantParam) {
+          if (typeof variantParam === 'string') {
+            featureVariant = {
+              name: variantParam,
+              payload: { type: 'string', value: variantParam },
+            };
           } else {
-            featureVariant = strategySelector?.parameters?.variant;
+            featureVariant = variantParam;
           }
         }
         return enabled;
@@ -118,7 +123,7 @@ export default class UnleashClient extends EventEmitter {
     ), featureVariant];
   }
 
-  *yieldConstraintsFor(
+  * yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
     if (strategy.constraints) {
@@ -131,7 +136,7 @@ export default class UnleashClient extends EventEmitter {
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  *yieldSegmentConstraints(
+  * yieldSegmentConstraints(
     segments: (Segment | undefined)[],
   ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax
@@ -191,13 +196,20 @@ export default class UnleashClient extends EventEmitter {
       [enabled, strategyVariant] = this.isFeatureEnabled(feature, context, () =>
         fallbackVariant ? fallbackVariant.enabled : false,
       );
-      if (!enabled || !feature.variants || !Array.isArray(feature.variants) || feature.variants.length === 0) {
+      if (!enabled ||
+        !feature.variants ||
+        !Array.isArray(feature.variants) ||
+        feature.variants.length === 0) {
         return fallback;
       }
     }
 
-    if(strategyVariant)  {
-      return {name: strategyVariant.name, payload: strategyVariant.payload, enabled: !checkToggle || enabled};
+    if (strategyVariant) {
+      return {
+        name: strategyVariant.name,
+        payload: strategyVariant.payload,
+        enabled: !checkToggle || enabled,
+      };
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
