@@ -365,16 +365,7 @@ test('should support simple string based strategy variant', (t) => {
             variant: 'stringStrategyVariantName',
           },
         },
-      ], [
-        {
-          name: 'willBeIgnored',
-          weight: 100,
-          payload: {
-            type: 'string',
-            value: 'willBeIgnored',
-          },
-        },
-      ], true);
+      ], [], true);
     },
   };
   const client = new Client(repo, defaultStrategies);

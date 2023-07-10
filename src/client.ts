@@ -123,7 +123,7 @@ export default class UnleashClient extends EventEmitter {
     ), featureVariant];
   }
 
-  * yieldConstraintsFor(
+  *yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
     if (strategy.constraints) {
@@ -136,7 +136,7 @@ export default class UnleashClient extends EventEmitter {
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  * yieldSegmentConstraints(
+  *yieldSegmentConstraints(
     segments: (Segment | undefined)[],
   ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax
@@ -196,12 +196,6 @@ export default class UnleashClient extends EventEmitter {
       [enabled, strategyVariant] = this.isFeatureEnabled(feature, context, () =>
         fallbackVariant ? fallbackVariant.enabled : false,
       );
-      if (!enabled ||
-        !feature.variants ||
-        !Array.isArray(feature.variants) ||
-        feature.variants.length === 0) {
-        return fallback;
-      }
     }
 
     if (strategyVariant) {
@@ -210,6 +204,13 @@ export default class UnleashClient extends EventEmitter {
         payload: strategyVariant.payload,
         enabled: !checkToggle || enabled,
       };
+    }
+
+    if (!enabled ||
+      !feature.variants ||
+      !Array.isArray(feature.variants) ||
+      feature.variants.length === 0) {
+      return fallback;
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
