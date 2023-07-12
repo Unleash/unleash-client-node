@@ -775,9 +775,9 @@
     eslint-visitor-keys "^3.3.0"
 
 "@unleash/client-specification@^4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.2.2.tgz#01fef308227bce8ab5ab98abf881e342e5d24558"
-  integrity sha512-HMpnZqX5M1LgFK7UgGkuy47vzAFKV3NxTw6yuAxTpMgESt0OGwXKHWlWAla2Es+EalEVxMgBoTs7WHrl9Rhfqw==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-4.3.0.tgz#b5f7e1f3978310c8ea37459554237647e563ac18"
+  integrity sha512-xPfAphsrEQ1GV5CySFRmSOvAZThhqpfGaYjZHn+N9+YbSjV9iOYRiZB0TNDSpxTtoH9dqYVAOFA/JqR3bN4tZQ==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
