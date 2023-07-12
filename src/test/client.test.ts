@@ -322,13 +322,12 @@ test('should favor strategy variant over feature variant', (t) => {
         {
           name: 'default',
           constraints: [],
-          parameters: {
-            variants: [{
-              name: 'strategyVariantName',
-              payload: { type: 'string', value: 'strategyVariantValue' },
-              weight: 1000
-            }],
-          },
+          variants: [{
+            name: 'strategyVariantName',
+            payload: { type: 'string', value: 'strategyVariantValue' },
+            weight: 1000
+          }],
+          parameters: {},
         },
       ], [
         {
@@ -362,13 +361,12 @@ test('should return disabled variant for non-matching strategy variant', (t) => 
         {
           name: 'default',
           constraints: [],
-          parameters: {
-            variants: [{
-              name: 'strategyVariantName',
-              payload: { type: 'string', value: 'strategyVariantValue' },
-              weight: 1000
-            }],
-          },
+          variants: [{
+            name: 'strategyVariantName',
+            payload: { type: 'string', value: 'strategyVariantValue' },
+            weight: 1000
+          }],
+          parameters: {},
         },
       ], [], true);
     },

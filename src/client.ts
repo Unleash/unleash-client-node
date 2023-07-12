@@ -74,7 +74,7 @@ export default class UnleashClient extends EventEmitter {
     feature: FeatureInterface | undefined,
     context: Context,
     fallback: Function,
-  ): [boolean, Omit<VariantDefinition, 'overrides'> | undefined] {
+  ): [boolean, VariantDefinition | undefined] {
     if (!feature) {
       return [fallback(), undefined];
     }
@@ -107,7 +107,7 @@ export default class UnleashClient extends EventEmitter {
         const constraints = this.yieldConstraintsFor(strategySelector);
         const enabled =
           strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
-        const variantParam = strategySelector?.parameters?.variants;
+        const variantParam = strategySelector?.variants;
 
         if (enabled && Array.isArray(variantParam) && variantParam.length > 0) {
           featureVariant = selectVariantDefinition(feature.name, variantParam, context);

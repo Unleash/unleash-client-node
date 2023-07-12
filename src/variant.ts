@@ -25,7 +25,7 @@ export interface VariantDefinition {
   weight: number;
   stickiness?: string;
   payload: Payload;
-  overrides: Override[];
+  overrides?: Override[];
 }
 
 export interface Variant {
@@ -71,7 +71,7 @@ function overrideMatchesContext(context: Context): (o: Override) => boolean {
 function findOverride(variants: VariantDefinition[], context: Context): VariantDefinition | undefined {
   return variants
     .filter((variant) => variant.overrides)
-    .find((variant) => variant.overrides.some(overrideMatchesContext(context)));
+    .find((variant) => variant.overrides?.some(overrideMatchesContext(context)));
 }
 
 export function selectVariant(
