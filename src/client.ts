@@ -2,7 +2,10 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
-import { Variant, getDefaultVariant, VariantDefinition, selectVariant, selectVariantDefinition } from './variant';
+import {
+  Variant, VariantDefinition,
+  getDefaultVariant, selectVariant, selectVariantDefinition,
+} from './variant';
 import { Context } from './context';
 import { Constraint, Segment } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
@@ -117,7 +120,7 @@ export default class UnleashClient extends EventEmitter {
     ), featureVariant];
   }
 
-  *yieldConstraintsFor(
+  * yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
     if (strategy.constraints) {
@@ -130,7 +133,7 @@ export default class UnleashClient extends EventEmitter {
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  *yieldSegmentConstraints(
+  * yieldSegmentConstraints(
     segments: (Segment | undefined)[],
   ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax

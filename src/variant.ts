@@ -46,6 +46,7 @@ function randomString() {
 }
 
 const stickinessSelectors = ['userId', 'sessionId', 'remoteAddress'];
+
 function getSeed(context: Context, stickiness: string = 'default'): string {
   if (stickiness !== 'default') {
     const value = resolveContextValue(context, stickiness);
@@ -68,17 +69,11 @@ function overrideMatchesContext(context: Context): (o: Override) => boolean {
     o.values.some((value) => value === resolveContextValue(context, o.contextName));
 }
 
-function findOverride(variants: VariantDefinition[], context: Context): VariantDefinition | undefined {
+function findOverride(variants: VariantDefinition[],
+                      context: Context): VariantDefinition | undefined {
   return variants
     .filter((variant) => variant.overrides)
     .find((variant) => variant.overrides?.some(overrideMatchesContext(context)));
-}
-
-export function selectVariant(
-  feature: FeatureInterface,
-  context: Context,
-): VariantDefinition | null {
-  return selectVariantDefinition(feature.name, feature.variants, context);
 }
 
 export function selectVariantDefinition(
@@ -113,3 +108,9 @@ export function selectVariantDefinition(
   return variant || null;
 }
 
+export function selectVariant(
+  feature: FeatureInterface,
+  context: Context,
+): VariantDefinition | null {
+  return selectVariantDefinition(feature.name, feature.variants, context);
+}
