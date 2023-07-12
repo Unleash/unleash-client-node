@@ -10,7 +10,7 @@ import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
 import { Segment } from '../strategy/strategy';
 
-const SUPPORTED_SPEC_VERSION = '4.2.0';
+const SUPPORTED_SPEC_VERSION = '4.3.0';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface | undefined;

@@ -323,10 +323,11 @@ test('should favor strategy variant over feature variant', (t) => {
           name: 'default',
           constraints: [],
           parameters: {
-            variant: {
+            variants: [{
               name: 'strategyVariantName',
               payload: { type: 'string', value: 'strategyVariantValue' },
-            },
+              weight: 1000
+            }],
           },
         },
       ], [
@@ -354,15 +355,19 @@ test('should favor strategy variant over feature variant', (t) => {
 });
 
 
-test('should support simple string based strategy variant', (t) => {
+test('should return disabled variant for non-matching strategy variant', (t) => {
   const repo = {
     getToggle() {
-      return buildToggle('feature-x', true, [
+      return buildToggle('feature-x', false, [
         {
           name: 'default',
           constraints: [],
           parameters: {
-            variant: 'stringStrategyVariantName',
+            variants: [{
+              name: 'strategyVariantName',
+              payload: { type: 'string', value: 'strategyVariantValue' },
+              weight: 1000
+            }],
           },
         },
       ], [], true);
@@ -371,11 +376,11 @@ test('should support simple string based strategy variant', (t) => {
   const client = new Client(repo, defaultStrategies);
   const enabled = client.isEnabled('feature-x', {}, () => false);
   const variant = client.getVariant('feature-x', {});
-  t.true(enabled);
+  t.false(enabled);
   t.deepEqual(variant, {
-      name: 'stringStrategyVariantName',
-      payload: { type: 'string', value: 'stringStrategyVariantName' },
-      enabled: true,
+      name: 'disabled',
+      enabled: false,
     },
   );
 });
+

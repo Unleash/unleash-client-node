@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
-import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
+import { Variant, getDefaultVariant, VariantDefinition, selectVariant, selectVariantDefinition } from './variant';
 import { Context } from './context';
 import { Constraint, Segment } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
@@ -74,7 +74,7 @@ export default class UnleashClient extends EventEmitter {
     feature: FeatureInterface | undefined,
     context: Context,
     fallback: Function,
-  ): [boolean, VariantDefinition | undefined] {
+  ): [boolean, Omit<VariantDefinition, 'overrides'> | undefined] {
     if (!feature) {
       return [fallback(), undefined];
     }
@@ -107,16 +107,10 @@ export default class UnleashClient extends EventEmitter {
         const constraints = this.yieldConstraintsFor(strategySelector);
         const enabled =
           strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
-        const variantParam = strategySelector?.parameters?.variant;
-        if (enabled && variantParam) {
-          if (typeof variantParam === 'string') {
-            featureVariant = {
-              name: variantParam,
-              payload: { type: 'string', value: variantParam },
-            };
-          } else {
-            featureVariant = variantParam;
-          }
+        const variantParam = strategySelector?.parameters?.variants;
+
+        if (enabled && Array.isArray(variantParam) && variantParam.length > 0) {
+          featureVariant = selectVariantDefinition(feature.name, variantParam, context);
         }
         return enabled;
       })
