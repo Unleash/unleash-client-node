@@ -25,7 +25,7 @@ export interface VariantDefinition {
   weight: number;
   stickiness?: string;
   payload: Payload;
-  overrides: Override[];
+  overrides?: Override[];
 }
 
 export interface Variant {
@@ -46,6 +46,7 @@ function randomString() {
 }
 
 const stickinessSelectors = ['userId', 'sessionId', 'remoteAddress'];
+
 function getSeed(context: Context, stickiness: string = 'default'): string {
   if (stickiness !== 'default') {
     const value = resolveContextValue(context, stickiness);
@@ -68,31 +69,33 @@ function overrideMatchesContext(context: Context): (o: Override) => boolean {
     o.values.some((value) => value === resolveContextValue(context, o.contextName));
 }
 
-function findOverride(feature: FeatureInterface, context: Context): VariantDefinition | undefined {
-  return feature.variants
+function findOverride(variants: VariantDefinition[],
+                      context: Context): VariantDefinition | undefined {
+  return variants
     .filter((variant) => variant.overrides)
-    .find((variant) => variant.overrides.some(overrideMatchesContext(context)));
+    .find((variant) => variant.overrides?.some(overrideMatchesContext(context)));
 }
 
-export function selectVariant(
-  feature: FeatureInterface,
+export function selectVariantDefinition(
+  featureName: string,
+  variants: VariantDefinition[],
   context: Context,
 ): VariantDefinition | null {
-  const totalWeight = feature.variants.reduce((acc, v) => acc + v.weight, 0);
+  const totalWeight = variants.reduce((acc, v) => acc + v.weight, 0);
   if (totalWeight <= 0) {
     return null;
   }
-  const variantOverride = findOverride(feature, context);
+  const variantOverride = findOverride(variants, context);
   if (variantOverride) {
     return variantOverride;
   }
 
-  const { stickiness } = feature.variants[0];
+  const { stickiness } = variants[0];
 
-  const target = normalizedValue(getSeed(context, stickiness), feature.name, totalWeight);
+  const target = normalizedValue(getSeed(context, stickiness), featureName, totalWeight);
 
   let counter = 0;
-  const variant = feature.variants.find((v: VariantDefinition): VariantDefinition | undefined => {
+  const variant = variants.find((v: VariantDefinition): VariantDefinition | undefined => {
     if (v.weight === 0) {
       return undefined;
     }
@@ -103,4 +106,11 @@ export function selectVariant(
     return v;
   });
   return variant || null;
+}
+
+export function selectVariant(
+  feature: FeatureInterface,
+  context: Context,
+): VariantDefinition | null {
+  return selectVariantDefinition(feature.name, feature.variants, context);
 }

@@ -2,7 +2,10 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
-import { Variant, getDefaultVariant, VariantDefinition, selectVariant } from './variant';
+import {
+  Variant, VariantDefinition,
+  getDefaultVariant, selectVariant, selectVariantDefinition,
+} from './variant';
 import { Context } from './context';
 import { Constraint, Segment } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
@@ -55,7 +58,7 @@ export default class UnleashClient extends EventEmitter {
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    const enabled = this.isFeatureEnabled(feature, context, fallback);
+    const [enabled] = this.isFeatureEnabled(feature, context, fallback);
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
@@ -74,27 +77,30 @@ export default class UnleashClient extends EventEmitter {
     feature: FeatureInterface | undefined,
     context: Context,
     fallback: Function,
-  ): boolean {
+  ): [boolean, VariantDefinition | undefined] {
     if (!feature) {
-      return fallback();
+      return [fallback(), undefined];
     }
 
     if (!feature || !feature.enabled) {
-      return false;
+      return [false, undefined];
     }
 
     if (!Array.isArray(feature.strategies)) {
       const msg = `Malformed feature, strategies not an array, is a ${typeof feature.strategies}`;
       this.emit(UnleashEvents.Error, new Error(msg));
-      return false;
+      return [false, undefined];
     }
 
     if (feature.strategies.length === 0) {
-      return feature.enabled;
+      return [feature.enabled, undefined];
     }
 
-    return (
+    let featureVariant = undefined;
+
+    return [(
       feature.strategies.length > 0 &&
+
       feature.strategies.some((strategySelector): boolean => {
         const strategy = this.getStrategy(strategySelector.name);
         if (!strategy) {
@@ -102,12 +108,19 @@ export default class UnleashClient extends EventEmitter {
           return false;
         }
         const constraints = this.yieldConstraintsFor(strategySelector);
-        return strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
+        const enabled =
+          strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
+        const variantParam = strategySelector?.variants;
+
+        if (enabled && Array.isArray(variantParam) && variantParam.length > 0) {
+          featureVariant = selectVariantDefinition(feature.name, variantParam, context);
+        }
+        return enabled;
       })
-    );
+    ), featureVariant];
   }
 
-  *yieldConstraintsFor(
+  * yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
     if (strategy.constraints) {
@@ -120,7 +133,7 @@ export default class UnleashClient extends EventEmitter {
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  *yieldSegmentConstraints(
+  * yieldSegmentConstraints(
     segments: (Segment | undefined)[],
   ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax
@@ -169,23 +182,32 @@ export default class UnleashClient extends EventEmitter {
     fallbackVariant?: Variant,
   ): Variant {
     const fallback = fallbackVariant || getDefaultVariant();
-    if (
-      typeof feature === 'undefined' ||
-      !feature.variants ||
-      !Array.isArray(feature.variants) ||
-      feature.variants.length === 0
-    ) {
+
+    if (typeof feature === 'undefined') {
       return fallback;
     }
 
     let enabled = true;
+    let strategyVariant = undefined;
     if (checkToggle) {
-      enabled = this.isFeatureEnabled(feature, context, () =>
+      [enabled, strategyVariant] = this.isFeatureEnabled(feature, context, () =>
         fallbackVariant ? fallbackVariant.enabled : false,
       );
-      if (!enabled) {
-        return fallback;
-      }
+    }
+
+    if (strategyVariant) {
+      return {
+        name: strategyVariant.name,
+        payload: strategyVariant.payload,
+        enabled: !checkToggle || enabled,
+      };
+    }
+
+    if (!enabled ||
+      !feature.variants ||
+      !Array.isArray(feature.variants) ||
+      feature.variants.length === 0) {
+      return fallback;
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);

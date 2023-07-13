@@ -1,12 +1,14 @@
 import { gt as semverGt, lt as semverLt, eq as semverEq, clean as cleanSemver } from 'semver';
 import { Context } from '../context';
 import { resolveContextValue } from '../helpers';
+import { VariantDefinition } from '../variant';
 
 export interface StrategyTransportInterface {
   name: string;
   parameters: any;
   constraints: Constraint[];
   segments?: number[];
+  variants?: VariantDefinition[]
 }
 
 export interface Constraint {
@@ -56,7 +58,7 @@ const InOperator = (constraint: Constraint, context: Context) => {
   const contextValue = resolveContextValue(context, field);
 
   const isIn = values.some((val) => val === contextValue);
-  
+
   return constraint.operator === Operator.IN ? isIn : !isIn;
 };
 

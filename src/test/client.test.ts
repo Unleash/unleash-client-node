@@ -1,7 +1,7 @@
 // @ts-nocheck
 import test from 'ava';
 import Client from '../client';
-import { Strategy } from '../strategy';
+import { defaultStrategies, Strategy } from '../strategy';
 
 import CustomStrategy from './true_custom_strategy';
 import CustomFalseStrategy from './false_custom_strategy';
@@ -13,7 +13,7 @@ function buildToggle(name, active, strategies, variants = [], impressionData = f
     enabled: active,
     strategies: strategies || [{ name: 'default' }],
     variants,
-    impressionData
+    impressionData,
   };
 }
 
@@ -32,7 +32,10 @@ test('invalid strategy should throw', (t) => {
   t.throws(() => new Client(repo, [{}]));
   t.throws(() => new Client(repo, [{ name: 'invalid' }]));
   t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }]));
-  t.throws(() => new Client(repo, [{ name: 'valid', isEnabled: () => {} }, null]));
+  t.throws(() => new Client(repo, [{
+    name: 'valid', isEnabled: () => {
+    },
+  }, null]));
 });
 
 test('should use provided repository', (t) => {
@@ -265,49 +268,117 @@ test('should always return defaultVariant if missing variant', (t) => {
 });
 
 test('should not trigger events if impressionData is false', (t) => {
-  let called=false
+  let called = false;
   const repo = {
     getToggle() {
       return buildToggle('feature-x', false, undefined, undefined, false);
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, ()=> {
-    called=true;
+  client.on(UnleashEvents.Impression, () => {
+    called = true;
   });
 
   client.isEnabled('feature-x', {}, () => false);
   client.getVariant('feature-x', {});
-  t.false(called)
+  t.false(called);
 });
 
 test('should trigger events on isEnabled if impressionData is true', (t) => {
-  let called = false
+  let called = false;
   const repo = {
     getToggle() {
       return buildToggle('feature-x', false, undefined, undefined, true);
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, ()=> {
-    called=true;
+  client.on(UnleashEvents.Impression, () => {
+    called = true;
   });
   client.isEnabled('feature-x', {}, () => false);
-  t.true(called)
+  t.true(called);
 
 });
 
 test('should trigger events on getVariant if impressionData is true', (t) => {
-  let called = false
+  let called = false;
   const repo = {
     getToggle() {
       return buildToggle('feature-x', false, undefined, undefined, true);
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, ()=> {
-    called=true;
+  client.on(UnleashEvents.Impression, () => {
+    called = true;
   });
-  client.getVariant('feature-x', {}, );
-  t.true(called)
+  client.getVariant('feature-x', {});
+  t.true(called);
 });
+
+test('should favor strategy variant over feature variant', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', true, [
+        {
+          name: 'default',
+          constraints: [],
+          variants: [{
+            name: 'strategyVariantName',
+            payload: { type: 'string', value: 'strategyVariantValue' },
+            weight: 1000
+          }],
+          parameters: {},
+        },
+      ], [
+        {
+          name: 'willBeIgnored',
+          weight: 100,
+          payload: {
+            type: 'string',
+            value: 'willBeIgnored',
+          },
+        },
+      ], true);
+    },
+  };
+  const client = new Client(repo, defaultStrategies);
+  const enabled = client.isEnabled('feature-x', {}, () => false);
+  const variant = client.getVariant('feature-x', {});
+  t.true(enabled);
+  t.deepEqual(variant, {
+      name: 'strategyVariantName',
+      payload: { type: 'string', value: 'strategyVariantValue' },
+      enabled: true,
+    },
+  );
+});
+
+
+test('should return disabled variant for non-matching strategy variant', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', false, [
+        {
+          name: 'default',
+          constraints: [],
+          variants: [{
+            name: 'strategyVariantName',
+            payload: { type: 'string', value: 'strategyVariantValue' },
+            weight: 1000
+          }],
+          parameters: {},
+        },
+      ], [], true);
+    },
+  };
+  const client = new Client(repo, defaultStrategies);
+  const enabled = client.isEnabled('feature-x', {}, () => false);
+  const variant = client.getVariant('feature-x', {});
+  t.false(enabled);
+  t.deepEqual(variant, {
+      name: 'disabled',
+      enabled: false,
+    },
+  );
+});
+
