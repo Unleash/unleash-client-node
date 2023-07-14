@@ -23,10 +23,7 @@ export interface Constraint {
 export interface Segment {
   id: number;
   name: string;
-  description?: string;
   constraints: Constraint[];
-  createdBy: string;
-  createdAt: string;
 }
 
 export enum Operator {
