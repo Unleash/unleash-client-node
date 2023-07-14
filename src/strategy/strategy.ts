@@ -22,7 +22,6 @@ export interface Constraint {
 
 export interface Segment {
   id: number;
-  name: string;
   constraints: Constraint[];
 }
 

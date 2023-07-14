@@ -1,18 +1,21 @@
-const { initialize, getVariant } = require('../lib');
+const { initialize, getVariant, isEnabled } = require('../lib');
 
 const client = initialize({
   appName: 'my-application',
-  url: 'https://unleash.herokuapp.com/api/',
+  url: 'http://localhost:4242/api/',
   customHeaders: {
-    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
+    Authorization: 'default:development.dd92846f01b00d01923a14afc240d3d4923399b14fdbbec6eb8bd31d',
   },
+  refreshInterval: 1000
 });
 
 client.on('error', console.error);
 client.on('warn', console.log);
 
-console.log('Fetching toggles from: http://unleash.herokuapp.com');
+// console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
 setInterval(() => {
-  console.log('Variant config', getVariant('Test.variants', { userId: `${Math.random()}` }));
+  const user = `${Math.random()}`;
+  // console.log('Is Enabled', client.isEnabled('StrategyVariantDemo', { userId: user }));
+  console.log('Variant config', client.getVariant('sadfdsafadsf', {plan: 'Pro'}));
 }, 1000);
