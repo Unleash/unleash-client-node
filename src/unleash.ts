@@ -19,7 +19,7 @@ import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
 import FileStorageProvider from './repository/storage-provider-file';
 
-export { Strategy, UnleashEvents };
+export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
 
