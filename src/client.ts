@@ -4,10 +4,10 @@ import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
 import {
   Variant, VariantDefinition,
-  getDefaultVariant, selectVariant, selectVariantDefinition,
+  getDefaultVariant, selectVariant,
 } from './variant';
 import { Context } from './context';
-import { Constraint, Segment } from './strategy/strategy';
+import { Constraint, Segment, StrategyResult } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
 
 interface BooleanMap {
@@ -58,7 +58,7 @@ export default class UnleashClient extends EventEmitter {
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    const [enabled] = this.isFeatureEnabled(feature, context, fallback);
+    const { enabled } = this.isFeatureEnabled(feature, context, fallback);
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
@@ -77,47 +77,48 @@ export default class UnleashClient extends EventEmitter {
     feature: FeatureInterface | undefined,
     context: Context,
     fallback: Function,
-  ): [boolean, VariantDefinition | undefined] {
+  ): StrategyResult {
     if (!feature) {
-      return [fallback(), undefined];
+      return { enabled: fallback() };
     }
 
     if (!feature || !feature.enabled) {
-      return [false, undefined];
+      return { enabled: false };
     }
 
     if (!Array.isArray(feature.strategies)) {
       const msg = `Malformed feature, strategies not an array, is a ${typeof feature.strategies}`;
       this.emit(UnleashEvents.Error, new Error(msg));
-      return [false, undefined];
+      return { enabled: false };
     }
 
     if (feature.strategies.length === 0) {
-      return [feature.enabled, undefined];
+      return { enabled: feature.enabled };
     }
 
-    let featureVariant = undefined;
+    let strategyResult = { enabled: false };
 
-    return [(
-      feature.strategies.length > 0 &&
+    feature.strategies?.some((strategySelector): boolean => {
+      const strategy = this.getStrategy(strategySelector.name);
+      if (!strategy) {
+        this.warnOnce(strategySelector.name, feature.name, feature.strategies);
+        return false;
+      }
+      const constraints = this.yieldConstraintsFor(strategySelector);
+      const result =
+        strategy.getResult(strategySelector.parameters,
+          context,
+          constraints,
+          strategySelector.variants);
 
-      feature.strategies.some((strategySelector): boolean => {
-        const strategy = this.getStrategy(strategySelector.name);
-        if (!strategy) {
-          this.warnOnce(strategySelector.name, feature.name, feature.strategies);
-          return false;
-        }
-        const constraints = this.yieldConstraintsFor(strategySelector);
-        const enabled =
-          strategy.isEnabledWithConstraints(strategySelector.parameters, context, constraints);
-        const variantParam = strategySelector?.variants;
+      if (result.enabled) {
+        strategyResult = result;
+        return true;
+      }
+      return false;
+    });
 
-        if (enabled && Array.isArray(variantParam) && variantParam.length > 0) {
-          featureVariant = selectVariantDefinition(feature.name, variantParam, context);
-        }
-        return enabled;
-      })
-    ), featureVariant];
+    return strategyResult;
   }
 
   * yieldConstraintsFor(
@@ -187,24 +188,19 @@ export default class UnleashClient extends EventEmitter {
       return fallback;
     }
 
-    let enabled = true;
-    let strategyVariant = undefined;
     if (checkToggle) {
-      [enabled, strategyVariant] = this.isFeatureEnabled(feature, context, () =>
-        fallbackVariant ? fallbackVariant.enabled : false,
-      );
+      const result = this.isFeatureEnabled(feature, context, () => !!fallbackVariant?.enabled);
+
+      if (result.enabled && result.variant) {
+        return result.variant;
+      }
+
+      if (!result.enabled) {
+        return fallback;
+      }
     }
 
-    if (strategyVariant) {
-      return {
-        name: strategyVariant.name,
-        payload: strategyVariant.payload,
-        enabled: !checkToggle || enabled,
-      };
-    }
-
-    if (!enabled ||
-      !feature.variants ||
+    if (!feature.variants ||
       !Array.isArray(feature.variants) ||
       feature.variants.length === 0) {
       return fallback;
@@ -218,7 +214,7 @@ export default class UnleashClient extends EventEmitter {
     return {
       name: variant.name,
       payload: variant.payload,
-      enabled: !checkToggle || enabled,
+      enabled: true,
     };
   }
 }

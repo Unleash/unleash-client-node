@@ -77,7 +77,7 @@ function findOverride(variants: VariantDefinition[],
 }
 
 export function selectVariantDefinition(
-  featureName: string,
+  groupId: string,
   variants: VariantDefinition[],
   context: Context,
 ): VariantDefinition | null {
@@ -92,7 +92,7 @@ export function selectVariantDefinition(
 
   const { stickiness } = variants[0];
 
-  const target = normalizedValue(getSeed(context, stickiness), featureName, totalWeight);
+  const target = normalizedValue(getSeed(context, stickiness), groupId, totalWeight);
 
   let counter = 0;
   const variant = variants.find((v: VariantDefinition): VariantDefinition | undefined => {

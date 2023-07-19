@@ -1,14 +1,14 @@
 import { gt as semverGt, lt as semverLt, eq as semverEq, clean as cleanSemver } from 'semver';
 import { Context } from '../context';
 import { resolveContextValue } from '../helpers';
-import { VariantDefinition } from '../variant';
+import { selectVariantDefinition, Variant, VariantDefinition } from '../variant';
 
 export interface StrategyTransportInterface {
   name: string;
   parameters: any;
   constraints: Constraint[];
   segments?: number[];
-  variants?: VariantDefinition[]
+  variants?: VariantDefinition[];
 }
 
 export interface Constraint {
@@ -68,7 +68,7 @@ const StringOperator = (constraint: Constraint, context: Context) => {
     contextValue = contextValue?.toLocaleLowerCase();
   }
 
-  if(typeof contextValue !== 'string') {
+  if (typeof contextValue !== 'string') {
     return false;
   }
 
@@ -166,6 +166,9 @@ operators.set(Operator.DATE_BEFORE, DateOperator);
 operators.set(Operator.SEMVER_EQ, SemverOperator);
 operators.set(Operator.SEMVER_GT, SemverOperator);
 operators.set(Operator.SEMVER_LT, SemverOperator);
+
+export type StrategyResult = { enabled: true, variant?: Variant | null } | { enabled: false };
+
 export class Strategy {
   public name: string;
 
@@ -214,5 +217,32 @@ export class Strategy {
     constraints: IterableIterator<Constraint | undefined>,
   ) {
     return this.checkConstraints(context, constraints) && this.isEnabled(parameters, context);
+  }
+
+  getResult(parameters: any,
+            context: Context,
+            constraints: IterableIterator<Constraint | undefined>,
+            variants?: VariantDefinition[]): StrategyResult {
+    const enabled =
+      this.isEnabledWithConstraints(parameters, context, constraints);
+
+    if (enabled && Array.isArray(variants) && variants.length > 0) {
+      const variantDefinition =
+        selectVariantDefinition(parameters.groupId, variants, context);
+      return variantDefinition ? {
+        enabled: true,
+        variant: {
+          name: variantDefinition?.name,
+          enabled: true,
+          payload: variantDefinition?.payload,
+        },
+      } : { enabled: true };
+    }
+
+    if(enabled) {
+      return { enabled: true };
+    }
+
+    return { enabled: false };
   }
 }
