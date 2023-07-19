@@ -172,7 +172,7 @@ export default class UnleashClient extends EventEmitter {
   // gradual rollout. This is not intended for general use, prefer getVariant instead
   forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
     const feature = this.repository.getToggle(name);
-    return this.resolveVariant(feature, context, false, fallbackVariant);
+    return this.resolveVariant(feature, context, true, fallbackVariant);
   }
 
   private resolveVariant(
