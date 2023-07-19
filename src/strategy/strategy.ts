@@ -232,9 +232,9 @@ export class Strategy {
       return variantDefinition ? {
         enabled: true,
         variant: {
-          name: variantDefinition?.name,
+          name: variantDefinition.name,
           enabled: true,
-          payload: variantDefinition?.payload,
+          payload: variantDefinition.payload,
         },
       } : { enabled: true };
     }
