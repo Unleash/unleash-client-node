@@ -239,7 +239,7 @@ export class Strategy {
       } : { enabled: true };
     }
 
-    if(enabled) {
+    if (enabled) {
       return { enabled: true };
     }
 
