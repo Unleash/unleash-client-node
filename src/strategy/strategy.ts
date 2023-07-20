@@ -167,7 +167,7 @@ operators.set(Operator.SEMVER_EQ, SemverOperator);
 operators.set(Operator.SEMVER_GT, SemverOperator);
 operators.set(Operator.SEMVER_LT, SemverOperator);
 
-export type StrategyResult = { enabled: true, variant?: Variant | null } | { enabled: false };
+export type StrategyResult = { enabled: true, variant?: Variant } | { enabled: false };
 
 export class Strategy {
   public name: string;
