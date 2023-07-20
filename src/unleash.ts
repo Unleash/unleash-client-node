@@ -318,7 +318,7 @@ export class Unleash extends EventEmitter {
     if (result.name) {
       this.countVariant(name, result.name);
     }
-    this.count(name, Boolean(featureEnabled));
+    this.count(name, featureEnabled);
 
     return variant;
   }
