@@ -4,7 +4,7 @@ import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
 import {
   Variant, VariantDefinition,
-  getDefaultVariant, selectVariant,
+  getDefaultVariant, selectVariant, VariantWithFeatureStatus,
 } from './variant';
 import { Context } from './context';
 import { Constraint, Segment, StrategyResult } from './strategy/strategy';
@@ -31,7 +31,6 @@ export default class UnleashClient extends EventEmitter {
       if (
         !strategy ||
         !strategy.name ||
-        typeof strategy.name !== 'string' ||
         !strategy.isEnabled ||
         typeof strategy.isEnabled !== 'function'
       ) {
@@ -150,7 +149,7 @@ export default class UnleashClient extends EventEmitter {
     }
   }
 
-  getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+  getVariant(name: string, context: Context, fallbackVariant?: Variant): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
     const variant = this.resolveVariant(feature, context, true, fallbackVariant);
     if (feature?.impressionData) {
@@ -171,7 +170,9 @@ export default class UnleashClient extends EventEmitter {
   // This function is intended to close an issue in the proxy where feature enabled
   // state gets checked twice when resolving a variant with random stickiness and
   // gradual rollout. This is not intended for general use, prefer getVariant instead
-  forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+  forceGetVariant(name: string,
+                  context: Context,
+                  fallbackVariant?: Variant): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
     return this.resolveVariant(feature, context, true, fallbackVariant);
   }
@@ -181,40 +182,43 @@ export default class UnleashClient extends EventEmitter {
     context: Context,
     checkToggle: boolean,
     fallbackVariant?: Variant,
-  ): Variant {
+  ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || getDefaultVariant();
 
     if (typeof feature === 'undefined') {
-      return fallback;
+      return { ...fallback, featureEnabled: false };
     }
 
+    let featureEnabled = !checkToggle;
     if (checkToggle) {
       const result = this.isFeatureEnabled(feature, context, () => !!fallbackVariant?.enabled);
+      featureEnabled = result.enabled;
 
       if (result.enabled && result.variant) {
-        return result.variant;
+        return { ...result.variant, featureEnabled };
       }
 
       if (!result.enabled) {
-        return fallback;
+        return { ...fallback, featureEnabled };
       }
     }
 
     if (!feature.variants ||
       !Array.isArray(feature.variants) ||
       feature.variants.length === 0) {
-      return fallback;
+      return { ...fallback, featureEnabled };
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
     if (variant === null) {
-      return fallback;
+      return { ...fallback, featureEnabled };
     }
 
     return {
       name: variant.name,
       payload: variant.payload,
       enabled: true,
+      featureEnabled,
     };
   }
 }

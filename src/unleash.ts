@@ -7,7 +7,7 @@ import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
 import { FeatureInterface } from './feature';
-import { Variant, getDefaultVariant } from './variant';
+import { Variant, getDefaultVariant, VariantWithFeatureStatus } from './variant';
 import {
   FallbackFunction,
   createFallbackFunction,
@@ -48,30 +48,30 @@ export class Unleash extends EventEmitter {
   private ready: boolean = false;
 
   constructor({
-    appName,
-    environment = 'default',
-    projectName,
-    instanceId,
-    url,
-    refreshInterval = 15 * 1000,
-    metricsInterval = 60 * 1000,
-    metricsJitter = 0,
-    disableMetrics = false,
-    backupPath = BACKUP_PATH,
-    strategies = [],
-    repository,
-    namePrefix,
-    customHeaders,
-    customHeadersFunction,
-    timeout,
-    httpOptions,
-    tags,
-    bootstrap = {},
-    bootstrapOverride,
-    storageProvider,
-    disableAutoStart = false,
-    skipInstanceCountWarning = false,
-  }: UnleashConfig) {
+                appName,
+                environment = 'default',
+                projectName,
+                instanceId,
+                url,
+                refreshInterval = 15 * 1000,
+                metricsInterval = 60 * 1000,
+                metricsJitter = 0,
+                disableMetrics = false,
+                backupPath = BACKUP_PATH,
+                strategies = [],
+                repository,
+                namePrefix,
+                customHeaders,
+                customHeadersFunction,
+                timeout,
+                httpOptions,
+                tags,
+                bootstrap = {},
+                bootstrapOverride,
+                storageProvider,
+                disableAutoStart = false,
+                skipInstanceCountWarning = false,
+              }: UnleashConfig) {
     super();
 
     Unleash.instanceCount++;
@@ -278,22 +278,26 @@ export class Unleash extends EventEmitter {
 
   getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
-    let result;
+    let result: VariantWithFeatureStatus;
     if (this.ready) {
       result = this.client.getVariant(name, enhancedContext, fallbackVariant);
     } else {
-      result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
+      result = typeof fallbackVariant !== 'undefined' ?
+        { ...fallbackVariant, featureEnabled: false } :
+        { ...getDefaultVariant(), featureEnabled: false };
       this.emit(
         UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }
+    const { featureEnabled, ...variant } = result;
     if (result.name) {
       this.countVariant(name, result.name);
     }
-    this.count(name, result.enabled);
 
-    return result;
+    this.count(name, Boolean(featureEnabled));
+
+    return variant;
   }
 
   forceGetVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
@@ -302,18 +306,21 @@ export class Unleash extends EventEmitter {
     if (this.ready) {
       result = this.client.forceGetVariant(name, enhancedContext, fallbackVariant);
     } else {
-      result = typeof fallbackVariant !== 'undefined' ? fallbackVariant : getDefaultVariant();
+      result = typeof fallbackVariant !== 'undefined' ?
+        { ...fallbackVariant, featureEnabled: false } :
+        { ...getDefaultVariant(), featureEnabled: false };
       this.emit(
         UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${result}`,
       );
     }
+    const { featureEnabled, ...variant } = result;
     if (result.name) {
       this.countVariant(name, result.name);
     }
-    this.count(name, result.enabled);
+    this.count(name, Boolean(featureEnabled));
 
-    return result;
+    return variant;
   }
 
   getFeatureToggleDefinition(toggleName: string): FeatureInterface | undefined {
