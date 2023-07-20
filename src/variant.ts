@@ -34,6 +34,10 @@ export interface Variant {
   payload?: Payload;
 }
 
+export interface VariantWithFeatureStatus extends Variant {
+  featureEnabled: boolean;
+}
+
 export function getDefaultVariant(): Variant {
   return {
     name: 'disabled',

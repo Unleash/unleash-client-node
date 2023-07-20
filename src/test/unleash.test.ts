@@ -725,7 +725,8 @@ test('should use provided bootstrap data', (t) =>
       },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('bootstrappedToggle') === true);
@@ -932,10 +933,12 @@ test('should allow custom repository', (t) =>
         getToggle: () => ({ name: 'test', enabled: true, strategies: [{ name: 'default' }] }),
         getToggles: () => [],
         getSegment: () => undefined,
-        stop: () => {},
+        stop: () => {
+        },
         // @ts-expect-error
         start: () => {
-          setInterval(() => {}, 1000);
+          setInterval(() => {
+          }, 1000);
         },
         // @ts-expect-error
         on: (evt, fun) => {
@@ -946,7 +949,8 @@ test('should allow custom repository', (t) =>
       },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('test') === true);
@@ -955,14 +959,10 @@ test('should allow custom repository', (t) =>
     });
   }));
 
-test('should report variant metrics', async (t) => {
+
+const metricsCapturingUnleash = (input: any) => {
   const url = getUrl();
-  const repository = new FakeRepo({
-    name: 'toggle-with-variants',
-    enabled: true,
-    strategies: [{ name: 'default', constraints: [] }],
-    variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
-  });
+  const repository = new FakeRepo(input);
   const instance = new Unleash({
     skipInstanceCountWarning: true,
     appName: 'foo',
@@ -978,11 +978,21 @@ test('should report variant metrics', async (t) => {
   instance.on(UnleashEvents.Sent, (data) => {
     capturedData.push(data);
   });
+  // @ts-expect-error
+  return { instance, capturedData };
+};
+
+test('should report variant metrics', async (t) => {
+  const { instance, capturedData } = metricsCapturingUnleash({
+    name: 'toggle-with-variants',
+    enabled: true,
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
+  });
 
   instance.getVariant('toggle-with-variants');
 
   await instance.destroyWithFlush();
-  // @ts-expect-error
   t.deepEqual(capturedData[0].bucket.toggles, {
     'toggle-with-variants': {
       yes: 1,
@@ -991,3 +1001,46 @@ test('should report variant metrics', async (t) => {
     },
   });
 });
+
+test('should report disabled variant metrics', async (t) => {
+  const { instance, capturedData } = metricsCapturingUnleash({
+    name: 'toggle-without-variants',
+    enabled: true,
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [],
+  });
+
+  instance.getVariant('toggle-without-variants');
+
+  await instance.destroyWithFlush();
+  t.deepEqual(capturedData[0].bucket.toggles, {
+    'toggle-without-variants': {
+      yes: 1,
+      no: 0,
+      variants: { 'disabled': 1 },
+    },
+  });
+});
+
+test('should report disabled toggle metrics', async (t) => {
+  const { instance, capturedData } = metricsCapturingUnleash({
+    name: 'disabled-toggle',
+    enabled: false,
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [],
+  });
+
+  instance.getVariant('disabled-toggle');
+
+  await instance.destroyWithFlush();
+  t.deepEqual(capturedData[0].bucket.toggles, {
+    'disabled-toggle': {
+      yes: 0,
+      no: 1,
+      variants: { 'disabled': 1 },
+    },
+  });
+});
+
+
+
