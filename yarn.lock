@@ -598,9 +598,9 @@
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
 "@types/murmurhash3js@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@types/murmurhash3js/-/murmurhash3js-3.0.3.tgz#57148071a2a8e4ffbe241a632a4f90f024645917"
-  integrity sha512-Fk89Nt3pqOPBbv1fTrD0nN+bqPu0pens6qCmdbGpRKg19b/pS0dsQQxaFIvw6swaaK+hcvySDzes4Z35XMV9mg==
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@types/murmurhash3js/-/murmurhash3js-3.0.4.tgz#0a9a45d1f87a3e4e28581c4fdff0a058286d934e"
+  integrity sha512-s6drHyyzLJIwmRPbjovzz/v9sCtcY21sLFzySfovJdTw3BX596FhY3YQZ6myJMxqVlEnQLpsawoTIOfnf7LH9Q==
 
 "@types/nock@^11.1.0":
   version "11.1.0"
