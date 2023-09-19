@@ -55,8 +55,36 @@ export default class UnleashClient extends EventEmitter {
     }
   }
 
+  isParentDependencySatisfied(feature: FeatureInterface | undefined, context: Context) {
+    if (!feature?.name) {
+      return true;
+    }
+
+    if (feature.dependencies && feature.dependencies.length) {
+      return feature.dependencies.every(parent => {
+        const parentFeature = this.repository.getToggle(parent.feature);
+
+        if (parentFeature?.dependencies?.length) {
+          return false;
+        }
+
+        if (parent.enabled && parent.variants?.length) {
+          return parent.variants.includes(this.getVariant(parent.feature, context).name);
+        }
+
+        return parent.enabled
+          ? this.isEnabled(parent.feature, context, () => false)
+          : !this.isEnabled(parent.feature, context, () => false);
+      });
+    }
+
+    return true;
+  }
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
+    if(!this.isParentDependencySatisfied(feature, context)) {
+      return false;
+    }
     const { enabled } = this.isFeatureEnabled(feature, context, fallback);
     if (feature?.impressionData) {
       this.emit(
@@ -92,10 +120,10 @@ export default class UnleashClient extends EventEmitter {
     }
 
     if (feature.strategies.length === 0) {
-      return { enabled: feature.enabled };
+      return { enabled: feature.enabled } as StrategyResult;
     }
 
-    let strategyResult = { enabled: false };
+    let strategyResult: StrategyResult = { enabled: false };
 
     feature.strategies?.some((strategySelector): boolean => {
       const strategy = this.getStrategy(strategySelector.name);
@@ -185,7 +213,7 @@ export default class UnleashClient extends EventEmitter {
   ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || getDefaultVariant();
 
-    if (typeof feature === 'undefined') {
+    if (typeof feature === 'undefined' || !this.isParentDependencySatisfied(feature, context)) {
       return { ...fallback, featureEnabled: false };
     }
 
