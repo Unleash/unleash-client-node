@@ -80,6 +80,7 @@ export default class UnleashClient extends EventEmitter {
 
     return true;
   }
+
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
     if(!this.isParentDependencySatisfied(feature, context)) {
