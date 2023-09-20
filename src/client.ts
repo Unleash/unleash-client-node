@@ -56,29 +56,24 @@ export default class UnleashClient extends EventEmitter {
   }
 
   isParentDependencySatisfied(feature: FeatureInterface | undefined, context: Context) {
-    if (!feature?.name) {
+    if (!feature?.name || !feature.dependencies?.length) {
       return true;
     }
 
-    if (feature.dependencies && feature.dependencies.length) {
-      return feature.dependencies.every(parent => {
-        const parentFeature = this.repository.getToggle(parent.feature);
+    return feature.dependencies.every(parent => {
+      if (this.repository.getToggle(parent.feature)?.dependencies?.length) {
+        return false;
+      }
 
-        if (parentFeature?.dependencies?.length) {
-          return false;
-        }
-
-        if (parent.enabled !== false && parent.variants?.length) {
+      if (parent.enabled !== false) {
+        if (parent.variants?.length) {
           return parent.variants.includes(this.getVariant(parent.feature, context).name);
         }
+        return this.isEnabled(parent.feature, context, () => false);
+      }
 
-        return parent.enabled !== false
-          ? this.isEnabled(parent.feature, context, () => false)
-          : !this.isEnabled(parent.feature, context, () => false);
-      });
-    }
-
-    return true;
+      return !this.isEnabled(parent.feature, context, () => false);
+    });
   }
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
