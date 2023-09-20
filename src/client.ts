@@ -56,7 +56,7 @@ export default class UnleashClient extends EventEmitter {
   }
 
   isParentDependencySatisfied(feature: FeatureInterface | undefined, context: Context) {
-    if (!feature?.name || !feature.dependencies?.length) {
+    if (!feature?.dependencies?.length) {
       return true;
     }
 
@@ -78,10 +78,16 @@ export default class UnleashClient extends EventEmitter {
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    if(!this.isParentDependencySatisfied(feature, context)) {
-      return false;
+    let enabled: boolean;
+
+    // Check if parent dependency is satisfied
+    if (!this.isParentDependencySatisfied(feature, context)) {
+      enabled = false;
+    } else {
+      enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
     }
-    const { enabled } = this.isFeatureEnabled(feature, context, fallback);
+
+    // Emit the impression event if needed
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
@@ -93,6 +99,7 @@ export default class UnleashClient extends EventEmitter {
         }),
       );
     }
+
     return enabled;
   }
 
