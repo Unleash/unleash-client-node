@@ -302,6 +302,28 @@ test('should trigger events on isEnabled if impressionData is true', (t) => {
 
 });
 
+test('should trigger events on unsatisfied dependency if impressionData is true', (t) => {
+  let called = false;
+  const repo = {
+    getToggle() {
+      return {
+        name: 'feature-x',
+        dependencies: [{feature: 'irrelevant'}],
+        strategies:  [{ name: 'default' }],
+        variants: [],
+        impressionData: true,
+      }
+    },
+  };
+  const client = new Client(repo, []);
+  client.on(UnleashEvents.Impression, () => {
+    called = true;
+  });
+  client.isEnabled('feature-x', {}, () => false);
+  t.true(called);
+
+});
+
 test('should trigger events on getVariant if impressionData is true', (t) => {
   let called = false;
   const repo = {
