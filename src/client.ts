@@ -107,7 +107,6 @@ export default class UnleashClient extends EventEmitter {
       enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
     }
 
-    // Emit the impression event if needed
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
