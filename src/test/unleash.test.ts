@@ -1042,5 +1042,33 @@ test('should report disabled toggle metrics', async (t) => {
   });
 });
 
+test('should not report dependent feature metrics', async (t) => {
+  const { instance, capturedData } = metricsCapturingUnleash({
+    name: 'toggle-with-dependency',
+    enabled: true,
+    dependencies: [{feature: 'dependency'}],
+    strategies: [{ name: 'default', constraints: [] }],
+    variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
+  });
+
+  instance.getVariant('toggle-with-dependency');
+  instance.isEnabled('toggle-with-dependency');
+  instance.isEnabled('dependency');
+
+  await instance.destroyWithFlush();
+  t.deepEqual(capturedData[0].bucket.toggles, {
+    'toggle-with-dependency': {
+      yes: 0,
+      no: 2, // one enabled and one variant check
+      variants: { 'disabled': 1 },
+    },
+    'dependency': {
+      yes: 0,
+      no: 1, // direct call, no transitive calls
+      variants: {}
+    }
+  });
+});
+
 
 

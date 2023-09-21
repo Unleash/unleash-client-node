@@ -19,13 +19,16 @@ export default class UnleashClient extends EventEmitter {
 
   private strategies: Strategy[];
 
-  private warned: BooleanMap;
+  private warnedStrategies: BooleanMap;
+
+  private warnedDependencies: BooleanMap;
 
   constructor(repository: RepositoryInterface, strategies: Strategy[]) {
     super();
     this.repository = repository;
     this.strategies = strategies || [];
-    this.warned = {};
+    this.warnedStrategies = {};
+    this.warnedDependencies = {};
 
     this.strategies.forEach((strategy: Strategy) => {
       if (
@@ -43,9 +46,11 @@ export default class UnleashClient extends EventEmitter {
     return this.strategies.find((strategy: Strategy): boolean => strategy.name === name);
   }
 
-  warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
-    if (!this.warned[missingStrategy + name]) {
-      this.warned[missingStrategy + name] = true;
+  warnStrategyOnce(missingStrategy: string,
+                   name: string,
+                   strategies: StrategyTransportInterface[]) {
+    if (!this.warnedStrategies[missingStrategy + name]) {
+      this.warnedStrategies[missingStrategy + name] = true;
       this.emit(
         UnleashEvents.Warn,
         `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
@@ -55,9 +60,53 @@ export default class UnleashClient extends EventEmitter {
     }
   }
 
+  warnDependencyOnce(missingDependency: string, name: string) {
+    if (!this.warnedDependencies[missingDependency + name]) {
+      this.warnedDependencies[missingDependency + name] = true;
+      this.emit(
+        UnleashEvents.Warn,
+        `Missing dependency "${missingDependency}" for toggle "${name}"`,
+      );
+    }
+  }
+
+  isParentDependencySatisfied(feature: FeatureInterface | undefined, context: Context) {
+    if (!feature?.dependencies?.length) {
+      return true;
+    }
+
+    return feature.dependencies.every(parent => {
+      const parentToggle = this.repository.getToggle(parent.feature);
+
+      if (!parentToggle) {
+        this.warnDependencyOnce(parent.feature, feature.name);
+        return false;
+      }
+      if (parentToggle.dependencies?.length) {
+        return false;
+      }
+
+      if (parent.enabled !== false) {
+        if (parent.variants?.length) {
+          return parent.variants.includes(this.getVariant(parent.feature, context).name);
+        }
+        return this.isEnabled(parent.feature, context, () => false);
+      }
+
+      return !this.isEnabled(parent.feature, context, () => false);
+    });
+  }
+
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    const { enabled } = this.isFeatureEnabled(feature, context, fallback);
+    let enabled: boolean;
+
+    if (!this.isParentDependencySatisfied(feature, context)) {
+      enabled = false;
+    } else {
+      enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
+    }
+
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
@@ -69,6 +118,7 @@ export default class UnleashClient extends EventEmitter {
         }),
       );
     }
+
     return enabled;
   }
 
@@ -92,15 +142,15 @@ export default class UnleashClient extends EventEmitter {
     }
 
     if (feature.strategies.length === 0) {
-      return { enabled: feature.enabled };
+      return { enabled: feature.enabled } as StrategyResult;
     }
 
-    let strategyResult = { enabled: false };
+    let strategyResult: StrategyResult = { enabled: false };
 
     feature.strategies?.some((strategySelector): boolean => {
       const strategy = this.getStrategy(strategySelector.name);
       if (!strategy) {
-        this.warnOnce(strategySelector.name, feature.name, feature.strategies);
+        this.warnStrategyOnce(strategySelector.name, feature.name, feature.strategies);
         return false;
       }
       const constraints = this.yieldConstraintsFor(strategySelector);
@@ -185,7 +235,7 @@ export default class UnleashClient extends EventEmitter {
   ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || getDefaultVariant();
 
-    if (typeof feature === 'undefined') {
+    if (typeof feature === 'undefined' || !this.isParentDependencySatisfied(feature, context)) {
       return { ...fallback, featureEnabled: false };
     }
 
