@@ -302,26 +302,34 @@ test('should trigger events on isEnabled if impressionData is true', (t) => {
 
 });
 
-test('should trigger events on unsatisfied dependency if impressionData is true', (t) => {
-  let called = false;
+test('should trigger events on unsatisfied dependency', (t) => {
+  let impressionCount = 0;
+  let recordedWarnings = [];
   const repo = {
-    getToggle() {
-      return {
-        name: 'feature-x',
-        dependencies: [{feature: 'irrelevant'}],
-        strategies:  [{ name: 'default' }],
-        variants: [],
-        impressionData: true,
+    getToggle(name: string) {
+      if(name === 'feature-x') {
+        return {
+          name: 'feature-x',
+          dependencies: [{feature: 'not-feature-x'}],
+          strategies:  [{ name: 'default' }],
+          variants: [],
+          impressionData: true,
+        }
+      } else {
+        return undefined;
       }
     },
   };
   const client = new Client(repo, []);
   client.on(UnleashEvents.Impression, () => {
-    called = true;
+    impressionCount++;
+  }).on(UnleashEvents.Warn, (warning) => {
+    recordedWarnings.push(warning);
   });
   client.isEnabled('feature-x', {}, () => false);
-  t.true(called);
-
+  client.isEnabled('feature-x', {}, () => false);
+  t.deepEqual(impressionCount, 2);
+  t.deepEqual(recordedWarnings, ['Missing dependency "not-feature-x" for toggle "feature-x"']);
 });
 
 test('should trigger events on getVariant if impressionData is true', (t) => {

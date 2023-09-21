@@ -19,13 +19,16 @@ export default class UnleashClient extends EventEmitter {
 
   private strategies: Strategy[];
 
-  private warned: BooleanMap;
+  private warnedStrategies: BooleanMap;
+
+  private warnedDependencies: BooleanMap;
 
   constructor(repository: RepositoryInterface, strategies: Strategy[]) {
     super();
     this.repository = repository;
     this.strategies = strategies || [];
-    this.warned = {};
+    this.warnedStrategies = {};
+    this.warnedDependencies = {};
 
     this.strategies.forEach((strategy: Strategy) => {
       if (
@@ -43,14 +46,26 @@ export default class UnleashClient extends EventEmitter {
     return this.strategies.find((strategy: Strategy): boolean => strategy.name === name);
   }
 
-  warnOnce(missingStrategy: string, name: string, strategies: StrategyTransportInterface[]) {
-    if (!this.warned[missingStrategy + name]) {
-      this.warned[missingStrategy + name] = true;
+  warnStrategyOnce(missingStrategy: string,
+                   name: string,
+                   strategies: StrategyTransportInterface[]) {
+    if (!this.warnedStrategies[missingStrategy + name]) {
+      this.warnedStrategies[missingStrategy + name] = true;
       this.emit(
         UnleashEvents.Warn,
         `Missing strategy "${missingStrategy}" for toggle "${name}". Ensure that "${strategies
           .map(({ name: n }) => n)
           .join(', ')}" are supported before using this toggle`,
+      );
+    }
+  }
+
+  warnDependencyOnce(missingDependency: string, name: string) {
+    if (!this.warnedDependencies[missingDependency + name]) {
+      this.warnedDependencies[missingDependency + name] = true;
+      this.emit(
+        UnleashEvents.Warn,
+        `Missing dependency "${missingDependency}" for toggle "${name}"`,
       );
     }
   }
@@ -61,7 +76,13 @@ export default class UnleashClient extends EventEmitter {
     }
 
     return feature.dependencies.every(parent => {
-      if (this.repository.getToggle(parent.feature)?.dependencies?.length) {
+      const parentToggle = this.repository.getToggle(parent.feature);
+
+      if (!parentToggle) {
+        this.warnDependencyOnce(parent.feature, feature.name);
+        return false;
+      }
+      if (parentToggle.dependencies?.length) {
         return false;
       }
 
@@ -130,7 +151,7 @@ export default class UnleashClient extends EventEmitter {
     feature.strategies?.some((strategySelector): boolean => {
       const strategy = this.getStrategy(strategySelector.name);
       if (!strategy) {
-        this.warnOnce(strategySelector.name, feature.name, feature.strategies);
+        this.warnStrategyOnce(strategySelector.name, feature.name, feature.strategies);
         return false;
       }
       const constraints = this.yieldConstraintsFor(strategySelector);
