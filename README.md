@@ -75,13 +75,18 @@ unleash.on('synchronized', () => {
 Refer to the [events reference](#events) later in this document for more information on events and
 an exhaustive list of all the events the SDK can emit.
 
-The `initialize` function will configure and create a _global_ Unleash instance. When a global instance exists, calling this method has no effect. Call the `destroy` function to remove the globally configured instance.
+The `initialize` function will configure and create a _global_ Unleash instance. When a global
+instance exists, calling this method has no effect. Call the `destroy` function to remove the
+globally configured instance.
 
 #### Constructing the Unleash client directly
 
 You can also construct the Unleash instance yourself instead of via the `initialize` method.
 
-When using the Unleash client directly, you **should not create new Unleash instances on every request**. Most applications are expected to only have a single Unleash instance (singleton). Each Unleash instance will maintain a connection to the Unleash API, which may result in flooding the Unleash API. 
+When using the Unleash client directly, you **should not create new Unleash instances on every
+request**. Most applications are expected to only have a single Unleash instance (singleton). Each
+Unleash instance will maintain a connection to the Unleash API, which may result in flooding the
+Unleash API.
 
 ```js
 const { Unleash } = require('unleash-client');
@@ -458,3 +463,8 @@ offline, from a browser environment or implement your own caching layer. See
 
 Unleash depends on a `ready` event of the repository you pass in. Be sure that you emit the event
 **after** you've initialized unleash.
+
+## Design philosophy
+
+This feature flag SDK is designed according to our design philosophy. You can
+[read more about that here](https://docs.getunleash.io/topics/feature-flags/feature-flag-best-practices).
