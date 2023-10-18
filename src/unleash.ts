@@ -323,7 +323,10 @@ export class Unleash extends EventEmitter {
     return variant;
   }
 
-  forceGetVariant(name: string, context: Context = {}, fallbackVariant?: Variant, forcedResult?: StrategyResult): Variant {
+  forceGetVariant(name: string,
+                  context: Context = {},
+                  fallbackVariant?: Variant,
+                  forcedResult?: StrategyResult): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result;
     if (this.ready) {
