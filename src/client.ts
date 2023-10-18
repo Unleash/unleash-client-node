@@ -99,13 +99,7 @@ export default class UnleashClient extends EventEmitter {
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
     const feature = this.repository.getToggle(name);
-    let enabled: boolean;
-
-    if (!this.isParentDependencySatisfied(feature, context)) {
-      enabled = false;
-    } else {
-      enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
-    }
+    const enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
 
     if (feature?.impressionData) {
       this.emit(
@@ -131,7 +125,7 @@ export default class UnleashClient extends EventEmitter {
       return { enabled: fallback() };
     }
 
-    if (!feature || !feature.enabled) {
+    if (!feature || !this.isParentDependencySatisfied(feature, context) || !feature.enabled) {
       return { enabled: false };
     }
 
@@ -235,7 +229,7 @@ export default class UnleashClient extends EventEmitter {
   ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || getDefaultVariant();
 
-    if (typeof feature === 'undefined' || !this.isParentDependencySatisfied(feature, context)) {
+    if (typeof feature === 'undefined') {
       return { ...fallback, featureEnabled: false };
     }
 
