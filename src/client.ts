@@ -98,14 +98,12 @@ export default class UnleashClient extends EventEmitter {
   }
 
   isEnabled(name: string, context: Context, fallback: Function): boolean {
-    const feature = this.repository.getToggle(name);
-    let enabled: boolean;
+    return this.evaluate(name, context, fallback).enabled;
+  }
 
-    if (!this.isParentDependencySatisfied(feature, context)) {
-      enabled = false;
-    } else {
-      enabled = this.isFeatureEnabled(feature, context, fallback).enabled;
-    }
+  evaluate(name: string, context: Context, fallback: Function): StrategyResult {
+    const feature = this.repository.getToggle(name);
+    const result = this.isFeatureEnabled(feature, context, fallback);
 
     if (feature?.impressionData) {
       this.emit(
@@ -113,13 +111,13 @@ export default class UnleashClient extends EventEmitter {
         createImpressionEvent({
           featureName: name,
           context,
-          enabled,
+          enabled: result.enabled,
           eventType: 'isEnabled',
         }),
       );
     }
 
-    return enabled;
+    return result;
   }
 
   isFeatureEnabled(
@@ -129,6 +127,10 @@ export default class UnleashClient extends EventEmitter {
   ): StrategyResult {
     if (!feature) {
       return { enabled: fallback() };
+    }
+
+    if(!this.isParentDependencySatisfied(feature, context)) {
+      return { enabled: false };
     }
 
     if (!feature || !feature.enabled) {
@@ -201,7 +203,7 @@ export default class UnleashClient extends EventEmitter {
 
   getVariant(name: string, context: Context, fallbackVariant?: Variant): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
-    const variant = this.resolveVariant(feature, context, true, fallbackVariant);
+    const variant = this.resolveVariant(feature, context, fallbackVariant);
     if (feature?.impressionData) {
       this.emit(
         UnleashEvents.Impression,
@@ -222,25 +224,36 @@ export default class UnleashClient extends EventEmitter {
   // gradual rollout. This is not intended for general use, prefer getVariant instead
   forceGetVariant(name: string,
                   context: Context,
-                  fallbackVariant?: Variant): VariantWithFeatureStatus {
+                  fallbackVariant?: Variant,
+                  forcedResult?: StrategyResult): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
-    return this.resolveVariant(feature, context, true, fallbackVariant);
+    return this.resolveVariant(feature, context, fallbackVariant, forcedResult);
   }
 
   private resolveVariant(
     feature: FeatureInterface | undefined,
     context: Context,
-    checkToggle: boolean,
     fallbackVariant?: Variant,
+    forcedResult?: StrategyResult
   ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || getDefaultVariant();
 
-    if (typeof feature === 'undefined' || !this.isParentDependencySatisfied(feature, context)) {
+    if (typeof feature === 'undefined') {
       return { ...fallback, featureEnabled: false };
     }
 
-    let featureEnabled = !checkToggle;
-    if (checkToggle) {
+    let featureEnabled = feature.enabled;
+
+    if(forcedResult?.enabled && forcedResult?.variant) {
+      return {
+        name: forcedResult.variant.name,
+        payload: forcedResult.variant.payload,
+        enabled: forcedResult.variant.enabled,
+        featureEnabled: forcedResult.enabled
+      };
+    }
+
+    if (!Boolean(forcedResult)) {
       const result = this.isFeatureEnabled(feature, context, () => !!fallbackVariant?.enabled);
       featureEnabled = result.enabled;
 

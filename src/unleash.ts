@@ -18,6 +18,7 @@ import { resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
 import FileStorageProvider from './repository/storage-provider-file';
+import { StrategyResult } from './strategy/strategy';
 
 export { Strategy, UnleashEvents, UnleashConfig };
 
@@ -276,6 +277,28 @@ export class Unleash extends EventEmitter {
     return result;
   }
 
+  evaluate(name: string,
+           context?: Context): StrategyResult;
+  evaluate(name: string,
+           context?: Context): StrategyResult;
+  evaluate(name: string,
+           context: Context = {}): StrategyResult {
+    const enhancedContext = { ...this.staticContext, ...context };
+
+    let result;
+    if (this.ready) {
+      result = this.client.evaluate(name, enhancedContext, () => false);
+    } else {
+      result = { enabled: false };
+      this.emit(
+        UnleashEvents.Warn,
+        `Unleash has not been initialized yet. evaluate(${name}) defaulted to ${result.enabled}`,
+      );
+    }
+    this.count(name, result.enabled);
+    return result;
+  }
+
   getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result: VariantWithFeatureStatus;
@@ -300,11 +323,11 @@ export class Unleash extends EventEmitter {
     return variant;
   }
 
-  forceGetVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
+  forceGetVariant(name: string, context: Context = {}, fallbackVariant?: Variant, forcedResult?: StrategyResult): Variant {
     const enhancedContext = { ...this.staticContext, ...context };
     let result;
     if (this.ready) {
-      result = this.client.forceGetVariant(name, enhancedContext, fallbackVariant);
+      result = this.client.forceGetVariant(name, enhancedContext, fallbackVariant, forcedResult);
     } else {
       result = typeof fallbackVariant !== 'undefined' ?
         { ...fallbackVariant, featureEnabled: false } :

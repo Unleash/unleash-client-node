@@ -6,6 +6,7 @@ import { defaultStrategies, Strategy } from '../strategy';
 import CustomStrategy from './true_custom_strategy';
 import CustomFalseStrategy from './false_custom_strategy';
 import { UnleashEvents } from '../events';
+import { StrategyResult } from '../strategy/strategy';
 
 function buildToggle(name, active, strategies, variants = [], impressionData = false) {
   return {
@@ -248,7 +249,7 @@ test('should always return defaultVariant if missing variant', (t) => {
   const defaultVariant = {
     enabled: false,
     name: 'disabled',
-    featureEnabled: true
+    featureEnabled: true,
   };
   t.deepEqual(result, defaultVariant);
 
@@ -259,7 +260,7 @@ test('should always return defaultVariant if missing variant', (t) => {
       type: 'string',
       value: '',
     },
-    featureEnabled: true
+    featureEnabled: true,
   };
   const result2 = client.getVariant('feature-but-no-variant', {}, fallback);
 
@@ -307,14 +308,14 @@ test('should trigger events on unsatisfied dependency', (t) => {
   let recordedWarnings = [];
   const repo = {
     getToggle(name: string) {
-      if(name === 'feature-x') {
+      if (name === 'feature-x') {
         return {
           name: 'feature-x',
-          dependencies: [{feature: 'not-feature-x'}],
-          strategies:  [{ name: 'default' }],
+          dependencies: [{ feature: 'not-feature-x' }],
+          strategies: [{ name: 'default' }],
           variants: [],
           impressionData: true,
-        }
+        };
       } else {
         return undefined;
       }
@@ -357,7 +358,7 @@ test('should favor strategy variant over feature variant', (t) => {
           variants: [{
             name: 'strategyVariantName',
             payload: { type: 'string', value: 'strategyVariantValue' },
-            weight: 1000
+            weight: 1000,
           }],
           parameters: {},
         },
@@ -381,7 +382,7 @@ test('should favor strategy variant over feature variant', (t) => {
       name: 'strategyVariantName',
       payload: { type: 'string', value: 'strategyVariantValue' },
       enabled: true,
-      featureEnabled: true
+      featureEnabled: true,
     },
   );
 });
@@ -397,7 +398,7 @@ test('should return disabled variant for non-matching strategy variant', (t) => 
           variants: [{
             name: 'strategyVariantName',
             payload: { type: 'string', value: 'strategyVariantValue' },
-            weight: 1000
+            weight: 1000,
           }],
           parameters: {},
         },
@@ -412,6 +413,68 @@ test('should return disabled variant for non-matching strategy variant', (t) => 
       name: 'disabled',
       enabled: false,
       featureEnabled: false,
+    },
+  );
+});
+
+test('force variant should return forced value', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', false, [
+        {
+          name: 'default',
+          constraints: [],
+          variants: [{
+            name: 'ignoreMe',
+            payload: { type: 'string', value: 'ignoreMe' },
+            weight: 1000,
+          }],
+          parameters: {},
+        },
+      ], [], true);
+    },
+  };
+  const client = new Client(repo, defaultStrategies);
+  const forcedResult: StrategyResult = {
+    enabled: true,
+    variant: { name: 'forcedVariant', enabled: true, payload: { type: 'string', value: 'value' } },
+  };
+  const fallbackVariant = undefined;
+  const variant = client.forceGetVariant('feature-x', {}, fallbackVariant, forcedResult);
+
+  t.deepEqual(variant, {
+      name: 'forcedVariant',
+      enabled: true,
+      featureEnabled: true,
+      payload: { type: 'string', value: 'value' },
+    },
+  );
+});
+
+test('force variant should return original value', (t) => {
+  const repo = {
+    getToggle() {
+      return buildToggle('feature-x', true, [
+        {
+          name: 'default',
+          constraints: [],
+          variants: [{
+            name: 'strategyVariantName',
+            payload: { type: 'string', value: 'strategyVariantValue' },
+            weight: 1000,
+          }],
+          parameters: {},
+        },
+      ], [], true);
+    },
+  };
+  const client = new Client(repo, defaultStrategies);
+  const variant = client.forceGetVariant('feature-x', {});
+  t.deepEqual(variant, {
+      name: 'strategyVariantName',
+      enabled: true,
+      featureEnabled: true,
+      payload: { type: 'string', value: 'strategyVariantValue' },
     },
   );
 });
