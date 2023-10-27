@@ -88,7 +88,8 @@ export default class UnleashClient extends EventEmitter {
 
       if (parent.enabled !== false) {
         if (parent.variants?.length) {
-          return parent.variants.includes(this.getVariant(parent.feature, context).name);
+          const {name, featureEnabled} = this.getVariant(parent.feature, context);
+          return featureEnabled && parent.variants.includes(name);
         }
         return this.isEnabled(parent.feature, context, () => false);
       }
