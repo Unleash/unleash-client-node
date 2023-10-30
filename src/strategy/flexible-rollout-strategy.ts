@@ -1,6 +1,6 @@
 import { Strategy } from './strategy';
 import { Context } from '../context';
-import normalizedValue from './util';
+import { normalizedStrategyValue } from './util';
 import { resolveContextValue } from '../helpers';
 
 const STICKINESS = {
@@ -38,7 +38,7 @@ export default class FlexibleRolloutStrategy extends Strategy {
     if (!stickinessId) {
       return false;
     }
-    const normalizedUserId = normalizedValue(stickinessId, groupId);
+    const normalizedUserId = normalizedStrategyValue(stickinessId, groupId);
     return percentage > 0 && normalizedUserId <= percentage;
   }
 }

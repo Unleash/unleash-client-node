@@ -60,23 +60,23 @@ test('selectVariant should use variant stickiness for many variants', (t) => {
 
   const feature = createFeature(variants);
 
-  const variant = selectVariant(feature, { organization: '726' });
+  const variant = selectVariant(feature, { organization: '1430' });
   t.is(variant.name, 'variant1');
-  const variant2 = selectVariant(feature, { organization: '48' });
+  const variant2 = selectVariant(feature, { organization: '125' });
   t.is(variant2.name, 'variant2');
-  const variant3 = selectVariant(feature, { organization: '381' });
+  const variant3 = selectVariant(feature, { organization: '930' });
   t.is(variant3.name, 'variant3');
-  const variant4 = selectVariant(feature, { organization: '222' });
+  const variant4 = selectVariant(feature, { organization: '381' });
   t.is(variant4.name, 'variant4');
 });
 
 test('selectVariant should select on 3 variants', (t) => {
   const feature = createFeature(genVariants(3));
-  const variant = selectVariant(feature, { toggleName: 'toggleName', userId: 'a' });
+  const variant = selectVariant(feature, { toggleName: 'toggleName', userId: '0' });
   t.true(variant.name === 'variant1');
-  const variant2 = selectVariant(feature, { toggleName: 'toggleName', userId: '0' });
+  const variant2 = selectVariant(feature, { toggleName: 'toggleName', userId: 'zxa' });
   t.true(variant2.name === 'variant2');
-  const variant3 = selectVariant(feature, { toggleName: 'toggleName', userId: 'z' });
+  const variant3 = selectVariant(feature, { toggleName: 'toggleName', userId: 'ya' });
   t.true(variant3.name === 'variant3');
 });
 
