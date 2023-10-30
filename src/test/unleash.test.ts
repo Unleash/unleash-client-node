@@ -843,7 +843,7 @@ test('should emit impression events for getVariant', async (t) => {
       t.is(evt.featureName, 'toggle-impressions');
       t.is(evt.enabled, true);
       t.is(evt.eventType, 'getVariant');
-      t.is(evt.variant, 'blue');
+      t.is(evt.variant, 'yellow');
       t.is(evt.context.userId, context.userId);
       t.deepEqual(evt.context.properties, context.properties);
       unleash.destroy();

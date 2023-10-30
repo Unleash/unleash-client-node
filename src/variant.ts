@@ -1,7 +1,7 @@
 import { Context } from './context';
 // eslint-disable-next-line import/no-cycle
 import { FeatureInterface } from './feature';
-import normalizedValue from './strategy/util';
+import { normalizedVariantValue } from './strategy/util';
 import { resolveContextValue } from './helpers';
 
 export enum PayloadType {
@@ -96,7 +96,7 @@ export function selectVariantDefinition(
 
   const { stickiness } = variants[0];
 
-  const target = normalizedValue(getSeed(context, stickiness), groupId, totalWeight);
+  const target = normalizedVariantValue(getSeed(context, stickiness), groupId, totalWeight);
 
   let counter = 0;
   const variant = variants.find((v: VariantDefinition): VariantDefinition | undefined => {

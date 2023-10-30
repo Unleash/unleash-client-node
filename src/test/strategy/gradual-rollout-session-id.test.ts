@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import GradualRolloutSessionIdStrategy from '../../strategy/gradual-rollout-session-id';
-import normalizedValue from '../../strategy/util';
+import { normalizedStrategyValue } from '../../strategy/util';
 
 test('gradual-rollout-user-id strategy should have correct name', (t) => {
   const strategy = new GradualRolloutSessionIdStrategy();
@@ -27,7 +27,7 @@ test('should be enabled when percentage is exactly same', (t) => {
   const sessionId = '123123';
   const groupId = 'group1';
 
-  const percentage = normalizedValue(sessionId, groupId);
+  const percentage = normalizedStrategyValue(sessionId, groupId);
   const params = { percentage: `${percentage}`, groupId };
   const context = { sessionId };
   t.true(strategy.isEnabled(params, context));
@@ -38,7 +38,7 @@ test('should be disabled when percentage is just below required value', (t) => {
   const sessionId = '123123';
   const groupId = 'group1';
 
-  const percentage = normalizedValue(sessionId, groupId) - 1;
+  const percentage = normalizedStrategyValue(sessionId, groupId) - 1;
   const params = { percentage: `${percentage}`, groupId };
   const context = { sessionId };
   t.false(strategy.isEnabled(params, context));
