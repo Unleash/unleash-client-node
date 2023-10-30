@@ -2,7 +2,7 @@ import * as murmurHash3 from 'murmurhash3js';
 
 function normalizedValue(id: string,
                          groupId: string,
-                         normalizer = 100,
+                         normalizer: number,
                          seed = 0): number {
   const hash = murmurHash3.x86.hash32(`${groupId}:${id}`, seed);
   return (hash % normalizer) + 1;
