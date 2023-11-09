@@ -32,18 +32,14 @@ export interface Variant {
   name: string;
   enabled: boolean;
   payload?: Payload;
+  feature_enabled?: boolean;
 }
 
-export interface VariantWithFeatureStatus extends Variant {
-  featureEnabled: boolean;
-}
-
-export function getDefaultVariant(): Variant {
-  return {
-    name: 'disabled',
-    enabled: false,
-  };
-}
+export const defaultVariant: Variant = {
+  name: 'disabled',
+  enabled: false,
+  feature_enabled: false,
+};
 
 function randomString() {
   return String(Math.round(Math.random() * 100000));
@@ -73,8 +69,10 @@ function overrideMatchesContext(context: Context): (o: Override) => boolean {
     o.values.some((value) => value === resolveContextValue(context, o.contextName));
 }
 
-function findOverride(variants: VariantDefinition[],
-                      context: Context): VariantDefinition | undefined {
+function findOverride(
+  variants: VariantDefinition[],
+  context: Context,
+): VariantDefinition | undefined {
   return variants
     .filter((variant) => variant.overrides)
     .find((variant) => variant.overrides?.some(overrideMatchesContext(context)));

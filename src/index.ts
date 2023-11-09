@@ -1,6 +1,6 @@
 import { once } from 'events';
 import { Unleash } from './unleash';
-import { Variant, getDefaultVariant, PayloadType } from './variant';
+import { Variant, defaultVariant, PayloadType } from './variant';
 import { Context } from './context';
 import { TagFilter } from './tags';
 import { UnleashEvents } from './events';
@@ -53,7 +53,7 @@ export function getVariant(
   context: Context = {},
   fallbackVariant?: Variant,
 ): Variant {
-  const variant = fallbackVariant || getDefaultVariant();
+  const variant = fallbackVariant || defaultVariant;
   return instance ? instance.getVariant(name, context, variant) : variant;
 }
 
@@ -62,7 +62,7 @@ export function forceGetVariant(
   context: Context = {},
   fallbackVariant?: Variant,
 ): Variant {
-  const variant = fallbackVariant || getDefaultVariant();
+  const variant = fallbackVariant || defaultVariant;
   return instance ? instance.forceGetVariant(name, context, variant) : variant;
 }
 

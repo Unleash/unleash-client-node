@@ -2,10 +2,7 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
-import {
-  Variant, VariantDefinition,
-  getDefaultVariant, selectVariant, VariantWithFeatureStatus,
-} from './variant';
+import { Variant, VariantDefinition, defaultVariant, selectVariant } from './variant';
 import { Context } from './context';
 import { Constraint, Segment, StrategyResult } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
@@ -46,9 +43,11 @@ export default class UnleashClient extends EventEmitter {
     return this.strategies.find((strategy: Strategy): boolean => strategy.name === name);
   }
 
-  warnStrategyOnce(missingStrategy: string,
-                   name: string,
-                   strategies: StrategyTransportInterface[]) {
+  warnStrategyOnce(
+    missingStrategy: string,
+    name: string,
+    strategies: StrategyTransportInterface[],
+  ) {
     if (!this.warnedStrategies[missingStrategy + name]) {
       this.warnedStrategies[missingStrategy + name] = true;
       this.emit(
@@ -75,7 +74,7 @@ export default class UnleashClient extends EventEmitter {
       return true;
     }
 
-    return feature.dependencies.every(parent => {
+    return feature.dependencies.every((parent) => {
       const parentToggle = this.repository.getToggle(parent.feature);
 
       if (!parentToggle) {
@@ -88,7 +87,10 @@ export default class UnleashClient extends EventEmitter {
 
       if (parent.enabled !== false) {
         if (parent.variants?.length) {
-          const {name, featureEnabled} = this.getVariant(parent.feature, context);
+          const { name, feature_enabled: featureEnabled } = this.getVariant(
+            parent.feature,
+            context,
+          );
           return featureEnabled && parent.variants.includes(name);
         }
         return this.isEnabled(parent.feature, context, () => false);
@@ -149,11 +151,12 @@ export default class UnleashClient extends EventEmitter {
         return false;
       }
       const constraints = this.yieldConstraintsFor(strategySelector);
-      const result =
-        strategy.getResult(strategySelector.parameters,
-          context,
-          constraints,
-          strategySelector.variants);
+      const result = strategy.getResult(
+        strategySelector.parameters,
+        context,
+        constraints,
+        strategySelector.variants,
+      );
 
       if (result.enabled) {
         strategyResult = result;
@@ -165,7 +168,7 @@ export default class UnleashClient extends EventEmitter {
     return strategyResult;
   }
 
-  * yieldConstraintsFor(
+  *yieldConstraintsFor(
     strategy: StrategyTransportInterface,
   ): IterableIterator<Constraint | undefined> {
     if (strategy.constraints) {
@@ -178,7 +181,7 @@ export default class UnleashClient extends EventEmitter {
     yield* this.yieldSegmentConstraints(segments);
   }
 
-  * yieldSegmentConstraints(
+  *yieldSegmentConstraints(
     segments: (Segment | undefined)[],
   ): IterableIterator<Constraint | undefined> {
     // eslint-disable-next-line no-restricted-syntax
@@ -194,7 +197,7 @@ export default class UnleashClient extends EventEmitter {
     }
   }
 
-  getVariant(name: string, context: Context, fallbackVariant?: Variant): VariantWithFeatureStatus {
+  getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
     const feature = this.repository.getToggle(name);
     const variant = this.resolveVariant(feature, context, true, fallbackVariant);
     if (feature?.impressionData) {
@@ -215,9 +218,7 @@ export default class UnleashClient extends EventEmitter {
   // This function is intended to close an issue in the proxy where feature enabled
   // state gets checked twice when resolving a variant with random stickiness and
   // gradual rollout. This is not intended for general use, prefer getVariant instead
-  forceGetVariant(name: string,
-                  context: Context,
-                  fallbackVariant?: Variant): VariantWithFeatureStatus {
+  forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
     const feature = this.repository.getToggle(name);
     return this.resolveVariant(feature, context, true, fallbackVariant);
   }
@@ -227,11 +228,11 @@ export default class UnleashClient extends EventEmitter {
     context: Context,
     checkToggle: boolean,
     fallbackVariant?: Variant,
-  ): VariantWithFeatureStatus {
-    const fallback = fallbackVariant || getDefaultVariant();
+  ): Variant {
+    const fallback = fallbackVariant || defaultVariant;
 
     if (typeof feature === 'undefined') {
-      return { ...fallback, featureEnabled: false };
+      return { ...fallback, feature_enabled: false };
     }
 
     let featureEnabled = !checkToggle;
@@ -240,30 +241,28 @@ export default class UnleashClient extends EventEmitter {
       featureEnabled = result.enabled;
 
       if (result.enabled && result.variant) {
-        return { ...result.variant, featureEnabled };
+        return { ...result.variant, feature_enabled: featureEnabled };
       }
 
       if (!result.enabled) {
-        return { ...fallback, featureEnabled };
+        return { ...fallback, feature_enabled: featureEnabled };
       }
     }
 
-    if (!feature.variants ||
-      !Array.isArray(feature.variants) ||
-      feature.variants.length === 0) {
-      return { ...fallback, featureEnabled };
+    if (!feature.variants || !Array.isArray(feature.variants) || feature.variants.length === 0) {
+      return { ...fallback, feature_enabled: featureEnabled };
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
     if (variant === null) {
-      return { ...fallback, featureEnabled };
+      return { ...fallback, feature_enabled: featureEnabled };
     }
 
     return {
       name: variant.name,
       payload: variant.payload,
       enabled: true,
-      featureEnabled,
+      feature_enabled: featureEnabled,
     };
   }
 }
