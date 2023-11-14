@@ -9,6 +9,7 @@ import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
 import { Segment } from '../strategy/strategy';
+import { max, min } from '../math';
 
 const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -25,6 +26,7 @@ export interface RepositoryOptions {
   instanceId: string;
   projectName?: string;
   refreshInterval: number;
+  maxRefreshInterval?: number;
   timeout?: number;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
@@ -54,6 +56,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
   private refreshInterval: number;
 
   private headers?: CustomHeaders;
+
+  private failures: number = 0;
+
+  private maxRefreshInterval: number;
 
   private customHeadersFunction?: CustomHeadersFunction;
 
@@ -89,6 +95,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     instanceId,
     projectName,
     refreshInterval = 15_000,
+    maxRefreshInterval = 120_000,
     timeout,
     headers,
     customHeadersFunction,
@@ -115,6 +122,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
     this.segments = new Map();
+    this.maxRefreshInterval = maxRefreshInterval;
   }
 
   timedFetch(interval: number) {
@@ -241,12 +249,31 @@ Message: ${err.message}`,
     return obj;
   }
 
+  getFailures(): number {
+    return this.failures;
+  }
+
+  nextFetch(): number {
+    return this.refreshInterval + this.failures * this.refreshInterval;
+  }
+
+  private backoff(): number {
+    this.failures = min(this.failures + 1, 10);
+    return this.nextFetch();
+  }
+
+  private countSuccess(): number {
+    this.failures = max(this.failures - 1, 0);
+    return this.nextFetch();
+  }
+
   async fetch(): Promise<void> {
     if (this.stopped || !(this.refreshInterval > 0)) {
       return;
     }
 
     let nextFetch = this.refreshInterval;
+
     try {
       let mergedTags;
       if (this.tags) {
@@ -257,7 +284,6 @@ Message: ${err.message}`,
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
         : this.headers;
-
       const res = await get({
         url,
         etag: this.etag,
@@ -268,14 +294,11 @@ Message: ${err.message}`,
         httpOptions: this.httpOptions,
         supportedSpecVersion: SUPPORTED_SPEC_VERSION,
       });
-
       if (res.status === 304) {
         // No new data
         this.emit(UnleashEvents.Unchanged);
-      } else if (!res.ok) {
-        const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
-        this.emit(UnleashEvents.Error, error);
-      } else {
+      } else if (res.ok) {
+        nextFetch = this.countSuccess();
         try {
           const data: ClientFeaturesResponse = await res.json();
           if (res.headers.get('etag') !== null) {
@@ -286,6 +309,48 @@ Message: ${err.message}`,
           await this.save(data, true);
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
+        }
+      } else {
+        if (res.status === 401 || res.status === 403) {
+          this.emit(
+            UnleashEvents.Error,
+            new Error(
+              // eslint-disable-next-line max-len
+              `${url} responded ${res.status} which means your API key is not allowed to connect. Stopping refresh of toggles`,
+            ),
+          );
+          this.failures += 1;
+          nextFetch = 0;
+        } else if (res.status === 404) {
+          this.emit(
+            UnleashEvents.Error,
+            new Error(
+              // eslint-disable-next-line max-len
+              `${url} responded NOT_FOUND (${res.status}) which means your API url most likely needs correction. Stopping refresh of toggles`,
+            ),
+          );
+          nextFetch = 0;
+        } else if (res.status === 429) {
+          nextFetch = this.backoff();
+          this.emit(
+            UnleashEvents.Warn,
+            // eslint-disable-next-line max-len
+            `${url} responded TOO_MANY_CONNECTIONS (${res.status}). Waiting for ${nextFetch}ms before trying again.`,
+          );
+        } else if (
+          res.status === 500 ||
+          res.status === 502 ||
+          res.status === 503 ||
+          res.status === 504
+        ) {
+          nextFetch = this.backoff();
+          this.emit(
+            UnleashEvents.Warn,
+            `${url} responded ${res.status}. Waiting for ${nextFetch}ms before trying again.`,
+          );
+        } else {
+          const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
+          this.emit(UnleashEvents.Error, error);
         }
       }
     } catch (err) {

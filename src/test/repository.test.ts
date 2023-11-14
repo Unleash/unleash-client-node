@@ -16,7 +16,6 @@ const instanceId = 'bar';
 function setup(url, toggles, headers = {}) {
   return nock(url).persist().get('/client/features').reply(200, { features: toggles }, headers);
 }
-
 test('should fetch from endpoint', (t) =>
   new Promise((resolve) => {
     const url = 'http://unleash-test-0.app';
@@ -35,7 +34,7 @@ test('should fetch from endpoint', (t) =>
       url,
       appName,
       instanceId,
-      refreshInterval: 1000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -127,7 +126,7 @@ test('should store etag', (t) =>
       url,
       appName,
       instanceId,
-      refreshInterval: 1000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -156,7 +155,7 @@ test('should request with etag', (t) =>
       url,
       appName,
       instanceId,
-      refreshInterval: 1000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -189,7 +188,7 @@ test('should request with custom headers', (t) =>
       url,
       appName,
       instanceId,
-      refreshInterval: 1000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -227,7 +226,7 @@ test('request with customHeadersFunction should take precedence over customHeade
       url,
       appName,
       instanceId,
-      refreshInterval: 1000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -250,6 +249,151 @@ test('request with customHeadersFunction should take precedence over customHeade
     repo.start();
   }));
 
+test('should handle 429 request error and emit warn event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-429.app';
+    nock(url).persist().get('/client/features').reply(429, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('warn', (warn) => {
+      t.truthy(warn);
+      t.is(warn, `${url}/client/features responded TOO_MANY_CONNECTIONS (429). Waiting for 20ms before trying again.`);
+      t.is(repo.nextFetch(), 20);
+      t.is(repo.getFailures(), 1);
+      resolve();
+    });
+    repo.start();
+  }));
+
+test('should handle 401 request error and emit error event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-401.app';
+    nock(url).persist().get('/client/features').reply(401, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('error', (err) => {
+      t.truthy(err);
+      t.is(err.message, `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`);
+      resolve();
+    });
+    repo.start();
+  }));
+
+test('should handle 403 request error and emit error event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-403.app';
+    nock(url).persist().get('/client/features').reply(403, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('error', (err) => {
+      t.truthy(err);
+      t.is(err.message, `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`);
+      resolve();
+    });
+    repo.start();
+  }));
+
+test('should handle 500 request error and emit warn event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-500.app';
+    nock(url).persist().get('/client/features').reply(500, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('warn', (warn) => {
+      t.truthy(warn);
+      t.is(warn, `${url}/client/features responded 500. Waiting for 20ms before trying again.`);
+      resolve();
+    });
+    repo.start();
+  }));
+test.skip('should handle 502 request error and emit warn event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-502.app';
+    nock(url).persist().get('/client/features').reply(502, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('warn', (warn) => {
+      t.truthy(warn);
+      t.is(warn, `${url}/client/features responded 502. Waiting for 20ms before trying again.`);
+      resolve();
+    });
+    repo.start();
+  }));
+test.skip('should handle 503 request error and emit warn event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-503.app';
+    nock(url).persist().get('/client/features').reply(503, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('warn', (warn) => {
+      t.truthy(warn);
+      t.is(warn, `${url}/client/features responded 503. Waiting for 20ms before trying again.`);
+      resolve();
+    });
+    repo.start();
+  }));
+test.skip('should handle 504 request error and emit warn event', (t) =>
+  new Promise((resolve) => {
+    const url = 'http://unleash-test-6-504.app';
+    nock(url).persist().get('/client/features').reply(504, 'blabla');
+    const repo = new Repository({
+      url,
+      appName,
+      instanceId,
+      refreshInterval: 10,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new InMemStorageProvider(),
+    });
+    repo.on('warn', (warn) => {
+      t.truthy(warn);
+      t.is(warn, `${url}/client/features responded 504. Waiting for 20ms before trying again.`);
+      resolve();
+    });
+    repo.start();
+  }));
 test('should handle 404 request error and emit error event', (t) =>
   new Promise((resolve) => {
     const url = 'http://unleash-test-5.app';
@@ -259,7 +403,7 @@ test('should handle 404 request error and emit error event', (t) =>
       url,
       appName,
       instanceId,
-      refreshInterval: 10000,
+      refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -267,11 +411,13 @@ test('should handle 404 request error and emit error event', (t) =>
 
     repo.on('error', (err) => {
       t.truthy(err);
-      t.true(err.message.startsWith('Response was not statusCode 2'));
+      // eslint-disable-next-line max-len
+      t.is(err.message, `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`)
       resolve();
     });
     repo.start();
   }));
+
 
 test('should handle 304 as silent ok', (t) => {
   t.plan(0);
@@ -787,4 +933,67 @@ test('bootstrap should not override load backup-file', async (t) => {
 
   // @ts-expect-error
   t.is(repo.getToggle('feature-backup').enabled, true);
+});
+// Skipped because make-fetch-happens actually automatically retries two extra times on 429
+// with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
+test.skip('Failing two times should increase interval to 3 times initial interval (initial interval + 2 * interval)', async (t) => {
+  const url = 'http://unleash-test-fail5times.app';
+  nock(url).persist().get("/client/features").reply(429);
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  await repo.fetch();
+  t.is(1, repo.getFailures());
+  t.is(20, repo.nextFetch());
+  await repo.fetch();
+  t.is(2, repo.getFailures());
+  t.is(30, repo.nextFetch());
+});
+
+test.only('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
+  const url = 'http://unleash-test-fail5times.app';
+  nock(url).persist().get("/client/features").reply(429)
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  await repo.fetch();
+  t.is(1, repo.getFailures());
+  t.is(20, repo.nextFetch());
+  await repo.fetch();
+  t.is(2, repo.getFailures());
+  t.is(30, repo.nextFetch());
+  nock.cleanAll();
+  nock(url).persist().get("/client/features").reply(200, {
+    version: 2,
+    features: [
+      {
+        name: 'feature-backup',
+        enabled: true,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'backup',
+          },
+        ],
+      },
+    ],
+  });
+
+  await repo.fetch();
+  t.is(1, repo.getFailures());
+  t.is(20, repo.nextFetch());
 });

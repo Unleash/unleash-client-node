@@ -12,7 +12,7 @@ export enum UnleashEvents {
   CountVariant = 'countVariant',
   Sent = 'sent',
   Registered = 'registered',
-  Impression = 'impression'
+  Impression = 'impression',
 }
 
 export interface ImpressionEvent {
