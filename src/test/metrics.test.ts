@@ -440,7 +440,6 @@ test('sendMetrics should stop on 401', async (t) => {
   // @ts-expect-error actually a private field, but we access it for tests
   t.true(metrics.disabled);
   t.is(metrics.getFailures(), -1);
-  nock.cleanAll()
 });
 test('sendMetrics should stop on 403', async (t) => {
   const url = getUrl();
