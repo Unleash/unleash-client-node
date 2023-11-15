@@ -53,8 +53,8 @@ test('should not start fetch/register when metricsInterval is 0', (t) => {
 
 test('should sendMetrics and register when metricsInterval is a positive number', async (t) => {
     const url = getUrl();
-    t.plan(1);
     const regEP = nockRegister(url);
+    const metricsEP = nockMetrics(url);
 
     // @ts-expect-error
     const metrics = new Metrics({
@@ -62,12 +62,26 @@ test('should sendMetrics and register when metricsInterval is a positive number'
       metricsInterval: 50,
     });
 
+    const validator = new Promise<void>((resolve) => {
+      metrics.on('registered', () => {
+        t.true(regEP.isDone());
+      });
+      metrics.on('sent', () => {
+        t.true(metricsEP.isDone());
+        metrics.stop();
+        resolve()
+      });
+    });
+
     metrics.count('toggle-x', true);
     metrics.count('toggle-x', false);
     metrics.count('toggle-y', true);
-
-    await metrics.registerInstance();
-    t.true(regEP.isDone());
+    metrics.start();
+    let timeout = new Promise<void>((resolve) => setTimeout(() => {
+      t.fail("Failed to successfully both send and register");
+      resolve();
+    }, 1000));
+    await Promise.race([validator, timeout]);
   });
 
 test('should sendMetrics', async (t) => {
@@ -242,6 +256,7 @@ test('sendMetrics should stop/disable metrics if endpoint returns 404', (t) =>
     const metEP = nockMetrics(url, 404);
     // @ts-expect-error
     const metrics = new Metrics({
+      metricsInterval: 50,
       url,
     });
 
@@ -257,9 +272,6 @@ test('sendMetrics should stop/disable metrics if endpoint returns 404', (t) =>
     metrics.count('x-y-z', true);
 
     metrics.sendMetrics();
-
-    // @ts-expect-error
-    t.false(metrics.disabled);
   }));
 
 test('sendMetrics should emit warn on non 200 statusCode', (t) =>

@@ -956,7 +956,9 @@ test.skip('Failing two times should increase interval to 3 times initial interva
   t.is(30, repo.nextFetch());
 });
 
-test.only('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
+// Skipped because make-fetch-happens actually automatically retries two extra times on 429
+// with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
+test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
   nock(url).persist().get("/client/features").reply(429)
   const repo = new Repository({
