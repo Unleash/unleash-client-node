@@ -55,7 +55,7 @@ test('should sendMetrics and register when metricsInterval is a positive number'
     const url = getUrl();
     const regEP = nockRegister(url);
     const metricsEP = nockMetrics(url);
-
+    t.plan(2);
     // @ts-expect-error
     const metrics = new Metrics({
       url,
