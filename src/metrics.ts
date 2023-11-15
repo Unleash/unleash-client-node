@@ -201,7 +201,6 @@ export default class Metrics extends EventEmitter {
     this.failures = min(10, this.failures + 1);
     // eslint-disable-next-line max-len
     this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}. Backing off to ${this.getInterval()}`);
-    console.log(`Failure count now ${this.failures}`);
     this.startTimer();
   }
 
@@ -243,12 +242,10 @@ export default class Metrics extends EventEmitter {
         }
         this.restoreBucket(payload.bucket);
       } else {
-        console.log('Succeeded');
         this.emit(UnleashEvents.Sent, payload);
         this.reduceBackoff();
       }
     } catch (err) {
-      console.log('Threw an error', err);
       this.restoreBucket(payload.bucket);
       this.emit(UnleashEvents.Warn, err);
       this.startTimer();
@@ -257,7 +254,6 @@ export default class Metrics extends EventEmitter {
 
   reduceBackoff(): void {
     this.failures = max(0, this.failures - 1);
-    console.log(`Failure count now ${this.failures}`);
     this.startTimer();
   }
 

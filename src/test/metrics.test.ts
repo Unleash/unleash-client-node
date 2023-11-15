@@ -503,17 +503,13 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
     instanceId: '429-instance', metricsInterval, strategies: [], url
   });
   metrics.count('x-y-z', true);
-  console.log('Calling for first time');
   await metrics.sendMetrics();
   t.is(metrics.getFailures(), 1);
   t.is(metrics.getInterval(), metricsInterval * 2);
-  console.log('Calling for second time', new Date());
   await metrics.sendMetrics();
   t.is(metrics.getFailures(), 2);
   t.is(metrics.getInterval(), metricsInterval * 3);
-  console.log('Resetting Nock', new Date());
   const scope = nockMetrics(url, 200).persist();
-  console.log('Calling for third time. Expecting 200', new Date());
   await metrics.sendMetrics();
   // @ts-expect-error actually a private field, but we access it for tests
   t.false(metrics.disabled);
@@ -523,7 +519,6 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
   metrics.count('x-y-z', true);
   metrics.count('x-y-z', true);
   metrics.count('x-y-z', true);
-  console.log('Calling for fourth time. Expecting 200', new Date());
   await metrics.sendMetrics();
   t.true(scope.isDone());
   // @ts-expect-error actually a private field, but we access it for tests
