@@ -264,6 +264,7 @@ test('should handle 429 request error and emit warn event', (t) =>
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
+      // eslint-disable-next-line max-len
       t.is(warn, `${url}/client/features responded TOO_MANY_CONNECTIONS (429). Waiting for 20ms before trying again.`);
       t.is(repo.nextFetch(), 20);
       t.is(repo.getFailures(), 1);
@@ -287,6 +288,7 @@ test('should handle 401 request error and emit error event', (t) =>
     });
     repo.on('error', (err) => {
       t.truthy(err);
+      // eslint-disable-next-line max-len
       t.is(err.message, `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`);
       resolve();
     });
@@ -308,6 +310,7 @@ test('should handle 403 request error and emit error event', (t) =>
     });
     repo.on('error', (err) => {
       t.truthy(err);
+      // eslint-disable-next-line max-len
       t.is(err.message, `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`);
       resolve();
     });
@@ -936,6 +939,7 @@ test('bootstrap should not override load backup-file', async (t) => {
 });
 // Skipped because make-fetch-happens actually automatically retries two extra times on 429
 // with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
+// eslint-disable-next-line max-len
 test.skip('Failing two times should increase interval to 3 times initial interval (initial interval + 2 * interval)', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
   nock(url).persist().get("/client/features").reply(429);
@@ -958,6 +962,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
 
 // Skipped because make-fetch-happens actually automatically retries two extra times on 429
 // with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
+// eslint-disable-next-line max-len
 test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
   nock(url).persist().get("/client/features").reply(429)
