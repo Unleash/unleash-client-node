@@ -249,7 +249,7 @@ test('request with customHeadersFunction should take precedence over customHeade
     repo.start();
   }));
 
-test.only('should handle 429 request error and emit warn event', async (t) => {
+test('should handle 429 request error and emit warn event', async (t) => {
   const url = 'http://unleash-test-6-429.app';
   nock(url).persist().get('/client/features').reply(429, 'blabla');
   const repo = new Repository({
@@ -403,7 +403,7 @@ test.skip('should handle 504 request error and emit warn event', (t) =>
     repo.start();
   }));
 test('should handle 404 request error and emit error event', (t) =>
-  new Promise((resolve) => {
+  new Promise<void>((resolve) => {
     const url = 'http://unleash-test-5.app';
     nock(url).persist().get('/client/features').reply(404, 'asd');
 
