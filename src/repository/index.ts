@@ -25,7 +25,6 @@ export interface RepositoryOptions {
   instanceId: string;
   projectName?: string;
   refreshInterval: number;
-  maxRefreshInterval?: number;
   timeout?: number;
   headers?: CustomHeaders;
   customHeadersFunction?: CustomHeadersFunction;
@@ -57,8 +56,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
   private headers?: CustomHeaders;
 
   private failures: number = 0;
-
-  private maxRefreshInterval: number;
 
   private customHeadersFunction?: CustomHeadersFunction;
 
@@ -94,7 +91,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
     instanceId,
     projectName,
     refreshInterval = 15_000,
-    maxRefreshInterval = 120_000,
     timeout,
     headers,
     customHeadersFunction,
@@ -121,7 +117,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
     this.segments = new Map();
-    this.maxRefreshInterval = maxRefreshInterval;
   }
 
   timedFetch(interval: number) {
