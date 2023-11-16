@@ -266,13 +266,75 @@ Message: ${err.message}`,
     return this.nextFetch();
   }
 
+  // Emits correct error message based on what failed,
+  // and returns 0 as the next fetch interval (stop polling)
+  private unrecoverableError(url: string, statusCode: number): number {
+    this.failures += 1;
+    if (statusCode === 404) {
+      this.emit(
+        UnleashEvents.Error,
+        new Error(
+          // eslint-disable-next-line max-len
+          `${url} responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
+        ),
+      );
+    } else if (statusCode === 401 || statusCode === 403) {
+      this.emit(
+        UnleashEvents.Error,
+        new Error(
+          // eslint-disable-next-line max-len
+          `${url} responded ${statusCode} which means your API key is not allowed to connect. Stopping refresh of toggles`,
+        ),
+      );
+    }
+    return 0;
+  }
+
+  // We got a status code we know what to do with, so will log correct message
+  // and return the new interval.
+  private recoverableError(url: string, statusCode: number): number {
+    let nextFetch = this.backoff();
+    if (statusCode === 429) {
+      this.emit(
+        UnleashEvents.Warn,
+        // eslint-disable-next-line max-len
+        `${url} responded TOO_MANY_CONNECTIONS (429). Backing off`,
+      );
+    } else if (statusCode === 500 ||
+               statusCode === 502 ||
+               statusCode === 503 ||
+               statusCode === 504) {
+      this.emit(
+        UnleashEvents.Warn,
+        `${url} responded ${statusCode}. Backing off`,
+      );
+    }
+    return nextFetch;
+  }
+
+  private handleErrorCases(url: string, statusCode: number): number {
+    if (statusCode === 401 || statusCode === 403 || statusCode === 404) {
+      return this.unrecoverableError(url, statusCode);
+    } else if (
+      statusCode === 429 ||
+      statusCode === 500 ||
+      statusCode === 502 ||
+      statusCode === 503 ||
+      statusCode === 504
+    ) {
+      return this.recoverableError(url, statusCode);
+    } else {
+      const error = new Error(`Response was not statusCode 2XX, but was ${statusCode}`);
+      this.emit(UnleashEvents.Error, error);
+      return this.refreshInterval;
+    }
+  }
+
   async fetch(): Promise<void> {
     if (this.stopped || !(this.refreshInterval > 0)) {
       return;
     }
-
     let nextFetch = this.refreshInterval;
-
     try {
       let mergedTags;
       if (this.tags) {
@@ -310,47 +372,7 @@ Message: ${err.message}`,
           this.emit(UnleashEvents.Error, err);
         }
       } else {
-        if (res.status === 401 || res.status === 403) {
-          this.emit(
-            UnleashEvents.Error,
-            new Error(
-              // eslint-disable-next-line max-len
-              `${url} responded ${res.status} which means your API key is not allowed to connect. Stopping refresh of toggles`,
-            ),
-          );
-          this.failures += 1;
-          nextFetch = 0;
-        } else if (res.status === 404) {
-          this.emit(
-            UnleashEvents.Error,
-            new Error(
-              // eslint-disable-next-line max-len
-              `${url} responded NOT_FOUND (${res.status}) which means your API url most likely needs correction. Stopping refresh of toggles`,
-            ),
-          );
-          nextFetch = 0;
-        } else if (res.status === 429) {
-          nextFetch = this.backoff();
-          this.emit(
-            UnleashEvents.Warn,
-            // eslint-disable-next-line max-len
-            `${url} responded TOO_MANY_CONNECTIONS (${res.status}). Waiting for ${nextFetch}ms before trying again.`,
-          );
-        } else if (
-          res.status === 500 ||
-          res.status === 502 ||
-          res.status === 503 ||
-          res.status === 504
-        ) {
-          nextFetch = this.backoff();
-          this.emit(
-            UnleashEvents.Warn,
-            `${url} responded ${res.status}. Waiting for ${nextFetch}ms before trying again.`,
-          );
-        } else {
-          const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
-          this.emit(UnleashEvents.Error, error);
-        }
+        nextFetch = this.handleErrorCases(url, res.status);
       }
     } catch (err) {
       const e = err as { code: string };

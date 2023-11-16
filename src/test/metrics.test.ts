@@ -77,7 +77,7 @@ test('should sendMetrics and register when metricsInterval is a positive number'
     metrics.count('toggle-x', false);
     metrics.count('toggle-y', true);
     metrics.start();
-    let timeout = new Promise<void>((resolve) => setTimeout(() => {
+    const timeout = new Promise<void>((resolve) => setTimeout(() => {
       t.fail("Failed to successfully both send and register");
       resolve();
     }, 1000));

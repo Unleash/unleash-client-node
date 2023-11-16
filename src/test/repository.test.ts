@@ -249,29 +249,34 @@ test('request with customHeadersFunction should take precedence over customHeade
     repo.start();
   }));
 
-test('should handle 429 request error and emit warn event', (t) =>
-  new Promise((resolve) => {
-    const url = 'http://unleash-test-6-429.app';
-    nock(url).persist().get('/client/features').reply(429, 'blabla');
-    const repo = new Repository({
-      url,
-      appName,
-      instanceId,
-      refreshInterval: 10,
-      // @ts-expect-error
-      bootstrapProvider: new DefaultBootstrapProvider({}),
-      storageProvider: new InMemStorageProvider(),
-    });
+test.only('should handle 429 request error and emit warn event', async (t) => {
+  const url = 'http://unleash-test-6-429.app';
+  nock(url).persist().get('/client/features').reply(429, 'blabla');
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  const warning = new Promise<void>((resolve) => {
     repo.on('warn', (warn) => {
       t.truthy(warn);
-      // eslint-disable-next-line max-len
-      t.is(warn, `${url}/client/features responded TOO_MANY_CONNECTIONS (429). Waiting for 20ms before trying again.`);
-      t.is(repo.nextFetch(), 20);
+      t.is(warn, `${url}/client/features responded TOO_MANY_CONNECTIONS (429). Backing off`);
       t.is(repo.getFailures(), 1);
+      t.is(repo.nextFetch(), 20);
       resolve();
     });
-    repo.start();
-  }));
+  });
+  const timeout = new Promise<void>((resolve) => setTimeout(() => {
+    t.fail("Failed to get warning about connections");
+    resolve();
+  }, 5000));
+  await repo.start();
+  await Promise.race([warning, timeout]);
+});
 
 test('should handle 401 request error and emit error event', (t) =>
   new Promise((resolve) => {
@@ -332,7 +337,7 @@ test('should handle 500 request error and emit warn event', (t) =>
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
-      t.is(warn, `${url}/client/features responded 500. Waiting for 20ms before trying again.`);
+      t.is(warn, `${url}/client/features responded 500. Backing off`);
       resolve();
     });
     repo.start();
