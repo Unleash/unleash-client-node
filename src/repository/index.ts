@@ -9,7 +9,6 @@ import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
 import { Segment } from '../strategy/strategy';
-import { max, min } from '../math';
 
 const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -258,12 +257,12 @@ Message: ${err.message}`,
   }
 
   private backoff(): number {
-    this.failures = min(this.failures + 1, 10);
+    this.failures = Math.min(this.failures + 1, 10);
     return this.nextFetch();
   }
 
   private countSuccess(): number {
-    this.failures = max(this.failures - 1, 0);
+    this.failures = Math.max(this.failures - 1, 0);
     return this.nextFetch();
   }
 

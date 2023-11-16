@@ -6,7 +6,6 @@ import { HttpOptions } from './http-options';
 import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
-import { max, min } from './math';
 
 export interface MetricsOptions {
   appName: string;
@@ -198,7 +197,7 @@ export default class Metrics extends EventEmitter {
   }
 
   backoff(url: string, statusCode: number): void {
-    this.failures = min(10, this.failures + 1);
+    this.failures = Math.min(10, this.failures + 1);
     // eslint-disable-next-line max-len
     this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}. Backing off to ${this.getInterval()}`);
     this.startTimer();
@@ -253,7 +252,7 @@ export default class Metrics extends EventEmitter {
   }
 
   reduceBackoff(): void {
-    this.failures = max(0, this.failures - 1);
+    this.failures = Math.max(0, this.failures - 1);
     this.startTimer();
   }
 
