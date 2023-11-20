@@ -451,7 +451,7 @@ test('sendMetrics should stop on 401', async (t) => {
   await metrics.sendMetrics();
   // @ts-expect-error actually a private field, but we access it for tests
   t.true(metrics.disabled);
-  t.is(metrics.getFailures(), -1);
+  t.is(metrics.getFailures(), 0);
 });
 test('sendMetrics should stop on 403', async (t) => {
   const url = getUrl();
@@ -463,7 +463,7 @@ test('sendMetrics should stop on 403', async (t) => {
   await metrics.sendMetrics();
   // @ts-expect-error actually a private field, but we access it for tests
   t.true(metrics.disabled);
-  t.is(metrics.getFailures(), -1);
+  t.is(metrics.getFailures(), 0);
 });
 test('sendMetrics should backoff on 429', async (t) => {
   const url = getUrl();
