@@ -263,7 +263,7 @@ Message: ${err.message}`,
 
   // Emits correct error message based on what failed,
   // and returns 0 as the next fetch interval (stop polling)
-  private unrecoverableError(url: string, statusCode: number): number {
+  private configurationError(url: string, statusCode: number): number {
     this.failures += 1;
     if (statusCode === 404) {
       this.emit(
@@ -309,7 +309,7 @@ Message: ${err.message}`,
 
   private handleErrorCases(url: string, statusCode: number): number {
     if (statusCode === 401 || statusCode === 403 || statusCode === 404) {
-      return this.unrecoverableError(url, statusCode);
+      return this.configurationError(url, statusCode);
     } else if (
       statusCode === 429 ||
       statusCode === 500 ||

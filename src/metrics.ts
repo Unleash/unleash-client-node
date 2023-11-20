@@ -118,7 +118,7 @@ export default class Metrics extends EventEmitter {
   }
 
   getInterval(): number {
-    if(this.metricsInterval === 0 || this.failures === -1) {
+    if(this.metricsInterval === 0) {
       return 0;
     } else {
       return this.metricsInterval +
@@ -190,16 +190,16 @@ export default class Metrics extends EventEmitter {
     return true;
   }
 
-  unrecoverableError(url: string, statusCode: number) {
+  configurationError(url: string, statusCode: number) {
     this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}, stopping metrics`);
-    this.failures = -1;
+    this.metricsInterval = 0;
     this.stop();
   }
 
   backoff(url: string, statusCode: number): void {
     this.failures = Math.min(10, this.failures + 1);
     // eslint-disable-next-line max-len
-    this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}. Backing off to ${this.getInterval()}`);
+    this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}. Backing off to ${this.failures} times normal interval`);
     this.startTimer();
   }
 
@@ -229,7 +229,7 @@ export default class Metrics extends EventEmitter {
       });
       if (!res.ok) {
         if (res.status === 404 || res.status === 403 || res.status == 401) {
-          this.unrecoverableError(url, res.status);
+          this.configurationError(url, res.status);
         } else if (
           res.status === 429 ||
           res.status === 500 ||
