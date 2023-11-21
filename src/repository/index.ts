@@ -55,6 +55,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private headers?: CustomHeaders;
 
+  private failures: number = 0;
+
   private customHeadersFunction?: CustomHeadersFunction;
 
   private timeout?: number;
@@ -241,11 +243,92 @@ Message: ${err.message}`,
     return obj;
   }
 
+  getFailures(): number {
+    return this.failures;
+  }
+
+  nextFetch(): number {
+    return this.refreshInterval + this.failures * this.refreshInterval;
+  }
+
+  private backoff(): number {
+    this.failures = Math.min(this.failures + 1, 10);
+    return this.nextFetch();
+  }
+
+  private countSuccess(): number {
+    this.failures = Math.max(this.failures - 1, 0);
+    return this.nextFetch();
+  }
+
+  // Emits correct error message based on what failed,
+  // and returns 0 as the next fetch interval (stop polling)
+  private configurationError(url: string, statusCode: number): number {
+    this.failures += 1;
+    if (statusCode === 404) {
+      this.emit(
+        UnleashEvents.Error,
+        new Error(
+          // eslint-disable-next-line max-len
+          `${url} responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
+        ),
+      );
+    } else if (statusCode === 401 || statusCode === 403) {
+      this.emit(
+        UnleashEvents.Error,
+        new Error(
+          // eslint-disable-next-line max-len
+          `${url} responded ${statusCode} which means your API key is not allowed to connect. Stopping refresh of toggles`,
+        ),
+      );
+    }
+    return 0;
+  }
+
+  // We got a status code we know what to do with, so will log correct message
+  // and return the new interval.
+  private recoverableError(url: string, statusCode: number): number {
+    let nextFetch = this.backoff();
+    if (statusCode === 429) {
+      this.emit(
+        UnleashEvents.Warn,
+        // eslint-disable-next-line max-len
+        `${url} responded TOO_MANY_CONNECTIONS (429). Backing off`,
+      );
+    } else if (statusCode === 500 ||
+               statusCode === 502 ||
+               statusCode === 503 ||
+               statusCode === 504) {
+      this.emit(
+        UnleashEvents.Warn,
+        `${url} responded ${statusCode}. Backing off`,
+      );
+    }
+    return nextFetch;
+  }
+
+  private handleErrorCases(url: string, statusCode: number): number {
+    if (statusCode === 401 || statusCode === 403 || statusCode === 404) {
+      return this.configurationError(url, statusCode);
+    } else if (
+      statusCode === 429 ||
+      statusCode === 500 ||
+      statusCode === 502 ||
+      statusCode === 503 ||
+      statusCode === 504
+    ) {
+      return this.recoverableError(url, statusCode);
+    } else {
+      const error = new Error(`Response was not statusCode 2XX, but was ${statusCode}`);
+      this.emit(UnleashEvents.Error, error);
+      return this.refreshInterval;
+    }
+  }
+
   async fetch(): Promise<void> {
     if (this.stopped || !(this.refreshInterval > 0)) {
       return;
     }
-
     let nextFetch = this.refreshInterval;
     try {
       let mergedTags;
@@ -257,7 +340,6 @@ Message: ${err.message}`,
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()
         : this.headers;
-
       const res = await get({
         url,
         etag: this.etag,
@@ -268,14 +350,11 @@ Message: ${err.message}`,
         httpOptions: this.httpOptions,
         supportedSpecVersion: SUPPORTED_SPEC_VERSION,
       });
-
       if (res.status === 304) {
         // No new data
         this.emit(UnleashEvents.Unchanged);
-      } else if (!res.ok) {
-        const error = new Error(`Response was not statusCode 2XX, but was ${res.status}`);
-        this.emit(UnleashEvents.Error, error);
-      } else {
+      } else if (res.ok) {
+        nextFetch = this.countSuccess();
         try {
           const data: ClientFeaturesResponse = await res.json();
           if (res.headers.get('etag') !== null) {
@@ -287,6 +366,8 @@ Message: ${err.message}`,
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
         }
+      } else {
+        nextFetch = this.handleErrorCases(url, res.status);
       }
     } catch (err) {
       const e = err as { code: string };
