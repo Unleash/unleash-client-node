@@ -41,6 +41,16 @@ export const defaultVariant: Variant = {
   feature_enabled: false,
 };
 
+/**
+ * @deprecated Use `Variant` directly
+ */
+export interface VariantWithFeatureStatus extends Variant {}
+
+/**
+ * @deprecated Use `defaultVariant` directly
+ */
+export const getDefaultVariant = () => defaultVariant;
+
 function randomString() {
   return String(Math.round(Math.random() * 100000));
 }
