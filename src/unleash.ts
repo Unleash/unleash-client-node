@@ -7,7 +7,7 @@ import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
 import { FeatureInterface } from './feature';
-import { Variant, defaultVariant } from './variant';
+import { Variant, defaultVariant, VariantWithFeatureStatus } from './variant';
 import {
   FallbackFunction,
   createFallbackFunction,
@@ -276,16 +276,20 @@ export class Unleash extends EventEmitter {
     return result;
   }
 
-  getVariant(name: string, context: Context = {}, fallbackVariant?: Variant): Variant {
+  getVariant(
+    name: string,
+    context: Context = {},
+    fallbackVariant?: Variant,
+  ): VariantWithFeatureStatus {
     const enhancedContext = { ...this.staticContext, ...context };
-    let variant: Variant;
+    let variant: VariantWithFeatureStatus;
     if (this.ready) {
       variant = this.client.getVariant(name, enhancedContext, fallbackVariant);
     } else {
       variant =
         typeof fallbackVariant !== 'undefined'
-          ? { ...fallbackVariant, feature_enabled: false }
-          : defaultVariant;
+          ? { ...fallbackVariant, feature_enabled: false, featureEnabled: false }
+          : { ...defaultVariant, featureEnabled: defaultVariant.feature_enabled! };
       this.emit(
         UnleashEvents.Warn,
         `Unleash has not been initialized yet. isEnabled(${name}) defaulted to ${variant}`,

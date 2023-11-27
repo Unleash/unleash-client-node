@@ -2,7 +2,13 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy';
 import { FeatureInterface } from './feature';
 import { RepositoryInterface } from './repository';
-import { Variant, VariantDefinition, defaultVariant, selectVariant } from './variant';
+import {
+  Variant,
+  VariantDefinition,
+  VariantWithFeatureStatus,
+  defaultVariant,
+  selectVariant,
+} from './variant';
 import { Context } from './context';
 import { Constraint, Segment, StrategyResult } from './strategy/strategy';
 import { createImpressionEvent, UnleashEvents } from './events';
@@ -197,7 +203,7 @@ export default class UnleashClient extends EventEmitter {
     }
   }
 
-  getVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+  getVariant(name: string, context: Context, fallbackVariant?: Variant): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
     const variant = this.resolveVariant(feature, context, true, fallbackVariant);
     if (feature?.impressionData) {
@@ -218,7 +224,11 @@ export default class UnleashClient extends EventEmitter {
   // This function is intended to close an issue in the proxy where feature enabled
   // state gets checked twice when resolving a variant with random stickiness and
   // gradual rollout. This is not intended for general use, prefer getVariant instead
-  forceGetVariant(name: string, context: Context, fallbackVariant?: Variant): Variant {
+  forceGetVariant(
+    name: string,
+    context: Context,
+    fallbackVariant?: Variant,
+  ): VariantWithFeatureStatus {
     const feature = this.repository.getToggle(name);
     return this.resolveVariant(feature, context, true, fallbackVariant);
   }
@@ -228,11 +238,11 @@ export default class UnleashClient extends EventEmitter {
     context: Context,
     checkToggle: boolean,
     fallbackVariant?: Variant,
-  ): Variant {
+  ): VariantWithFeatureStatus {
     const fallback = fallbackVariant || defaultVariant;
 
     if (typeof feature === 'undefined') {
-      return { ...fallback, feature_enabled: false };
+      return { ...fallback, feature_enabled: false, featureEnabled: false };
     }
 
     let featureEnabled = !checkToggle;
@@ -241,21 +251,21 @@ export default class UnleashClient extends EventEmitter {
       featureEnabled = result.enabled;
 
       if (result.enabled && result.variant) {
-        return { ...result.variant, feature_enabled: featureEnabled };
+        return { ...result.variant, feature_enabled: featureEnabled, featureEnabled };
       }
 
       if (!result.enabled) {
-        return { ...fallback, feature_enabled: featureEnabled };
+        return { ...fallback, feature_enabled: featureEnabled, featureEnabled };
       }
     }
 
     if (!feature.variants || !Array.isArray(feature.variants) || feature.variants.length === 0) {
-      return { ...fallback, feature_enabled: featureEnabled };
+      return { ...fallback, feature_enabled: featureEnabled, featureEnabled };
     }
 
     const variant: VariantDefinition | null = selectVariant(feature, context);
     if (variant === null) {
-      return { ...fallback, feature_enabled: featureEnabled };
+      return { ...fallback, feature_enabled: featureEnabled, featureEnabled };
     }
 
     return {
@@ -263,6 +273,7 @@ export default class UnleashClient extends EventEmitter {
       payload: variant.payload,
       enabled: true,
       feature_enabled: featureEnabled,
+      featureEnabled,
     };
   }
 }

@@ -75,7 +75,10 @@ specs.forEach((testName) => {
           instance.on('error', reject);
           instance.on('synchronized', () => {
             const result = instance.getVariant(testCase.toggleName, testCase.context);
-            t.deepEqual(result, testCase.expectedResult);
+            t.deepEqual(result, { 
+              ...testCase.expectedResult, 
+              featureEnabled: testCase.expectedResult.feature_enabled 
+            });
 
             instance.destroy();
             resolve();
