@@ -52,74 +52,72 @@ test('should not start fetch/register when metricsInterval is 0', (t) => {
 });
 
 test('should sendMetrics and register when metricsInterval is a positive number', async (t) => {
-  const url = getUrl();
-  const regEP = nockRegister(url);
-  const metricsEP = nockMetrics(url);
-  t.plan(2);
-  // @ts-expect-error
-  const metrics = new Metrics({
-    url,
-    metricsInterval: 50,
-  });
-
-  const validator = new Promise<void>((resolve) => {
-    metrics.on('registered', () => {
-      t.true(regEP.isDone());
+    const url = getUrl();
+    const regEP = nockRegister(url);
+    const metricsEP = nockMetrics(url);
+    t.plan(2);
+    // @ts-expect-error
+    const metrics = new Metrics({
+      url,
+      metricsInterval: 50,
     });
-    metrics.on('sent', () => {
-      t.true(metricsEP.isDone());
-      metrics.stop();
-      resolve();
-    });
-  });
 
-  metrics.count('toggle-x', true);
-  metrics.count('toggle-x', false);
-  metrics.count('toggle-y', true);
-  metrics.start();
-  const timeout = new Promise<void>((resolve) =>
-    setTimeout(() => {
-      t.fail('Failed to successfully both send and register');
+    const validator = new Promise<void>((resolve) => {
+      metrics.on('registered', () => {
+        t.true(regEP.isDone());
+      });
+      metrics.on('sent', () => {
+        t.true(metricsEP.isDone());
+        metrics.stop();
+        resolve()
+      });
+    });
+
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+    metrics.start();
+    const timeout = new Promise<void>((resolve) => setTimeout(() => {
+      t.fail("Failed to successfully both send and register");
       resolve();
-    }, 1000),
-  );
-  await Promise.race([validator, timeout]);
-});
+    }, 1000));
+    await Promise.race([validator, timeout]);
+  });
 
 test('should sendMetrics', async (t) => {
-  const url = getUrl();
-  t.plan(6);
-  const metricsEP = nock(url)
-    .post(metricsUrl, (payload) => {
-      t.truthy(payload.bucket);
-      t.truthy(payload.bucket.start);
-      t.truthy(payload.bucket.stop);
-      t.deepEqual(payload.bucket.toggles, {
-        'toggle-x': { yes: 1, no: 1, variants: { 'variant-a': 2 } },
-        'toggle-y': { yes: 1, no: 0, variants: {} },
-      });
-      return true;
-    })
-    .reply(200, '');
-  const regEP = nockRegister(url);
+    const url = getUrl();
+    t.plan(6);
+    const metricsEP = nock(url)
+      .post(metricsUrl, (payload) => {
+        t.truthy(payload.bucket);
+        t.truthy(payload.bucket.start);
+        t.truthy(payload.bucket.stop);
+        t.deepEqual(payload.bucket.toggles, {
+          'toggle-x': { yes: 1, no: 1, variants: { 'variant-a': 2 } },
+          'toggle-y': { yes: 1, no: 0, variants: {} },
+        });
+        return true;
+      })
+      .reply(200, '');
+    const regEP = nockRegister(url);
 
-  // @ts-expect-error
-  const metrics = new Metrics({
-    url,
-    metricsInterval: 50,
-  });
+    // @ts-expect-error
+    const metrics = new Metrics({
+      url,
+      metricsInterval: 50,
+    });
 
-  metrics.count('toggle-x', true);
-  metrics.count('toggle-x', false);
-  metrics.count('toggle-y', true);
-  metrics.countVariant('toggle-x', 'variant-a');
-  metrics.countVariant('toggle-x', 'variant-a');
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+    metrics.countVariant('toggle-x', 'variant-a');
+    metrics.countVariant('toggle-x', 'variant-a');
 
-  await metrics.registerInstance();
-  t.true(regEP.isDone());
-  await metrics.sendMetrics();
-  t.true(metricsEP.isDone());
-});
+    await metrics.registerInstance();
+    t.true(regEP.isDone());
+    await metrics.sendMetrics();
+    t.true(metricsEP.isDone());
+ });
 
 test('should send custom headers', (t) =>
   new Promise((resolve) => {
@@ -152,56 +150,56 @@ test('should send custom headers', (t) =>
   }));
 
 test('should send content-type header', async (t) => {
-  const url = getUrl();
-  t.plan(2);
-  const metricsEP = nockMetrics(url).matchHeader('content-type', 'application/json');
-  const regEP = nockRegister(url).matchHeader('content-type', 'application/json');
+    const url = getUrl();
+    t.plan(2);
+    const metricsEP = nockMetrics(url).matchHeader('content-type', 'application/json');
+    const regEP = nockRegister(url).matchHeader('content-type', 'application/json');
 
-  // @ts-expect-error
-  const metrics = new Metrics({
-    url,
-    metricsInterval: 50,
+    // @ts-expect-error
+    const metrics = new Metrics({
+      url,
+      metricsInterval: 50,
+    });
+
+    metrics.count('toggle-x', true);
+    await metrics.registerInstance();
+    await metrics.sendMetrics();
+      t.true(regEP.isDone());
+      t.true(metricsEP.isDone());
+      metrics.stop();
   });
-
-  metrics.count('toggle-x', true);
-  await metrics.registerInstance();
-  await metrics.sendMetrics();
-  t.true(regEP.isDone());
-  t.true(metricsEP.isDone());
-  metrics.stop();
-});
 
 test('request with customHeadersFunction should take precedence over customHeaders', async (t) => {
-  const url = getUrl();
-  t.plan(2);
-  const customHeadersKey = `value-${Math.random()}`;
-  const randomKey = `value-${Math.random()}`;
-  const metricsEP = nockMetrics(url)
-    .matchHeader('randomKey', (value) => value === undefined)
-    .matchHeader('customHeadersKey', customHeadersKey);
+    const url = getUrl();
+    t.plan(2);
+    const customHeadersKey = `value-${Math.random()}`;
+    const randomKey = `value-${Math.random()}`;
+    const metricsEP = nockMetrics(url)
+      .matchHeader('randomKey', (value) => value === undefined)
+      .matchHeader('customHeadersKey', customHeadersKey);
 
-  const regEP = nockRegister(url)
-    .matchHeader('randomKey', (value) => value === undefined)
-    .matchHeader('customHeadersKey', customHeadersKey);
+    const regEP = nockRegister(url)
+      .matchHeader('randomKey', (value) => value === undefined)
+      .matchHeader('customHeadersKey', customHeadersKey);
 
-  // @ts-expect-error
-  const metrics = new Metrics({
-    url,
-    metricsInterval: 0,
-    headers: {
-      randomKey,
-    },
-    customHeadersFunction: () => Promise.resolve({ customHeadersKey }),
+    // @ts-expect-error
+    const metrics = new Metrics({
+      url,
+      metricsInterval: 0,
+      headers: {
+        randomKey,
+      },
+      customHeadersFunction: () => Promise.resolve({ customHeadersKey }),
+    });
+
+    metrics.count('toggle-x', true);
+    metrics.count('toggle-x', false);
+    metrics.count('toggle-y', true);
+    await metrics.registerInstance();
+    await metrics.sendMetrics();
+    t.true(metricsEP.isDone());
+    t.true(regEP.isDone());
   });
-
-  metrics.count('toggle-x', true);
-  metrics.count('toggle-x', false);
-  metrics.count('toggle-y', true);
-  await metrics.registerInstance();
-  await metrics.sendMetrics();
-  t.true(metricsEP.isDone());
-  t.true(regEP.isDone());
-});
 
 test.skip('should respect timeout', (t) =>
   new Promise((resolve, reject) => {
@@ -298,16 +296,16 @@ test('sendMetrics should emit warn on non 200 statusCode', (t) =>
   }));
 
 test('sendMetrics should not send empty buckets', async (t) => {
-  const url = getUrl();
-  const metEP = nockMetrics(url, 200);
+    const url = getUrl();
+    const metEP = nockMetrics(url, 200);
 
-  // @ts-expect-error
-  const metrics = new Metrics({
-    url,
+    // @ts-expect-error
+    const metrics = new Metrics({
+      url,
+    });
+    await metrics.sendMetrics();
+    t.false(metEP.isDone());
   });
-  await metrics.sendMetrics();
-  t.false(metEP.isDone());
-});
 
 test('count should increment yes and no counters', (t) => {
   const url = getUrl();
@@ -448,11 +446,7 @@ test('sendMetrics should stop on 401', async (t) => {
   nockMetrics(url, 401);
   const metrics = new Metrics({
     appName: '401-tester',
-    instanceId: '401-instance',
-    metricsInterval: 0,
-    strategies: [],
-    url,
-  });
+    instanceId: '401-instance', metricsInterval: 0, strategies: [], url });
   metrics.count('x-y-z', true);
   await metrics.sendMetrics();
   // @ts-expect-error actually a private field, but we access it for tests
@@ -464,11 +458,7 @@ test('sendMetrics should stop on 403', async (t) => {
   nockMetrics(url, 403);
   const metrics = new Metrics({
     appName: '401-tester',
-    instanceId: '401-instance',
-    metricsInterval: 0,
-    strategies: [],
-    url,
-  });
+    instanceId: '401-instance', metricsInterval: 0, strategies: [], url });
   metrics.count('x-y-z', true);
   await metrics.sendMetrics();
   // @ts-expect-error actually a private field, but we access it for tests
@@ -477,13 +467,10 @@ test('sendMetrics should stop on 403', async (t) => {
 });
 test('sendMetrics should backoff on 429', async (t) => {
   const url = getUrl();
-  nockMetrics(url, 429).persist();
+  nockMetrics(url,429).persist();
   const metrics = new Metrics({
     appName: '429-tester',
-    instanceId: '429-instance',
-    metricsInterval: 10,
-    strategies: [],
-    url,
+    instanceId: '429-instance', metricsInterval: 10, strategies: [], url
   });
   metrics.count('x-y-z', true);
   await metrics.sendMetrics();
@@ -500,13 +487,10 @@ test('sendMetrics should backoff on 429', async (t) => {
 
 test('sendMetrics should backoff on 500', async (t) => {
   const url = getUrl();
-  nockMetrics(url, 500).persist();
+  nockMetrics(url,500).persist();
   const metrics = new Metrics({
     appName: '500-tester',
-    instanceId: '500-instance',
-    metricsInterval: 10,
-    strategies: [],
-    url,
+    instanceId: '500-instance', metricsInterval: 10, strategies: [], url
   });
   metrics.count('x-y-z', true);
   await metrics.sendMetrics();
@@ -519,6 +503,7 @@ test('sendMetrics should backoff on 500', async (t) => {
   t.false(metrics.disabled);
   t.is(metrics.getFailures(), 2);
   t.is(metrics.getInterval(), 30);
+
 });
 
 test('sendMetrics should backoff on 429 and gradually reduce interval', async (t) => {
@@ -527,10 +512,7 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
   const metricsInterval = 60_000;
   const metrics = new Metrics({
     appName: '429-tester',
-    instanceId: '429-instance',
-    metricsInterval,
-    strategies: [],
-    url,
+    instanceId: '429-instance', metricsInterval, strategies: [], url
   });
   metrics.count('x-y-z', true);
   await metrics.sendMetrics();
@@ -555,4 +537,6 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
   t.false(metrics.disabled);
   t.is(metrics.getFailures(), 0);
   t.is(metrics.getInterval(), metricsInterval);
+
+
 });

@@ -124,7 +124,9 @@ test('should be enabled when cosutomerId is in constraint', (t) => {
 test('should be enabled when email startsWith', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'email', operator: 'STR_STARTS_WITH', values: ['example'] }];
+  const constraints = [
+    { contextName: 'email', operator: 'STR_STARTS_WITH', values: ['example'] },
+  ];
   const context = {
     environment: 'dev',
     properties: { email: 'example@getunleash.ai' },
@@ -164,14 +166,12 @@ test('should be enabled when email endsWith', (t) => {
 test('should be enabled when email endsWith, ignoring case', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [
-    {
-      contextName: 'email',
-      operator: 'STR_ENDS_WITH',
-      values: ['@getunleash.ai'],
-      caseInsensitive: true,
-    },
-  ];
+  const constraints = [{
+    contextName: 'email',
+    operator: 'STR_ENDS_WITH',
+    values: ['@getunleash.ai'],
+    caseInsensitive: true,
+  }];
   const context = {
     environment: 'dev',
     properties: { email: 'example@GETunleash.ai' },
@@ -203,8 +203,8 @@ test('should not be enabled when companyId endsWith, field of incorrect type', (
   const context = {
     environment: 'dev',
     properties: {
-      companyId: 123,
-    },
+      companyId: 123
+    }
   };
   // @ts-expect-error
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
@@ -218,14 +218,14 @@ test('should be enabled when companyId endsWith, field of incorrect type, invert
       contextName: 'companyId',
       operator: 'STR_ENDS_WITH',
       values: ['@getunleash.ai'],
-      inverted: true,
+      inverted: true
     },
   ];
   const context = {
     environment: 'dev',
     properties: {
-      companyId: 123,
-    },
+      companyId: 123
+    }
   };
   // @ts-expect-error
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
@@ -249,11 +249,8 @@ test('should be enabled when email endsWith (multi)', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    {
-      contextName: 'email',
-      operator: 'STR_ENDS_WITH',
-      values: ['@getunleash.ai', '@somerandom-email.com'],
-    },
+    { contextName: 'email', operator: 'STR_ENDS_WITH',
+    values: ['@getunleash.ai', '@somerandom-email.com'] },
   ];
   const context = {
     environment: 'dev',
@@ -280,7 +277,9 @@ test('should not enabled when email does not endsWith', (t) => {
 test('should be enabled when email contains', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'email', operator: 'STR_CONTAINS', values: ['some'] }];
+  const constraints = [
+    { contextName: 'email', operator: 'STR_CONTAINS', values: ['some'] },
+  ];
   const context = {
     environment: 'dev',
     properties: { email: 'example-some@getunleash.ai' },
@@ -306,7 +305,9 @@ test('should be enabled when email does not contain (inverted)', (t) => {
 test('should be enabled when someVal "equals"', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_EQ', value: 42 }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_EQ', value: 42 },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: '42' },
@@ -318,7 +319,9 @@ test('should be enabled when someVal "equals"', (t) => {
 test('should be enabled when someVal not "equals" (inverted)', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_EQ', value: 42, inverted: true }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_EQ', value: 42, inverted: true },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: '44' },
@@ -330,7 +333,9 @@ test('should be enabled when someVal not "equals" (inverted)', (t) => {
 test('should be enabled when someVal "equals" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_EQ', value: 42 }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_EQ', value: 42 },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: 42 },
@@ -342,7 +347,9 @@ test('should be enabled when someVal "equals" number', (t) => {
 test('should be enabled when someVal "greater than" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_GT', value: 42 }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_GT', value: 42 },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: '44' },
@@ -354,7 +361,9 @@ test('should be enabled when someVal "greater than" number', (t) => {
 test('should be disable when someVal is not "greater than" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_GT', value: 42 }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_GT', value: 42 },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: '42' },
@@ -366,7 +375,9 @@ test('should be disable when someVal is not "greater than" number', (t) => {
 test('should be enabled when someVal "lower than" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_LT', value: 42 }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_LT', value: 42 },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: '0' },
@@ -378,7 +389,9 @@ test('should be enabled when someVal "lower than" number', (t) => {
 test('should be enabled when someVal "lower than or eq" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_LTE', value: '42' }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_LTE', value: '42' },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: 42 },
@@ -390,7 +403,9 @@ test('should be enabled when someVal "lower than or eq" number', (t) => {
 test('should be enabled when someVal "greater than or eq" number', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'someVal', operator: 'NUM_GTE', value: '42' }];
+  const constraints = [
+    { contextName: 'someVal', operator: 'NUM_GTE', value: '42' },
+  ];
   const context = {
     environment: 'dev',
     properties: { someVal: 42 },
@@ -399,15 +414,16 @@ test('should be enabled when someVal "greater than or eq" number', (t) => {
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
 
+
 test('should be enabled when date is after', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', operator: 'DATE_AFTER', value: '2022-01-29T13:00:00.000Z' },
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: "2022-01-29T13:00:00.000Z" },
   ];
   const context = {
     environment: 'dev',
-    currentTime: new Date('2022-01-29T14:00:00.000Z'),
+    currentTime: new Date("2022-01-29T14:00:00.000Z"),
   };
   // @ts-expect-error
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
@@ -417,11 +433,11 @@ test('should be disabled when date is not after', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', operator: 'DATE_AFTER', value: '2022-01-29T13:00:00.000Z' },
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: "2022-01-29T13:00:00.000Z" },
   ];
   const context = {
     environment: 'dev',
-    currentTime: new Date('2022-01-27T14:00:00.000Z'),
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
   };
   // @ts-expect-error
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
@@ -431,7 +447,7 @@ test('should be enabled when date is after implicit currentTime', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date('2022-01-28T14:00:00.000Z') },
+    { contextName: 'someVal', operator: 'DATE_AFTER', value: new Date("2022-01-28T14:00:00.000Z")},
   ];
   const context = {
     environment: 'dev',
@@ -444,15 +460,12 @@ test('should be enabled when date is before', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    {
-      contextName: 'someVal',
-      operator: 'DATE_BEFORE',
-      value: new Date('2022-01-29T13:00:00.000Z'),
-    },
+    { contextName: 'someVal',
+    operator: 'DATE_BEFORE', value: new Date("2022-01-29T13:00:00.000Z") },
   ];
   const context = {
     environment: 'dev',
-    currentTime: new Date('2022-01-27T14:00:00.000Z'),
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
   };
   // @ts-expect-error
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
@@ -462,24 +475,25 @@ test('should be disabled when date is not before', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [
-    {
-      contextName: 'someVal',
-      operator: 'DATE_BEFORE',
-      value: new Date('2022-01-25T13:00:00.000Z'),
-    },
+    { contextName: 'someVal',
+    operator: 'DATE_BEFORE', value: new Date("2022-01-25T13:00:00.000Z") },
   ];
   const context = {
     environment: 'dev',
-    currentTime: new Date('2022-01-27T14:00:00.000Z'),
+    currentTime: new Date("2022-01-27T14:00:00.000Z"),
   };
   // @ts-expect-error
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 });
 
+
 test('should be enabled when semver eq', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'version', operator: 'SEMVER_EQ', value: '1.2.2' }];
+  const constraints = [
+    { contextName: 'version',
+    operator: 'SEMVER_EQ', value: '1.2.2' },
+  ];
   const context = {
     environment: 'dev',
     properties: { version: '1.2.2' },
@@ -491,7 +505,10 @@ test('should be enabled when semver eq', (t) => {
 test('should be enabled when semver lt', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'version', operator: 'SEMVER_LT', value: '1.2.2' }];
+  const constraints = [
+    { contextName: 'version',
+    operator: 'SEMVER_LT', value: '1.2.2' },
+  ];
   const context = {
     environment: 'dev',
     properties: { version: '1.2.0' },
@@ -503,7 +520,10 @@ test('should be enabled when semver lt', (t) => {
 test('should be enabled when semver gt', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
-  const constraints = [{ contextName: 'version', operator: 'SEMVER_GT', value: '1.2.2' }];
+  const constraints = [
+    { contextName: 'version',
+    operator: 'SEMVER_GT', value: '1.2.2' },
+  ];
   const context = {
     environment: 'dev',
     properties: { version: '1.2.5' },
@@ -574,13 +594,13 @@ test('should return false when passed an invalid semver', (t) => {
   };
   // @ts-expect-error
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
-});
+})
 
 test('should NOT be enabled for unknown field', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [{ contextName: 'someField', operator: 'IN', values: ['s1'] }];
-  const context = {};
+  const context = { };
   // @ts-expect-error
   t.false(strategy.isEnabledWithConstraints(params, context, constraints));
 });
@@ -598,7 +618,7 @@ test('should be enabled for missing field when NOT_IN', (t) => {
   const strategy = new Strategy('test', true);
   const params = {};
   const constraints = [{ contextName: 'someField', operator: 'NOT_IN', values: ['s1'] }];
-  const context = {};
+  const context = { };
   // @ts-expect-error
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });

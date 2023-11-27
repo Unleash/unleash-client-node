@@ -725,7 +725,8 @@ test('should use provided bootstrap data', (t) =>
       },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('bootstrappedToggle') === true);
@@ -932,10 +933,12 @@ test('should allow custom repository', (t) =>
         getToggle: () => ({ name: 'test', enabled: true, strategies: [{ name: 'default' }] }),
         getToggles: () => [],
         getSegment: () => undefined,
-        stop: () => {},
+        stop: () => {
+        },
         // @ts-expect-error
         start: () => {
-          setInterval(() => {}, 1000);
+          setInterval(() => {
+          }, 1000);
         },
         // @ts-expect-error
         on: (evt, fun) => {
@@ -946,7 +949,8 @@ test('should allow custom repository', (t) =>
       },
     });
 
-    instance.on('error', () => {});
+    instance.on('error', () => {
+    });
 
     instance.on('ready', () => {
       t.true(instance.isEnabled('test') === true);
@@ -954,6 +958,7 @@ test('should allow custom repository', (t) =>
       resolve();
     });
   }));
+
 
 const metricsCapturingUnleash = (input: any) => {
   const url = getUrl();
@@ -1012,7 +1017,7 @@ test('should report disabled variant metrics', async (t) => {
     'toggle-without-variants': {
       yes: 1,
       no: 0,
-      variants: { disabled: 1 },
+      variants: { 'disabled': 1 },
     },
   });
 });
@@ -1032,7 +1037,7 @@ test('should report disabled toggle metrics', async (t) => {
     'disabled-toggle': {
       yes: 0,
       no: 1,
-      variants: { disabled: 1 },
+      variants: { 'disabled': 1 },
     },
   });
 });
@@ -1041,7 +1046,7 @@ test('should not report dependent feature metrics', async (t) => {
   const { instance, capturedData } = metricsCapturingUnleash({
     name: 'toggle-with-dependency',
     enabled: true,
-    dependencies: [{ feature: 'dependency' }],
+    dependencies: [{feature: 'dependency'}],
     strategies: [{ name: 'default', constraints: [] }],
     variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
   });
@@ -1055,12 +1060,15 @@ test('should not report dependent feature metrics', async (t) => {
     'toggle-with-dependency': {
       yes: 0,
       no: 2, // one enabled and one variant check
-      variants: { disabled: 1 },
+      variants: { 'disabled': 1 },
     },
-    dependency: {
+    'dependency': {
       yes: 0,
       no: 1, // direct call, no transitive calls
-      variants: {},
-    },
+      variants: {}
+    }
   });
 });
+
+
+

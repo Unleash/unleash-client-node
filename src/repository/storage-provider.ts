@@ -6,3 +6,4 @@ export interface StorageProvider<T> {
 export interface StorageOptions {
   backupPath: string;
 }
+

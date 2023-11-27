@@ -1,6 +1,9 @@
 import * as murmurHash3 from 'murmurhash3js';
 
-function normalizedValue(id: string, groupId: string, normalizer: number, seed = 0): number {
+function normalizedValue(id: string,
+                         groupId: string,
+                         normalizer: number,
+                         seed = 0): number {
   const hash = murmurHash3.x86.hash32(`${groupId}:${id}`, seed);
   return (hash % normalizer) + 1;
 }
@@ -13,6 +16,8 @@ export function normalizedStrategyValue(id: string, groupId: string): number {
 
 const VARIANT_SEED = 86028157;
 
-export function normalizedVariantValue(id: string, groupId: string, normalizer: number): number {
+export function normalizedVariantValue(id: string,
+                                       groupId: string,
+                                       normalizer: number): number {
   return normalizedValue(id, groupId, normalizer, VARIANT_SEED);
 }

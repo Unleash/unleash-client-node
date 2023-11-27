@@ -270,12 +270,10 @@ test('should handle 429 request error and emit warn event', async (t) => {
       resolve();
     });
   });
-  const timeout = new Promise<void>((resolve) =>
-    setTimeout(() => {
-      t.fail('Failed to get warning about connections');
-      resolve();
-    }, 5000),
-  );
+  const timeout = new Promise<void>((resolve) => setTimeout(() => {
+    t.fail("Failed to get warning about connections");
+    resolve();
+  }, 5000));
   await repo.start();
   await Promise.race([warning, timeout]);
 });
@@ -296,10 +294,7 @@ test('should handle 401 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(
-        err.message,
-        `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`,
-      );
+      t.is(err.message, `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`);
       resolve();
     });
     repo.start();
@@ -321,10 +316,7 @@ test('should handle 403 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(
-        err.message,
-        `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`,
-      );
+      t.is(err.message, `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`);
       resolve();
     });
     repo.start();
@@ -428,14 +420,12 @@ test('should handle 404 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(
-        err.message,
-        `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
-      );
+      t.is(err.message, `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`)
       resolve();
     });
     repo.start();
   }));
+
 
 test('should handle 304 as silent ok', (t) => {
   t.plan(0);
@@ -957,7 +947,7 @@ test('bootstrap should not override load backup-file', async (t) => {
 // eslint-disable-next-line max-len
 test.skip('Failing two times should increase interval to 3 times initial interval (initial interval + 2 * interval)', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
-  nock(url).persist().get('/client/features').reply(429);
+  nock(url).persist().get("/client/features").reply(429);
   const repo = new Repository({
     url,
     appName,
@@ -980,7 +970,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
 // eslint-disable-next-line max-len
 test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
-  nock(url).persist().get('/client/features').reply(429);
+  nock(url).persist().get("/client/features").reply(429)
   const repo = new Repository({
     url,
     appName,
@@ -997,26 +987,23 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
   t.is(2, repo.getFailures());
   t.is(30, repo.nextFetch());
   nock.cleanAll();
-  nock(url)
-    .persist()
-    .get('/client/features')
-    .reply(200, {
-      version: 2,
-      features: [
-        {
-          name: 'feature-backup',
-          enabled: true,
-          strategies: [
-            {
-              name: 'default',
-            },
-            {
-              name: 'backup',
-            },
-          ],
-        },
-      ],
-    });
+  nock(url).persist().get("/client/features").reply(200, {
+    version: 2,
+    features: [
+      {
+        name: 'feature-backup',
+        enabled: true,
+        strategies: [
+          {
+            name: 'default',
+          },
+          {
+            name: 'backup',
+          },
+        ],
+      },
+    ],
+  });
 
   await repo.fetch();
   t.is(1, repo.getFailures());

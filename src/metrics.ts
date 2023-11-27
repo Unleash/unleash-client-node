@@ -118,20 +118,26 @@ export default class Metrics extends EventEmitter {
   }
 
   getInterval(): number {
-    if (this.metricsInterval === 0) {
+    if(this.metricsInterval === 0) {
       return 0;
     } else {
-      return this.metricsInterval + this.failures * this.metricsInterval + this.getAppliedJitter();
+      return this.metricsInterval +
+        (this.failures * this.metricsInterval) +
+        this.getAppliedJitter();
     }
+
   }
 
   private startTimer(): void {
     if (this.disabled || this.getInterval() === 0) {
       return;
     }
-    this.timer = setTimeout(() => {
-      this.sendMetrics();
-    }, this.getInterval());
+    this.timer = setTimeout(
+      () => {
+        this.sendMetrics();
+      },
+      this.getInterval(),
+    );
 
     if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
       this.timer.unref();
@@ -193,10 +199,7 @@ export default class Metrics extends EventEmitter {
   backoff(url: string, statusCode: number): void {
     this.failures = Math.min(10, this.failures + 1);
     // eslint-disable-next-line max-len
-    this.emit(
-      UnleashEvents.Warn,
-      `${url} returning ${statusCode}. Backing off to ${this.failures} times normal interval`,
-    );
+    this.emit(UnleashEvents.Warn, `${url} returning ${statusCode}. Backing off to ${this.failures} times normal interval`);
     this.startTimer();
   }
 
