@@ -7,7 +7,7 @@ import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
 import { FeatureInterface } from './feature';
-import { Variant, defaultVariant, getDefaultVariant, VariantWithFeatureStatus } from './variant';
+import { Variant, defaultVariant, VariantWithFeatureStatus } from './variant';
 import {
   FallbackFunction,
   createFallbackFunction,
