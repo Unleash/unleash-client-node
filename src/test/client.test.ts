@@ -252,6 +252,7 @@ test('should always return defaultVariant if missing variant', (t) => {
     enabled: false,
     name: 'disabled',
     feature_enabled: true,
+    featureEnabled: true,
   };
   t.deepEqual(result, defaultVariant);
 
@@ -263,6 +264,7 @@ test('should always return defaultVariant if missing variant', (t) => {
       value: '',
     },
     feature_enabled: true,
+    featureEnabled: true,
   };
   const result2 = client.getVariant('feature-but-no-variant', {}, fallback);
 
@@ -394,6 +396,7 @@ test('should favor strategy variant over feature variant', (t) => {
     payload: { type: 'string', value: 'strategyVariantValue' },
     enabled: true,
     feature_enabled: true,
+    featureEnabled: true,
   });
 });
 
@@ -430,5 +433,6 @@ test('should return disabled variant for non-matching strategy variant', (t) => 
     name: 'disabled',
     enabled: false,
     feature_enabled: false,
+    featureEnabled: false,
   });
 });
