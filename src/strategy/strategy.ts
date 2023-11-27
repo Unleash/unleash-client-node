@@ -167,7 +167,7 @@ operators.set(Operator.SEMVER_EQ, SemverOperator);
 operators.set(Operator.SEMVER_GT, SemverOperator);
 operators.set(Operator.SEMVER_LT, SemverOperator);
 
-export type StrategyResult = { enabled: true, variant?: Variant } | { enabled: false };
+export type StrategyResult = { enabled: true; variant?: Variant } | { enabled: false };
 
 export class Strategy {
   public name: string;
@@ -219,24 +219,26 @@ export class Strategy {
     return this.checkConstraints(context, constraints) && this.isEnabled(parameters, context);
   }
 
-  getResult(parameters: any,
-            context: Context,
-            constraints: IterableIterator<Constraint | undefined>,
-            variants?: VariantDefinition[]): StrategyResult {
-    const enabled =
-      this.isEnabledWithConstraints(parameters, context, constraints);
+  getResult(
+    parameters: any,
+    context: Context,
+    constraints: IterableIterator<Constraint | undefined>,
+    variants?: VariantDefinition[],
+  ): StrategyResult {
+    const enabled = this.isEnabledWithConstraints(parameters, context, constraints);
 
     if (enabled && Array.isArray(variants) && variants.length > 0) {
-      const variantDefinition =
-        selectVariantDefinition(parameters.groupId, variants, context);
-      return variantDefinition ? {
-        enabled: true,
-        variant: {
-          name: variantDefinition.name,
-          enabled: true,
-          payload: variantDefinition.payload,
-        },
-      } : { enabled: true };
+      const variantDefinition = selectVariantDefinition(parameters.groupId, variants, context);
+      return variantDefinition
+        ? {
+            enabled: true,
+            variant: {
+              name: variantDefinition.name,
+              enabled: true,
+              payload: variantDefinition.payload,
+            },
+          }
+        : { enabled: true };
     }
 
     if (enabled) {

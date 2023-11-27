@@ -32,10 +32,16 @@ test('invalid strategy should throw', (t) => {
   t.throws(() => new Client(repo, [{}]));
   t.throws(() => new Client(repo, [{ name: 'invalid' }]));
   t.throws(() => new Client(repo, [{ isEnabled: 'invalid' }]));
-  t.throws(() => new Client(repo, [{
-    name: 'valid', isEnabled: () => {
-    },
-  }, null]));
+  t.throws(
+    () =>
+      new Client(repo, [
+        {
+          name: 'valid',
+          isEnabled: () => {},
+        },
+        null,
+      ]),
+  );
 });
 
 test('should use provided repository', (t) => {
@@ -111,10 +117,7 @@ test('should use a set of custom strategies', (t) => {
 test('should return false a set of custom-false strategies', (t) => {
   const repo = {
     getToggle() {
-      return buildToggle('feature', true, [
-        { name: 'custom-false' },
-        { name: 'custom-false' },
-      ]);
+      return buildToggle('feature', true, [{ name: 'custom-false' }, { name: 'custom-false' }]);
     },
   };
 
@@ -248,7 +251,7 @@ test('should always return defaultVariant if missing variant', (t) => {
   const defaultVariant = {
     enabled: false,
     name: 'disabled',
-    feature_enabled: true
+    feature_enabled: true,
   };
   t.deepEqual(result, defaultVariant);
 
@@ -259,7 +262,7 @@ test('should always return defaultVariant if missing variant', (t) => {
       type: 'string',
       value: '',
     },
-    feature_enabled: true
+    feature_enabled: true,
   };
   const result2 = client.getVariant('feature-but-no-variant', {}, fallback);
 
@@ -299,7 +302,6 @@ test('should trigger events on isEnabled if impressionData is true', (t) => {
   });
   client.isEnabled('feature-x', {}, () => false);
   t.true(called);
-
 });
 
 test('should trigger events on unsatisfied dependency', (t) => {
@@ -307,25 +309,27 @@ test('should trigger events on unsatisfied dependency', (t) => {
   let recordedWarnings = [];
   const repo = {
     getToggle(name: string) {
-      if(name === 'feature-x') {
+      if (name === 'feature-x') {
         return {
           name: 'feature-x',
-          dependencies: [{feature: 'not-feature-x'}],
-          strategies:  [{ name: 'default' }],
+          dependencies: [{ feature: 'not-feature-x' }],
+          strategies: [{ name: 'default' }],
           variants: [],
           impressionData: true,
-        }
+        };
       } else {
         return undefined;
       }
     },
   };
   const client = new Client(repo, []);
-  client.on(UnleashEvents.Impression, () => {
-    impressionCount++;
-  }).on(UnleashEvents.Warn, (warning) => {
-    recordedWarnings.push(warning);
-  });
+  client
+    .on(UnleashEvents.Impression, () => {
+      impressionCount++;
+    })
+    .on(UnleashEvents.Warn, (warning) => {
+      recordedWarnings.push(warning);
+    });
   client.isEnabled('feature-x', {}, () => false);
   client.isEnabled('feature-x', {}, () => false);
   t.deepEqual(impressionCount, 2);
@@ -350,27 +354,35 @@ test('should trigger events on getVariant if impressionData is true', (t) => {
 test('should favor strategy variant over feature variant', (t) => {
   const repo = {
     getToggle() {
-      return buildToggle('feature-x', true, [
-        {
-          name: 'default',
-          constraints: [],
-          variants: [{
-            name: 'strategyVariantName',
-            payload: { type: 'string', value: 'strategyVariantValue' },
-            weight: 1000
-          }],
-          parameters: {},
-        },
-      ], [
-        {
-          name: 'willBeIgnored',
-          weight: 100,
-          payload: {
-            type: 'string',
-            value: 'willBeIgnored',
+      return buildToggle(
+        'feature-x',
+        true,
+        [
+          {
+            name: 'default',
+            constraints: [],
+            variants: [
+              {
+                name: 'strategyVariantName',
+                payload: { type: 'string', value: 'strategyVariantValue' },
+                weight: 1000,
+              },
+            ],
+            parameters: {},
           },
-        },
-      ], true);
+        ],
+        [
+          {
+            name: 'willBeIgnored',
+            weight: 100,
+            payload: {
+              type: 'string',
+              value: 'willBeIgnored',
+            },
+          },
+        ],
+        true,
+      );
     },
   };
   const client = new Client(repo, defaultStrategies);
@@ -378,30 +390,36 @@ test('should favor strategy variant over feature variant', (t) => {
   const variant = client.getVariant('feature-x', {});
   t.true(enabled);
   t.deepEqual(variant, {
-      name: 'strategyVariantName',
-      payload: { type: 'string', value: 'strategyVariantValue' },
-      enabled: true,
-      feature_enabled: true
-    },
-  );
+    name: 'strategyVariantName',
+    payload: { type: 'string', value: 'strategyVariantValue' },
+    enabled: true,
+    feature_enabled: true,
+  });
 });
-
 
 test('should return disabled variant for non-matching strategy variant', (t) => {
   const repo = {
     getToggle() {
-      return buildToggle('feature-x', false, [
-        {
-          name: 'default',
-          constraints: [],
-          variants: [{
-            name: 'strategyVariantName',
-            payload: { type: 'string', value: 'strategyVariantValue' },
-            weight: 1000
-          }],
-          parameters: {},
-        },
-      ], [], true);
+      return buildToggle(
+        'feature-x',
+        false,
+        [
+          {
+            name: 'default',
+            constraints: [],
+            variants: [
+              {
+                name: 'strategyVariantName',
+                payload: { type: 'string', value: 'strategyVariantValue' },
+                weight: 1000,
+              },
+            ],
+            parameters: {},
+          },
+        ],
+        [],
+        true,
+      );
     },
   };
   const client = new Client(repo, defaultStrategies);
@@ -409,11 +427,8 @@ test('should return disabled variant for non-matching strategy variant', (t) => 
   const variant = client.getVariant('feature-x', {});
   t.false(enabled);
   t.deepEqual(variant, {
-      name: 'disabled',
-      enabled: false,
-      feature_enabled: false,
-    },
-  );
+    name: 'disabled',
+    enabled: false,
+    feature_enabled: false,
+  });
 });
-
-
