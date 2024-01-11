@@ -8,6 +8,7 @@ export enum PayloadType {
   STRING = 'string',
   JSON = 'json',
   CSV = 'csv',
+  NUMBER = 'number',
 }
 
 interface Override {
@@ -24,7 +25,7 @@ export interface VariantDefinition {
   name: string;
   weight: number;
   stickiness?: string;
-  payload: Payload;
+  payload?: Payload;
   overrides?: Override[];
 }
 
@@ -131,5 +132,5 @@ export function selectVariant(
   feature: FeatureInterface,
   context: Context,
 ): VariantDefinition | null {
-  return selectVariantDefinition(feature.name, feature.variants, context);
+  return selectVariantDefinition(feature.name, feature.variants || [], context);
 }

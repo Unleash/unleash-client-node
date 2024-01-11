@@ -153,7 +153,7 @@ export default class UnleashClient extends EventEmitter {
     feature.strategies?.some((strategySelector): boolean => {
       const strategy = this.getStrategy(strategySelector.name);
       if (!strategy) {
-        this.warnStrategyOnce(strategySelector.name, feature.name, feature.strategies);
+        this.warnStrategyOnce(strategySelector.name, feature.name, feature.strategies || []);
         return false;
       }
       const constraints = this.yieldConstraintsFor(strategySelector);
