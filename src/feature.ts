@@ -11,14 +11,14 @@ export interface Dependency {
 
 export interface FeatureInterface {
   name: string;
-  type: string;
-  project: string;
+  type?: string;
+  project?: string;
   description?: string;
   enabled: boolean;
-  stale: boolean;
-  impressionData: boolean;
-  strategies: StrategyTransportInterface[];
-  variants: VariantDefinition[];
+  stale?: boolean;
+  impressionData?: boolean;
+  strategies?: StrategyTransportInterface[];
+  variants?: VariantDefinition[];
   dependencies?: Dependency[];
 }
 
