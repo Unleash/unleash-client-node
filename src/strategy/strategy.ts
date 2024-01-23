@@ -227,8 +227,9 @@ export class Strategy {
       this.isEnabledWithConstraints(parameters, context, constraints);
 
     if (enabled && Array.isArray(variants) && variants.length > 0) {
+      const stickiness = variants[0].stickiness || parameters.stickiness;
       const variantDefinition =
-        selectVariantDefinition(parameters.groupId, variants, context);
+        selectVariantDefinition(parameters.groupId, stickiness, variants, context);
       return variantDefinition ? {
         enabled: true,
         variant: {
