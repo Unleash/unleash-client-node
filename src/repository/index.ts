@@ -15,7 +15,7 @@ const SUPPORTED_SPEC_VERSION = '4.3.0';
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface | undefined;
   getToggles(): FeatureInterface[];
-  enhanceWithSegmentData(toggles: FeatureInterface[]): EnhancedFeatureInterface[];
+  getTogglesWithSegmentData(): EnhancedFeatureInterface[];
   getSegment(id: number): Segment | undefined;
   stop(): void;
   start(): Promise<void>;
@@ -407,7 +407,8 @@ Message: ${err.message}`,
     return Object.keys(this.data).map((key) => this.data[key]);
   }
 
-  enhanceWithSegmentData(toggles: FeatureInterface[]): EnhancedFeatureInterface[] {
+  getTogglesWithSegmentData(): EnhancedFeatureInterface[] {
+    const toggles = this.getToggles();
     return toggles.map((toggle): EnhancedFeatureInterface => {
       const { strategies, ...restOfToggle } = toggle;
 

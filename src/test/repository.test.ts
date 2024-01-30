@@ -1009,3 +1009,92 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
   t.is(1, repo.getFailures());
   t.is(20, repo.nextFetch());
 });
+
+test('should return full segment data when requested', (t) =>
+  new Promise((resolve) => {
+    const appNameLocal = 'full-segments';
+    const url = 'http://unleash-test-backup-api-url.app';
+    nock(url).persist().get('/client/features').delay(100).reply(408);
+
+    const backupPath = join(tmpdir());
+    const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`);
+    writeFileSync(
+      backupFile,
+      JSON.stringify({
+        features: [
+          {
+            name: 'feature-full-segments',
+            enabled: true,
+            strategies: [
+              {
+                name: 'default',
+                segments: [1]
+              },
+              {
+                name: 'backup',
+                segments: [2,3]
+              },
+            ],
+          },
+        ],
+        segments: [
+          {
+            id: 1,
+            constraints: [{
+              contextName: "appName",
+              operator: "IN",
+              value: "S1",
+              values: [],
+              caseInsensitive: false,
+              inverted: false
+            }]
+          },
+          {
+            id: 2,
+            constraints: [{
+                contextName: "appName",
+                operator: "IN",
+                value: "S2",
+                values: [],
+                caseInsensitive: false,
+                inverted: false
+              }],
+          },
+
+          {
+            id: 3,
+            constraints: [{
+              contextName: "appName",
+              operator: "IN",
+              value: "S3",
+              values: [],
+              caseInsensitive: false,
+              inverted: false
+            }],
+          },
+        ]
+      }),
+    );
+
+    const repo = new Repository({
+      url,
+      appName: appNameLocal,
+      instanceId,
+      refreshInterval: 0,
+      // @ts-expect-error
+      disableFetch: true,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider(),
+      storageProvider: new FileStorageProvider(backupPath),
+    });
+
+    repo.on('changed', () => {
+      // @ts-expect-error
+      t.is(repo.getEnhancedTogglesWithSegmentData()?.strategies?.every(strategy =>
+        strategy?.segments.every((segment: any) =>
+          'constraints' in segment )), true);
+      resolve();
+    });
+    repo.on('error', () => {});
+    repo.start();
+  }));

@@ -335,12 +335,10 @@ export class Unleash extends EventEmitter {
   getFeatureToggleDefinitions(
     withFullSegments = false
   ): Array<FeatureInterface | EnhancedFeatureInterface> {
-    const toggles =  this.repository.getToggles();
-
     if (withFullSegments) {
-      return this.repository.enhanceWithSegmentData(toggles);
+      return this.repository.getTogglesWithSegmentData();
     }
-    return toggles;
+    return this.repository.getToggles();;
   }
 
   count(toggleName: string, enabled: boolean) {
