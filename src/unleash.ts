@@ -333,7 +333,7 @@ export class Unleash extends EventEmitter {
   }
 
   getFeatureToggleDefinitions(
-    withFullSegments: boolean
+    withFullSegments = false
   ): Array<FeatureInterface | EnhancedFeatureInterface> {
     const toggles =  this.repository.getToggles();
 
