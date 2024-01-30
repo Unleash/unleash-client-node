@@ -44,8 +44,8 @@ export function getFeatureToggleDefinition(toggleName: string) {
   return instance && instance.getFeatureToggleDefinition(toggleName);
 }
 
-export function getFeatureToggleDefinitions() {
-  return instance && instance.getFeatureToggleDefinitions();
+export function getFeatureToggleDefinitions(withFullSegments = false) {
+  return instance && instance.getFeatureToggleDefinitions(withFullSegments);
 }
 
 export function getVariant(

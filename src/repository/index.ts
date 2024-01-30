@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ClientFeaturesResponse, FeatureInterface } from '../feature';
+import { ClientFeaturesResponse, EnhancedFeatureInterface, FeatureInterface } from '../feature';
 import { get } from '../request';
 import { CustomHeaders, CustomHeadersFunction } from '../headers';
 import getUrl from '../url-utils';
@@ -8,13 +8,14 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
-import { Segment } from '../strategy/strategy';
+import { EnhancedStrategyTransportInterface, Segment } from '../strategy/strategy';
 
 const SUPPORTED_SPEC_VERSION = '4.3.0';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface | undefined;
   getToggles(): FeatureInterface[];
+  enhanceWithSegmentData(toggles: FeatureInterface[]): EnhancedFeatureInterface[];
   getSegment(id: number): Segment | undefined;
   stop(): void;
   start(): Promise<void>;
@@ -404,5 +405,19 @@ Message: ${err.message}`,
 
   getToggles(): FeatureInterface[] {
     return Object.keys(this.data).map((key) => this.data[key]);
+  }
+
+  enhanceWithSegmentData(toggles: FeatureInterface[]): EnhancedFeatureInterface[] {
+    return toggles.map((toggle): EnhancedFeatureInterface => {
+      const { strategies, ...restOfToggle } = toggle;
+
+      const enhancedStrategies = strategies?.map((strategy): EnhancedStrategyTransportInterface => {
+        const { segments, ...restOfStrategy } = strategy;
+        const enhancedSegments = segments?.map(this.getSegment);
+        return { ...restOfStrategy, segments: enhancedSegments };
+      });
+
+      return { ...restOfToggle, strategies: enhancedStrategies };
+    });
   }
 }
