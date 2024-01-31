@@ -1084,7 +1084,9 @@ test('should return full segment data when requested', (t) =>
       // @ts-expect-error
       disableFetch: true,
       // @ts-expect-error
-      bootstrapProvider: new DefaultBootstrapProvider({}),
+      bootstrapProvider: new DefaultBootstrapProvider({
+        url: `${url}/bootstrap`,
+      }),
       storageProvider: new FileStorageProvider(backupPath),
     });
 
