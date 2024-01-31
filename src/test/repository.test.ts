@@ -1028,7 +1028,7 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
 
 test('should handle not finding a given segment id', (t) =>
   new Promise((resolve) => {
-    const appNameLocal = 'full-segments';
+    const appNameLocal = 'missing-segments';
     const url = 'http://unleash-test-backup-api-url.app';
     nock(url).persist().get('/client/features').delay(100).reply(408);
 
@@ -1116,11 +1116,12 @@ test('should handle not finding a given segment id', (t) =>
       t.is(
         toggles?.every((toggle) =>
           toggle.strategies?.every((strategy: any) =>
-            strategy?.segments.every((segment: any) => 'constraints' in segment),
+            strategy?.segments?.some((segment: any) => segment && 'constraints' in segment),
           ),
         ),
-        true,
+        false,
       );
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
       resolve();
     });
     repo.on('error', () => {});
@@ -1129,7 +1130,7 @@ test('should handle not finding a given segment id', (t) =>
 
 test('should handle not having segments to read from', (t) =>
   new Promise((resolve) => {
-    const appNameLocal = 'full-segments';
+    const appNameLocal = 'no-segments';
     const url = 'http://unleash-test-backup-api-url.app';
     nock(url).persist().get('/client/features').delay(100).reply(408);
 
@@ -1173,14 +1174,8 @@ test('should handle not having segments to read from', (t) =>
 
     repo.on('ready', () => {
       const toggles = repo.getTogglesWithSegmentData();
-      t.is(
-        toggles?.every((toggle) =>
-          toggle.strategies?.every((strategy: any) =>
-            strategy?.segments.every((segment: any) => 'constraints' in segment),
-          ),
-        ),
-        true,
-      );
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
+      t.deepEqual(toggles![0]?.strategies![1]?.segments, [undefined, undefined])
       resolve();
     });
     repo.on('error', () => {});
