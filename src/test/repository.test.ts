@@ -1090,9 +1090,10 @@ test('should return full segment data when requested', (t) =>
       storageProvider: new FileStorageProvider(backupPath),
     });
 
-    repo.on('changed', () => {
+    repo.on('Ready', () => {
       // @ts-expect-error
-      t.is(repo.getEnhancedTogglesWithSegmentData()?.strategies?.every(strategy =>
+      const toggles = repo.getEnhancedTogglesWithSegmentData();
+      t.is(toggles?.strategies?.every((strategy: any) =>
         strategy?.segments.every((segment: any) =>
           'constraints' in segment )), true);
       resolve();
