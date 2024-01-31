@@ -1021,6 +1021,7 @@ test('should return full segment data when requested', (t) =>
     writeFileSync(
       backupFile,
       JSON.stringify({
+        version: 1,
         features: [
           {
             name: 'feature-full-segments',
@@ -1084,18 +1085,15 @@ test('should return full segment data when requested', (t) =>
       // @ts-expect-error
       disableFetch: true,
       // @ts-expect-error
-      bootstrapProvider: new DefaultBootstrapProvider({
-        url: `${url}/bootstrap`,
-      }),
+      bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new FileStorageProvider(backupPath),
     });
 
-    repo.on('Ready', () => {
-      // @ts-expect-error
-      const toggles = repo.getEnhancedTogglesWithSegmentData();
-      t.is(toggles?.strategies?.every((strategy: any) =>
+    repo.on('ready', () => {
+      const toggles = repo.getTogglesWithSegmentData();
+      t.is(toggles?.every(toggle => toggle.strategies?.every((strategy: any) =>
         strategy?.segments.every((segment: any) =>
-          'constraints' in segment )), true);
+          'constraints' in segment ))), true);
       resolve();
     });
     repo.on('error', () => {});

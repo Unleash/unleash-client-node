@@ -8,7 +8,11 @@ import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
 import { StorageProvider } from './storage-provider';
 import { UnleashEvents } from '../events';
-import { EnhancedStrategyTransportInterface, Segment } from '../strategy/strategy';
+import {
+  EnhancedStrategyTransportInterface,
+  Segment,
+  StrategyTransportInterface,
+} from '../strategy/strategy';
 
 const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -412,13 +416,17 @@ Message: ${err.message}`,
     return toggles.map((toggle): EnhancedFeatureInterface => {
       const { strategies, ...restOfToggle } = toggle;
 
-      const enhancedStrategies = strategies?.map((strategy): EnhancedStrategyTransportInterface => {
-        const { segments, ...restOfStrategy } = strategy;
-        const enhancedSegments = segments?.map(this.getSegment);
-        return { ...restOfStrategy, segments: enhancedSegments };
-      });
-
-      return { ...restOfToggle, strategies: enhancedStrategies };
+      return { ...restOfToggle, strategies: this.enhanceStrategies(strategies) };
     });
+  }
+
+  private enhanceStrategies = (
+    strategies: StrategyTransportInterface[]| undefined
+  ): EnhancedStrategyTransportInterface[] | undefined => {
+    return strategies?.map(strategy => {
+      const { segments, ...restOfStrategy } = strategy;
+      const enhancedSegments = segments?.map(this.getSegment);
+      return { ...restOfStrategy, segments: enhancedSegments };
+    })
   }
 }
