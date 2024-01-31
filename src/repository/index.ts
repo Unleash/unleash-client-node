@@ -425,7 +425,7 @@ Message: ${err.message}`,
   ): EnhancedStrategyTransportInterface[] | undefined => {
     return strategies?.map(strategy => {
       const { segments, ...restOfStrategy } = strategy;
-      const enhancedSegments = segments?.map(this.getSegment);
+      const enhancedSegments = segments?.map(segment => this.getSegment(segment));
       return { ...restOfStrategy, segments: enhancedSegments };
     })
   }
