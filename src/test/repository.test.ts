@@ -298,6 +298,7 @@ test('should handle 401 request error and emit error event', (t) =>
       // eslint-disable-next-line max-len
       t.is(
         err.message,
+        // eslint-disable-next-line max-len
         `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`,
       );
       resolve();
@@ -323,6 +324,7 @@ test('should handle 403 request error and emit error event', (t) =>
       // eslint-disable-next-line max-len
       t.is(
         err.message,
+        // eslint-disable-next-line max-len
         `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`,
       );
       resolve();
@@ -430,6 +432,7 @@ test('should handle 404 request error and emit error event', (t) =>
       // eslint-disable-next-line max-len
       t.is(
         err.message,
+        // eslint-disable-next-line max-len
         `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
       );
       resolve();
