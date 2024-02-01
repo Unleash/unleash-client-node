@@ -11,6 +11,11 @@ export interface StrategyTransportInterface {
   variants?: VariantDefinition[];
 }
 
+export interface EnhancedStrategyTransportInterface
+  extends Omit<StrategyTransportInterface, 'segments'> {
+  segments?: Array<Segment | undefined>
+}
+
 export interface Constraint {
   contextName: string;
   operator: Operator;

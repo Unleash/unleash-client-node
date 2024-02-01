@@ -6,7 +6,7 @@ import Metrics from './metrics';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
 
-import { FeatureInterface } from './feature';
+import { EnhancedFeatureInterface, FeatureInterface } from './feature';
 import { Variant, defaultVariant, VariantWithFeatureStatus } from './variant';
 import {
   FallbackFunction,
@@ -332,8 +332,13 @@ export class Unleash extends EventEmitter {
     return this.repository.getToggle(toggleName);
   }
 
-  getFeatureToggleDefinitions(): FeatureInterface[] {
-    return this.repository.getToggles();
+  getFeatureToggleDefinitions(
+    withFullSegments = false
+  ): Array<FeatureInterface | EnhancedFeatureInterface> {
+    if (withFullSegments) {
+      return this.repository.getTogglesWithSegmentData();
+    }
+    return this.repository.getToggles();;
   }
 
   count(toggleName: string, enabled: boolean) {

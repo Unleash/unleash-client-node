@@ -270,10 +270,12 @@ test('should handle 429 request error and emit warn event', async (t) => {
       resolve();
     });
   });
-  const timeout = new Promise<void>((resolve) => setTimeout(() => {
-    t.fail("Failed to get warning about connections");
-    resolve();
-  }, 5000));
+  const timeout = new Promise<void>((resolve) =>
+    setTimeout(() => {
+      t.fail('Failed to get warning about connections');
+      resolve();
+    }, 5000),
+  );
   await repo.start();
   await Promise.race([warning, timeout]);
 });
@@ -294,7 +296,11 @@ test('should handle 401 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(err.message, `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`);
+      t.is(
+        err.message,
+        // eslint-disable-next-line max-len
+        `${url}/client/features responded 401 which means your API key is not allowed to connect. Stopping refresh of toggles`,
+      );
       resolve();
     });
     repo.start();
@@ -316,7 +322,11 @@ test('should handle 403 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(err.message, `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`);
+      t.is(
+        err.message,
+        // eslint-disable-next-line max-len
+        `${url}/client/features responded 403 which means your API key is not allowed to connect. Stopping refresh of toggles`,
+      );
       resolve();
     });
     repo.start();
@@ -420,12 +430,15 @@ test('should handle 404 request error and emit error event', (t) =>
     repo.on('error', (err) => {
       t.truthy(err);
       // eslint-disable-next-line max-len
-      t.is(err.message, `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`)
+      t.is(
+        err.message,
+        // eslint-disable-next-line max-len
+        `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
+      );
       resolve();
     });
     repo.start();
   }));
-
 
 test('should handle 304 as silent ok', (t) => {
   t.plan(0);
@@ -947,7 +960,7 @@ test('bootstrap should not override load backup-file', async (t) => {
 // eslint-disable-next-line max-len
 test.skip('Failing two times should increase interval to 3 times initial interval (initial interval + 2 * interval)', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
-  nock(url).persist().get("/client/features").reply(429);
+  nock(url).persist().get('/client/features').reply(429);
   const repo = new Repository({
     url,
     appName,
@@ -970,7 +983,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
 // eslint-disable-next-line max-len
 test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
-  nock(url).persist().get("/client/features").reply(429)
+  nock(url).persist().get('/client/features').reply(429);
   const repo = new Repository({
     url,
     appName,
@@ -987,25 +1000,285 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
   t.is(2, repo.getFailures());
   t.is(30, repo.nextFetch());
   nock.cleanAll();
-  nock(url).persist().get("/client/features").reply(200, {
-    version: 2,
-    features: [
-      {
-        name: 'feature-backup',
-        enabled: true,
-        strategies: [
-          {
-            name: 'default',
-          },
-          {
-            name: 'backup',
-          },
-        ],
-      },
-    ],
-  });
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .reply(200, {
+      version: 2,
+      features: [
+        {
+          name: 'feature-backup',
+          enabled: true,
+          strategies: [
+            {
+              name: 'default',
+            },
+            {
+              name: 'backup',
+            },
+          ],
+        },
+      ],
+    });
 
   await repo.fetch();
   t.is(1, repo.getFailures());
   t.is(20, repo.nextFetch());
 });
+
+test('should handle not finding a given segment id', (t) =>
+  new Promise((resolve) => {
+    const appNameLocal = 'missing-segments';
+    const url = 'http://unleash-test-backup-api-url.app';
+    nock(url).persist().get('/client/features').delay(100).reply(408);
+
+    const backupPath = join(tmpdir());
+    const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`);
+    writeFileSync(
+      backupFile,
+      JSON.stringify({
+        version: 1,
+        features: [
+          {
+            name: 'feature-full-segments',
+            enabled: true,
+            strategies: [
+              {
+                name: 'default',
+                segments: [5],
+              },
+              {
+                name: 'backup',
+                segments: [2, 3],
+              },
+            ],
+          },
+        ],
+        segments: [
+          {
+            id: 1,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S1',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+          {
+            id: 2,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S2',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+
+          {
+            id: 3,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S3',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const repo = new Repository({
+      url,
+      appName: appNameLocal,
+      instanceId,
+      refreshInterval: 0,
+      // @ts-expect-error
+      disableFetch: true,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new FileStorageProvider(backupPath),
+    });
+
+    repo.on('ready', () => {
+      const toggles = repo.getTogglesWithSegmentData();
+      t.is(
+        toggles?.every((toggle) =>
+          toggle.strategies?.every((strategy: any) =>
+            strategy?.segments?.some((segment: any) => segment && 'constraints' in segment),
+          ),
+        ),
+        false,
+      );
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
+      resolve();
+    });
+    repo.on('error', () => {});
+    repo.start();
+  }));
+
+test('should handle not having segments to read from', (t) =>
+  new Promise((resolve) => {
+    const appNameLocal = 'no-segments';
+    const url = 'http://unleash-test-backup-api-url.app';
+    nock(url).persist().get('/client/features').delay(100).reply(408);
+
+    const backupPath = join(tmpdir());
+    const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`);
+    writeFileSync(
+      backupFile,
+      JSON.stringify({
+        version: 1,
+        features: [
+          {
+            name: 'feature-full-segments',
+            enabled: true,
+            strategies: [
+              {
+                name: 'default',
+                segments: [5],
+              },
+              {
+                name: 'backup',
+                segments: [2, 3],
+              },
+            ],
+          },
+        ],
+        segments: [],
+      }),
+    );
+
+    const repo = new Repository({
+      url,
+      appName: appNameLocal,
+      instanceId,
+      refreshInterval: 0,
+      // @ts-expect-error
+      disableFetch: true,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new FileStorageProvider(backupPath),
+    });
+
+    repo.on('ready', () => {
+      const toggles = repo.getTogglesWithSegmentData();
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
+      t.deepEqual(toggles![0]?.strategies![1]?.segments, [undefined, undefined])
+      resolve();
+    });
+    repo.on('error', () => {});
+    repo.start();
+  }));
+
+test('should return full segment data when requested', (t) =>
+  new Promise((resolve) => {
+    const appNameLocal = 'full-segments';
+    const url = 'http://unleash-test-backup-api-url.app';
+    nock(url).persist().get('/client/features').delay(100).reply(408);
+
+    const backupPath = join(tmpdir());
+    const backupFile = join(backupPath, `/unleash-backup-${appNameLocal}.json`);
+    writeFileSync(
+      backupFile,
+      JSON.stringify({
+        version: 1,
+        features: [
+          {
+            name: 'feature-full-segments',
+            enabled: true,
+            strategies: [
+              {
+                name: 'default',
+                segments: [1],
+              },
+              {
+                name: 'backup',
+                segments: [2, 3],
+              },
+            ],
+          },
+        ],
+        segments: [
+          {
+            id: 1,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S1',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+          {
+            id: 2,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S2',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+
+          {
+            id: 3,
+            constraints: [
+              {
+                contextName: 'appName',
+                operator: 'IN',
+                value: 'S3',
+                values: [],
+                caseInsensitive: false,
+                inverted: false,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const repo = new Repository({
+      url,
+      appName: appNameLocal,
+      instanceId,
+      refreshInterval: 0,
+      // @ts-expect-error
+      disableFetch: true,
+      // @ts-expect-error
+      bootstrapProvider: new DefaultBootstrapProvider({}),
+      storageProvider: new FileStorageProvider(backupPath),
+    });
+
+    repo.on('ready', () => {
+      const toggles = repo.getTogglesWithSegmentData();
+      t.is(
+        toggles?.every((toggle) =>
+          toggle.strategies?.every((strategy: any) =>
+            strategy?.segments.every((segment: any) => 'constraints' in segment),
+          ),
+        ),
+        true,
+      );
+      resolve();
+    });
+    repo.on('error', () => {});
+    repo.start();
+  }));

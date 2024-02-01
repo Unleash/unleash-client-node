@@ -1,5 +1,5 @@
 import { StrategyTransportInterface } from './strategy';
-import { Segment } from './strategy/strategy';
+import { EnhancedStrategyTransportInterface, Segment } from './strategy/strategy';
 // eslint-disable-next-line import/no-cycle
 import { VariantDefinition } from './variant';
 
@@ -20,6 +20,10 @@ export interface FeatureInterface {
   strategies?: StrategyTransportInterface[];
   variants?: VariantDefinition[];
   dependencies?: Dependency[];
+}
+
+export interface EnhancedFeatureInterface extends Omit<FeatureInterface, 'strategies'> {
+  strategies?: EnhancedStrategyTransportInterface[]
 }
 
 export interface ClientFeaturesResponse {
