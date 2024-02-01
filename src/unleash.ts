@@ -333,16 +333,14 @@ export class Unleash extends EventEmitter {
   }
 
   getFeatureToggleDefinitions(): Array<FeatureInterface>;
+  getFeatureToggleDefinitions(withFullSegments: true): Array<EnhancedFeatureInterface>;
   getFeatureToggleDefinitions(
-    withFullSegments: true
-  ): Array<EnhancedFeatureInterface>;
-  getFeatureToggleDefinitions(
-    withFullSegments = false
+    withFullSegments?: any
   ): Array<FeatureInterface | EnhancedFeatureInterface> {
-    if (withFullSegments) {
-      return this.repository.getTogglesWithSegmentData();
-    }
-    return this.repository.getToggles();;
+      if (withFullSegments === true) {
+        return this.repository.getTogglesWithSegmentData();
+      }
+      return this.repository.getToggles();
   }
 
   count(toggleName: string, enabled: boolean) {
