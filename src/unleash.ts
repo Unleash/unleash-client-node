@@ -332,6 +332,10 @@ export class Unleash extends EventEmitter {
     return this.repository.getToggle(toggleName);
   }
 
+  getFeatureToggleDefinitions(): Array<FeatureInterface>;
+  getFeatureToggleDefinitions(
+    withFullSegments: true
+  ): Array<EnhancedFeatureInterface>;
   getFeatureToggleDefinitions(
     withFullSegments = false
   ): Array<FeatureInterface | EnhancedFeatureInterface> {
