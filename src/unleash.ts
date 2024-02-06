@@ -75,7 +75,6 @@ export class Unleash extends EventEmitter {
     skipInstanceCountWarning = false,
   }: UnleashConfig) {
     super();
-    console.log('constructor');
 
     Unleash.instanceCount++;
 
