@@ -47,6 +47,8 @@ export class Unleash extends EventEmitter {
 
   private ready: boolean = false;
 
+  private started: boolean = false;
+
   constructor({
     appName,
     environment = 'default',
@@ -245,6 +247,8 @@ export class Unleash extends EventEmitter {
   }
 
   async start(): Promise<void> {
+    if(this.started) return;
+    this.started = true;
     await Promise.all([this.repository.start(), this.metrics.start()]);
   }
 

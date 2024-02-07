@@ -8,6 +8,7 @@ import FakeRepo from './fake_repo';
 
 import { Strategy, Unleash, UnleashEvents } from '../unleash';
 import { InMemStorageProvider } from '..';
+import { RepositoryInterface } from '../repository';
 
 class EnvironmentStrategy extends Strategy {
   constructor() {
@@ -1046,7 +1047,7 @@ test('should not report dependent feature metrics', async (t) => {
   const { instance, capturedData } = metricsCapturingUnleash({
     name: 'toggle-with-dependency',
     enabled: true,
-    dependencies: [{feature: 'dependency'}],
+    dependencies: [{ feature: 'dependency' }],
     strategies: [{ name: 'default', constraints: [] }],
     variants: [{ name: 'toggle-variant', payload: { type: 'string', value: 'variant value' } }],
   });
@@ -1065,9 +1066,33 @@ test('should not report dependent feature metrics', async (t) => {
     'dependency': {
       yes: 0,
       no: 1, // direct call, no transitive calls
-      variants: {}
-    }
+      variants: {},
+    },
   });
+});
+
+test('should not allow to start twice', async (t) => {
+  const url = mockNetwork();
+  let repositoryStartedCount = 0;
+  const mockRepository = {
+    on() {},
+    start() {
+      repositoryStartedCount++;
+    },
+  } as unknown as RepositoryInterface;
+  const instance = new Unleash({
+    appName: 'foo',
+    disableMetrics: true,
+    skipInstanceCountWarning: true,
+    url,
+    backupPath: getRandomBackupPath(),
+    repository: mockRepository,
+  });
+
+  await instance.start();
+  await instance.start();
+
+  t.is(repositoryStartedCount, 1);
 });
 
 
