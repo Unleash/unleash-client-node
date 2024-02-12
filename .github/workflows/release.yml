@@ -15,7 +15,7 @@ on:
 
 jobs:
   from-template:
-    uses: Unleash/.github/.github/workflows/npm-release.yml@v1.1.0
+    uses: Unleash/.github/.github/workflows/npm-release.yml@v1.1.2
     with:
       version: ${{ github.event.inputs.version }}
       tag: ${{ github.event.inputs.tag }}
