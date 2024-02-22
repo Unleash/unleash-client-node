@@ -1,11 +1,9 @@
 {
   "extends": [
-    "airbnb-typescript/base",
-    "prettier",
     "plugin:import/recommended",
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["prettier"],
   "parserOptions": {
     "ecmaVersion": 8,
     "project": ["./jsconfig.json", "./tsconfig.json"]

@@ -20,17 +20,18 @@ client.on('changed', () => console.log('CHANGED!'));
 console.log(`Fetching toggles from: ${url}`);
 
 setInterval(() => {
-  const userId = Math.random()*1000;
-  process.stdout.write("\u001b[2J\u001b[0;0H");
+  const userId = Math.random() * 1000;
+  process.stdout.write('\u001b[2J\u001b[0;0H');
   console.log(`current userId: ${userId}`);
   getFeatureToggleDefinitions()
     .sort((a, b) => {
-      if(a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ) return 1;
-      if(a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase() ) return -1;
+      if (a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase()) return 1;
+      if (a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase()) return -1;
       return 0;
-    }).forEach((t) => {
+    })
+    .forEach((t) => {
       console.log(`${t.name} (${t.project}): 
     Enabled: ${isEnabled(t.name, { userId })} \t Variant: ${getVariant(t.name, { userId }).name}
     `);
-  });
+    });
 }, 1000);
