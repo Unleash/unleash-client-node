@@ -12,7 +12,7 @@
     "pre-commit": "lint-staged",
     "prebuild": "del-cli --force lib",
     "build": "tsc -p .",
-    "prepare": "husky && yarn run build",
+    "prepare": "husky install && yarn run build",
     "test": "cross-env NODE_ENV=test yarn run build && ava",
     "coverage": "nyc --reporter=lcov yarn test"
   },
@@ -69,7 +69,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^5.0.0",
     "esm": "^3.2.25",
-    "husky": "^9.0.11",
+    "husky": "^8.0.3",
     "lint-staged": "^14.0.0",
     "mkdirp": "^3.0.1",
     "nock": "^13.3.1",
