@@ -23,7 +23,7 @@ export interface FeatureInterface {
 }
 
 export interface EnhancedFeatureInterface extends Omit<FeatureInterface, 'strategies'> {
-  strategies?: EnhancedStrategyTransportInterface[]
+  strategies?: EnhancedStrategyTransportInterface[];
 }
 
 export interface ClientFeaturesResponse {

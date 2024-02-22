@@ -1121,7 +1121,7 @@ test('should handle not finding a given segment id', (t) =>
         ),
         false,
       );
-      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined]);
       resolve();
     });
     repo.on('error', () => {});
@@ -1174,8 +1174,8 @@ test('should handle not having segments to read from', (t) =>
 
     repo.on('ready', () => {
       const toggles = repo.getTogglesWithSegmentData();
-      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined])
-      t.deepEqual(toggles![0]?.strategies![1]?.segments, [undefined, undefined])
+      t.deepEqual(toggles![0]?.strategies![0]?.segments, [undefined]);
+      t.deepEqual(toggles![0]?.strategies![1]?.segments, [undefined, undefined]);
       resolve();
     });
     repo.on('error', () => {});
