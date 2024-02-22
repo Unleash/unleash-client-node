@@ -1,5 +1,6 @@
 {
   "extends": [
+    "airbnb-typescript/base",
     "plugin:import/recommended",
     "plugin:import/typescript",
     "plugin:prettier/recommended"
