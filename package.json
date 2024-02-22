@@ -8,7 +8,7 @@
   "scripts": {
     "version": "./scripts/update-build-details.sh $npm_package_version",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
+    "lint:fix": "eslint . --fix",
     "pre-commit": "lint-staged",
     "prebuild": "del-cli --force lib",
     "build": "tsc -p .",
