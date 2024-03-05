@@ -8,10 +8,11 @@
   "scripts": {
     "version": "./scripts/update-build-details.sh $npm_package_version",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix  && prettier --write '{src,examples}/**/*.ts'",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "lint-staged",
     "prebuild": "del-cli --force lib",
     "build": "tsc -p .",
-    "prepare": "yarn run build",
+    "prepare": "husky install && yarn run build",
     "test": "cross-env NODE_ENV=test yarn run build && ava",
     "coverage": "nyc --reporter=lcov yarn test"
   },
@@ -62,8 +63,7 @@
     "cross-env": "^7.0.3",
     "del-cli": "^5.0.0",
     "eslint": "^8.44.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
@@ -116,17 +116,12 @@
     ]
   },
   "lint-staged": {
-    "*.js": [
+    "*.{js,ts}": [
       "eslint --fix"
     ],
-    "*.{ts,md,json}": [
+    "*.{md,json}": [
       "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "ava": {
     "typescript": {

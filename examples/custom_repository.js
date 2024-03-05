@@ -13,13 +13,9 @@ class MyRepo extends EventEmitter {
     };
   }
 
-  start () {
+  start() {}
 
-  }
-
-  stop() {
-
-  }
+  stop() {}
 
   getToggle() {
     return this.data;

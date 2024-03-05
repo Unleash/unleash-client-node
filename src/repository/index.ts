@@ -300,14 +300,13 @@ Message: ${err.message}`,
         // eslint-disable-next-line max-len
         `${url} responded TOO_MANY_CONNECTIONS (429). Backing off`,
       );
-    } else if (statusCode === 500 ||
-               statusCode === 502 ||
-               statusCode === 503 ||
-               statusCode === 504) {
-      this.emit(
-        UnleashEvents.Warn,
-        `${url} responded ${statusCode}. Backing off`,
-      );
+    } else if (
+      statusCode === 500 ||
+      statusCode === 502 ||
+      statusCode === 503 ||
+      statusCode === 504
+    ) {
+      this.emit(UnleashEvents.Warn, `${url} responded ${statusCode}. Backing off`);
     }
     return nextFetch;
   }
@@ -421,12 +420,12 @@ Message: ${err.message}`,
   }
 
   private enhanceStrategies = (
-    strategies: StrategyTransportInterface[]| undefined
+    strategies: StrategyTransportInterface[] | undefined,
   ): EnhancedStrategyTransportInterface[] | undefined => {
-    return strategies?.map(strategy => {
+    return strategies?.map((strategy) => {
       const { segments, ...restOfStrategy } = strategy;
-      const enhancedSegments = segments?.map(segment => this.getSegment(segment));
+      const enhancedSegments = segments?.map((segment) => this.getSegment(segment));
       return { ...restOfStrategy, segments: enhancedSegments };
-    })
-  }
+    });
+  };
 }
