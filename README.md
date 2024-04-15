@@ -52,7 +52,7 @@ const { initialize } = require('unleash-client');
 const unleash = initialize({
   url: 'https://YOUR-API-URL',
   appName: 'my-node-name',
-  customHeaders: { Authorization: 'SOME-SECRET' },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
 });
 ```
 
@@ -94,7 +94,7 @@ const { Unleash } = require('unleash-client');
 const unleash = new Unleash({
   url: 'https://YOUR-API-URL',
   appName: 'my-node-name',
-  customHeaders: { Authorization: 'SOME-SECRET' },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
 });
 
 unleash.on('ready', console.log.bind(console, 'ready'));
@@ -115,7 +115,7 @@ const { startUnleash } = require('unleash-client');
 const unleash = await startUnleash({
   url: 'https://YOUR-API-URL',
   appName: 'my-node-name',
-  customHeaders: { Authorization: 'SOME-SECRET' },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
 });
 
 // Unleash SDK has now fresh state from the unleash-api
@@ -323,9 +323,7 @@ configuration from the bootstrap location, even if the Unleash API should be una
 const client = initialize({
   appName: 'my-application',
   url: 'https://app.unleash-hosted2.com/demo/api/',
-  customHeaders: {
-    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
-  },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   bootstrap: {
     data: [
       {
@@ -349,9 +347,7 @@ const client = initialize({
 const client = initialize({
   appName: 'my-application',
   url: 'https://app.unleash-hosted.com/demo/api/',
-  customHeaders: {
-    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
-  },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   bootstrap: {
     url: 'http://localhost:3000/proxy/client/features',
     urlHeaders: {
@@ -367,9 +363,7 @@ const client = initialize({
 const client = initialize({
   appName: 'my-application',
   url: 'https://app.unleash-hosted.com/demo/api/',
-  customHeaders: {
-    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
-  },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   bootstrap: {
     filePath: '/tmp/some-bootstrap.json',
   },
@@ -389,9 +383,7 @@ const {
 
 initialize({
   url: 'http://unleash.herokuapp.com/api/',
-  customHeaders: {
-    Authorization: 'API token',
-  },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   appName: 'my-app-name',
   instanceId: 'my-unique-instance-id',
 });
@@ -417,9 +409,7 @@ const { initialize, InMemStorageProvider } = require('unleash-client');
 const client = initialize({
   appName: 'my-application',
   url: 'http://localhost:3000/api/',
-  customHeaders: {
-    Authorization: 'my-key',
-  },
+  customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   storageProvider: new InMemStorageProvider(),
 });
 ```
