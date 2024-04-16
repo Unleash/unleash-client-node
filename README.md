@@ -47,7 +47,7 @@ application. The SDK will set up an in-memory repository and poll for updates fr
 server at regular intervals.
 
 ```js
-const { initialize } = require('unleash-client');
+import { initialize } from 'unleash-client';
 
 const unleash = initialize({
   url: 'https://YOUR-API-URL',
@@ -89,7 +89,7 @@ Unleash instance will maintain a connection to the Unleash API, which may result
 Unleash API.
 
 ```js
-const { Unleash } = require('unleash-client');
+import { Unleash } from 'unleash-client';
 
 const unleash = new Unleash({
   url: 'https://YOUR-API-URL',
@@ -110,7 +110,7 @@ synchronized with the Unleash API. This guarantees that the SDK is not operating
 potentially stale feature toggle configuration.
 
 ```js
-const { startUnleash } = require('unleash-client');
+import { startUnleash } from 'unleash-client';
 
 const unleash = await startUnleash({
   url: 'https://YOUR-API-URL',
@@ -177,7 +177,7 @@ To shut down the client (turn off the polling) you can simply call the destroy-m
 typically not required.
 
 ```js
-const { destroy } = require('unleash-client');
+import { destroy } from 'unleash-client';
 destroy();
 ```
 
@@ -235,7 +235,7 @@ The initialize method takes the following arguments:
 ### 1. implement the custom strategy:
 
 ```js
-const { Strategy, initialize } = require('unleash-client');
+import { initialize, Strategy } from 'unleash-client';
 class ActiveForUserWithEmailStrategy extends Strategy {
   constructor() {
     super('ActiveForUserWithEmail');
@@ -279,7 +279,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 Example usage:
 
 ```js
-const { initialize } = require('unleash-client');
+import { initialize } from 'unleash-client';
 
 const unleash = initialize({
   appName: 'my-app-name',
@@ -375,11 +375,11 @@ const client = initialize({
 Sometimes you might be interested in the raw feature toggle definitions.
 
 ```js
-const {
+import {
   initialize,
   getFeatureToggleDefinition,
   getFeatureToggleDefinitions,
-} = require('unleash-client');
+} from "unleash-client";
 
 initialize({
   url: 'http://unleash.herokuapp.com/api/',
@@ -404,7 +404,7 @@ provider or a custom store provider implemented by you.
 **1. Use InMemStorageProvider**
 
 ```js
-const { initialize, InMemStorageProvider } = require('unleash-client');
+import { initialize, InMemStorageProvider } from "unleash-client";
 
 const client = initialize({
   appName: 'my-application',
@@ -417,9 +417,9 @@ const client = initialize({
 **2. Custom Store Provider backed by redis**
 
 ```js
-const { initialize, InMemStorageProvider } = require('unleash-client');
+import { initialize, InMemStorageProvider } from "unleash-client";
 
-const { createClient } = require('redis');
+import { createClient } from 'redis';
 
 class CustomRedisStore {
   async set(key, data) {
