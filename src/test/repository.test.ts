@@ -412,33 +412,6 @@ test.skip('should handle 504 request error and emit warn event', (t) =>
     });
     repo.start();
   }));
-test('should handle 404 request error and emit error event', (t) =>
-  new Promise<void>((resolve) => {
-    const url = 'http://unleash-test-5.app';
-    nock(url).persist().get('/client/features').reply(404, 'asd');
-
-    const repo = new Repository({
-      url,
-      appName,
-      instanceId,
-      refreshInterval: 10,
-      // @ts-expect-error
-      bootstrapProvider: new DefaultBootstrapProvider({}),
-      storageProvider: new InMemStorageProvider(),
-    });
-
-    repo.on('error', (err) => {
-      t.truthy(err);
-      // eslint-disable-next-line max-len
-      t.is(
-        err.message,
-        // eslint-disable-next-line max-len
-        `${url}/client/features responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
-      );
-      resolve();
-    });
-    repo.start();
-  }));
 
 test('should handle 304 as silent ok', (t) => {
   t.plan(0);
@@ -955,6 +928,55 @@ test('bootstrap should not override load backup-file', async (t) => {
   // @ts-expect-error
   t.is(repo.getToggle('feature-backup').enabled, true);
 });
+
+// Skipped because make-fetch-happens actually automatically retries two extra times on 404
+// with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
+// eslint-disable-next-line max-len
+test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
+  const url = 'http://unleash-test-fail5times.app';
+  nock(url).persist().get('/client/features').reply(404);
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  await repo.fetch();
+  t.is(1, repo.getFailures());
+  t.is(20, repo.nextFetch());
+  await repo.fetch();
+  t.is(2, repo.getFailures());
+  t.is(30, repo.nextFetch());
+  nock.cleanAll();
+  nock(url)
+    .persist()
+    .get('/client/features')
+    .reply(200, {
+      version: 2,
+      features: [
+        {
+          name: 'feature-backup',
+          enabled: true,
+          strategies: [
+            {
+              name: 'default',
+            },
+            {
+              name: 'backup',
+            },
+          ],
+        },
+      ],
+    });
+
+  await repo.fetch();
+  t.is(1, repo.getFailures());
+  t.is(20, repo.nextFetch());
+});
+
 // Skipped because make-fetch-happens actually automatically retries two extra times on 429
 // with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
 // eslint-disable-next-line max-len

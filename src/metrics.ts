@@ -225,9 +225,10 @@ export default class Metrics extends EventEmitter {
         httpOptions: this.httpOptions,
       });
       if (!res.ok) {
-        if (res.status === 404 || res.status === 403 || res.status == 401) {
+        if (res.status === 403 || res.status == 401) {
           this.configurationError(url, res.status);
         } else if (
+          res.status === 404 ||
           res.status === 429 ||
           res.status === 500 ||
           res.status === 502 ||

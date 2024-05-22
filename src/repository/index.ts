@@ -270,15 +270,7 @@ Message: ${err.message}`,
   // and returns 0 as the next fetch interval (stop polling)
   private configurationError(url: string, statusCode: number): number {
     this.failures += 1;
-    if (statusCode === 404) {
-      this.emit(
-        UnleashEvents.Error,
-        new Error(
-          // eslint-disable-next-line max-len
-          `${url} responded NOT_FOUND (404) which means your API url most likely needs correction. Stopping refresh of toggles`,
-        ),
-      );
-    } else if (statusCode === 401 || statusCode === 403) {
+    if (statusCode === 401 || statusCode === 403) {
       this.emit(
         UnleashEvents.Error,
         new Error(
@@ -294,7 +286,7 @@ Message: ${err.message}`,
   // and return the new interval.
   private recoverableError(url: string, statusCode: number): number {
     let nextFetch = this.backoff();
-    if (statusCode === 429) {
+    if (statusCode === 404 || statusCode === 429) {
       this.emit(
         UnleashEvents.Warn,
         // eslint-disable-next-line max-len
@@ -312,9 +304,10 @@ Message: ${err.message}`,
   }
 
   private handleErrorCases(url: string, statusCode: number): number {
-    if (statusCode === 401 || statusCode === 403 || statusCode === 404) {
+    if (statusCode === 401 || statusCode === 403) {
       return this.configurationError(url, statusCode);
     } else if (
+      statusCode === 404 ||
       statusCode === 429 ||
       statusCode === 500 ||
       statusCode === 502 ||
