@@ -932,7 +932,7 @@ test('bootstrap should not override load backup-file', async (t) => {
 // Skipped because make-fetch-happens actually automatically retries two extra times on 404
 // with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
 // eslint-disable-next-line max-len
-test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
+test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval (404)', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
   nock(url).persist().get('/client/features').reply(404);
   const repo = new Repository({
@@ -1003,7 +1003,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
 // Skipped because make-fetch-happens actually automatically retries two extra times on 429
 // with a timeout of 1000, this makes us have to wait up to 3 seconds for a single test to succeed
 // eslint-disable-next-line max-len
-test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval', async (t) => {
+test.skip('Failing two times and then succeed should decrease interval to 2 times initial interval (429)', async (t) => {
   const url = 'http://unleash-test-fail5times.app';
   nock(url).persist().get('/client/features').reply(429);
   const repo = new Repository({
