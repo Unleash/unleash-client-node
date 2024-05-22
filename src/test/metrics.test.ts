@@ -252,29 +252,28 @@ test('registerInstance should warn when non 200 statusCode', async (t) => {
   metrics.start();
 });
 
-test('sendMetrics should stop/disable metrics if endpoint returns 404', (t) =>
-  new Promise((resolve) => {
-    const url = getUrl();
-    const metEP = nockMetrics(url, 404);
-    // @ts-expect-error
-    const metrics = new Metrics({
-      metricsInterval: 50,
-      url,
-    });
-
-    metrics.on('warn', () => {
-      metrics.stop();
-      t.true(metEP.isDone());
-      // @ts-expect-error
-      t.true(metrics.disabled);
-      resolve();
-    });
-    metrics.start();
-
-    metrics.count('x-y-z', true);
-
-    metrics.sendMetrics();
-  }));
+test('sendMetrics should backoff on 404', async (t) => {
+  const url = getUrl();
+  nockMetrics(url, 404).persist();
+  const metrics = new Metrics({
+    appName: '404-tester',
+    instanceId: '404-instance',
+    metricsInterval: 10,
+    strategies: [],
+    url,
+  });
+  metrics.count('x-y-z', true);
+  await metrics.sendMetrics();
+  // @ts-expect-error actually a private field, but we access it for tests
+  t.false(metrics.disabled);
+  t.is(metrics.getFailures(), 1);
+  t.is(metrics.getInterval(), 20);
+  await metrics.sendMetrics();
+  // @ts-expect-error actually a private field, but we access it for tests
+  t.false(metrics.disabled);
+  t.is(metrics.getFailures(), 2);
+  t.is(metrics.getInterval(), 30);
+});
 
 test('sendMetrics should emit warn on non 200 statusCode', (t) =>
   new Promise((resolve) => {
