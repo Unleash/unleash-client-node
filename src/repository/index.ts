@@ -292,7 +292,7 @@ Message: ${err.message}`,
         // eslint-disable-next-line max-len
         `${url} responded TOO_MANY_CONNECTIONS (429). Backing off`,
       );
-    } else if(statusCode === 404 ) {
+    } else if(statusCode === 404) {
       this.emit(
         UnleashEvents.Warn,
         // eslint-disable-next-line max-len
