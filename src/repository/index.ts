@@ -286,11 +286,17 @@ Message: ${err.message}`,
   // and return the new interval.
   private recoverableError(url: string, statusCode: number): number {
     let nextFetch = this.backoff();
-    if (statusCode === 404 || statusCode === 429) {
+    if (statusCode === 429) {
       this.emit(
         UnleashEvents.Warn,
         // eslint-disable-next-line max-len
         `${url} responded TOO_MANY_CONNECTIONS (429). Backing off`,
+      );
+    } else if (statusCode === 404) {
+      this.emit(
+        UnleashEvents.Warn,
+        // eslint-disable-next-line max-len
+        `${url} responded FILE_NOT_FOUND (404). Backing off`,
       );
     } else if (
       statusCode === 500 ||
