@@ -1,7 +1,6 @@
 import { Strategy } from './strategy';
 import { Context } from '../context';
-
-const ip = require('ip');
+import { Address4 } from 'ip-address';
 
 export default class RemoteAddressStrategy extends Strategy {
   constructor() {
@@ -16,14 +15,13 @@ export default class RemoteAddressStrategy extends Strategy {
       if (range === context.remoteAddress) {
         return true;
       }
-      if (!ip.isV6Format(range)) {
-        try {
-          return ip.cidrSubnet(range).contains(context.remoteAddress);
-        } catch (err) {
-          return false;
-        }
+      try {
+        const subnetRange = new Address4(range);
+        const remoteAddress = new Address4(context.remoteAddress || '');
+        return remoteAddress.isInSubnet(subnetRange);
+      } catch (err) {
+        return false;
       }
-      return false;
     });
   }
 }
