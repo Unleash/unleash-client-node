@@ -82,6 +82,7 @@
   "resolutions": {
     "ansi-regex": "^5.0.1",
     "debug": "^4.0.0",
+    "braces": "^3.0.3",
     "ip-address": "^9.0.5",
     "json-schema": "^0.4.0",
     "json5": "^2.0.0",
