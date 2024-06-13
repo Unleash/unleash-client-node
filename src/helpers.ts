@@ -20,10 +20,10 @@ export function createFallbackFunction(
 
 export function resolveContextValue(context: Context, field: string): string | undefined {
   if (context[field]) {
-    return context[field] as string;
+    return context[field]?.toString();
   }
   if (context.properties && context.properties[field]) {
-    return context.properties[field] as string;
+    return context.properties[field]?.toString();
   }
   return undefined;
 }
