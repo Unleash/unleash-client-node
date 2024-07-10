@@ -456,6 +456,11 @@ offline, from a browser environment or implement your own caching layer. See
 Unleash depends on a `ready` event of the repository you pass in. Be sure that you emit the event
 **after** you've initialized unleash.
 
+## Usage with HTTP and HTTPS proxies
+
+You can connect to the Unleash API through the corporate proxy by setting one of the environment
+variables: `HTTP_PROXY` or `HTTPS_PROXY`
+
 ## Design philosophy
 
 This feature flag SDK is designed according to our design philosophy. You can

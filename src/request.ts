@@ -1,4 +1,6 @@
 import * as fetch from 'make-fetch-happen';
+import { HttpProxyAgent } from 'http-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
@@ -29,17 +31,23 @@ export interface PostRequestOptions extends RequestOptions {
   instanceId?: string;
   httpOptions?: HttpOptions;
 }
-const httpAgent = new http.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 30 * 1000,
-  timeout: 10 * 1000,
-});
 
-const httpsAgent = new https.Agent({
+const httpProxy = process.env.HTTP_PROXY || process.env.http_proxy;
+const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy;
+
+const httpAgentOptions: http.AgentOptions = {
   keepAlive: true,
   keepAliveMsecs: 30 * 1000,
   timeout: 10 * 1000,
-});
+};
+
+const httpAgent = httpProxy
+  ? new HttpProxyAgent(httpProxy, httpAgentOptions)
+  : new http.Agent(httpAgentOptions);
+
+const httpsAgent = httpsProxy
+  ? new HttpsProxyAgent(httpsProxy, httpAgentOptions)
+  : new https.Agent(httpAgentOptions);
 
 export const getDefaultAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
 export const buildHeaders = (
