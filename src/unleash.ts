@@ -1,4 +1,5 @@
 import { tmpdir } from 'os';
+import { randomUUID } from 'crypto';
 import { EventEmitter } from 'events';
 import Client from './client';
 import Repository, { RepositoryInterface } from './repository';
@@ -8,12 +9,7 @@ import { Strategy, defaultStrategies } from './strategy';
 
 import { EnhancedFeatureInterface, FeatureInterface } from './feature';
 import { Variant, defaultVariant, VariantWithFeatureStatus } from './variant';
-import {
-  FallbackFunction,
-  createFallbackFunction,
-  generateInstanceId,
-  generateHashOfConfig,
-} from './helpers';
+import { FallbackFunction, createFallbackFunction, generateHashOfConfig } from './helpers';
 import { resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
@@ -53,7 +49,6 @@ export class Unleash extends EventEmitter {
     appName,
     environment = 'default',
     projectName,
-    instanceId,
     url,
     refreshInterval = 15 * 1000,
     metricsInterval = 60 * 1000,
@@ -101,7 +96,7 @@ export class Unleash extends EventEmitter {
 
     const unleashUrl = this.cleanUnleashUrl(url);
 
-    const unleashInstanceId = generateInstanceId(instanceId);
+    const unleashInstanceId = randomUUID();
 
     this.staticContext = { appName, environment };
 
