@@ -212,6 +212,7 @@ The initialize method takes the following arguments:
 - **environment** - The value to put in the Unleash context's `environment` property. Automatically
   populated in the Unleash Context (optional). This does **not** set the SDK's
   [Unleash environment](https://docs.getunleash.io/reference/environments).
+- **instanceId** - A unique identifier, should/could be somewhat unique.
 - **refreshInterval** - The poll interval to check for updates. Defaults to 15000ms.
 - **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
   60000ms.
@@ -228,10 +229,6 @@ The initialize method takes the following arguments:
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
 - **tags** - Only fetch feature toggles tagged with the list of tags. E.g.:
   `[{type: 'simple', value: 'proxy'}]`.
-
-### instanceId
-
-As of version 5.0.0, `instanceId` is now automatically generated.
 
 ## Custom strategies
 
@@ -382,12 +379,13 @@ import {
   initialize,
   getFeatureToggleDefinition,
   getFeatureToggleDefinitions,
-} from 'unleash-client';
+} from "unleash-client";
 
 initialize({
   url: 'http://unleash.herokuapp.com/api/',
   customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   appName: 'my-app-name',
+  instanceId: 'my-unique-instance-id',
 });
 
 const featureToggleX = getFeatureToggleDefinition('app.ToggleX');
@@ -406,7 +404,7 @@ provider or a custom store provider implemented by you.
 **1. Use InMemStorageProvider**
 
 ```js
-import { initialize, InMemStorageProvider } from 'unleash-client';
+import { initialize, InMemStorageProvider } from "unleash-client";
 
 const client = initialize({
   appName: 'my-application',
@@ -419,7 +417,7 @@ const client = initialize({
 **2. Custom Store Provider backed by redis**
 
 ```js
-import { initialize, InMemStorageProvider } from 'unleash-client';
+import { initialize, InMemStorageProvider } from "unleash-client";
 
 import { createClient } from 'redis';
 
