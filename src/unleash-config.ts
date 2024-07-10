@@ -11,7 +11,6 @@ import { RepositoryInterface } from './repository';
 export interface UnleashConfig {
   appName: string;
   environment?: string;
-  instanceId?: string;
   url: string;
   refreshInterval?: number;
   projectName?: string;
