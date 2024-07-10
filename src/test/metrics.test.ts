@@ -1,6 +1,7 @@
 import test from 'ava';
 import * as nock from 'nock';
 import Metrics from '../metrics';
+import { SUPPORTED_SPEC_VERSION } from '../repository';
 
 let counter = 1;
 const getUrl = () => `http://test${counter++}.app/`;
@@ -554,4 +555,34 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
   t.false(metrics.disabled);
   t.is(metrics.getFailures(), 0);
   t.is(metrics.getInterval(), metricsInterval);
+});
+
+test('getClientData should include extended metrics', (t) => {
+  const url = getUrl();
+  // @ts-expect-error
+  const metrics = new Metrics({
+    url,
+  });
+  metrics.start();
+
+  const result = metrics.getClientData();
+  t.truthy(result.platformName);
+  t.truthy(result.platformVersion);
+  t.true(result.yggdrasilVersion === null);
+  t.true(result.specVersion === SUPPORTED_SPEC_VERSION);
+});
+
+test('createMetricsData should include extended metrics', (t) => {
+  const url = getUrl();
+  // @ts-expect-error
+  const metrics = new Metrics({
+    url,
+  });
+  metrics.start();
+
+  const result = metrics.createMetricsData();
+  t.truthy(result.platformName);
+  t.truthy(result.platformVersion);
+  t.true(result.yggdrasilVersion === null);
+  t.true(result.specVersion === SUPPORTED_SPEC_VERSION);
 });

@@ -14,7 +14,7 @@ import {
   StrategyTransportInterface,
 } from '../strategy/strategy';
 
-const SUPPORTED_SPEC_VERSION = '4.3.0';
+export const SUPPORTED_SPEC_VERSION = '4.3.0';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface | undefined;
