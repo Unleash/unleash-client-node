@@ -6,6 +6,7 @@ import { HttpOptions } from './http-options';
 import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
+import { SUPPORTED_SPEC_VERSION } from './repository';
 
 export interface MetricsOptions {
   appName: string;
@@ -31,15 +32,41 @@ interface Bucket {
   toggles: { [s: string]: { yes: number; no: number; variants: VariantBucket } };
 }
 
-interface MetricsData {
+declare var Bun:
+  | {
+      version: string;
+    }
+  | undefined;
+
+declare var Deno:
+  | {
+      version: {
+        deno: string;
+      };
+    }
+  | undefined;
+
+type PlatformName = 'bun' | 'deno' | 'node' | 'unknown';
+
+type PlatformData = {
+  name: PlatformName;
+  version: string;
+};
+
+interface BaseMetricsData {
   appName: string;
   instanceId: string;
+  platformName: PlatformName;
+  platformVersion: string;
+  yggdrasilVersion: null;
+  specVersion: string;
+}
+
+interface MetricsData extends BaseMetricsData {
   bucket: Bucket;
 }
 
-interface RegistrationData {
-  appName: string;
-  instanceId: string;
+interface RegistrationData extends BaseMetricsData {
   sdkVersion: string;
   strategies: string[];
   started: Date;
@@ -79,6 +106,8 @@ export default class Metrics extends EventEmitter {
 
   private httpOptions?: HttpOptions;
 
+  private platformData: PlatformData;
+
   constructor({
     appName,
     instanceId,
@@ -107,6 +136,7 @@ export default class Metrics extends EventEmitter {
     this.timeout = timeout;
     this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
+    this.platformData = this.getPlatformData();
   }
 
   private getAppliedJitter(): number {
@@ -324,6 +354,10 @@ export default class Metrics extends EventEmitter {
       appName: this.appName,
       instanceId: this.instanceId,
       bucket,
+      platformName: this.platformData.name,
+      platformVersion: this.platformData.version,
+      yggdrasilVersion: null,
+      specVersion: SUPPORTED_SPEC_VERSION,
     };
   }
 
@@ -353,6 +387,22 @@ export default class Metrics extends EventEmitter {
       strategies: this.strategies,
       started: this.started,
       interval: this.metricsInterval,
+      platformName: this.platformData.name,
+      platformVersion: this.platformData.version,
+      yggdrasilVersion: null,
+      specVersion: SUPPORTED_SPEC_VERSION,
     };
+  }
+
+  private getPlatformData(): PlatformData {
+    if (typeof Bun !== 'undefined') {
+      return { name: 'bun', version: Bun.version };
+    } else if (typeof Deno !== 'undefined') {
+      return { name: 'deno', version: Deno.version.deno };
+    } else if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+      return { name: 'node', version: process.versions.node };
+    } else {
+      return { name: 'unknown', version: 'unknown' };
+    }
   }
 }

@@ -231,7 +231,7 @@ The initialize method takes the following arguments:
 
 ### instanceId
 
-As of version 5.0.0, `instanceId` is now automatically generated.
+As of version 6.0.0, `instanceId` is now automatically generated.
 
 ## Custom strategies
 
