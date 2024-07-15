@@ -212,6 +212,7 @@ The initialize method takes the following arguments:
 - **environment** - The value to put in the Unleash context's `environment` property. Automatically
   populated in the Unleash Context (optional). This does **not** set the SDK's
   [Unleash environment](https://docs.getunleash.io/reference/environments).
+- **instanceId** - A unique identifier, should/could be somewhat unique.
 - **refreshInterval** - The poll interval to check for updates. Defaults to 15000ms.
 - **metricsInterval** - How often the client should send metrics to Unleash API. Defaults to
   60000ms.
@@ -228,10 +229,6 @@ The initialize method takes the following arguments:
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
 - **tags** - Only fetch feature toggles tagged with the list of tags. E.g.:
   `[{type: 'simple', value: 'proxy'}]`.
-
-### instanceId
-
-As of version 6.0.0, `instanceId` is now automatically generated.
 
 ## Custom strategies
 
@@ -388,6 +385,7 @@ initialize({
   url: 'http://unleash.herokuapp.com/api/',
   customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
   appName: 'my-app-name',
+  instanceId: 'my-unique-instance-id',
 });
 
 const featureToggleX = getFeatureToggleDefinition('app.ToggleX');
