@@ -93,11 +93,14 @@ const SemverOperator = (constraint: Constraint, context: Context) => {
   const { contextName, operator } = constraint;
   const value = constraint.value as string;
   const contextValue = resolveContextValue(context, contextName);
-  if (!contextValue || !isStrictSemver(contextValue)) {
+  if (!contextValue) {
     return false;
   }
 
   try {
+    if (!isStrictSemver(contextValue)) {
+      return false;
+    }
     if (operator === Operator.SEMVER_EQ) {
       return semverEq(contextValue, value);
     }

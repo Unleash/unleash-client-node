@@ -19,7 +19,8 @@ export function createFallbackFunction(
 }
 
 export function resolveContextValue(context: Context, field: string): string | undefined {
-  return context[field]?.toString() ?? context.properties?.[field]?.toString();
+  const contextValue = context[field] ?? context.properties?.[field];
+  return contextValue !== undefined && contextValue !== null ? String(contextValue) : undefined;
 }
 
 export function safeName(str: string = '') {

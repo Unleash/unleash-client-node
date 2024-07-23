@@ -602,3 +602,24 @@ test('should be enabled for missing field when NOT_IN', (t) => {
   // @ts-expect-error
   t.true(strategy.isEnabledWithConstraints(params, context, constraints));
 });
+
+test('should gracefully handle version with custom toString that does not return string', (t) => {
+  const strategy = new Strategy('test', true);
+  const params = {};
+  const constraints = [{ contextName: 'version', operator: 'SEMVER_EQ', value: '1.2.2' }];
+  const context = {
+    environment: 'dev',
+    properties: { version: { toString: () => 122 } },
+  };
+
+  try {
+    // @ts-expect-error
+    const enabled = strategy.isEnabledWithConstraints(params, context, constraints);
+    t.true(enabled || !enabled); // This will pass if no error is thrown
+  } catch (error: unknown) {
+    // @ts-expect-error
+    t.fail(`Threw error: ${error.message}`);
+  }
+
+  t.pass();
+});
