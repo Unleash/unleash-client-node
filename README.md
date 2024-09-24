@@ -150,7 +150,7 @@ normal apps.
 
 You can use the `getVariant` method to retrieve the variant of a feature flag. If the flag is disabled or
 doesn't have any variants, the method returns the
-[disabled variant](https://docs.getunleash.io/reference/feature-toggle-variants#the-disabled-variant)
+[disabled variant](https://docs.getunleash.io/reference/feature-toggle-variants#the-disabled-variant).
 
 ```js
 const variant = unleash.getVariant('demo-variant');
