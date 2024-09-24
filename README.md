@@ -10,7 +10,7 @@ The official Unleash client SDK for Node.js.
 
 ## Getting started
 
-### 1. Install the Unleash Client into your project
+### 1. Install the Unleash client in your project
 
 ```bash
 npm install unleash-client
