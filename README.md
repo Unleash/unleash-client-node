@@ -10,7 +10,7 @@ The official Unleash client SDK for Node.js.
 
 ## Getting started
 
-### 1. Install the unleash-client into your project
+### 1. Install the Unleash client in your project
 
 ```bash
 npm install unleash-client
@@ -24,7 +24,7 @@ yarn add unleash-client
 
 (Or any other tool you like.)
 
-### 2. Initialize unleash-client
+### 2. Initialize `unleash-client`
 
 Once installed, you must initialize the SDK in your application. By default, Unleash initialization
 is asynchronous, but if you need it to be synchronous, you can
@@ -145,6 +145,20 @@ setInterval(() => {
 the event that all your app does is to start the SDK and check a feature status, this is will keep a
 node app running until the SDK has synchronized with the Unleash API. It is **not** required in
 normal apps.
+
+#### Check variants
+
+You can use the `getVariant` method to retrieve the variant of a feature flag. If the flag is disabled or
+doesn't have any variants, the method returns the
+[disabled variant](https://docs.getunleash.io/reference/feature-toggle-variants#the-disabled-variant).
+
+```js
+const variant = unleash.getVariant('demo-variant');
+
+if (variant.name === 'blue') {
+  // do something with the blue variant...
+}
+```
 
 #### Providing an Unleash context
 
