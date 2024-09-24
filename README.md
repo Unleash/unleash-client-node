@@ -149,7 +149,7 @@ normal apps.
 #### Check variants
 
 You can use the `getVariant` method to retrieve the variant of a feature flag. If the flag is disabled or
-if it has no variants, then you will get back the
+doesn't have any variants, the method returns the
 [disabled variant](https://docs.getunleash.io/reference/feature-toggle-variants#the-disabled-variant)
 
 ```js
