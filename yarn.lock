@@ -884,9 +884,9 @@
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
 "@unleash/client-specification@^5.1.6":
-  version "5.1.6"
-  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-5.1.6.tgz#d9988ce63d535ee3c671a93d8e09d70e73c8b6f1"
-  integrity sha512-Yoc+fea2Hd1tw3nf5EgluhzX++5xhhbAZ15CB0pBICBVvsZejNb5S9rKhO+Gr30MhNyG4LHoG4rl+UBxKqe79A==
+  version "5.1.7"
+  resolved "https://registry.yarnpkg.com/@unleash/client-specification/-/client-specification-5.1.7.tgz#8f8363803cca96afca4e65938d97951ffa8facc4"
+  integrity sha512-PIaVKrFuXS/HMaWFOmLVAKssNlPKVvQ1+EgUMZ+SL+4d1U2bMevR8QJB0Efk2F6FhjSvJTN1vPlpuacfc/F25A==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
