@@ -81,3 +81,24 @@ export async function flushMetrics(): Promise<void> {
 export async function destroyWithFlush(): Promise<void> {
   return instance && instance.destroyWithFlush();
 }
+
+export async function migrateFlag(
+  flag: string,
+  evaluateLegacy: (flagName: string) => boolean | Promise<boolean>,
+  context?: Context,
+) {
+  const value = evaluateLegacy('flag');
+
+  if (!instance) return value;
+
+  if (
+    instance.isEnabled('isSafeMode') ||
+    !instance.isEnabled('isRolledOut', { flag, ...context })
+  ) {
+    (async () => instance.count(flag, await value))(); // only get metrics
+
+    return value;
+  }
+
+  return instance.isEnabled(flag);
+}
