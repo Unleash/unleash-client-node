@@ -33,7 +33,7 @@
     "http-proxy-agent": "^7.0.2",
     "https-proxy-agent": "^7.0.5",
     "ip-address": "^9.0.5",
-    "make-fetch-happen": "^13.0.1",
+    "make-fetch-happen": "^14.0.0",
     "murmurhash3js": "^3.0.1",
     "semver": "^7.6.2"
   },
