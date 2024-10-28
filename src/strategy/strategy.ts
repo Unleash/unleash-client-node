@@ -51,7 +51,8 @@ export enum Operator {
 export type OperatorImpl = (constraint: Constraint, context: Context) => boolean;
 
 const cleanValues = (values: string[]) => values.filter((v) => !!v).map((v) => v.trim());
-const isValidSemver = (version: string) => Boolean(validSemver(version));
+const isValidSemver = (version: string) =>
+  Boolean(validSemver(version)) && !version.startsWith('v');
 
 const InOperator = (constraint: Constraint, context: Context) => {
   const field = constraint.contextName;

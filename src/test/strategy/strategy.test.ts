@@ -520,7 +520,7 @@ test('should be enabled when semver in range', (t) => {
     { contextName: 'version', operator: 'SEMVER_LT', value: '2.0.0' },
   ];
 
-  for (const version of ['1.2.5', '1.2.5+1235', '1.2.5-rc.1', 'v1.2.5']) {
+  for (const version of ['1.2.5', '1.2.5+1235', '1.2.5-rc.1']) {
     const context = {
       environment: 'dev',
       properties: { version },
