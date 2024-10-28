@@ -520,12 +520,15 @@ test('should be enabled when semver in range', (t) => {
     { contextName: 'version', operator: 'SEMVER_LT', value: '2.0.0' },
   ];
 
-  const context = {
-    environment: 'dev',
-    properties: { version: '1.2.5' },
-  };
-  // @ts-expect-error
-  t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+  for (const version of ['1.2.5', '1.2.5+1235', '1.2.5-rc.1']) {
+    const context = {
+      environment: 'dev',
+      properties: { version },
+    };
+
+    // @ts-expect-error
+    t.true(strategy.isEnabledWithConstraints(params, context, constraints));
+  }
 });
 
 test('should be disabled when semver out of range', (t) => {
