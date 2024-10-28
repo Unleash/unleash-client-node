@@ -1,4 +1,4 @@
-import { gt as semverGt, lt as semverLt, eq as semverEq, clean as cleanSemver } from 'semver';
+import { gt as semverGt, lt as semverLt, eq as semverEq, valid as validSemver } from 'semver';
 import { Context } from '../context';
 import { resolveContextValue } from '../helpers';
 import { selectVariantDefinition, Variant, VariantDefinition } from '../variant';
@@ -51,7 +51,7 @@ export enum Operator {
 export type OperatorImpl = (constraint: Constraint, context: Context) => boolean;
 
 const cleanValues = (values: string[]) => values.filter((v) => !!v).map((v) => v.trim());
-const isStrictSemver = (version: string) => cleanSemver(version) === version;
+const isValidSemver = (version: string) => Boolean(validSemver(version));
 
 const InOperator = (constraint: Constraint, context: Context) => {
   const field = constraint.contextName;
@@ -98,7 +98,7 @@ const SemverOperator = (constraint: Constraint, context: Context) => {
   }
 
   try {
-    if (!isStrictSemver(contextValue)) {
+    if (!isValidSemver(contextValue)) {
       return false;
     }
     if (operator === Operator.SEMVER_EQ) {
