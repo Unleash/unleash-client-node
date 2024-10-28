@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           cache: yarn
+      - name: Corepack
+        run: npx corepack enable yarn
       - name: Yarn
         run: yarn
       - name: Test
