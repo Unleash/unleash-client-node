@@ -194,6 +194,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
+    if (this.stopped) {
+      return;
+    }
     if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
