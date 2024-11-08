@@ -8,6 +8,8 @@ import InMemStorageProvider from '../repository/storage-provider-in-mem';
 import FileStorageProvider from '../repository/storage-provider-file';
 import Repository from '../repository';
 import { DefaultBootstrapProvider } from '../repository/bootstrap-provider';
+import { StorageProvider } from '../repository/storage-provider';
+import { ClientFeaturesResponse } from '../feature';
 
 const appName = 'foo';
 const instanceId = 'bar';
@@ -1304,3 +1306,57 @@ test('should return full segment data when requested', (t) =>
     repo.on('error', () => {});
     repo.start();
   }));
+
+test('Stopping repository should stop unchanged event reporting', async (t) => {
+  t.plan(0);
+  const url = 'http://unleash-test-stop-304.app';
+  nock(url).persist().get('/client/features').reply(304, '');
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider: new InMemStorageProvider(),
+  });
+  repo.on('unchanged', () => {
+    t.fail('Should not emit unchanged event after stopping');
+  });
+
+  const promise = repo.fetch();
+  repo.stop(); // remove all listeners
+  await promise;
+});
+
+test('Stopping repository should stop storage provider updates', async (t) => {
+  t.plan(1);
+  const url = 'http://unleash-test-stop-200.app';
+  const feature = {
+    name: 'feature',
+    enabled: true,
+    strategies: [
+      {
+        name: 'default',
+      },
+    ],
+  };
+  setup(url, [feature]);
+  const storageProvider: StorageProvider<ClientFeaturesResponse> = new InMemStorageProvider();
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider,
+  });
+
+  const promise = repo.fetch();
+  repo.stop(); // stop storage provider from accepting commands
+  await promise;
+
+  const result = await storageProvider.get(appName);
+  t.is(result, undefined);
+});

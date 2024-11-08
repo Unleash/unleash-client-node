@@ -194,6 +194,9 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async save(response: ClientFeaturesResponse, fromApi: boolean): Promise<void> {
+    if (this.stopped) {
+      return;
+    }
     if (fromApi) {
       this.connected = true;
       this.data = this.convertToMap(response.features);
@@ -353,6 +356,7 @@ Message: ${err.message}`,
         httpOptions: this.httpOptions,
         supportedSpecVersion: SUPPORTED_SPEC_VERSION,
       });
+
       if (res.status === 304) {
         // No new data
         this.emit(UnleashEvents.Unchanged);
