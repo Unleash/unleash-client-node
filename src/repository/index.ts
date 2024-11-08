@@ -356,7 +356,6 @@ Message: ${err.message}`,
         httpOptions: this.httpOptions,
         supportedSpecVersion: SUPPORTED_SPEC_VERSION,
       });
-
       if (res.status === 304) {
         // No new data
         this.emit(UnleashEvents.Unchanged);
