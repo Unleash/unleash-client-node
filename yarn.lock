@@ -616,9 +616,9 @@
   integrity sha512-sXXKG+uL9IrKqViTtao2Ws6dy0znu9sOaP1di/jKGW1M6VssO8vlpXCQcpZ+jisQ1tTFAC5Jo/EOzFbggBagFQ==
 
 "@tsconfig/node12@^12.0.0":
-  version "12.1.0"
-  resolved "https://registry.yarnpkg.com/@tsconfig/node12/-/node12-12.1.0.tgz#cec056d4fbcf4eab73e9ff06cad3755ea2f61178"
-  integrity sha512-kdeyUs2jy6iHVq8H27ymIE1a/ci7LjEw9VvXtvP8FKr0QptiEoM30oPy8XFfcWiPdcd2VzYdCGMYwow+K+guXA==
+  version "12.1.4"
+  resolved "https://registry.yarnpkg.com/@tsconfig/node12/-/node12-12.1.4.tgz#10d5a80d95e1843741192f45bb85c02d23b349f5"
+  integrity sha512-0KoYJG4IOL99qNFpQEyLJ8ZKQ+xBVBrgpN63Hepk2WHqt9wBggSRQltrzVxk4e1ZTnEFCs+8CGefr2hevDg9vg==
 
 "@types/body-parser@*":
   version "1.19.5"
