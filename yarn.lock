@@ -3729,9 +3729,9 @@ nise@^6.0.0:
     path-to-regexp "^6.2.1"
 
 nock@*, nock@^13.3.1:
-  version "13.5.3"
-  resolved "https://registry.yarnpkg.com/nock/-/nock-13.5.3.tgz#9858adf5b840696a410baf98bda720d5fad4f075"
-  integrity sha512-2NlGmHIK2rTeyy7UaY1ZNg0YZfEJMxghXgZi0b4DBsUyoDNTTxZeCSG1nmirAWF44RkkoV8NnegLVQijgVapNQ==
+  version "13.5.6"
+  resolved "https://registry.yarnpkg.com/nock/-/nock-13.5.6.tgz#5e693ec2300bbf603b61dae6df0225673e6c4997"
+  integrity sha512-o2zOYiCpzRqSzPj0Zt/dQ/DqZeYoaQ7TUonc/xUPjCGl9WeHpNbxgVvOquXYAaJzI0M9BXV3HTzG0p8IUAbBTQ==
   dependencies:
     debug "^4.1.0"
     json-stringify-safe "^5.0.1"
