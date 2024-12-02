@@ -32,4 +32,5 @@ export interface UnleashConfig {
   storageProvider?: StorageProvider<ClientFeaturesResponse>;
   disableAutoStart?: boolean;
   skipInstanceCountWarning?: boolean;
+  streaming?: boolean;
 }

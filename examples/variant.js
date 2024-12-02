@@ -1,11 +1,12 @@
-const { initialize, getVariant } = require('../lib');
+const { initialize, isEnabled } = require('../lib');
 
 const client = initialize({
   appName: 'my-application',
-  url: 'https://unleash.herokuapp.com/api/',
+  url: 'http://localhost:4242/api/',
   customHeaders: {
-    Authorization: '3bd74da5b341d868443134377ba5d802ea1e6fa2d2a948276ade1f092bec8d92',
+    Authorization: '*:development.35a4fe08c112c8d98cc7a21bdf4d077796920c5e86b0f98eed467b23',
   },
+  streaming: true,
 });
 
 client.on('error', console.error);
@@ -14,5 +15,5 @@ client.on('warn', console.log);
 console.log('Fetching toggles from: http://unleash.herokuapp.com');
 
 setInterval(() => {
-  console.log('Variant config', getVariant('Test.variants', { userId: `${Math.random()}` }));
+  console.log('Enabled:', isEnabled('sadfsdaf', { userId: `${Math.random()}` }));
 }, 1000);

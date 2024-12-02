@@ -73,6 +73,7 @@ export class Unleash extends EventEmitter {
     storageProvider,
     disableAutoStart = false,
     skipInstanceCountWarning = false,
+    streaming = false,
   }: UnleashConfig) {
     super();
 
@@ -123,6 +124,7 @@ export class Unleash extends EventEmitter {
         tags,
         bootstrapProvider,
         bootstrapOverride,
+        streaming,
         storageProvider: storageProvider || new FileStorageProvider(backupPath),
       });
 

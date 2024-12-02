@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { ClientFeaturesResponse, EnhancedFeatureInterface, FeatureInterface } from '../feature';
 import { get } from '../request';
 import { CustomHeaders, CustomHeadersFunction } from '../headers';
-import getUrl from '../url-utils';
+import getUrl, { resolveUrl } from '../url-utils';
 import { HttpOptions } from '../http-options';
 import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
@@ -13,6 +13,7 @@ import {
   Segment,
   StrategyTransportInterface,
 } from '../strategy/strategy';
+const EventSource = require('eventsource');
 
 export const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -39,6 +40,7 @@ export interface RepositoryOptions {
   bootstrapProvider: BootstrapProvider;
   bootstrapOverride?: boolean;
   storageProvider: StorageProvider<ClientFeaturesResponse>;
+  streaming?: boolean;
 }
 
 interface FeatureToggleData {
@@ -90,6 +92,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private segments: Map<number, Segment>;
 
+  private streaming: boolean = false;
+
+  private eventSource: EventSource | undefined;
+
   constructor({
     url,
     appName,
@@ -105,6 +111,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     bootstrapProvider,
     bootstrapOverride = true,
     storageProvider,
+    streaming = false,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -122,10 +129,23 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
     this.segments = new Map();
+    this.streaming = streaming;
+    if (this.streaming) {
+      this.eventSource = new EventSource(resolveUrl(this.url, './client/streaming'), {
+        headers: this.headers,
+      } as any);
+      this.eventSource?.addEventListener('message', (event) => {
+        console.log('ES event', event);
+        this.fetch();
+      });
+      this.eventSource?.addEventListener('error', (error) => {
+        console.log('ES error', error);
+      });
+    }
   }
 
   timedFetch(interval: number) {
-    if (interval > 0) {
+    if (interval > 0 && !this.streaming) {
       this.timer = setTimeout(() => this.fetch(), interval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
