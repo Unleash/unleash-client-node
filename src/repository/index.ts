@@ -136,7 +136,21 @@ export default class Repository extends EventEmitter implements EventEmitter {
       } as any);
       this.eventSource?.addEventListener('message', (event) => {
         console.log('ES event', event);
-        this.fetch();
+        try {
+          if (event.data.startsWith('UPDATE:')) {
+            const data: ClientFeaturesResponse = JSON.parse(event.data.substring(7));
+            // @ts-expect-error
+            const etag = data.meta.etag;
+            if (etag !== null) {
+              this.etag = etag;
+            } else {
+              this.etag = undefined;
+            }
+            this.save(data, true);
+          }
+        } catch (err) {
+          this.emit(UnleashEvents.Error, err);
+        }
       });
       this.eventSource?.addEventListener('error', (error) => {
         console.log('ES error', error);
