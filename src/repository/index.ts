@@ -424,6 +424,9 @@ Message: ${err.message}`,
       clearTimeout(this.timer);
     }
     this.removeAllListeners();
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
   }
 
   getSegment(segmentId: number): Segment | undefined {
