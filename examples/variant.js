@@ -1,19 +1,14 @@
-const { initialize, isEnabled } = require('../lib');
+const { Unleash } = require('../lib');
 
-const client = initialize({
+const client = new Unleash({
   appName: 'my-application',
-  url: 'http://localhost:4242/api/',
+  url: 'https://sandbox.getunleash.io/nuno/api/',
   customHeaders: {
-    Authorization: '*:development.35a4fe08c112c8d98cc7a21bdf4d077796920c5e86b0f98eed467b23',
+    Authorization: '',
   },
-  streaming: true,
+  experimentalMode: { type: 'streaming' },
+  skipInstanceCountWarning: true,
 });
-
-client.on('error', console.error);
-client.on('warn', console.log);
-
-console.log('Fetching toggles from: http://unleash.herokuapp.com');
-
-setInterval(() => {
-  console.log('Enabled:', isEnabled('sadfsdaf', { userId: `${Math.random()}` }));
-}, 1000);
+client.on('changed', () => {
+  console.log('Enabled:', client.isEnabled('streaming-flag', { userId: `${Math.random()}` }));
+});

@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { ClientFeaturesResponse, EnhancedFeatureInterface, FeatureInterface } from '../feature';
 import { get } from '../request';
 import { CustomHeaders, CustomHeadersFunction } from '../headers';
-import getUrl, { resolveUrl } from '../url-utils';
+import getUrl from '../url-utils';
 import { HttpOptions } from '../http-options';
 import { TagFilter } from '../tags';
 import { BootstrapProvider } from './bootstrap-provider';
@@ -13,7 +13,8 @@ import {
   Segment,
   StrategyTransportInterface,
 } from '../strategy/strategy';
-const EventSource = require('eventsource');
+// @ts-expect-error
+import { EventSource } from 'launchdarkly-eventsource';
 
 export const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -40,7 +41,7 @@ export interface RepositoryOptions {
   bootstrapProvider: BootstrapProvider;
   bootstrapOverride?: boolean;
   storageProvider: StorageProvider<ClientFeaturesResponse>;
-  streaming?: boolean;
+  eventSource?: EventSource;
 }
 
 interface FeatureToggleData {
@@ -92,8 +93,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private segments: Map<number, Segment>;
 
-  private streaming: boolean = false;
-
   private eventSource: EventSource | undefined;
 
   constructor({
@@ -111,7 +110,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     bootstrapProvider,
     bootstrapOverride = true,
     storageProvider,
-    streaming = false,
+    eventSource,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -129,37 +128,30 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
     this.segments = new Map();
-    this.streaming = streaming;
-    if (this.streaming) {
-      this.eventSource = new EventSource(resolveUrl(this.url, './client/streaming'), {
-        headers: this.headers,
-      } as any);
-      this.eventSource?.addEventListener('message', (event) => {
-        console.log('ES event', event);
+    this.eventSource = eventSource;
+    if (this.eventSource) {
+      this.eventSource.addEventListener('unleash-updated', (event: { data: string }) => {
         try {
-          if (event.data.startsWith('UPDATE:')) {
-            const data: ClientFeaturesResponse = JSON.parse(event.data.substring(7));
-            // @ts-expect-error
-            const etag = data.meta.etag;
-            if (etag !== null) {
-              this.etag = etag;
-            } else {
-              this.etag = undefined;
-            }
-            this.save(data, true);
+          const data: ClientFeaturesResponse & { meta: { etag: string } } = JSON.parse(event.data);
+          const etag = data.meta.etag;
+          if (etag !== null) {
+            this.etag = etag;
+          } else {
+            this.etag = undefined;
           }
+          this.save(data, true);
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
         }
       });
-      this.eventSource?.addEventListener('error', (error) => {
-        console.log('ES error', error);
+      this.eventSource.addEventListener('error', (error: unknown) => {
+        this.emit(UnleashEvents.Warn, error);
       });
     }
   }
 
   timedFetch(interval: number) {
-    if (interval > 0 && !this.streaming) {
+    if (interval > 0 && !this.eventSource) {
       this.timer = setTimeout(() => this.fetch(), interval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();

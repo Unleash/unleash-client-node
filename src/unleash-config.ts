@@ -8,6 +8,8 @@ import { BootstrapOptions } from './repository/bootstrap-provider';
 import { StorageProvider } from './repository/storage-provider';
 import { RepositoryInterface } from './repository';
 
+export type Mode = { type: 'polling' } | { type: 'streaming' };
+
 export interface UnleashConfig {
   appName: string;
   environment?: string;
@@ -32,5 +34,5 @@ export interface UnleashConfig {
   storageProvider?: StorageProvider<ClientFeaturesResponse>;
   disableAutoStart?: boolean;
   skipInstanceCountWarning?: boolean;
-  streaming?: boolean;
+  experimentalMode?: Mode;
 }
