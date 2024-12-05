@@ -13,6 +13,8 @@ import {
   Segment,
   StrategyTransportInterface,
 } from '../strategy/strategy';
+// @ts-expect-error
+import { EventSource } from 'launchdarkly-eventsource';
 
 export const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -39,6 +41,7 @@ export interface RepositoryOptions {
   bootstrapProvider: BootstrapProvider;
   bootstrapOverride?: boolean;
   storageProvider: StorageProvider<ClientFeaturesResponse>;
+  eventSource?: EventSource;
 }
 
 interface FeatureToggleData {
@@ -90,6 +93,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private segments: Map<number, Segment>;
 
+  private eventSource: EventSource | undefined;
+
   constructor({
     url,
     appName,
@@ -105,6 +110,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     bootstrapProvider,
     bootstrapOverride = true,
     storageProvider,
+    eventSource,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -122,10 +128,30 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.bootstrapOverride = bootstrapOverride;
     this.storageProvider = storageProvider;
     this.segments = new Map();
+    this.eventSource = eventSource;
+    if (this.eventSource) {
+      this.eventSource.addEventListener('unleash-updated', (event: { data: string }) => {
+        try {
+          const data: ClientFeaturesResponse & { meta: { etag: string } } = JSON.parse(event.data);
+          const etag = data.meta.etag;
+          if (etag !== null) {
+            this.etag = etag;
+          } else {
+            this.etag = undefined;
+          }
+          this.save(data, true);
+        } catch (err) {
+          this.emit(UnleashEvents.Error, err);
+        }
+      });
+      this.eventSource.addEventListener('error', (error: unknown) => {
+        this.emit(UnleashEvents.Warn, error);
+      });
+    }
   }
 
   timedFetch(interval: number) {
-    if (interval > 0) {
+    if (interval > 0 && !this.eventSource) {
       this.timer = setTimeout(() => this.fetch(), interval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
@@ -398,6 +424,9 @@ Message: ${err.message}`,
       clearTimeout(this.timer);
     }
     this.removeAllListeners();
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
   }
 
   getSegment(segmentId: number): Segment | undefined {

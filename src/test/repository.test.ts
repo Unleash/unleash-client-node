@@ -10,6 +10,7 @@ import Repository from '../repository';
 import { DefaultBootstrapProvider } from '../repository/bootstrap-provider';
 import { StorageProvider } from '../repository/storage-provider';
 import { ClientFeaturesResponse } from '../feature';
+import { EventEmitter } from 'events';
 
 const appName = 'foo';
 const instanceId = 'bar';
@@ -1359,4 +1360,74 @@ test('Stopping repository should stop storage provider updates', async (t) => {
 
   const result = await storageProvider.get(appName);
   t.is(result, undefined);
+});
+
+test('Streaming', async (t) => {
+  t.plan(6);
+  const url = 'irrelevant';
+  const feature = {
+    name: 'feature',
+    enabled: true,
+    strategies: [
+      {
+        name: 'default',
+      },
+    ],
+  };
+  const storageProvider: StorageProvider<ClientFeaturesResponse> = new InMemStorageProvider();
+  const eventSource = {
+    eventEmitter: new EventEmitter(),
+    listeners: new Set<string>(),
+    addEventListener(eventName: string, handler: () => void) {
+      eventSource.listeners.add(eventName);
+      eventSource.eventEmitter.on(eventName, handler);
+    },
+    close() {
+      eventSource.listeners.forEach((eventName) => {
+        eventSource.eventEmitter.removeAllListeners(eventName);
+      });
+    },
+    emit(eventName: string, data: unknown) {
+      eventSource.eventEmitter.emit(eventName, data);
+    },
+  };
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider,
+    eventSource,
+  });
+
+  const before = repo.getToggles();
+  t.deepEqual(before, []);
+
+  // update with feature
+  eventSource.emit('unleash-updated', {
+    type: 'unleash-updated',
+    data: JSON.stringify({ meta: {}, features: [feature] }),
+  });
+  const firstUpdate = repo.getToggles();
+  t.deepEqual(firstUpdate, [feature]);
+  // @ts-expect-error
+  t.is(repo.etag, undefined);
+
+  // update with etag
+  eventSource.emit('unleash-updated', {
+    type: 'unleash-updated',
+    data: JSON.stringify({ meta: { etag: 'updated' }, features: [] }),
+  });
+  const secondUpdate = repo.getToggles();
+  t.deepEqual(secondUpdate, []);
+  // @ts-expect-error
+  t.is(repo.etag, 'updated');
+
+  // SSE error translated to repo warning
+  repo.on('warn', (msg) => {
+    t.is(msg, 'some error');
+  });
+  eventSource.emit('error', 'some error');
 });
