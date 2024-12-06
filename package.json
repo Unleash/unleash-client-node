@@ -35,6 +35,7 @@
     "ip-address": "^9.0.5",
     "make-fetch-happen": "^13.0.1",
     "murmurhash3js": "^3.0.1",
+    "proxy-from-env": "^1.1.0",
     "semver": "^7.6.2"
   },
   "engines": {
@@ -55,6 +56,7 @@
     "@types/murmurhash3js": "^3.0.3",
     "@types/nock": "^11.1.0",
     "@types/node": "^20.2.5",
+    "@types/proxy-from-env": "^1.0.4",
     "@types/semver": "^7.5.0",
     "@types/sinon": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
