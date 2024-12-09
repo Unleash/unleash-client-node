@@ -4,6 +4,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
+import { getProxyForUrl } from 'proxy-from-env';
 import { CustomHeaders } from './headers';
 import { HttpOptions } from './http-options';
 
@@ -32,24 +33,28 @@ export interface PostRequestOptions extends RequestOptions {
   httpOptions?: HttpOptions;
 }
 
-const httpProxy = process.env.HTTP_PROXY || process.env.http_proxy;
-const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy;
-
 const httpAgentOptions: http.AgentOptions = {
   keepAlive: true,
   keepAliveMsecs: 30 * 1000,
   timeout: 10 * 1000,
 };
 
-const httpAgent = httpProxy
-  ? new HttpProxyAgent(httpProxy, httpAgentOptions)
-  : new http.Agent(httpAgentOptions);
+const httpNoProxyAgent = new http.Agent(httpAgentOptions);
+const httpsNoProxyAgent = new https.Agent(httpAgentOptions);
 
-const httpsAgent = httpsProxy
-  ? new HttpsProxyAgent(httpsProxy, httpAgentOptions)
-  : new https.Agent(httpAgentOptions);
+export const getDefaultAgent = (url: URL) => {
+  const proxy = getProxyForUrl(url.href);
+  const isHttps = url.protocol === 'https:';
 
-export const getDefaultAgent = (url: URL) => (url.protocol === 'https:' ? httpsAgent : httpAgent);
+  if (!proxy || proxy === '') {
+    return isHttps ? httpsNoProxyAgent : httpNoProxyAgent;
+  }
+
+  return isHttps
+    ? new HttpsProxyAgent(proxy, httpAgentOptions)
+    : new HttpProxyAgent(proxy, httpAgentOptions);
+};
+
 export const buildHeaders = (
   appName?: string,
   instanceId?: string,
