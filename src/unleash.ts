@@ -18,7 +18,9 @@ import { resolveBootstrapProvider } from './repository/bootstrap-provider';
 import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
 import FileStorageProvider from './repository/storage-provider-file';
-
+import { resolveUrl } from './url-utils';
+// @ts-expect-error
+import { EventSource } from 'launchdarkly-eventsource';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -73,6 +75,7 @@ export class Unleash extends EventEmitter {
     storageProvider,
     disableAutoStart = false,
     skipInstanceCountWarning = false,
+    experimentalMode = { type: 'polling' },
   }: UnleashConfig) {
     super();
 
@@ -123,6 +126,17 @@ export class Unleash extends EventEmitter {
         tags,
         bootstrapProvider,
         bootstrapOverride,
+        eventSource:
+          experimentalMode?.type === 'streaming'
+            ? new EventSource(resolveUrl(unleashUrl, './client/streaming'), {
+                headers: customHeaders,
+                readTimeoutMillis: 60000, // start a new SSE connection when no heartbeat received in 1 minute
+                initialRetryDelayMillis: 2000,
+                maxBackoffMillis: 30000,
+                retryResetIntervalMillis: 60000,
+                jitterRatio: 0.5,
+              })
+            : undefined,
         storageProvider: storageProvider || new FileStorageProvider(backupPath),
       });
 
