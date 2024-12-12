@@ -1,7 +1,7 @@
 import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import Client from './client';
-import Repository, { RepositoryInterface } from './repository';
+import Repository, { RepositoryInterface, SUPPORTED_SPEC_VERSION } from './repository';
 import Metrics from './metrics';
 import { Context } from './context';
 import { Strategy, defaultStrategies } from './strategy';
@@ -21,6 +21,7 @@ import FileStorageProvider from './repository/storage-provider-file';
 import { resolveUrl } from './url-utils';
 // @ts-expect-error
 import { EventSource } from 'launchdarkly-eventsource';
+import { buildHeaders } from './request';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -129,7 +130,14 @@ export class Unleash extends EventEmitter {
         eventSource:
           experimentalMode?.type === 'streaming'
             ? new EventSource(resolveUrl(unleashUrl, './client/streaming'), {
-                headers: customHeaders,
+                headers: buildHeaders(
+                  appName,
+                  instanceId,
+                  undefined,
+                  undefined,
+                  customHeaders,
+                  SUPPORTED_SPEC_VERSION,
+                ),
                 readTimeoutMillis: 60000, // start a new SSE connection when no heartbeat received in 1 minute
                 initialRetryDelayMillis: 2000,
                 maxBackoffMillis: 30000,
