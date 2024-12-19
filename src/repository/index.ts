@@ -132,8 +132,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.segments = new Map();
     this.eventSource = eventSource;
     if (this.eventSource) {
-      // on first connect it replicates the fetch from the start() call.
-      // On re-connect it guaranteed catching up with the latest state.
+      // On re-connect it guarantees catching up with the latest state.
       this.eventSource.addEventListener('unleash-connected', (event: { data: string }) => {
         // reconnect
         if (this.initialEventSourceConnected) {
