@@ -1363,8 +1363,8 @@ test('Stopping repository should stop storage provider updates', async (t) => {
 });
 
 test('Streaming', async (t) => {
-  t.plan(6);
-  const url = 'irrelevant';
+  t.plan(7);
+  const url = 'http://unleash-test-streaming.app';
   const feature = {
     name: 'feature',
     enabled: true,
@@ -1374,6 +1374,7 @@ test('Streaming', async (t) => {
       },
     ],
   };
+  setup(url, [{ ...feature, name: 'initialFetch' }]);
   const storageProvider: StorageProvider<ClientFeaturesResponse> = new InMemStorageProvider();
   const eventSource = {
     eventEmitter: new EventEmitter(),
@@ -1402,16 +1403,24 @@ test('Streaming', async (t) => {
     eventSource,
   });
 
+  await repo.start();
+
+  // first connection is ignored, since we do regular fetch
+  eventSource.emit('unleash-connected', {
+    type: 'unleash-connected',
+    data: JSON.stringify({ meta: {}, features: [{ ...feature, name: 'intialConnectedIgnored' }] }),
+  });
+
   const before = repo.getToggles();
-  t.deepEqual(before, []);
+  t.deepEqual(before, [{ ...feature, name: 'initialFetch' }]);
 
   // update with feature
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
-    data: JSON.stringify({ meta: {}, features: [feature] }),
+    data: JSON.stringify({ meta: {}, features: [{ ...feature, name: 'firstUpdate' }] }),
   });
   const firstUpdate = repo.getToggles();
-  t.deepEqual(firstUpdate, [feature]);
+  t.deepEqual(firstUpdate, [{ ...feature, name: 'firstUpdate' }]);
   // @ts-expect-error
   t.is(repo.etag, undefined);
 
@@ -1430,4 +1439,12 @@ test('Streaming', async (t) => {
     t.is(msg, 'some error');
   });
   eventSource.emit('error', 'some error');
+
+  // re-connect simulation
+  eventSource.emit('unleash-connected', {
+    type: 'unleash-connected',
+    data: JSON.stringify({ meta: {}, features: [{ ...feature, name: 'reconnectUpdate' }] }),
+  });
+  const reconnectUpdate = repo.getToggles();
+  t.deepEqual(reconnectUpdate, [{ ...feature, name: 'reconnectUpdate' }]);
 });

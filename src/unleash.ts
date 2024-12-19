@@ -143,6 +143,10 @@ export class Unleash extends EventEmitter {
                 maxBackoffMillis: 30000,
                 retryResetIntervalMillis: 60000,
                 jitterRatio: 0.5,
+                errorFilter: function () {
+                  // retry all errors
+                  return true;
+                },
               })
             : undefined,
         storageProvider: storageProvider || new FileStorageProvider(backupPath),
