@@ -95,6 +95,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private eventSource: EventSource | undefined;
 
+  private initialEventSourceConnected: boolean = false;
+
   constructor({
     url,
     appName,
@@ -130,23 +132,35 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.segments = new Map();
     this.eventSource = eventSource;
     if (this.eventSource) {
-      this.eventSource.addEventListener('unleash-updated', (event: { data: string }) => {
-        try {
-          const data: ClientFeaturesResponse & { meta: { etag: string } } = JSON.parse(event.data);
-          const etag = data.meta.etag;
-          if (etag !== null) {
-            this.etag = etag;
-          } else {
-            this.etag = undefined;
-          }
-          this.save(data, true);
-        } catch (err) {
-          this.emit(UnleashEvents.Error, err);
+      // on first connect it replicates the fetch from the start() call.
+      // On re-connect it guaranteed catching up with the latest state.
+      this.eventSource.addEventListener('unleash-connected', (event: { data: string }) => {
+        // reconnect
+        if (this.initialEventSourceConnected) {
+          this.handleFlagsFromStream(event);
+        } else {
+          this.initialEventSourceConnected = true;
         }
       });
+      this.eventSource.addEventListener('unleash-updated', this.handleFlagsFromStream.bind(this));
       this.eventSource.addEventListener('error', (error: unknown) => {
         this.emit(UnleashEvents.Warn, error);
       });
+    }
+  }
+
+  private handleFlagsFromStream(event: { data: string }) {
+    try {
+      const data: ClientFeaturesResponse & { meta: { etag: string } } = JSON.parse(event.data);
+      const etag = data.meta.etag;
+      if (etag !== null) {
+        this.etag = etag;
+      } else {
+        this.etag = undefined;
+      }
+      this.save(data, true);
+    } catch (err) {
+      this.emit(UnleashEvents.Error, err);
     }
   }
 
@@ -180,6 +194,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   async start(): Promise<void> {
+    // the first fetch is used as a fallback even when streaming is enabled
     await Promise.all([this.fetch(), this.loadBackup(), this.loadBootstrap()]);
   }
 
