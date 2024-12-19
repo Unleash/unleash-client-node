@@ -1362,7 +1362,7 @@ test('Stopping repository should stop storage provider updates', async (t) => {
   t.is(result, undefined);
 });
 
-test('Streaming update events', async (t) => {
+test('Streaming', async (t) => {
   t.plan(7);
   const url = 'http://unleash-test-streaming.app';
   const feature = {
