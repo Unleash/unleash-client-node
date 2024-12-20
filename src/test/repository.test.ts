@@ -1363,7 +1363,7 @@ test('Stopping repository should stop storage provider updates', async (t) => {
 });
 
 test('Streaming', async (t) => {
-  t.plan(6);
+  t.plan(4);
   const url = 'irrelevant';
   const feature = {
     name: 'feature',
@@ -1408,22 +1408,17 @@ test('Streaming', async (t) => {
   // update with feature
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
-    data: JSON.stringify({ meta: {}, features: [feature] }),
+    data: JSON.stringify({ features: [feature] }),
   });
   const firstUpdate = repo.getToggles();
   t.deepEqual(firstUpdate, [feature]);
-  // @ts-expect-error
-  t.is(repo.etag, undefined);
 
-  // update with etag
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
-    data: JSON.stringify({ meta: { etag: 'updated' }, features: [] }),
+    data: JSON.stringify({ features: [] }),
   });
   const secondUpdate = repo.getToggles();
   t.deepEqual(secondUpdate, []);
-  // @ts-expect-error
-  t.is(repo.etag, 'updated');
 
   // SSE error translated to repo warning
   repo.on('warn', (msg) => {
