@@ -150,13 +150,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private handleFlagsFromStream(event: { data: string }) {
     try {
-      const data: ClientFeaturesResponse & { meta: { etag: string } } = JSON.parse(event.data);
-      const etag = data.meta.etag;
-      if (etag !== null) {
-        this.etag = etag;
-      } else {
-        this.etag = undefined;
-      }
+      const data: ClientFeaturesResponse = JSON.parse(event.data);
       this.save(data, true);
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
