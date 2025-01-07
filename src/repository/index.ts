@@ -30,6 +30,7 @@ export interface RepositoryOptions {
   url: string;
   appName: string;
   instanceId: string;
+  connectionId: string;
   projectName?: string;
   refreshInterval: number;
   timeout?: number;
@@ -58,6 +59,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
   private appName: string;
 
   private instanceId: string;
+
+  private connectionId: string;
 
   private refreshInterval: number;
 
@@ -101,6 +104,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     url,
     appName,
     instanceId,
+    connectionId,
     projectName,
     refreshInterval = 15_000,
     timeout,
@@ -118,6 +122,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.url = url;
     this.refreshInterval = refreshInterval;
     this.instanceId = instanceId;
+    this.connectionId = connectionId;
     this.appName = appName;
     this.projectName = projectName;
     this.headers = headers;
@@ -386,6 +391,7 @@ Message: ${err.message}`,
         appName: this.appName,
         timeout: this.timeout,
         instanceId: this.instanceId,
+        connectionId: this.connectionId,
         headers,
         httpOptions: this.httpOptions,
         supportedSpecVersion: SUPPORTED_SPEC_VERSION,

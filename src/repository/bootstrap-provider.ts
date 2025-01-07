@@ -48,7 +48,13 @@ export class DefaultBootstrapProvider implements BootstrapProvider {
     const response = await fetch(bootstrapUrl, {
       method: 'GET',
       timeout: 10_000,
-      headers: buildHeaders(this.appName, this.instanceId, undefined, undefined, this.urlHeaders),
+      headers: buildHeaders({
+        appName: this.appName,
+        instanceId: this.instanceId,
+        etag: undefined,
+        contentType: undefined,
+        custom: this.urlHeaders,
+      }),
       retry: {
         retries: 2,
         maxTimeout: 10_000,

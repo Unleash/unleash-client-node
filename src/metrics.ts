@@ -11,6 +11,7 @@ import { SUPPORTED_SPEC_VERSION } from './repository';
 export interface MetricsOptions {
   appName: string;
   instanceId: string;
+  connectionId: string;
   strategies: string[];
   metricsInterval: number;
   metricsJitter?: number;
@@ -80,6 +81,8 @@ export default class Metrics extends EventEmitter {
 
   private instanceId: string;
 
+  private connectionId: string;
+
   private sdkVersion: string;
 
   private strategies: string[];
@@ -111,6 +114,7 @@ export default class Metrics extends EventEmitter {
   constructor({
     appName,
     instanceId,
+    connectionId,
     strategies,
     metricsInterval = 0,
     metricsJitter = 0,
@@ -127,6 +131,7 @@ export default class Metrics extends EventEmitter {
     this.metricsJitter = metricsJitter;
     this.appName = appName;
     this.instanceId = instanceId;
+    this.connectionId = connectionId;
     this.sdkVersion = sdkVersion;
     this.strategies = strategies;
     this.url = url;
@@ -198,6 +203,7 @@ export default class Metrics extends EventEmitter {
         json: payload,
         appName: this.appName,
         instanceId: this.instanceId,
+        connectionId: this.connectionId,
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
@@ -250,6 +256,7 @@ export default class Metrics extends EventEmitter {
         json: payload,
         appName: this.appName,
         instanceId: this.instanceId,
+        connectionId: this.connectionId,
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,

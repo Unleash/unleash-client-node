@@ -51,7 +51,10 @@ const defaultToggles = [
 ];
 
 function mockNetwork(toggles = defaultToggles, url = getUrl()) {
-  nock(url).get('/client/features').reply(200, { features: toggles });
+  nock(url)
+    .get('/client/features')
+    .matchHeader('x-unleash-connection-id', /^.{36}$/)
+    .reply(200, { features: toggles });
   return url;
 }
 

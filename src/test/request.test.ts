@@ -14,9 +14,20 @@ test('https URLs should yield https.Agent', (t) => {
   t.true(agent instanceof https.Agent);
 });
 
-test('Custom headers should be included', (t) => {
-  const headers = buildHeaders('https://bullshit.com', undefined, undefined, undefined, {
-    hello: 'world',
+test('Correct headers should be included', (t) => {
+  const headers = buildHeaders({
+    appName: 'myApp',
+    instanceId: 'instanceId',
+    etag: undefined,
+    contentType: undefined,
+    connectionId: 'connectionId',
+    custom: {
+      hello: 'world',
+    },
   });
   t.is(headers.hello, 'world');
+  t.is(headers['UNLEASH-INSTANCEID'], 'instanceId');
+  t.is(headers['x-unleash-connection-id'], 'connectionId');
+  t.is(headers['x-unleash-appname'], 'myApp');
+  t.regex(headers['x-unleash-sdk'], /^unleash-node@(\d+\.\d+\.\d+)$/);
 });

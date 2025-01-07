@@ -22,6 +22,7 @@ import { resolveUrl } from './url-utils';
 // @ts-expect-error
 import { EventSource } from 'launchdarkly-eventsource';
 import { buildHeaders } from './request';
+import { randomUUID } from 'crypto';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -107,6 +108,8 @@ export class Unleash extends EventEmitter {
 
     const unleashInstanceId = generateInstanceId(instanceId);
 
+    const unleashConnectionId = randomUUID();
+
     this.staticContext = { appName, environment };
 
     const bootstrapProvider = resolveBootstrapProvider(bootstrap, appName, unleashInstanceId);
@@ -118,6 +121,7 @@ export class Unleash extends EventEmitter {
         url: unleashUrl,
         appName,
         instanceId: unleashInstanceId,
+        connectionId: unleashConnectionId,
         refreshInterval,
         headers: customHeaders,
         customHeadersFunction,
@@ -130,14 +134,15 @@ export class Unleash extends EventEmitter {
         eventSource:
           experimentalMode?.type === 'streaming'
             ? new EventSource(resolveUrl(unleashUrl, './client/streaming'), {
-                headers: buildHeaders(
+                headers: buildHeaders({
                   appName,
-                  instanceId,
-                  undefined,
-                  undefined,
-                  customHeaders,
-                  SUPPORTED_SPEC_VERSION,
-                ),
+                  instanceId: unleashInstanceId,
+                  etag: undefined,
+                  contentType: undefined,
+                  custom: customHeaders,
+                  specVersionSupported: SUPPORTED_SPEC_VERSION,
+                  connectionId: unleashConnectionId,
+                }),
                 readTimeoutMillis: 60000, // start a new SSE connection when no heartbeat received in 1 minute
                 initialRetryDelayMillis: 2000,
                 maxBackoffMillis: 30000,
@@ -191,6 +196,7 @@ export class Unleash extends EventEmitter {
       disableMetrics,
       appName,
       instanceId: unleashInstanceId,
+      connectionId: unleashConnectionId,
       strategies: supportedStrategies.map((strategy: Strategy) => strategy.name),
       metricsInterval,
       metricsJitter,
