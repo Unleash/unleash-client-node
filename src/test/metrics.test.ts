@@ -122,17 +122,27 @@ test('should sendMetrics', async (t) => {
   t.true(metricsEP.isDone());
 });
 
-test('should send custom headers', (t) =>
+test('should send correct custom and x-unleash headers', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
     t.plan(2);
     const randomKey = `value-${Math.random()}`;
-    const metricsEP = nockMetrics(url).matchHeader('randomKey', randomKey);
-    const regEP = nockRegister(url).matchHeader('randomKey', randomKey);
+    const metricsEP = nockMetrics(url)
+      .matchHeader('randomKey', randomKey)
+      .matchHeader('x-unleash-appname', 'appName')
+      .matchHeader('x-unleash-sdk', /^unleash-node@(\d+\.\d+\.\d+)$/)
+      .matchHeader('x-unleash-connection-id', 'connectionId');
+    const regEP = nockRegister(url)
+      .matchHeader('randomKey', randomKey)
+      .matchHeader('x-unleash-appname', 'appName')
+      .matchHeader('x-unleash-sdk', /^unleash-node@(\d+\.\d+\.\d+)$/)
+      .matchHeader('x-unleash-connection-id', 'connectionId');
 
     // @ts-expect-error
     const metrics = new Metrics({
       url,
+      appName: 'appName',
+      connectionId: 'connectionId',
       metricsInterval: 50,
       headers: {
         randomKey,
@@ -259,6 +269,7 @@ test('sendMetrics should backoff on 404', async (t) => {
   const metrics = new Metrics({
     appName: '404-tester',
     instanceId: '404-instance',
+    connectionId: '404-connection',
     metricsInterval: 10,
     strategies: [],
     url,
@@ -449,6 +460,7 @@ test('sendMetrics should stop on 401', async (t) => {
   const metrics = new Metrics({
     appName: '401-tester',
     instanceId: '401-instance',
+    connectionId: '401-connection',
     metricsInterval: 0,
     strategies: [],
     url,
@@ -465,6 +477,7 @@ test('sendMetrics should stop on 403', async (t) => {
   const metrics = new Metrics({
     appName: '401-tester',
     instanceId: '401-instance',
+    connectionId: '401-connection',
     metricsInterval: 0,
     strategies: [],
     url,
@@ -481,6 +494,7 @@ test('sendMetrics should backoff on 429', async (t) => {
   const metrics = new Metrics({
     appName: '429-tester',
     instanceId: '429-instance',
+    connectionId: '429-connection',
     metricsInterval: 10,
     strategies: [],
     url,
@@ -504,6 +518,7 @@ test('sendMetrics should backoff on 500', async (t) => {
   const metrics = new Metrics({
     appName: '500-tester',
     instanceId: '500-instance',
+    connectionId: '500-connetion',
     metricsInterval: 10,
     strategies: [],
     url,
@@ -528,6 +543,7 @@ test('sendMetrics should backoff on 429 and gradually reduce interval', async (t
   const metrics = new Metrics({
     appName: '429-tester',
     instanceId: '429-instance',
+    connectionId: '429-connection',
     metricsInterval,
     strategies: [],
     url,

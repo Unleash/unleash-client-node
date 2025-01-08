@@ -14,6 +14,7 @@ import { EventEmitter } from 'events';
 
 const appName = 'foo';
 const instanceId = 'bar';
+const connectionId = 'baz';
 
 // @ts-expect-error
 function setup(url, toggles, headers = {}) {
@@ -37,6 +38,7 @@ test('should fetch from endpoint', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -66,6 +68,7 @@ test('should poll for changes', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -98,6 +101,7 @@ test('should retry even if custom header function fails', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       customHeadersFunction: () => {
         throw new Error('custom function fails');
@@ -129,6 +133,7 @@ test('should store etag', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -158,6 +163,7 @@ test('should request with etag', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -177,12 +183,15 @@ test('should request with etag', (t) =>
     repo.start();
   }));
 
-test('should request with custom headers', (t) =>
+test('should request with correct custom and x-unleash headers', (t) =>
   new Promise((resolve) => {
     const url = 'http://unleash-test-4-x.app';
     const randomKey = `random-${Math.random()}`;
     nock(url)
       .matchHeader('randomKey', randomKey)
+      .matchHeader('x-unleash-appname', appName)
+      .matchHeader('x-unleash-connection-id', connectionId)
+      .matchHeader('x-unleash-sdk', /^unleash-node@(\d+\.\d+\.\d+)$/)
       .persist()
       .get('/client/features')
       .reply(200, { features: [] }, { Etag: '12345-3' });
@@ -191,6 +200,7 @@ test('should request with custom headers', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -229,6 +239,7 @@ test('request with customHeadersFunction should take precedence over customHeade
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -259,6 +270,7 @@ test('should handle 429 request error and emit warn event', async (t) => {
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -291,6 +303,7 @@ test('should handle 401 request error and emit error event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -317,6 +330,7 @@ test('should handle 403 request error and emit error event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -343,6 +357,7 @@ test('should handle 500 request error and emit warn event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -363,6 +378,7 @@ test.skip('should handle 502 request error and emit warn event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -383,6 +399,7 @@ test.skip('should handle 503 request error and emit warn event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -403,6 +420,7 @@ test.skip('should handle 504 request error and emit warn event', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 10,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -427,6 +445,7 @@ test('should handle 304 as silent ok', (t) => {
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -449,6 +468,7 @@ test('should handle invalid JSON response', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -508,6 +528,7 @@ test('should emit errors on invalid features', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -541,6 +562,7 @@ test('should emit errors on invalid variant', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
@@ -603,6 +625,7 @@ test('should load bootstrap first if faster than unleash-api', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ url: bootstrap }),
       storageProvider: new InMemStorageProvider(),
@@ -669,6 +692,7 @@ test('bootstrap should not override actual data', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ url: bootstrap }),
       storageProvider: new InMemStorageProvider(),
@@ -717,6 +741,7 @@ test('should load bootstrap first from file', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ filePath: path }),
@@ -743,6 +768,7 @@ test('should not crash on bogus bootstrap', (t) =>
       url,
       appName,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ filePath: path }),
@@ -788,6 +814,7 @@ test('should load backup-file', (t) =>
       url,
       appName: appNameLocal,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -834,6 +861,7 @@ test('bootstrap should override load backup-file', (t) =>
       url,
       appName: appNameLocal,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       disableFetch: true,
@@ -914,6 +942,7 @@ test('bootstrap should not override load backup-file', async (t) => {
     url,
     appName: appNameLocal,
     instanceId,
+    connectionId,
     refreshInterval: 0,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({
@@ -942,6 +971,7 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -990,6 +1020,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -1013,6 +1044,7 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -1128,6 +1160,7 @@ test('should handle not finding a given segment id', (t) =>
       url,
       appName: appNameLocal,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       disableFetch: true,
@@ -1189,6 +1222,7 @@ test('should handle not having segments to read from', (t) =>
       url,
       appName: appNameLocal,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       disableFetch: true,
@@ -1284,6 +1318,7 @@ test('should return full segment data when requested', (t) =>
       url,
       appName: appNameLocal,
       instanceId,
+      connectionId,
       refreshInterval: 0,
       // @ts-expect-error
       disableFetch: true,
@@ -1316,6 +1351,7 @@ test('Stopping repository should stop unchanged event reporting', async (t) => {
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -1348,6 +1384,7 @@ test('Stopping repository should stop storage provider updates', async (t) => {
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
@@ -1396,6 +1433,7 @@ test('Streaming', async (t) => {
     url,
     appName,
     instanceId,
+    connectionId,
     refreshInterval: 10,
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
