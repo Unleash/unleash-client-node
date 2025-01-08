@@ -122,7 +122,7 @@ test('should sendMetrics', async (t) => {
   t.true(metricsEP.isDone());
 });
 
-test('should send correct headers', (t) =>
+test('should send correct custom and x-unleash headers', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
     t.plan(2);

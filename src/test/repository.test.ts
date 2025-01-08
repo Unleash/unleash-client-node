@@ -183,7 +183,7 @@ test('should request with etag', (t) =>
     repo.start();
   }));
 
-test('should request with correct headers', (t) =>
+test('should request with correct custom and x-unleash headers', (t) =>
   new Promise((resolve) => {
     const url = 'http://unleash-test-4-x.app';
     const randomKey = `random-${Math.random()}`;
