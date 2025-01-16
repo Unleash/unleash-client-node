@@ -22,7 +22,7 @@ import { resolveUrl } from './url-utils';
 // @ts-expect-error
 import { EventSource } from 'launchdarkly-eventsource';
 import { buildHeaders } from './request';
-import { randomUUID } from 'crypto';
+import { uuidv4 } from './uuidv4';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -108,7 +108,7 @@ export class Unleash extends EventEmitter {
 
     const unleashInstanceId = generateInstanceId(instanceId);
 
-    const unleashConnectionId = randomUUID();
+    const unleashConnectionId = uuidv4();
 
     this.staticContext = { appName, environment };
 
