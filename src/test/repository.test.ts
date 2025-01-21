@@ -191,7 +191,7 @@ test('should request with correct custom and x-unleash headers', (t) =>
       .matchHeader('randomKey', randomKey)
       .matchHeader('x-unleash-appname', appName)
       .matchHeader('x-unleash-connection-id', connectionId)
-      .matchHeader('x-unleash-sdk', /^unleash-node@\d+\.\d+\.\d+/)
+      .matchHeader('x-unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
       .persist()
       .get('/client/features')
       .reply(200, { features: [] }, { Etag: '12345-3' });
