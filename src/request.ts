@@ -101,7 +101,7 @@ export const buildHeaders = ({
     head['Unleash-Client-Spec'] = specVersionSupported;
   }
   const version = details.version;
-  head['x-unleash-sdk'] = `unleash-node@${version}`;
+  head['x-unleash-sdk'] = `unleash-client-node:${version}`;
   if (custom) {
     Object.assign(head, custom);
   }
