@@ -27,7 +27,7 @@ test('Correct headers should be included', (t) => {
   });
   t.is(headers.hello, 'world');
   t.is(headers['UNLEASH-INSTANCEID'], 'instanceId');
-  t.is(headers['x-unleash-connection-id'], 'connectionId');
-  t.is(headers['x-unleash-appname'], 'myApp');
-  t.regex(headers['x-unleash-sdk'], /^unleash-client-node:\d+\.\d+\.\d+/);
+  t.is(headers['unleash-connection-id'], 'connectionId');
+  t.is(headers['unleash-appname'], 'myApp');
+  t.regex(headers['unleash-sdk'], /^unleash-client-node:\d+\.\d+\.\d+/);
 });

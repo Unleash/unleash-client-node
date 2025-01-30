@@ -122,21 +122,21 @@ test('should sendMetrics', async (t) => {
   t.true(metricsEP.isDone());
 });
 
-test('should send correct custom and x-unleash headers', (t) =>
+test('should send correct custom and unleash headers', (t) =>
   new Promise((resolve) => {
     const url = getUrl();
     t.plan(2);
     const randomKey = `value-${Math.random()}`;
     const metricsEP = nockMetrics(url)
       .matchHeader('randomKey', randomKey)
-      .matchHeader('x-unleash-appname', 'appName')
-      .matchHeader('x-unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
-      .matchHeader('x-unleash-connection-id', 'connectionId');
+      .matchHeader('unleash-appname', 'appName')
+      .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
+      .matchHeader('unleash-connection-id', 'connectionId');
     const regEP = nockRegister(url)
       .matchHeader('randomKey', randomKey)
-      .matchHeader('x-unleash-appname', 'appName')
-      .matchHeader('x-unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
-      .matchHeader('x-unleash-connection-id', 'connectionId');
+      .matchHeader('unleash-appname', 'appName')
+      .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
+      .matchHeader('unleash-connection-id', 'connectionId');
 
     // @ts-expect-error
     const metrics = new Metrics({

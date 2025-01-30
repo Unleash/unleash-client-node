@@ -80,13 +80,11 @@ export const buildHeaders = ({
   const head: Record<string, string> = {};
   if (appName) {
     // TODO: delete
-    head['UNLEASH-APPNAME'] = appName;
-    // TODO: delete
     head['User-Agent'] = appName;
-    head['x-unleash-appname'] = appName;
+    head['unleash-appname'] = appName;
   }
   if (connectionId) {
-    head['x-unleash-connection-id'] = connectionId;
+    head['unleash-connection-id'] = connectionId;
   }
   if (instanceId) {
     head['UNLEASH-INSTANCEID'] = instanceId;
@@ -101,7 +99,7 @@ export const buildHeaders = ({
     head['Unleash-Client-Spec'] = specVersionSupported;
   }
   const version = details.version;
-  head['x-unleash-sdk'] = `unleash-client-node:${version}`;
+  head['unleash-sdk'] = `unleash-client-node:${version}`;
   if (custom) {
     Object.assign(head, custom);
   }
