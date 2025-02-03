@@ -1413,7 +1413,7 @@ test('Streaming', async (t) => {
   };
   setup(url, [{ ...feature, name: 'initialFetch' }]);
   const storageProvider: StorageProvider<ClientFeaturesResponse> = new InMemStorageProvider();
-  const eventSource = {
+  const eventSource: any = {
     eventEmitter: new EventEmitter(),
     listeners: new Set<string>(),
     addEventListener(eventName: string, handler: () => void) {
@@ -1421,7 +1421,7 @@ test('Streaming', async (t) => {
       eventSource.eventEmitter.on(eventName, handler);
     },
     close() {
-      eventSource.listeners.forEach((eventName) => {
+      eventSource.listeners.forEach((eventName: string) => {
         eventSource.eventEmitter.removeAllListeners(eventName);
       });
     },
@@ -1429,6 +1429,7 @@ test('Streaming', async (t) => {
       eventSource.eventEmitter.emit(eventName, data);
     },
   };
+
   const repo = new Repository({
     url,
     appName,
