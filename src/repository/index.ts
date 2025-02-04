@@ -13,8 +13,7 @@ import {
   Segment,
   StrategyTransportInterface,
 } from '../strategy/strategy';
-// @ts-expect-error
-import { EventSource } from 'launchdarkly-eventsource';
+import type { EventSource } from '../event-source';
 
 export const SUPPORTED_SPEC_VERSION = '4.3.0';
 
@@ -50,7 +49,7 @@ interface FeatureToggleData {
 }
 
 export default class Repository extends EventEmitter implements EventEmitter {
-  private timer: NodeJS.Timer | undefined;
+  private timer: NodeJS.Timeout | undefined;
 
   private url: string;
 

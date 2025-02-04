@@ -8,7 +8,9 @@
     "declarationMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": false,
+    "allowJs": true,
     "skipLibCheck": false
   },
-  "exclude": ["examples/", "lib/", "node_modules/"]
+  "exclude": ["examples/", "lib/", "node_modules/"],
+  "include": ["src/**/*.ts", "src/**/*.js"]
 }

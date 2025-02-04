@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "declaration": true,
+    "inlineSourceMap": true,
+    "pretty": true,
+    "noImplicitAny": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "composite": true,
+    "outDir": "./lib",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"]
+}

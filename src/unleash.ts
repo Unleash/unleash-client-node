@@ -19,8 +19,7 @@ import { ImpressionEvent, UnleashEvents } from './events';
 import { UnleashConfig } from './unleash-config';
 import FileStorageProvider from './repository/storage-provider-file';
 import { resolveUrl } from './url-utils';
-// @ts-expect-error
-import { EventSource } from 'launchdarkly-eventsource';
+import { EventSource } from './event-source';
 import { buildHeaders } from './request';
 import { uuidv4 } from './uuidv4';
 export { Strategy, UnleashEvents, UnleashConfig };
