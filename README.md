@@ -6,7 +6,10 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
 
-The official Unleash client SDK for Node.js.
+Unleash is a private, secure, and scalable [feature management platform](https://www.getunleash.io/) built to reduce the risk of releasing new features and accelerate software development. This client-side Node.js SDK is designed to help you integrate with Unleash and evaluate feature flags inside your application.
+
+You can use this client with [Unleash Enterprise](https://www.getunleash.io/pricing?utm_source=readme&utm_medium=nodejs) or [Unleash Open Source](https://github.com/Unleash/unleash).
+
 
 ## Getting started
 
@@ -31,7 +34,7 @@ is asynchronous, but if you need it to be synchronous, you can
 [block until the SDK has synchronized with the server](#synchronous-initialization).
 
 Note that until the SDK has synchronized with the API, all features will evaluate to `false` unless
-you a [bootstrapped configuration](#bootstrap).
+you have a [bootstrapped configuration](#bootstrap).
 
 ---
 
@@ -118,7 +121,7 @@ const unleash = await startUnleash({
   customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
 });
 
-// Unleash SDK has now fresh state from the unleash-api
+// Unleash SDK now has a fresh state from the unleash-api
 const isEnabled = unleash.isEnabled('Demo');
 ```
 
@@ -127,7 +130,7 @@ const isEnabled = unleash.isEnabled('Demo');
 With the SDK initialized, you can use it to check the states of your feature toggles in your
 application.
 
-The primary way to check feature toggle status is to use the `isEnabled` method on the SDK. It takes
+The primary way to check a feature toggle's status is to use the `isEnabled` method on the SDK. It takes
 the name of the feature and returns `true` or `false` based on whether the feature is enabled or
 not.
 
@@ -142,8 +145,8 @@ setInterval(() => {
 ```
 
 👀 **Note**: In this example, we've wrapped the `isEnabled` call inside a `setInterval` function. In
-the event that all your app does is to start the SDK and check a feature status, this is will keep a
-node app running until the SDK has synchronized with the Unleash API. It is **not** required in
+the event that all your app does is start the SDK and check a feature status, this setup ensures that the
+node app keeps running until the SDK has synchronized with the Unleash API. It is **not** required in
 normal apps.
 
 #### Check variants
@@ -187,7 +190,7 @@ const enabled = unleash.isEnabled('someToggle', unleashContext);
 
 ### 4. Stop unleash
 
-To shut down the client (turn off the polling) you can simply call the destroy-method. This is
+To shut down the client (turn off the polling) you can simply call the `destroy()` method. This is
 typically not required.
 
 ```js
@@ -195,9 +198,9 @@ import { destroy } from 'unleash-client';
 destroy();
 ```
 
-### Built in activation strategies
+### Built-in activation strategies
 
-The client comes supports all built-in activation strategies provided by Unleash.
+The client supports all built-in activation strategies provided by Unleash.
 
 Read more about
 [activation strategies in the official docs](https://docs.getunleash.io/reference/activation-strategies).
@@ -233,7 +236,7 @@ The initialize method takes the following arguments:
 - **strategies** - Custom activation strategies to be used.
 - **disableMetrics** - Disable metrics.
 - **customHeaders** - Provide a map(object) of custom headers to be sent to the unleash-server.
-- **customHeadersFunction** - Provide a function that return a Promise resolving as custom headers
+- **customHeadersFunction** - Provide a function that returns a Promise resolving as custom headers
   to be sent to unleash-server. When options are set, this will take precedence over `customHeaders`
   option.
 - **timeout** - Specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
@@ -241,12 +244,11 @@ The initialize method takes the following arguments:
 - **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security.
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags. E.g.:
-  `[{type: 'simple', value: 'proxy'}]`.
+- **tags** - Only fetch feature toggles tagged with the list of tags, such as: `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
-### 1. implement the custom strategy:
+### 1. Implement the custom strategy:
 
 ```js
 import { initialize, Strategy } from 'unleash-client';
@@ -261,7 +263,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 }
 ```
 
-### 2. register your custom strategy:
+### 2. Register your custom strategy:
 
 ```js
 initialize({
@@ -285,9 +287,9 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
 | warn         | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
-| error        | `Error` err                      | is emitted on a error                                                                                                                                                                                                                        |
+| error        | `Error` err                      | is emitted on an error                                                                                                                                                                                                                        |
 | unchanged    | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
-| changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes has been made                                                                                                                                                  |
+| changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes have been made                                                                                                                                                  |
 | impression   | `object` data                    | is emitted for every user impression (isEnabled / getVariant)                                                                                                                                                                                |
 
 Example usage:
@@ -323,15 +325,15 @@ unleash.on('count', (name, enabled) => console.log(`isEnabled(${name})`));
 
 ## Bootstrap
 
-(Available from v3.11.x)
+> Available from v3.11.x
 
 The Node.js SDK supports a bootstrap parameter, allowing you to load the initial feature toggle
 configuration from somewhere else than the Unleash API. The bootstrap `data` can be provided as an
-argument directly to the SDK, as a `filePath` to load or as a `url` to fetch the content from.
+argument directly to the SDK, as a `filePath` to load, or as a `url` to fetch the content from.
 Bootstrap is a convenient way to increase resilience, where the SDK can still load fresh toggle
 configuration from the bootstrap location, even if the Unleash API should be unavailable at startup.
 
-**1. Bootstrap with data passed as an argument**
+### 1. Bootstrap with data passed as an argument
 
 ```js
 const client = initialize({
@@ -355,7 +357,7 @@ const client = initialize({
 });
 ```
 
-**2. Bootstrap via a URL**
+### 2. Bootstrap via a URL
 
 ```js
 const client = initialize({
@@ -371,7 +373,7 @@ const client = initialize({
 });
 ```
 
-**3. Bootstrap from a File**
+### 3. Bootstrap from a file
 
 ```js
 const client = initialize({
@@ -410,12 +412,12 @@ const featureToggles = getFeatureToggleDefinitions();
 
 (Available from v3.11.x)
 
-By default this SDK will use a store provider that writes a backup of the feature toggle
+By default, this SDK will use a store provider that writes a backup of the feature toggle
 configuration to a **file on disk**. This happens every time it receives updated configuration from
 the Unleash API. You can swap out the store provider with either the provided in-memory store
 provider or a custom store provider implemented by you.
 
-**1. Use InMemStorageProvider**
+### 1. Use InMemStorageProvider
 
 ```js
 import { initialize, InMemStorageProvider } from 'unleash-client';
@@ -428,7 +430,7 @@ const client = initialize({
 });
 ```
 
-**2. Custom Store Provider backed by redis**
+### 2. Custom Store Provider backed by Redis
 
 ```js
 import { initialize, InMemStorageProvider } from 'unleash-client';
@@ -461,17 +463,17 @@ const client = initialize({
 
 ## Custom repository
 
-You can manage the underlying data layer yourself if you want to. This enables you to use unleash
-offline, from a browser environment or implement your own caching layer. See
+You can manage the underlying data layer yourself if you want to. This enables you to use Unleash
+offline, from a browser environment, or by implement your own caching layer. See
 [example](examples/custom_repository.js).
 
 Unleash depends on a `ready` event of the repository you pass in. Be sure that you emit the event
-**after** you've initialized unleash.
+**after** you've initialized Unleash.
 
 ## Usage with HTTP and HTTPS proxies
 
 You can connect to the Unleash API through the corporate proxy by setting one of the environment
-variables: `HTTP_PROXY` or `HTTPS_PROXY`
+variables: `HTTP_PROXY` or `HTTPS_PROXY`.
 
 ## Design philosophy
 
