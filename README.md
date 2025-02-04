@@ -121,7 +121,7 @@ const unleash = await startUnleash({
   customHeaders: { Authorization: '<YOUR_API_TOKEN>' },
 });
 
-// Unleash SDK now has a fresh state from the unleash-api
+// The Unleash SDK now has a fresh state from the Unleash API
 const isEnabled = unleash.isEnabled('Demo');
 ```
 
@@ -130,7 +130,7 @@ const isEnabled = unleash.isEnabled('Demo');
 With the SDK initialized, you can use it to check the states of your feature toggles in your
 application.
 
-The primary way to check a feature toggle's status is to use the `isEnabled` method on the SDK. It takes
+The primary way to check check feature toggle status is to use the `isEnabled` method on the SDK. It takes
 the name of the feature and returns `true` or `false` based on whether the feature is enabled or
 not.
 
@@ -241,14 +241,14 @@ The initialize method takes the following arguments:
   option.
 - **timeout** - Specify a timeout in milliseconds for outgoing HTTP requests. Defaults to 10000ms.
 - **repository** - Provide a custom repository implementation to manage the underlying data.
-- **httpOptions** - Provide custom http options such as `rejectUnauthorized` - be careful with these
+- **httpOptions** - Provide custom HTTP options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security.
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
 - **tags** - Only fetch feature toggles tagged with the list of tags, such as: `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
-### 1. Implement the custom strategy:
+### 1. Implement the custom strategy
 
 ```js
 import { initialize, Strategy } from 'unleash-client';
@@ -263,7 +263,7 @@ class ActiveForUserWithEmailStrategy extends Strategy {
 }
 ```
 
-### 2. Register your custom strategy:
+### 2. Register your custom strategy
 
 ```js
 initialize({
@@ -283,7 +283,7 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | ------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ready        | -                                | is emitted once the fs-cache is ready. if no cache file exists it will still be emitted. The client is ready to use, but might not have synchronized with the Unleash API yet. This means the SDK still can operate on stale configurations. |
 | synchronized | -                                | is emitted when the SDK has successfully synchronized with the Unleash API, or when it has been bootstrapped, and has all the latest feature toggle configuration available.                                                                 |
-| registered   | -                                | is emitted after the app has been registered at the api server                                                                                                                                                                               |
+| registered   | -                                | is emitted after the app has been registered at the API server                                                                                                                                                                               |
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
 | warn         | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
@@ -312,8 +312,8 @@ unleash.on('error', console.error);
 unleash.on('warn', console.warn);
 
 unleash.once('registered', () => {
-  // Do something after the client has registered with the server api.
-  // NB! It might not have received updated feature toggles yet.
+  // Do something after the client has registered with the server API.
+  // Note: it might not have received updated feature toggles yet.
 });
 
 unleash.once('changed', () => {
@@ -408,7 +408,7 @@ const featureToggleX = getFeatureToggleDefinition('app.ToggleX');
 const featureToggles = getFeatureToggleDefinitions();
 ```
 
-## Custom Store Provider
+## Custom store provider
 
 (Available from v3.11.x)
 
@@ -417,7 +417,7 @@ configuration to a **file on disk**. This happens every time it receives updated
 the Unleash API. You can swap out the store provider with either the provided in-memory store
 provider or a custom store provider implemented by you.
 
-### 1. Use InMemStorageProvider
+### 1. Use `InMemStorageProvider`
 
 ```js
 import { initialize, InMemStorageProvider } from 'unleash-client';
@@ -430,7 +430,7 @@ const client = initialize({
 });
 ```
 
-### 2. Custom Store Provider backed by Redis
+### 2. Custom store provider backed by Redis
 
 ```js
 import { initialize, InMemStorageProvider } from 'unleash-client';
