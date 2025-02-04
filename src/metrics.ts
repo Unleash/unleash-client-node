@@ -97,7 +97,7 @@ export default class Metrics extends EventEmitter {
 
   private url: string;
 
-  private timer: NodeJS.Timer | undefined;
+  private timer: NodeJS.Timeout | undefined;
 
   private started: Date;
 
