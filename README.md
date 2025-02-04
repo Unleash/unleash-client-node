@@ -6,7 +6,7 @@
 [![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
 [![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
 
-Unleash is a private, secure, and scalable [feature management platform](https://www.getunleash.io/) built to reduce the risk of releasing new features and accelerate software development. This client-side Node.js SDK is designed to help you integrate with Unleash and evaluate feature flags inside your application.
+Unleash is a private, secure, and scalable [feature management platform](https://www.getunleash.io/) built to reduce the risk of releasing new features and accelerate software development. This server-side Node.js SDK is designed to help you integrate with Unleash and evaluate feature flags inside your application.
 
 You can use this client with [Unleash Enterprise](https://www.getunleash.io/pricing?utm_source=readme&utm_medium=nodejs) or [Unleash Open Source](https://github.com/Unleash/unleash).
 
