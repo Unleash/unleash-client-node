@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo -e "\nTesting that the package can be installed in another project and compiled with TypeScript without errors"
+
 TEST_DIR="test-package"
 mkdir "$TEST_DIR"
 
