@@ -130,7 +130,7 @@ const isEnabled = unleash.isEnabled('Demo');
 With the SDK initialized, you can use it to check the states of your feature toggles in your
 application.
 
-The primary way to check check feature toggle status is to use the `isEnabled` method on the SDK. It takes
+The primary way to check feature toggle status is to use the `isEnabled` method on the SDK. It takes
 the name of the feature and returns `true` or `false` based on whether the feature is enabled or
 not.
 
