@@ -190,7 +190,7 @@ const enabled = unleash.isEnabled('someToggle', unleashContext);
 
 ### 4. Stop unleash
 
-To shut down the client (turn off the polling) you can simply call the `destroy()` method. This is
+To shut down the client (turn off the polling) you can simply call the `destroy` method. This is
 typically not required.
 
 ```js
