@@ -83,9 +83,7 @@ export const buildHeaders = ({
     head['User-Agent'] = appName;
     head['unleash-appname'] = appName;
   }
-  if (connectionId) {
-    head['unleash-connection-id'] = connectionId;
-  }
+
   if (instanceId) {
     head['UNLEASH-INSTANCEID'] = instanceId;
   }
@@ -98,11 +96,15 @@ export const buildHeaders = ({
   if (specVersionSupported) {
     head['Unleash-Client-Spec'] = specVersionSupported;
   }
-  const version = details.version;
-  head['unleash-sdk'] = `unleash-client-node:${version}`;
   if (custom) {
     Object.assign(head, custom);
   }
+  // unleash-connection-id and unleash-sdk should not be overwritten
+  if (connectionId) {
+    head['unleash-connection-id'] = connectionId;
+  }
+  const version = details.version;
+  head['unleash-sdk'] = `unleash-client-node:${version}`;
   return head;
 };
 
