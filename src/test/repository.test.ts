@@ -207,7 +207,6 @@ test('should request with correct custom and unleash headers', (t) =>
       storageProvider: new InMemStorageProvider(),
       headers: {
         randomKey,
-        'unleash-sdk': 'ignore',
         'unleash-connection-id': 'ignore',
       },
     });
