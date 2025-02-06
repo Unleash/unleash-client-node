@@ -96,6 +96,10 @@ export const buildHeaders = ({
   if (specVersionSupported) {
     head['Unleash-Client-Spec'] = specVersionSupported;
   }
+
+  const version = details.version;
+  head['unleash-sdk'] = `unleash-client-node:${version}`;
+
   if (custom) {
     Object.assign(head, custom);
   }
@@ -103,8 +107,7 @@ export const buildHeaders = ({
   if (connectionId) {
     head['unleash-connection-id'] = connectionId;
   }
-  const version = details.version;
-  head['unleash-sdk'] = `unleash-client-node:${version}`;
+
   return head;
 };
 
