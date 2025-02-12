@@ -9,7 +9,7 @@ import FileStorageProvider from '../repository/storage-provider-file';
 import Repository from '../repository';
 import { DefaultBootstrapProvider } from '../repository/bootstrap-provider';
 import { StorageProvider } from '../repository/storage-provider';
-import { ClientFeaturesResponse } from '../feature';
+import { ClientFeaturesResponse, DeltaEvent } from '../feature';
 import { EventEmitter } from 'events';
 
 const appName = 'foo';
@@ -20,6 +20,7 @@ const connectionId = 'baz';
 function setup(url, toggles, headers = {}) {
   return nock(url).persist().get('/client/features').reply(200, { features: toggles }, headers);
 }
+
 test('should fetch from endpoint', (t) =>
   new Promise((resolve) => {
     const url = 'http://unleash-test-0.app';
@@ -1581,4 +1582,91 @@ test('Streaming deltas', async (t) => {
   });
   const reconnectUpdate = repo.getToggles();
   t.deepEqual(reconnectUpdate, [{ ...feature, name: 'reconnectUpdate' }]);
+});
+
+function setupPollingDeltaApi(url: string, events: DeltaEvent[]) {
+  return nock(url).get('/client/delta').reply(200, { events });
+}
+
+test('Polling delta', async (t) => {
+  const url = 'http://unleash-test-polling-delta.app';
+  const feature = {
+    name: 'deltaFeature',
+    enabled: true,
+    strategies: [],
+  };
+  setupPollingDeltaApi(url, [
+    {
+      type: 'hydration',
+      eventId: 1,
+      features: [feature],
+      segments: [],
+    },
+  ]);
+  const storageProvider: StorageProvider<ClientFeaturesResponse> = new InMemStorageProvider();
+
+  const repo = new Repository({
+    url,
+    appName,
+    instanceId,
+    connectionId,
+    refreshInterval: 10,
+    // @ts-expect-error
+    bootstrapProvider: new DefaultBootstrapProvider({}),
+    storageProvider,
+    mode: { type: 'polling', format: 'delta' },
+  });
+  await repo.fetch();
+
+  const before = repo.getToggles();
+  t.deepEqual(before, [feature]);
+
+  setupPollingDeltaApi(url, [
+    {
+      type: 'feature-updated',
+      eventId: 2,
+      feature: { ...feature, enabled: false },
+    },
+  ]);
+  await repo.fetch();
+
+  const updatedFeature = repo.getToggles();
+  t.deepEqual(updatedFeature, [{ ...feature, enabled: false }]);
+
+  setupPollingDeltaApi(url, [
+    {
+      type: 'feature-removed',
+      eventId: 3,
+      featureName: feature.name,
+      project: 'irrelevant',
+    },
+  ]);
+  await repo.fetch();
+
+  const noFeatures = repo.getToggles();
+  t.deepEqual(noFeatures, []);
+
+  setupPollingDeltaApi(url, [
+    {
+      type: 'segment-updated',
+      eventId: 4,
+      segment: { id: 1, constraints: [] },
+    },
+  ]);
+  await repo.fetch();
+
+  const segment = repo.getSegment(1);
+  t.deepEqual(segment, { id: 1, constraints: [] });
+
+  setupPollingDeltaApi(url, [
+    {
+      type: 'segment-removed',
+      eventId: 5,
+      segmentId: 1,
+    },
+  ]);
+  await repo.fetch();
+
+  const noSegment = repo.getSegment(1);
+  t.deepEqual(noSegment, undefined);
 });
