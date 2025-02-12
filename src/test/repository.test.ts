@@ -1453,7 +1453,7 @@ test('Streaming', async (t) => {
         {
           type: 'hydration',
           eventId: 1,
-          features: [{ ...feature, name: 'delta-feature' }],
+          features: [{ ...feature, name: 'deltaFeature' }],
           segments: [],
         },
       ],
@@ -1461,7 +1461,7 @@ test('Streaming', async (t) => {
   });
 
   const before = repo.getToggles();
-  t.deepEqual(before, [{ ...feature, name: 'delta-feature' }]);
+  t.deepEqual(before, [{ ...feature, name: 'deltaFeature' }]);
 
   // update with feature
   eventSource.emit('unleash-updated', {
@@ -1471,13 +1471,13 @@ test('Streaming', async (t) => {
         {
           type: 'feature-updated',
           eventId: 2,
-          feature: { ...feature, enabled: false, name: 'delta-feature' },
+          feature: { ...feature, enabled: false, name: 'deltaFeature' },
         },
       ],
     }),
   });
   const firstUpdate = repo.getToggles();
-  t.deepEqual(firstUpdate, [{ ...feature, enabled: false, name: 'delta-feature' }]);
+  t.deepEqual(firstUpdate, [{ ...feature, enabled: false, name: 'deltaFeature' }]);
 
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
@@ -1486,7 +1486,7 @@ test('Streaming', async (t) => {
         {
           type: 'feature-removed',
           eventId: 3,
-          featureName: 'delta-feature',
+          featureName: 'deltaFeature',
           project: 'irrelevant',
         },
       ],
