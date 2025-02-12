@@ -19,6 +19,7 @@ import {
   StrategyTransportInterface,
 } from '../strategy/strategy';
 import type { EventSource } from '../event-source';
+import { Mode } from '../unleash-config';
 
 export const SUPPORTED_SPEC_VERSION = '5.2.0';
 
@@ -48,6 +49,7 @@ export interface RepositoryOptions {
   bootstrapOverride?: boolean;
   storageProvider: StorageProvider<ClientFeaturesResponse>;
   eventSource?: EventSource;
+  mode: Mode;
 }
 
 interface FeatureToggleData {
@@ -103,6 +105,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private eventSource: EventSource | undefined;
 
+  private mode: Mode;
+
   constructor({
     url,
     appName,
@@ -120,6 +124,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     bootstrapOverride = true,
     storageProvider,
     eventSource,
+    mode,
   }: RepositoryOptions) {
     super();
     this.url = url;
@@ -139,6 +144,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.storageProvider = storageProvider;
     this.segments = new Map();
     this.eventSource = eventSource;
+    this.mode = mode;
     if (this.eventSource) {
       // On re-connect it guarantees catching up with the latest state.
       this.eventSource.addEventListener('unleash-connected', (event: { data: string }) => {
@@ -161,7 +167,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   }
 
   timedFetch(interval: number) {
-    if (interval > 0 && !this.eventSource) {
+    if (interval > 0 && this.mode.type === 'polling') {
       this.timer = setTimeout(() => this.fetch(), interval);
       if (process.env.NODE_ENV !== 'test' && typeof this.timer.unref === 'function') {
         this.timer.unref();
@@ -192,7 +198,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
   async start(): Promise<void> {
     // the first fetch is used as a fallback even when streaming is enabled
     await Promise.all([
-      this.eventSource ? Promise.resolve() : this.fetch(),
+      this.mode.type === 'streaming' ? Promise.resolve() : this.fetch(),
       this.loadBackup(),
       this.loadBootstrap(),
     ]);
@@ -411,7 +417,7 @@ Message: ${err.message}`,
       if (this.tags) {
         mergedTags = this.mergeTagsToStringArray(this.tags);
       }
-      const url = getUrl(this.url, this.projectName, this.namePrefix, mergedTags);
+      const url = getUrl(this.url, this.projectName, this.namePrefix, mergedTags, this.mode);
 
       const headers = this.customHeadersFunction
         ? await this.customHeadersFunction()

@@ -1,3 +1,5 @@
+import { Mode } from './unleash-config';
+
 export function resolveUrl(from: string, to: string) {
   const resolvedUrl = new URL(to, new URL(from, 'resolve://'));
   if (resolvedUrl.protocol === 'resolve:') {
@@ -13,8 +15,10 @@ const getUrl = (
   projectName?: string,
   namePrefix?: string,
   tags?: Array<string>,
+  mode?: Mode,
 ): string => {
-  const url = resolveUrl(base, './client/features');
+  const isDeltaPolling = mode && mode.type === 'polling' && mode.mode === 'delta';
+  const url = resolveUrl(base, isDeltaPolling ? './client/delta' : './client/features');
   const params = new URLSearchParams();
   if (projectName) {
     params.append('project', projectName);

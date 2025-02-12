@@ -43,6 +43,7 @@ test('should fetch from endpoint', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.once('changed', () => {
@@ -73,6 +74,7 @@ test('should poll for changes', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     let assertCount = 5;
@@ -109,6 +111,7 @@ test('should retry even if custom header function fails', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     let assertCount = 2;
@@ -138,6 +141,7 @@ test('should store etag', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.once('unchanged', resolve);
@@ -168,6 +172,7 @@ test('should request with etag', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     // @ts-expect-error
@@ -209,6 +214,7 @@ test('should request with correct custom and unleash headers', (t) =>
         randomKey,
         'unleash-connection-id': 'ignore',
       },
+      mode: { type: 'polling', mode: 'full' },
     });
 
     // @ts-expect-error
@@ -249,6 +255,7 @@ test('request with customHeadersFunction should take precedence over customHeade
         randomKey,
       },
       customHeadersFunction: () => Promise.resolve({ customHeaderKey }),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     // @ts-expect-error
@@ -276,6 +283,7 @@ test('should handle 429 request error and emit warn event', async (t) => {
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
+    mode: { type: 'polling', mode: 'full' },
   });
   const warning = new Promise<void>((resolve) => {
     repo.on('warn', (warn) => {
@@ -309,6 +317,7 @@ test('should handle 401 request error and emit error event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('error', (err) => {
       t.truthy(err);
@@ -336,6 +345,7 @@ test('should handle 403 request error and emit error event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('error', (err) => {
       t.truthy(err);
@@ -363,6 +373,7 @@ test('should handle 500 request error and emit warn event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
@@ -384,6 +395,7 @@ test.skip('should handle 502 request error and emit warn event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
@@ -405,6 +417,7 @@ test.skip('should handle 503 request error and emit warn event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
@@ -426,6 +439,7 @@ test.skip('should handle 504 request error and emit warn event', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('warn', (warn) => {
       t.truthy(warn);
@@ -451,6 +465,7 @@ test('should handle 304 as silent ok', (t) => {
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('error', reject);
     repo.on('unchanged', resolve);
@@ -473,6 +488,7 @@ test('should handle invalid JSON response', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
     repo.on('error', (err) => {
       t.truthy(err);
@@ -533,6 +549,7 @@ test('should emit errors on invalid features', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.once('error', (err) => {
@@ -567,6 +584,7 @@ test('should emit errors on invalid variant', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.once('error', (err) => {
@@ -630,6 +648,7 @@ test('should load bootstrap first if faster than unleash-api', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ url: bootstrap }),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     let counter = 0;
@@ -697,6 +716,7 @@ test('bootstrap should not override actual data', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ url: bootstrap }),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     let counter = 0;
@@ -747,6 +767,7 @@ test('should load bootstrap first from file', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ filePath: path }),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('changed', () => {
@@ -774,6 +795,7 @@ test('should not crash on bogus bootstrap', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({ filePath: path }),
       storageProvider: new InMemStorageProvider(),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('warn', (msg) => {
@@ -820,6 +842,7 @@ test('should load backup-file', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new FileStorageProvider(backupPath),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('ready', () => {
@@ -884,6 +907,7 @@ test('bootstrap should override load backup-file', (t) =>
         ],
       }),
       storageProvider: new FileStorageProvider(backupPath),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('changed', () => {
@@ -952,6 +976,7 @@ test('bootstrap should not override load backup-file', async (t) => {
     bootstrapOverride: false,
     // @ts-expect-error
     storageProvider: storeImp,
+    mode: { type: 'polling', mode: 'full' },
   });
 
   repo.on('error', () => {});
@@ -977,6 +1002,7 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
+    mode: { type: 'polling', mode: 'full' },
   });
   await repo.fetch();
   t.is(1, repo.getFailures());
@@ -1026,6 +1052,7 @@ test.skip('Failing two times should increase interval to 3 times initial interva
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
+    mode: { type: 'polling', mode: 'full' },
   });
   await repo.fetch();
   t.is(1, repo.getFailures());
@@ -1050,6 +1077,7 @@ test.skip('Failing two times and then succeed should decrease interval to 2 time
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
+    mode: { type: 'polling', mode: 'full' },
   });
   await repo.fetch();
   t.is(1, repo.getFailures());
@@ -1168,6 +1196,7 @@ test('should handle not finding a given segment id', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new FileStorageProvider(backupPath),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('ready', () => {
@@ -1230,6 +1259,7 @@ test('should handle not having segments to read from', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new FileStorageProvider(backupPath),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('ready', () => {
@@ -1326,6 +1356,7 @@ test('should return full segment data when requested', (t) =>
       // @ts-expect-error
       bootstrapProvider: new DefaultBootstrapProvider({}),
       storageProvider: new FileStorageProvider(backupPath),
+      mode: { type: 'polling', mode: 'full' },
     });
 
     repo.on('ready', () => {
@@ -1357,6 +1388,7 @@ test('Stopping repository should stop unchanged event reporting', async (t) => {
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider: new InMemStorageProvider(),
+    mode: { type: 'polling', mode: 'full' },
   });
   repo.on('unchanged', () => {
     t.fail('Should not emit unchanged event after stopping');
@@ -1390,6 +1422,7 @@ test('Stopping repository should stop storage provider updates', async (t) => {
     // @ts-expect-error
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider,
+    mode: { type: 'polling', mode: 'full' },
   });
 
   const promise = repo.fetch();
@@ -1441,6 +1474,7 @@ test('Streaming deltas', async (t) => {
     bootstrapProvider: new DefaultBootstrapProvider({}),
     storageProvider,
     eventSource,
+    mode: { type: 'streaming' },
   });
 
   await repo.start();

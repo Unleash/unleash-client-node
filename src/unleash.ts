@@ -76,7 +76,7 @@ export class Unleash extends EventEmitter {
     storageProvider,
     disableAutoStart = false,
     skipInstanceCountWarning = false,
-    experimentalMode = { type: 'polling' },
+    experimentalMode = { type: 'polling', mode: 'full' },
   }: UnleashConfig) {
     super();
 
@@ -130,6 +130,7 @@ export class Unleash extends EventEmitter {
         tags,
         bootstrapProvider,
         bootstrapOverride,
+        mode: experimentalMode,
         eventSource:
           experimentalMode?.type === 'streaming'
             ? new EventSource(resolveUrl(unleashUrl, './client/streaming'), {
