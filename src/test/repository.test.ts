@@ -1448,23 +1448,49 @@ test('Streaming', async (t) => {
   // first connection is ignored, since we do regular fetch
   eventSource.emit('unleash-connected', {
     type: 'unleash-connected',
-    data: JSON.stringify({ features: [{ ...feature, name: 'intialConnectedIgnored' }] }),
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'hydration',
+          eventId: 1,
+          features: [{ ...feature, name: 'delta-feature' }],
+          segments: [],
+        },
+      ],
+    }),
   });
 
   const before = repo.getToggles();
-  t.deepEqual(before, [{ ...feature, name: 'initialFetch' }]);
+  t.deepEqual(before, [{ ...feature, name: 'delta-feature' }]);
 
   // update with feature
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
-    data: JSON.stringify({ features: [{ ...feature, name: 'firstUpdate' }] }),
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'feature-updated',
+          eventId: 2,
+          feature: { ...feature, enabled: false, name: 'delta-feature' },
+        },
+      ],
+    }),
   });
   const firstUpdate = repo.getToggles();
-  t.deepEqual(firstUpdate, [{ ...feature, name: 'firstUpdate' }]);
+  t.deepEqual(firstUpdate, [{ ...feature, enabled: false, name: 'delta-feature' }]);
 
   eventSource.emit('unleash-updated', {
     type: 'unleash-updated',
-    data: JSON.stringify({ features: [] }),
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'feature-removed',
+          eventId: 3,
+          featureName: 'delta-feature',
+          project: 'irrelevant',
+        },
+      ],
+    }),
   });
   const secondUpdate = repo.getToggles();
   t.deepEqual(secondUpdate, []);
@@ -1478,7 +1504,16 @@ test('Streaming', async (t) => {
   // re-connect simulation
   eventSource.emit('unleash-connected', {
     type: 'unleash-connected',
-    data: JSON.stringify({ features: [{ ...feature, name: 'reconnectUpdate' }] }),
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'hydration',
+          eventId: 4,
+          features: [{ ...feature, name: 'reconnectUpdate' }],
+          segments: [],
+        },
+      ],
+    }),
   });
   const reconnectUpdate = repo.getToggles();
   t.deepEqual(reconnectUpdate, [{ ...feature, name: 'reconnectUpdate' }]);

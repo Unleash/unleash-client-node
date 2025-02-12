@@ -1,5 +1,10 @@
 import { EventEmitter } from 'events';
-import { ClientFeaturesResponse, EnhancedFeatureInterface, FeatureInterface } from '../feature';
+import {
+  ClientFeaturesDelta,
+  ClientFeaturesResponse,
+  EnhancedFeatureInterface,
+  FeatureInterface,
+} from '../feature';
 import { get } from '../request';
 import { CustomHeaders, CustomHeadersFunction } from '../headers';
 import getUrl from '../url-utils';
@@ -15,7 +20,7 @@ import {
 } from '../strategy/strategy';
 import type { EventSource } from '../event-source';
 
-export const SUPPORTED_SPEC_VERSION = '4.3.0';
+export const SUPPORTED_SPEC_VERSION = '5.2.0';
 
 export interface RepositoryInterface extends EventEmitter {
   getToggle(name: string): FeatureInterface | undefined;
@@ -25,6 +30,7 @@ export interface RepositoryInterface extends EventEmitter {
   stop(): void;
   start(): Promise<void>;
 }
+
 export interface RepositoryOptions {
   url: string;
   appName: string;
@@ -97,8 +103,6 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private eventSource: EventSource | undefined;
 
-  private initialEventSourceConnected: boolean = false;
-
   constructor({
     url,
     appName,
@@ -138,12 +142,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     if (this.eventSource) {
       // On re-connect it guarantees catching up with the latest state.
       this.eventSource.addEventListener('unleash-connected', (event: { data: string }) => {
-        // reconnect
-        if (this.initialEventSourceConnected) {
-          this.handleFlagsFromStream(event);
-        } else {
-          this.initialEventSourceConnected = true;
-        }
+        this.handleFlagsFromStream(event);
       });
       this.eventSource.addEventListener('unleash-updated', this.handleFlagsFromStream.bind(this));
       this.eventSource.addEventListener('error', (error: unknown) => {
@@ -154,8 +153,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   private handleFlagsFromStream(event: { data: string }) {
     try {
-      const data: ClientFeaturesResponse = JSON.parse(event.data);
-      this.save(data, true);
+      const data: ClientFeaturesDelta = JSON.parse(event.data);
+      this.saveDelta(data);
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }
@@ -192,7 +191,11 @@ export default class Repository extends EventEmitter implements EventEmitter {
 
   async start(): Promise<void> {
     // the first fetch is used as a fallback even when streaming is enabled
-    await Promise.all([this.fetch(), this.loadBackup(), this.loadBootstrap()]);
+    await Promise.all([
+      this.eventSource ? Promise.resolve() : this.fetch(),
+      this.loadBackup(),
+      this.loadBootstrap(),
+    ]);
   }
 
   async loadBackup(): Promise<void> {
@@ -248,6 +251,35 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.setReady();
     this.emit(UnleashEvents.Changed, [...response.features]);
     await this.storageProvider.set(this.appName, response);
+  }
+
+  async saveDelta(delta: ClientFeaturesDelta): Promise<void> {
+    if (this.stopped) {
+      return;
+    }
+    this.connected = true;
+    delta.events.forEach((event) => {
+      if (event.type === 'feature-updated') {
+        this.data[event.feature.name] = event.feature;
+      } else if (event.type === 'feature-removed') {
+        delete this.data[event.featureName];
+      } else if (event.type === 'segment-updated') {
+        this.segments.set(event.segment.id, event.segment);
+      } else if (event.type === 'segment-removed') {
+        this.segments.delete(event.segmentId);
+      } else if (event.type === 'hydration') {
+        this.data = this.convertToMap(event.features);
+        this.segments = this.createSegmentLookup(event.segments);
+      }
+    });
+
+    this.setReady();
+    this.emit(UnleashEvents.Changed, Object.values(this.data));
+    await this.storageProvider.set(this.appName, {
+      features: Object.values(this.data),
+      segments: [...this.segments.values()],
+      version: 0,
+    });
   }
 
   notEmpty(content: ClientFeaturesResponse): boolean {

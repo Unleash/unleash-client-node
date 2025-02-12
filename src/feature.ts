@@ -32,3 +32,46 @@ export interface ClientFeaturesResponse {
   segments?: Segment[];
   query?: any;
 }
+
+export interface ClientFeaturesDelta {
+  events: DeltaEvent[];
+}
+
+export type DeltaEvent =
+  | FeatureUpdated
+  | FeatureRemoved
+  | SegmentUpdated
+  | SegmentRemoved
+  | Hydration;
+
+export type FeatureUpdated = {
+  type: 'feature-updated';
+  eventId: number;
+  feature: FeatureInterface;
+};
+
+export type FeatureRemoved = {
+  type: 'feature-removed';
+  eventId: number;
+  featureName: string;
+  project: string;
+};
+
+export type SegmentUpdated = {
+  type: 'segment-updated';
+  eventId: number;
+  segment: Segment;
+};
+
+export type SegmentRemoved = {
+  type: 'segment-removed';
+  eventId: number;
+  segmentId: number;
+};
+
+export type Hydration = {
+  type: 'hydration';
+  eventId: number;
+  features: FeatureInterface[];
+  segments: Segment[];
+};
