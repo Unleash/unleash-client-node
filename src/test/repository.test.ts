@@ -1400,8 +1400,8 @@ test('Stopping repository should stop storage provider updates', async (t) => {
   t.is(result, undefined);
 });
 
-test('Streaming', async (t) => {
-  t.plan(5);
+test('Streaming deltas', async (t) => {
+  t.plan(7);
   const url = 'http://unleash-test-streaming.app';
   const feature = {
     name: 'feature',
@@ -1495,6 +1495,36 @@ test('Streaming', async (t) => {
   const secondUpdate = repo.getToggles();
   t.deepEqual(secondUpdate, []);
 
+  eventSource.emit('unleash-updated', {
+    type: 'unleash-updated',
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'segment-updated',
+          eventId: 4,
+          segment: { id: 1, constraints: [] },
+        },
+      ],
+    }),
+  });
+  const segment = repo.getSegment(1);
+  t.deepEqual(segment, { id: 1, constraints: [] });
+
+  eventSource.emit('unleash-updated', {
+    type: 'unleash-updated',
+    data: JSON.stringify({
+      events: [
+        {
+          type: 'segment-removed',
+          eventId: 5,
+          segmentId: 1,
+        },
+      ],
+    }),
+  });
+  const removedSegment = repo.getSegment(1);
+  t.deepEqual(removedSegment, undefined);
+
   // SSE error translated to repo warning
   repo.on('warn', (msg) => {
     t.is(msg, 'some error');
@@ -1508,7 +1538,7 @@ test('Streaming', async (t) => {
       events: [
         {
           type: 'hydration',
-          eventId: 4,
+          eventId: 6,
           features: [{ ...feature, name: 'reconnectUpdate' }],
           segments: [],
         },

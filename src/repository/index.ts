@@ -274,7 +274,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     });
 
     this.setReady();
-    this.emit(UnleashEvents.Changed, Object.values(this.data));
+    this.emit(UnleashEvents.DeltaChanged, delta.events);
     await this.storageProvider.set(this.appName, {
       features: Object.values(this.data),
       segments: [...this.segments.values()],
