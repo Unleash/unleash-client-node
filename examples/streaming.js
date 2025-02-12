@@ -1,4 +1,5 @@
 const { Unleash } = require('../lib');
+
 const client = new Unleash({
   appName: 'my-application',
   url: 'https://app.unleash-hosted.com/demo/api/',
