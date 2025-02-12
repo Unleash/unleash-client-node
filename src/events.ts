@@ -7,7 +7,6 @@ export enum UnleashEvents {
   Warn = 'warn',
   Unchanged = 'unchanged',
   Changed = 'changed',
-  DeltaChanged = 'deltaChanged',
   Synchronized = 'synchronized',
   Count = 'count',
   CountVariant = 'countVariant',

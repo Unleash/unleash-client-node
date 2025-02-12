@@ -17,7 +17,7 @@ const getUrl = (
   tags?: Array<string>,
   mode?: Mode,
 ): string => {
-  const isDeltaPolling = mode && mode.type === 'polling' && mode.mode === 'delta';
+  const isDeltaPolling = mode && mode.type === 'polling' && mode.format === 'delta';
   const url = resolveUrl(base, isDeltaPolling ? './client/delta' : './client/features');
   const params = new URLSearchParams();
   if (projectName) {

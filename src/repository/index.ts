@@ -280,7 +280,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
     });
 
     this.setReady();
-    this.emit(UnleashEvents.DeltaChanged, delta.events);
+    this.emit(UnleashEvents.Changed, Object.values(this.data));
     await this.storageProvider.set(this.appName, {
       features: Object.values(this.data),
       segments: [...this.segments.values()],
@@ -439,13 +439,18 @@ Message: ${err.message}`,
       } else if (res.ok) {
         nextFetch = this.countSuccess();
         try {
-          const data: ClientFeaturesResponse = await res.json();
+          const data = await res.json();
           if (res.headers.get('etag') !== null) {
             this.etag = res.headers.get('etag') as string;
           } else {
             this.etag = undefined;
           }
-          await this.save(data, true);
+
+          if (this.mode.type === 'polling' && this.mode.format === 'delta') {
+            await this.saveDelta(data);
+          } else {
+            await this.save(data, true);
+          }
         } catch (err) {
           this.emit(UnleashEvents.Error, err);
         }

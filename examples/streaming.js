@@ -1,14 +1,17 @@
 const { Unleash } = require('../lib');
+const { setInterval } = require('node:timers');
 
 const client = new Unleash({
   appName: 'my-application',
-  url: 'https://app.unleash-hosted.com/demo/api/',
+  url: 'https://sandbox.getunleash.io/enterprise/api/',
   customHeaders: {
-    Authorization: '943ca9171e2c884c545c5d82417a655fb77cec970cc3b78a8ff87f4406b495d0',
+    Authorization: 'deltasbug:development.9814ecf06dc4fb69433b45187cb9c305b2886ed74b6261498aa2ee78',
   },
-  experimentalMode: { type: 'streaming' },
+  experimentalMode: { type: 'polling', format: 'delta' },
   skipInstanceCountWarning: true,
+  refreshInterval: 2000,
 });
 client.on('changed', () => {
-  console.log(client.isEnabled('demo001', { userId: `${Math.random()}` }));
+  console.log('deltaChanged', client.isEnabled('child_delta', { userId: `${Math.random()}` }));
 });
+setInterval(() => {}, 1000);

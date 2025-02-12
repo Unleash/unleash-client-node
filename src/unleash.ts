@@ -76,7 +76,7 @@ export class Unleash extends EventEmitter {
     storageProvider,
     disableAutoStart = false,
     skipInstanceCountWarning = false,
-    experimentalMode = { type: 'polling', mode: 'full' },
+    experimentalMode = { type: 'polling', format: 'full' },
   }: UnleashConfig) {
     super();
 
