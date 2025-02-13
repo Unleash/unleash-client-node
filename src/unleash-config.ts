@@ -8,7 +8,7 @@ import { BootstrapOptions } from './repository/bootstrap-provider';
 import { StorageProvider } from './repository/storage-provider';
 import { RepositoryInterface } from './repository';
 
-export type Mode = { type: 'polling' } | { type: 'streaming' };
+export type Mode = { type: 'polling'; format: 'delta' | 'full' } | { type: 'streaming' };
 
 export interface UnleashConfig {
   appName: string;
