@@ -1435,7 +1435,7 @@ test('Stopping repository should stop storage provider updates', async (t) => {
 });
 
 test('Streaming deltas', async (t) => {
-  t.plan(7);
+  t.plan(8);
   const url = 'http://unleash-test-streaming.app';
   const feature = {
     name: 'feature',
@@ -1582,6 +1582,17 @@ test('Streaming deltas', async (t) => {
   });
   const reconnectUpdate = repo.getToggles();
   t.deepEqual(reconnectUpdate, [{ ...feature, name: 'reconnectUpdate' }]);
+
+  // Invalid data error translated to repo error
+  repo.on('error', (error) => {
+    t.true(error.message.startsWith(`Invalid delta response:`));
+  });
+  eventSource.emit('unleash-updated', {
+    type: 'unleash-updated',
+    data: JSON.stringify({
+      incorrectEvents: [],
+    }),
+  });
 });
 
 function setupPollingDeltaApi(url: string, events: DeltaEvent[]) {

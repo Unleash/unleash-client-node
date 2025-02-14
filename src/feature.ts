@@ -37,6 +37,18 @@ export interface ClientFeaturesDelta {
   events: DeltaEvent[];
 }
 
+export const parseClientFeaturesDelta = (delta: unknown): ClientFeaturesDelta => {
+  if (
+    typeof delta === 'object' &&
+    delta !== null &&
+    'events' in delta &&
+    Array.isArray(delta.events)
+  ) {
+    return delta as ClientFeaturesDelta;
+  }
+  throw new Error(`Invalid delta response: ${JSON.stringify(delta, null, 2)}`);
+};
+
 export type DeltaEvent =
   | FeatureUpdated
   | FeatureRemoved
