@@ -4,6 +4,7 @@ import {
   ClientFeaturesResponse,
   EnhancedFeatureInterface,
   FeatureInterface,
+  parseClientFeaturesDelta,
 } from '../feature';
 import { get } from '../request';
 import { CustomHeaders, CustomHeadersFunction } from '../headers';
@@ -147,8 +148,8 @@ export default class Repository extends EventEmitter implements EventEmitter {
     this.mode = mode;
     if (this.eventSource) {
       // On re-connect it guarantees catching up with the latest state.
-      this.eventSource.addEventListener('unleash-connected', (event: { data: string }) => {
-        this.handleFlagsFromStream(event);
+      this.eventSource.addEventListener('unleash-connected', async (event: { data: string }) => {
+        await this.handleFlagsFromStream(event);
       });
       this.eventSource.addEventListener('unleash-updated', this.handleFlagsFromStream.bind(this));
       this.eventSource.addEventListener('error', (error: unknown) => {
@@ -157,10 +158,10 @@ export default class Repository extends EventEmitter implements EventEmitter {
     }
   }
 
-  private handleFlagsFromStream(event: { data: string }) {
+  private async handleFlagsFromStream(event: { data: string }) {
     try {
-      const data: ClientFeaturesDelta = JSON.parse(event.data);
-      this.saveDelta(data);
+      const data = parseClientFeaturesDelta(JSON.parse(event.data));
+      await this.saveDelta(data);
     } catch (err) {
       this.emit(UnleashEvents.Error, err);
     }
@@ -447,7 +448,7 @@ Message: ${err.message}`,
           }
 
           if (this.mode.type === 'polling' && this.mode.format === 'delta') {
-            await this.saveDelta(data);
+            await this.saveDelta(parseClientFeaturesDelta(data));
           } else {
             await this.save(data, true);
           }
