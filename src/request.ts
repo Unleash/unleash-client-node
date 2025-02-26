@@ -114,9 +114,7 @@ export const buildHeaders = ({
 
   // expressed in milliseconds to match refreshInterval and metricsInterval units
   // attach when set explicitly to non-zero value
-  if (interval) {
-    head['unleash-interval'] = String(interval);
-  }
+  head['unleash-interval'] = String(interval);
 
   return head;
 };
