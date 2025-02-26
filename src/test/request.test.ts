@@ -21,6 +21,7 @@ test('Correct headers should be included', (t) => {
     etag: undefined,
     contentType: undefined,
     connectionId: 'connectionId',
+    interval: 10000,
     custom: {
       hello: 'world',
     },
@@ -28,6 +29,7 @@ test('Correct headers should be included', (t) => {
   t.is(headers.hello, 'world');
   t.is(headers['UNLEASH-INSTANCEID'], 'instanceId');
   t.is(headers['unleash-connection-id'], 'connectionId');
+  t.is(headers['unleash-interval'], '10000');
   t.is(headers['unleash-appname'], 'myApp');
   t.regex(headers['unleash-sdk'], /^unleash-client-node:\d+\.\d+\.\d+/);
 });

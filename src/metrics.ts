@@ -57,6 +57,7 @@ type PlatformData = {
 interface BaseMetricsData {
   appName: string;
   instanceId: string;
+  connectionId: string;
   platformName: PlatformName;
   platformVersion: string;
   yggdrasilVersion: null;
@@ -257,6 +258,7 @@ export default class Metrics extends EventEmitter {
         appName: this.appName,
         instanceId: this.instanceId,
         connectionId: this.connectionId,
+        interval: this.metricsInterval,
         headers,
         timeout: this.timeout,
         httpOptions: this.httpOptions,
@@ -360,6 +362,7 @@ export default class Metrics extends EventEmitter {
     return {
       appName: this.appName,
       instanceId: this.instanceId,
+      connectionId: this.connectionId,
       bucket,
       platformName: this.platformData.name,
       platformVersion: this.platformData.version,
@@ -394,6 +397,7 @@ export default class Metrics extends EventEmitter {
       strategies: this.strategies,
       started: this.started,
       interval: this.metricsInterval,
+      connectionId: this.connectionId,
       platformName: this.platformData.name,
       platformVersion: this.platformData.version,
       yggdrasilVersion: null,
