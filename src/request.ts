@@ -22,6 +22,7 @@ export interface GetRequestOptions extends RequestOptions {
   connectionId: string;
   supportedSpecVersion?: string;
   httpOptions?: HttpOptions;
+  interval?: number;
 }
 
 export interface Data {
@@ -33,6 +34,7 @@ export interface PostRequestOptions extends RequestOptions {
   appName?: string;
   instanceId?: string;
   connectionId?: string;
+  interval?: number;
   httpOptions?: HttpOptions;
 }
 
@@ -66,6 +68,7 @@ type HeaderOptions = {
   custom?: CustomHeaders;
   specVersionSupported?: string;
   connectionId?: string;
+  interval?: number;
 };
 
 export const buildHeaders = ({
@@ -76,6 +79,7 @@ export const buildHeaders = ({
   custom,
   specVersionSupported,
   connectionId,
+  interval,
 }: HeaderOptions): Record<string, string> => {
   const head: Record<string, string> = {};
   if (appName) {
@@ -108,6 +112,10 @@ export const buildHeaders = ({
     head['unleash-connection-id'] = connectionId;
   }
 
+  // expressed in milliseconds to match refreshInterval and metricsInterval units
+  // attach when set explicitly to non-zero value
+  head['unleash-interval'] = String(interval);
+
   return head;
 };
 
@@ -117,6 +125,7 @@ export const post = ({
   timeout,
   instanceId,
   connectionId,
+  interval,
   headers,
   json,
   httpOptions,
@@ -129,6 +138,7 @@ export const post = ({
       appName,
       instanceId,
       connectionId,
+      interval,
       etag: undefined,
       contentType: 'application/json',
       custom: headers,
@@ -144,6 +154,7 @@ export const get = ({
   timeout,
   instanceId,
   connectionId,
+  interval,
   headers,
   httpOptions,
   supportedSpecVersion,
@@ -155,6 +166,7 @@ export const get = ({
     headers: buildHeaders({
       appName,
       instanceId,
+      interval,
       etag,
       contentType: undefined,
       custom: headers,

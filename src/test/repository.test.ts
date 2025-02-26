@@ -197,6 +197,7 @@ test('should request with correct custom and unleash headers', (t) =>
       .matchHeader('randomKey', randomKey)
       .matchHeader('unleash-appname', appName)
       .matchHeader('unleash-connection-id', connectionId)
+      .matchHeader('unleash-interval', '10')
       .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
       .persist()
       .get('/client/features')
@@ -214,6 +215,7 @@ test('should request with correct custom and unleash headers', (t) =>
       headers: {
         randomKey,
         'unleash-connection-id': 'ignore',
+        'unleash-interval': 'ignore',
       },
       mode: { type: 'polling', format: 'full' },
     });

@@ -89,7 +89,7 @@ test('should sendMetrics and register when metricsInterval is a positive number'
 
 test('should sendMetrics', async (t) => {
   const url = getUrl();
-  t.plan(6);
+  t.plan(7);
   const metricsEP = nock(url)
     .post(metricsUrl, (payload) => {
       t.truthy(payload.bucket);
@@ -99,6 +99,7 @@ test('should sendMetrics', async (t) => {
         'toggle-x': { yes: 1, no: 1, variants: { 'variant-a': 2 } },
         'toggle-y': { yes: 1, no: 0, variants: {} },
       });
+      t.deepEqual(payload.connectionId, 'connection-id');
       return true;
     })
     .reply(200, '');
@@ -108,6 +109,7 @@ test('should sendMetrics', async (t) => {
   const metrics = new Metrics({
     url,
     metricsInterval: 50,
+    connectionId: 'connection-id',
   });
 
   metrics.count('toggle-x', true);
@@ -131,7 +133,8 @@ test('should send correct custom and unleash headers', (t) =>
       .matchHeader('randomKey', randomKey)
       .matchHeader('unleash-appname', 'appName')
       .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
-      .matchHeader('unleash-connection-id', 'connectionId');
+      .matchHeader('unleash-connection-id', 'connectionId')
+      .matchHeader('unleash-interval', '50');
     const regEP = nockRegister(url)
       .matchHeader('randomKey', randomKey)
       .matchHeader('unleash-appname', 'appName')
@@ -578,6 +581,7 @@ test('getClientData should include extended metrics', (t) => {
   // @ts-expect-error
   const metrics = new Metrics({
     url,
+    connectionId: 'connection-id',
   });
   metrics.start();
 
@@ -586,6 +590,7 @@ test('getClientData should include extended metrics', (t) => {
   t.truthy(result.platformVersion);
   t.true(result.yggdrasilVersion === null);
   t.true(result.specVersion === SUPPORTED_SPEC_VERSION);
+  t.deepEqual(result.connectionId, 'connection-id');
 });
 
 test('createMetricsData should include extended metrics', (t) => {
