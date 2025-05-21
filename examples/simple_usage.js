@@ -9,6 +9,7 @@ const unleash = initialize({
   appName: 'my-application',
   url,
   refreshInterval: 1000,
+  counterInterval: 10000,
   customHeaders: {
     Authorization: apiToken,
   },

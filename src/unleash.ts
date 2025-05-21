@@ -107,6 +107,15 @@ export class Unleash extends EventEmitter {
       throw new Error('Unleash client "appName" is required');
     }
 
+    const unleashUrl = this.cleanUnleashUrl(url);
+
+    const unleashInstanceId = generateInstanceId(instanceId);
+
+    const unleashConnectionId = uuidv4();
+
+    this.staticContext = { appName, environment };
+
+    const bootstrapProvider = resolveBootstrapProvider(bootstrap, appName, unleashInstanceId);
     this.customMetrics = new Counters({
       counterInterval: counterInterval || 30000,
       counterJitter: counterJitter || 500,
@@ -118,20 +127,10 @@ export class Unleash extends EventEmitter {
       url,
       appName,
       environment,
-      instanceId,
+      instanceId: unleashConnectionId,
     });
 
     this.customMetrics.start();
-
-    const unleashUrl = this.cleanUnleashUrl(url);
-
-    const unleashInstanceId = generateInstanceId(instanceId);
-
-    const unleashConnectionId = uuidv4();
-
-    this.staticContext = { appName, environment };
-
-    const bootstrapProvider = resolveBootstrapProvider(bootstrap, appName, unleashInstanceId);
 
     this.repository =
       repository ||
@@ -197,7 +196,7 @@ export class Unleash extends EventEmitter {
     });
 
     this.repository.on(UnleashEvents.Unchanged, (msg) => {
-      this.customMetrics.count('unleash_refresh', { result: 'nochanged' });
+      this.customMetrics.count('unleash_refresh', { result: 'nochange' });
       this.emit(UnleashEvents.Unchanged, msg);
     });
 
