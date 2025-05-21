@@ -27,6 +27,7 @@ export interface CounterOptions {
   timeout: number;
   httpOptions?: HttpOptions;
   url: string;
+  instanceId?: string | undefined;
 }
 
 function sanitize(key: string): string {
@@ -78,12 +79,16 @@ export class Counters extends EventEmitter {
     timeout,
     httpOptions,
     url,
+    instanceId,
   }: CounterOptions) {
     super();
     this.defaultLabels = {
       app_name: appName,
       environment,
     };
+    if (instanceId) {
+      this.defaultLabels.instance_id = instanceId;
+    }
     this.counterInterval = counterInterval;
     this.counterJitter = counterJitter;
     this.disabled = disableCounters;

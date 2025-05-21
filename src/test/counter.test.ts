@@ -1,5 +1,6 @@
 import test from 'ava';
 import { Counters } from '../counter';
+import { uuidv4 } from '../uuidv4';
 
 test('counting with different labels should be stored as different counters', (t) => {
   const counters = new Counters({
@@ -10,6 +11,7 @@ test('counting with different labels should be stored as different counters', (t
     url: 'https://example.com/api',
     counterJitter: 400,
     counterInterval: 0,
+    instanceId: uuidv4().toLowerCase(),
   });
   counters.count('my_counter', { test: 'value_a' });
   counters.count('my_counter', { test: 'value_b' });
@@ -25,6 +27,7 @@ test('counters always have app_name and environment labels', (t) => {
     url: 'https://example.com/api',
     counterJitter: 400,
     counterInterval: 0,
+    instanceId: uuidv4().toLowerCase(),
   });
   counters.count('my_counter', { test: 'value_a' });
   counters.count('my_counter', { test: 'value_b' });

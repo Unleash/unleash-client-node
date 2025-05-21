@@ -118,6 +118,7 @@ export class Unleash extends EventEmitter {
       url,
       appName,
       environment,
+      instanceId,
     });
 
     this.customMetrics.start();
@@ -196,13 +197,11 @@ export class Unleash extends EventEmitter {
     });
 
     this.repository.on(UnleashEvents.Unchanged, (msg) => {
-      this.customMetrics.count('unleash_refresh', { result: 'changed' });
+      this.customMetrics.count('unleash_refresh', { result: 'nochanged' });
       this.emit(UnleashEvents.Unchanged, msg);
     });
 
     this.repository.on(UnleashEvents.Changed, (data) => {
-      const changed = new Map();
-      changed.set('result', 'changed');
       this.customMetrics.count('unleash_refresh', { result: 'changed' });
       this.emit(UnleashEvents.Changed, data);
       // Only emit the fully synchronized event the first time.
