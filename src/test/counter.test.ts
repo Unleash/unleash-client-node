@@ -50,5 +50,5 @@ test('sanitizes label keys and values to only lowercased alphanumeric characters
   });
   counters.count('my_counter', { 'MyCR#AZ^': 'my_counter_label_value' });
   const data = counters.createCounterData();
-  t.true(data.metrics[0].labels.mycr_az === 'my_counter_label_value');
+  t.is(data.metrics[0].labels.mycr_az, 'my_counter_label_value');
 });
