@@ -30,10 +30,8 @@ test('counters always have app_name and environment labels', (t) => {
   counters.count('my_counter', { test: 'value_b' });
   const data = counters.createCounterData();
   for (const counter of data.metrics) {
-    t.true(counter.labels.has('app_name'));
-    t.true(counter.labels.has('environment'));
-    t.true(counter.labels.get('app_name') === 'ava-test');
-    t.true(counter.labels.get('environment') === 'test');
+    t.is(counter.labels.environment, 'test');
+    t.is(counter.labels.app_name, 'ava-test');
   }
 });
 
@@ -49,6 +47,5 @@ test('sanitizes label keys and values to only lowercased alphanumeric characters
   });
   counters.count('my_counter', { 'MyCR#AZ^': 'my_counter_label_value' });
   const data = counters.createCounterData();
-  console.log(data.metrics[0].labels.entries());
-  t.true(data.metrics[0].labels.has('mycr_az'));
+  t.true(data.metrics[0].labels.mycr_az === 'my_counter_label_value');
 });

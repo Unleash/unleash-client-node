@@ -8,7 +8,7 @@ import { UnleashEvents } from './events';
 
 type Counter = {
   name: string;
-  labels: Map<string, string>;
+  labels: Record<string, string>;
   value: number;
 };
 
@@ -37,7 +37,7 @@ function sanitize(key: string): string {
 }
 
 function counterKey(counter: Pick<Counter, 'name' | 'labels'>): string {
-  return `${counter.name}:${Array.from(counter.labels.entries())
+  return `${counter.name}:${Object.entries(counter.labels)
     .map(([k, v]) => `${k}=${v}`)
     .join(',')}`;
 }
@@ -45,7 +45,7 @@ function counterKey(counter: Pick<Counter, 'name' | 'labels'>): string {
 export class Counters extends EventEmitter {
   private counters: Map<string, Counter> = new Map();
 
-  private readonly defaultLabels: Map<string, string>;
+  private readonly defaultLabels: Record<string, string>;
 
   private counterInterval: number;
 
@@ -80,10 +80,10 @@ export class Counters extends EventEmitter {
     url,
   }: CounterOptions) {
     super();
-    const defaultLabels = new Map<string, string>();
-    defaultLabels.set('app_name', appName);
-    defaultLabels.set('environment', environment);
-    this.defaultLabels = defaultLabels;
+    this.defaultLabels = {
+      app_name: appName,
+      environment,
+    };
     this.counterInterval = counterInterval;
     this.counterJitter = counterJitter;
     this.disabled = disableCounters;
@@ -213,12 +213,13 @@ export class Counters extends EventEmitter {
   }
 
   count(name: string, labels: Record<string, string>, value: number = 1): void {
-    const allLabels = new Map();
-    for (const [localKey, mapVal] of this.defaultLabels.entries()) {
-      allLabels.set(sanitize(localKey), mapVal);
+    const allLabels: Record<string, string> = {};
+
+    for (const [localKey, mapVal] of Object.entries(this.defaultLabels)) {
+      allLabels[sanitize(localKey)] = mapVal;
     }
     for (const [localKey, mapVal] of Object.entries(labels)) {
-      allLabels.set(sanitize(localKey), mapVal);
+      allLabels[sanitize(localKey)] = mapVal;
     }
     const key = counterKey({ name, labels: allLabels });
     if (!this.counters.has(key)) {
