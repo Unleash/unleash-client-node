@@ -136,7 +136,7 @@ export class Counters extends EventEmitter {
 
   stop(): void {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
       delete this.timer;
     }
     this.disabled = true;
@@ -218,7 +218,6 @@ export class Counters extends EventEmitter {
 
   count(name: string, labels: Record<string, string>, value: number = 1): void {
     const allLabels: Record<string, string> = {};
-
     for (const [localKey, mapVal] of Object.entries(this.defaultLabels)) {
       allLabels[sanitize(localKey)] = mapVal;
     }
