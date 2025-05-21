@@ -6,8 +6,6 @@ import { resolveUrl, suffixSlash } from './url-utils';
 import { post } from './request';
 import { UnleashEvents } from './events';
 
-const counters: Map<string, Counter> = new Map();
-
 type Counter = {
   name: string;
   labels: Map<string, string>;
@@ -223,12 +221,12 @@ export class Counters extends EventEmitter {
       allLabels.set(sanitize(localKey), mapVal);
     }
     const key = counterKey({ name, labels: allLabels });
-    if (!counters.has(key)) {
+    if (!this.counters.has(key)) {
       this.counters.set(key, { name, labels: allLabels, value });
     } else {
       this.counters.set(key, {
-        ...counters.get(key)!,
-        value: counters.get(key)!.value + value,
+        ...this.counters.get(key)!,
+        value: this.counters.get(key)!.value + value,
       });
     }
   }
