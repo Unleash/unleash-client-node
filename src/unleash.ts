@@ -45,7 +45,7 @@ export class Unleash extends EventEmitter {
 
   private metrics: Metrics;
 
-  private customMetrics: Counters;
+  customMetrics: Counters;
 
   private staticContext: StaticContext;
 
