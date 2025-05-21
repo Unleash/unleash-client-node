@@ -22,6 +22,7 @@ import { resolveUrl } from './url-utils';
 import { EventSource } from './event-source';
 import { buildHeaders } from './request';
 import { uuidv4 } from './uuidv4';
+import { Counters } from './counter';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -43,6 +44,8 @@ export class Unleash extends EventEmitter {
   private client: Client;
 
   private metrics: Metrics;
+
+  private counters: Counters;
 
   private staticContext: StaticContext;
 
@@ -77,9 +80,10 @@ export class Unleash extends EventEmitter {
     disableAutoStart = false,
     skipInstanceCountWarning = false,
     experimentalMode = { type: 'polling', format: 'full' },
+    counterJitter,
+    counterInterval,
   }: UnleashConfig) {
     super();
-
     Unleash.instanceCount++;
 
     this.on(UnleashEvents.Error, (error) => {
@@ -102,6 +106,21 @@ export class Unleash extends EventEmitter {
     if (!appName) {
       throw new Error('Unleash client "appName" is required');
     }
+
+    this.counters = new Counters({
+      counterInterval: counterInterval || 30000,
+      counterJitter: counterJitter || 500,
+      disableCounters: false,
+      headers: customHeaders,
+      customHeadersFunction: customHeadersFunction,
+      httpOptions,
+      timeout: 10000,
+      url,
+      appName,
+      environment,
+    });
+
+    this.counters.start();
 
     const unleashUrl = this.cleanUnleashUrl(url);
 
@@ -165,18 +184,29 @@ export class Unleash extends EventEmitter {
     });
 
     this.repository.on(UnleashEvents.Error, (err) => {
+      this.counters.count('unleash_error', new Map());
       // eslint-disable-next-line no-param-reassign
       err.message = `Unleash Repository error: ${err.message}`;
       this.emit(UnleashEvents.Error, err);
     });
 
-    this.repository.on(UnleashEvents.Warn, (msg) => this.emit(UnleashEvents.Warn, msg));
+    this.repository.on(UnleashEvents.Warn, (msg) => {
+      this.counters.count('unleash_warn', new Map());
+      this.emit(UnleashEvents.Warn, msg);
+    });
 
-    this.repository.on(UnleashEvents.Unchanged, (msg) => this.emit(UnleashEvents.Unchanged, msg));
+    this.repository.on(UnleashEvents.Unchanged, (msg) => {
+      const noChange = new Map();
+      noChange.set('result', 'no_change');
+      this.counters.count('unleash_refresh', noChange);
+      this.emit(UnleashEvents.Unchanged, msg);
+    });
 
     this.repository.on(UnleashEvents.Changed, (data) => {
+      const changed = new Map();
+      changed.set('result', 'changed');
+      this.counters.count('unleash_refresh', changed);
       this.emit(UnleashEvents.Changed, data);
-
       // Only emit the fully synchronized event the first time.
       if (!this.synchronized) {
         this.synchronized = true;
@@ -188,10 +218,10 @@ export class Unleash extends EventEmitter {
     const supportedStrategies = strategies.concat(defaultStrategies);
     this.client = new Client(this.repository, supportedStrategies);
     this.client.on(UnleashEvents.Error, (err) => this.emit(UnleashEvents.Error, err));
-    this.client.on(UnleashEvents.Impression, (e: ImpressionEvent) =>
-      this.emit(UnleashEvents.Impression, e),
-    );
-
+    this.client.on(UnleashEvents.Impression, (e: ImpressionEvent) => {
+      this.counters.count('unleash_impression_event', new Map());
+      this.emit(UnleashEvents.Impression, e);
+    });
     this.metrics = new Metrics({
       disableMetrics,
       appName,

@@ -35,4 +35,6 @@ export interface UnleashConfig {
   disableAutoStart?: boolean;
   skipInstanceCountWarning?: boolean;
   experimentalMode?: Mode;
+  counterInterval?: number;
+  counterJitter?: number;
 }
