@@ -117,10 +117,8 @@ export class Counters extends EventEmitter {
 
   private startTimer(): void {
     if (this.disabled || this.getInterval() === 0) {
-      console.log('counters was disabled');
       return;
     }
-    console.log('Starting timer');
     this.timer = setTimeout(() => {
       this.sendCounters();
     }, this.getInterval());
@@ -157,7 +155,6 @@ export class Counters extends EventEmitter {
       UnleashEvents.Warn,
       `${url} returning ${statusCode}. Backing off to ${this.failures} times normal interval`,
     );
-    console.log('Failed. Backing off');
     this.startTimer();
   }
 
@@ -183,7 +180,6 @@ export class Counters extends EventEmitter {
     const payload = this.createCounterData();
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
-    console.log(`Posting counters for ${url}`);
     try {
       const res = await post({
         url,
@@ -204,11 +200,10 @@ export class Counters extends EventEmitter {
           res.status === 504
         ) {
           this.backoff(url, res.status);
-        } else {
-          console.log('Successfully sent payload. Calling reduce backoff');
-          this.emit(UnleashEvents.Sent, payload);
-          this.reduceBackoff();
         }
+      } else {
+        this.emit(UnleashEvents.Sent, payload);
+        this.reduceBackoff();
       }
     } catch (err) {
       this.emit(UnleashEvents.Warn, err);
@@ -217,7 +212,6 @@ export class Counters extends EventEmitter {
   }
 
   reduceBackoff(): void {
-    console.log(`Reducing backoff... Failures now ${this.getFailures()}`);
     this.failures = Math.max(0, this.failures - 1);
     this.startTimer();
   }
