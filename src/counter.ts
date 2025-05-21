@@ -31,7 +31,14 @@ export interface CounterOptions {
   url: string;
 }
 
-function key(counter: Pick<Counter, 'name' | 'labels'>): string {
+function sanitize(key: string): string {
+  return key
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '_')
+    .replace(/_+$/, '');
+}
+
+function counterKey(counter: Pick<Counter, 'name' | 'labels'>): string {
   return `${counter.name}:${Array.from(counter.labels.entries())
     .map(([k, v]) => `${k}=${v}`)
     .join(',')}`;
@@ -207,14 +214,21 @@ export class Counters extends EventEmitter {
     this.startTimer();
   }
 
-  count(name: string, labels: Map<string, string>, value: number = 1): void {
-    const counterKey = key({ name, labels });
-    if (!counters.has(counterKey)) {
-      this.counters.set(counterKey, { name, labels, value });
+  count(name: string, labels: Record<string, string>, value: number = 1): void {
+    const allLabels = new Map();
+    for (const [localKey, mapVal] of this.defaultLabels.entries()) {
+      allLabels.set(sanitize(localKey), mapVal);
+    }
+    for (const [localKey, mapVal] of Object.entries(labels)) {
+      allLabels.set(sanitize(localKey), mapVal);
+    }
+    const key = counterKey({ name, labels: allLabels });
+    if (!counters.has(key)) {
+      this.counters.set(key, { name, labels: allLabels, value });
     } else {
-      this.counters.set(counterKey, {
-        ...counters.get(counterKey)!,
-        value: counters.get(counterKey)!.value + value,
+      this.counters.set(key, {
+        ...counters.get(key)!,
+        value: counters.get(key)!.value + value,
       });
     }
   }
