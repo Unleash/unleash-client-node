@@ -40,7 +40,7 @@
     "semver": "^7.6.2"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "files": [
     "lib",
@@ -49,7 +49,7 @@
   ],
   "devDependencies": {
     "@ava/babel": "^2.0.0",
-    "@ava/typescript": "^4.0.0",
+    "@ava/typescript": "^5.0.0",
     "@tsconfig/node12": "^12.0.0",
     "@types/eventsource": "^1.1.15",
     "@types/express": "^4.17.17",
@@ -64,7 +64,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@unleash/client-specification": "^5.1.6",
-    "ava": "^5.3.0",
+    "ava": "^6.4.0",
     "coveralls": "^3.1.1",
     "cross-env": "^7.0.3",
     "del-cli": "^5.0.0",
