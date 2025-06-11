@@ -12,6 +12,7 @@ import { UnleashConfig } from './unleash-config';
 export { Strategy } from './strategy/index';
 export { Context, Variant, PayloadType, Unleash, TagFilter, InMemStorageProvider, UnleashEvents };
 export type { ClientFeaturesResponse, UnleashConfig };
+export { UnleashMetricClient } from './metric-client';
 
 let instance: undefined | Unleash;
 
