@@ -1,6 +1,10 @@
 import { Unleash } from './unleash';
 
-function forwardMethods<T extends object>(target: T, source: T, methodNames: (keyof T)[]) {
+function forwardMethods<T extends object>(
+  target: UnleashMetricClient,
+  source: Unleash,
+  methodNames: (keyof T)[],
+) {
   for (const name of methodNames) {
     // @ts-ignore
     target[name] = (...args: any[]) => source[name](...args);
@@ -12,7 +16,7 @@ export class UnleashMetricClient {
 
   constructor(unleash: Unleash) {
     this.backingInstance = unleash;
-    forwardMethods(this, this.backingInstance as any, [
+    forwardMethods(this, this.backingInstance, [
       'isEnabled',
       'getVariant',
       'forceGetVariant',
