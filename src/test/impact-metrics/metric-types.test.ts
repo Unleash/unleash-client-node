@@ -1,5 +1,5 @@
 import test from 'ava';
-import { ImpactMetricRegistry, MetricLabels } from '../../impact-metrics/metric-types';
+import { ImpactMetricRegistry } from '../../impact-metrics/metric-types';
 
 test('Counter increments by default value', (t) => {
   const registry = new ImpactMetricRegistry();
@@ -10,9 +10,17 @@ test('Counter increments by default value', (t) => {
   const result = registry.collect();
   const metric = result.find((m) => m.name === 'test_counter');
 
-  t.is(metric?.samples.length, 1);
-  t.deepEqual(metric?.samples[0].labels, {});
-  t.is(metric?.samples[0].value, 1);
+  t.deepEqual(metric, {
+    name: 'test_counter',
+    help: 'testing',
+    type: 'counter',
+    samples: [
+      {
+        labels: {},
+        value: 1,
+      },
+    ],
+  });
 });
 
 test('Counter increments with custom value and labels', (t) => {
@@ -25,9 +33,17 @@ test('Counter increments with custom value and labels', (t) => {
   const result = registry.collect();
   const metric = result.find((m) => m.name === 'labeled_counter');
 
-  t.is(metric?.samples.length, 1);
-  t.deepEqual(metric?.samples[0].labels, { foo: 'bar' });
-  t.is(metric?.samples[0].value, 5);
+  t.deepEqual(metric, {
+    name: 'labeled_counter',
+    help: 'with labels',
+    type: 'counter',
+    samples: [
+      {
+        labels: { foo: 'bar' },
+        value: 5,
+      },
+    ],
+  });
 });
 
 test('Gauge supports inc, dec, and set', (t) => {
@@ -41,9 +57,17 @@ test('Gauge supports inc, dec, and set', (t) => {
   const result = registry.collect();
   const metric = result.find((m) => m.name === 'test_gauge');
 
-  t.is(metric?.samples.length, 1);
-  t.deepEqual(metric?.samples[0].labels, { env: 'prod' });
-  t.is(metric?.samples[0].value, 10);
+  t.deepEqual(metric, {
+    name: 'test_gauge',
+    help: 'gauge test',
+    type: 'gauge',
+    samples: [
+      {
+        labels: { env: 'prod' },
+        value: 10,
+      },
+    ],
+  });
 });
 
 test('Different label combinations are stored separately', (t) => {
@@ -57,12 +81,37 @@ test('Different label combinations are stored separately', (t) => {
   const result = registry.collect();
   const metric = result.find((m) => m.name === 'multi_label');
 
-  t.is(metric?.samples.length, 3);
+  t.deepEqual(metric, {
+    name: 'multi_label',
+    help: 'label test',
+    type: 'counter',
+    samples: [
+      { labels: { a: 'x' }, value: 1 },
+      { labels: { b: 'y' }, value: 2 },
+      { labels: {}, value: 3 },
+    ],
+  });
+});
 
-  const lookup = (labels: MetricLabels) =>
-    metric!.samples.find((s) => JSON.stringify(s.labels) === JSON.stringify(labels))?.value;
+test('Gauge tracks values separately per label set', (t) => {
+  const registry = new ImpactMetricRegistry();
+  const gauge = registry.gauge({ name: 'multi_env_gauge', help: 'tracks multiple envs' });
 
-  t.is(lookup({ a: 'x' }), 1);
-  t.is(lookup({ b: 'y' }), 2);
-  t.is(lookup({}), 3);
+  gauge.inc(5, { env: 'prod' });
+  gauge.dec(2, { env: 'dev' });
+  gauge.set(10, { env: 'test' });
+
+  const result = registry.collect();
+  const metric = result.find((m) => m.name === 'multi_env_gauge');
+
+  t.deepEqual(metric, {
+    name: 'multi_env_gauge',
+    help: 'tracks multiple envs',
+    type: 'gauge',
+    samples: [
+      { labels: { env: 'prod' }, value: 5 },
+      { labels: { env: 'dev' }, value: -2 },
+      { labels: { env: 'test' }, value: 10 },
+    ],
+  });
 });
