@@ -1,4 +1,4 @@
-import { Unleash } from './unleash';
+import { Unleash } from '../unleash';
 
 function forwardMethods<T extends object>(target: T, source: T, methodNames: (keyof T)[]) {
   for (const name of methodNames) {
