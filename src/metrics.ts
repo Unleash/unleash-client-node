@@ -290,6 +290,7 @@ export default class Metrics extends EventEmitter {
 
   reduceBackoff(): void {
     this.failures = Math.max(0, this.failures - 1);
+    console.log(`Failures: ${this.failures}`);
     this.startTimer();
   }
 
