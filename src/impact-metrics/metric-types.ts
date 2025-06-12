@@ -101,9 +101,7 @@ class GaugeImpl implements Gauge {
   }
 }
 
-export interface MetricLabels {
-  [label: string]: string;
-}
+export type MetricLabels = Record<string, string>;
 
 export interface Counter {
   inc(value?: number, labels?: MetricLabels): void;
