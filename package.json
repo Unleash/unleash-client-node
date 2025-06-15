@@ -82,7 +82,7 @@
     "nyc": "^15.1.0",
     "prettier": "^3.0.0",
     "redis": "^4.6.7",
-    "sinon": "^18.0.0",
+    "sinon": "^21.0.0",
     "typescript": "^5.4.3"
   },
   "resolutions": {
