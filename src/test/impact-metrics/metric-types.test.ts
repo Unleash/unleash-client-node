@@ -115,3 +115,54 @@ test('Gauge tracks values separately per label set', (t) => {
     ],
   });
 });
+
+test('collect returns empty array when all metrics are empty', (t) => {
+  const registry = new ImpactMetricRegistry();
+  registry.counter({ name: 'noop_counter', help: 'noop' });
+  registry.gauge({ name: 'noop_gauge', help: 'noop' });
+
+  const result = registry.collect();
+  t.deepEqual(result, []);
+});
+
+test('collect returns empty array after flushing previous values', (t) => {
+  const registry = new ImpactMetricRegistry();
+  const counter = registry.counter({ name: 'flush_test', help: 'flush' });
+
+  counter.inc(1);
+  const first = registry.collect();
+  t.truthy(first);
+  t.is(first.length, 1);
+
+  const second = registry.collect();
+  t.deepEqual(second, []);
+});
+
+test('restore reinserts collected metrics into the registry', (t) => {
+  const registry = new ImpactMetricRegistry();
+  const counter = registry.counter({ name: 'restore_test', help: 'testing restore' });
+
+  counter.inc(5, { tag: 'a' });
+  counter.inc(2, { tag: 'b' });
+
+  const flushed = registry.collect();
+  t.is(flushed.length, 1);
+
+  const afterFlush = registry.collect();
+  t.deepEqual(afterFlush, []);
+
+  registry.restore(flushed);
+
+  const restored = registry.collect();
+  t.deepEqual(restored, [
+    {
+      name: 'restore_test',
+      help: 'testing restore',
+      type: 'counter',
+      samples: [
+        { labels: { tag: 'a' }, value: 5 },
+        { labels: { tag: 'b' }, value: 2 },
+      ],
+    },
+  ]);
+});
