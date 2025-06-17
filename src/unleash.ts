@@ -22,7 +22,7 @@ import { resolveUrl } from './url-utils';
 import { EventSource } from './event-source';
 import { buildHeaders } from './request';
 import { uuidv4 } from './uuidv4';
-import { ImpactMetricRegistry } from './impact-metrics/metric-types';
+import { ImpactMetricRegistryImpl } from './impact-metrics/metric-types';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -53,7 +53,7 @@ export class Unleash extends EventEmitter {
 
   private started: boolean = false;
 
-  private metricRegistry = new ImpactMetricRegistry();
+  private metricRegistry = new ImpactMetricRegistryImpl();
 
   constructor({
     appName,

@@ -369,7 +369,8 @@ export default class Metrics extends EventEmitter {
   createMetricsData(impactMetrics: CollectedMetric[]): MetricsData {
     const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
-    return {
+
+    const base: MetricsData = {
       appName: this.appName,
       instanceId: this.instanceId,
       connectionId: this.connectionId,
@@ -378,8 +379,13 @@ export default class Metrics extends EventEmitter {
       platformVersion: this.platformData.version,
       yggdrasilVersion: null,
       specVersion: SUPPORTED_SPEC_VERSION,
-      impactMetrics: impactMetrics,
     };
+
+    if (impactMetrics.length > 0) {
+      (base as any).impactMetrics = impactMetrics;
+    }
+
+    return base;
   }
 
   private restoreBucket(bucket: Bucket): void {

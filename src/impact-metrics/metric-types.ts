@@ -117,7 +117,12 @@ export interface Gauge {
   set(value: number, labels?: MetricLabels): void;
 }
 
-export class ImpactMetricRegistry {
+export interface ImpactMetricRegistry {
+  collect(): CollectedMetric[];
+  restore(metrics: CollectedMetric[]): void;
+}
+
+export class ImpactMetricRegistryImpl implements ImpactMetricRegistry {
   private counters = new Map<string, Counter & CollectibleMetric>();
 
   private gauges = new Map<string, Gauge & CollectibleMetric>();
