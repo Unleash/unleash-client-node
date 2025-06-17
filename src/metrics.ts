@@ -7,6 +7,7 @@ import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 import { SUPPORTED_SPEC_VERSION } from './repository';
+import { CollectedMetric, ImpactMetricRegistry } from './impact-metrics/metric-types';
 
 export interface MetricsOptions {
   appName: string;
@@ -21,6 +22,7 @@ export interface MetricsOptions {
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
   httpOptions?: HttpOptions;
+  metricRegistry?: ImpactMetricRegistry;
 }
 
 interface VariantBucket {
@@ -66,6 +68,7 @@ interface BaseMetricsData {
 
 interface MetricsData extends BaseMetricsData {
   bucket: Bucket;
+  impactMetrics?: CollectedMetric[];
 }
 
 interface RegistrationData extends BaseMetricsData {
@@ -112,6 +115,8 @@ export default class Metrics extends EventEmitter {
 
   private platformData: PlatformData;
 
+  private metricRegistry?: ImpactMetricRegistry;
+
   constructor({
     appName,
     instanceId,
@@ -125,6 +130,7 @@ export default class Metrics extends EventEmitter {
     customHeadersFunction,
     timeout,
     httpOptions,
+    metricRegistry,
   }: MetricsOptions) {
     super();
     this.disabled = disableMetrics;
@@ -143,6 +149,7 @@ export default class Metrics extends EventEmitter {
     this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
     this.platformData = this.getPlatformData();
+    this.metricRegistry = metricRegistry;
   }
 
   private getAppliedJitter(): number {
@@ -241,13 +248,15 @@ export default class Metrics extends EventEmitter {
     if (this.disabled) {
       return;
     }
-    if (this.bucketIsEmpty()) {
+    const impactMetrics = this.metricRegistry?.collect() || [];
+
+    if (this.bucketIsEmpty() && impactMetrics.length === 0) {
       this.resetBucket();
       this.startTimer();
       return;
     }
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
-    const payload = this.createMetricsData();
+    const payload = this.createMetricsData(impactMetrics);
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
@@ -356,7 +365,7 @@ export default class Metrics extends EventEmitter {
     this.bucket = this.createBucket();
   }
 
-  createMetricsData(): MetricsData {
+  createMetricsData(impactMetrics: CollectedMetric[]): MetricsData {
     const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
     return {
@@ -368,6 +377,7 @@ export default class Metrics extends EventEmitter {
       platformVersion: this.platformData.version,
       yggdrasilVersion: null,
       specVersion: SUPPORTED_SPEC_VERSION,
+      impactMetrics: impactMetrics,
     };
   }
 

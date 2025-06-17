@@ -413,7 +413,7 @@ test('getMetricsData should return a bucket', (t) => {
   });
   metrics.start();
 
-  const result = metrics.createMetricsData();
+  const result = metrics.createMetricsData([]);
   t.true(typeof result === 'object');
   t.true(typeof result.bucket === 'object');
 });
@@ -601,7 +601,7 @@ test('createMetricsData should include extended metrics', (t) => {
   });
   metrics.start();
 
-  const result = metrics.createMetricsData();
+  const result = metrics.createMetricsData([]);
   t.truthy(result.platformName);
   t.truthy(result.platformVersion);
   t.true(result.yggdrasilVersion === null);

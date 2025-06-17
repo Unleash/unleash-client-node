@@ -22,6 +22,7 @@ import { resolveUrl } from './url-utils';
 import { EventSource } from './event-source';
 import { buildHeaders } from './request';
 import { uuidv4 } from './uuidv4';
+import { ImpactMetricRegistry } from './impact-metrics/metric-types';
 export { Strategy, UnleashEvents, UnleashConfig };
 
 const BACKUP_PATH: string = tmpdir();
@@ -51,6 +52,8 @@ export class Unleash extends EventEmitter {
   private ready: boolean = false;
 
   private started: boolean = false;
+
+  private metricRegistry = new ImpactMetricRegistry();
 
   constructor({
     appName,
@@ -205,6 +208,7 @@ export class Unleash extends EventEmitter {
       customHeadersFunction,
       timeout,
       httpOptions,
+      metricRegistry: this.metricRegistry,
     });
 
     this.metrics.on(UnleashEvents.Error, (err) => {
