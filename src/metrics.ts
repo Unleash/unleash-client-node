@@ -286,6 +286,7 @@ export default class Metrics extends EventEmitter {
           this.backoff(url, res.status);
         }
         this.restoreBucket(payload.bucket);
+        this.metricRegistry?.restore(impactMetrics);
       } else {
         this.emit(UnleashEvents.Sent, payload);
         this.reduceBackoff();
