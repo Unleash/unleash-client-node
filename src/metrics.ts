@@ -382,7 +382,7 @@ export default class Metrics extends EventEmitter {
     };
 
     if (impactMetrics.length > 0) {
-      (base as any).impactMetrics = impactMetrics;
+      base.impactMetrics = impactMetrics;
     }
 
     return base;
