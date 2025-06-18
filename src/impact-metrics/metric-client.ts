@@ -1,5 +1,64 @@
-import { Unleash } from '../unleash';
+import { EventEmitter } from 'stream';
+import { StaticContext, Unleash, UnleashEvents } from '../unleash';
+import { ImpactMetricRegistry } from './metric-types';
+
+class MetricsAPI extends EventEmitter {
+  constructor(
+    private metricRegistry: ImpactMetricRegistry,
+    private staticContext: StaticContext,
+  ) {
+    super();
+  }
+
+  defineCounter(name: string, help = '') {
+    const labelNames = ['featureName', 'appName', 'environment'];
+    this.metricRegistry.counter({ name, help, labelNames });
+  }
+
+  defineGauge(name: string, help = '') {
+    const labelNames = ['featureName', 'appName', 'environment'];
+    this.metricRegistry.gauge({ name, help, labelNames });
+  }
+
+  incrementCounter(name: string, value?: number, featureName?: string): void {
+    const counter = this.metricRegistry.getCounter(name);
+    if (!counter) {
+      this.emit(
+        UnleashEvents.Warn,
+        `Counter ${name} not defined, this counter will not be incremented.`,
+      );
+      return;
+    }
+
+    const labels = {
+      ...(featureName ? { featureName } : {}),
+      ...this.staticContext,
+    };
+
+    counter.inc(value, labels);
+  }
+
+  updateGauge(name: string, value: number, featureName?: string): void {
+    const gauge = this.metricRegistry.getGauge(name);
+    if (!gauge) {
+      this.emit(UnleashEvents.Warn, `Gauge ${name} not defined, this gauge will not be updated.`);
+      return;
+    }
+
+    const labels = {
+      ...(featureName ? { featureName } : {}),
+      ...this.staticContext,
+    };
+
+    gauge.set(value, labels);
+  }
+}
 
 export class UnleashMetricClient extends Unleash {
-  // empty for now, we'll use this to add in the public API for metrics later
+  public impactMetrics: MetricsAPI;
+
+  constructor(...args: ConstructorParameters<typeof Unleash>) {
+    super(...args);
+    this.impactMetrics = new MetricsAPI(this.metricRegistry, this.staticContext);
+  }
 }

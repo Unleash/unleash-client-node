@@ -117,15 +117,30 @@ export interface Gauge {
   set(value: number, labels?: MetricLabels): void;
 }
 
-export interface ImpactMetricRegistry {
+export interface ImpactMetricsDataSink {
   collect(): CollectedMetric[];
   restore(metrics: CollectedMetric[]): void;
 }
 
-export class InMemoryMetricRegistry implements ImpactMetricRegistry {
+export interface ImpactMetricRegistry {
+  getCounter(counterName: string): Counter | undefined;
+  getGauge(gaugeName: string): Gauge | undefined;
+  counter(opts: MetricOptions): Counter;
+  gauge(opts: MetricOptions): Gauge;
+}
+
+export class InMemoryMetricRegistry implements ImpactMetricsDataSink, ImpactMetricRegistry {
   private counters = new Map<string, Counter & CollectibleMetric>();
 
   private gauges = new Map<string, Gauge & CollectibleMetric>();
+
+  getCounter(counterName: string): Counter | undefined {
+    return this.counters.get(counterName);
+  }
+
+  getGauge(gaugeName: string): Gauge | undefined {
+    return this.gauges.get(gaugeName);
+  }
 
   counter(opts: MetricOptions): Counter {
     const key = opts.name;
