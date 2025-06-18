@@ -253,6 +253,7 @@ export default class Metrics extends EventEmitter {
     if (this.bucketIsEmpty() && impactMetrics.length === 0) {
       this.resetBucket();
       this.startTimer();
+      this.metricRegistry?.restore(impactMetrics);
       return;
     }
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
@@ -293,6 +294,7 @@ export default class Metrics extends EventEmitter {
       }
     } catch (err) {
       this.restoreBucket(payload.bucket);
+      this.metricRegistry?.restore(impactMetrics);
       this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }

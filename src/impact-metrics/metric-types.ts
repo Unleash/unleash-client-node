@@ -122,7 +122,7 @@ export interface ImpactMetricRegistry {
   restore(metrics: CollectedMetric[]): void;
 }
 
-export class ImpactMetricRegistryImpl implements ImpactMetricRegistry {
+export class InMemoryMetricRegistry implements ImpactMetricRegistry {
   private counters = new Map<string, Counter & CollectibleMetric>();
 
   private gauges = new Map<string, Gauge & CollectibleMetric>();
