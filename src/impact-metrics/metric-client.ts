@@ -2,7 +2,7 @@ import { EventEmitter } from 'stream';
 import { StaticContext, Unleash, UnleashEvents } from '../unleash';
 import { ImpactMetricRegistry } from './metric-types';
 
-class MetricsAPI extends EventEmitter {
+export class MetricsAPI extends EventEmitter {
   constructor(
     private metricRegistry: ImpactMetricRegistry,
     private staticContext: StaticContext,
@@ -10,12 +10,20 @@ class MetricsAPI extends EventEmitter {
     super();
   }
 
-  defineCounter(name: string, help = '') {
+  defineCounter(name: string, help: string) {
+    if (!name || !help) {
+      this.emit(UnleashEvents.Warn, `Counter name or help cannot be empty: ${name}, ${help}.`);
+      return;
+    }
     const labelNames = ['featureName', 'appName', 'environment'];
     this.metricRegistry.counter({ name, help, labelNames });
   }
 
-  defineGauge(name: string, help = '') {
+  defineGauge(name: string, help: string) {
+    if (!name || !help) {
+      this.emit(UnleashEvents.Warn, `Counter name or help cannot be empty: ${name}, ${help}.`);
+      return;
+    }
     const labelNames = ['featureName', 'appName', 'environment'];
     this.metricRegistry.gauge({ name, help, labelNames });
   }
