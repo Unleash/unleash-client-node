@@ -1,6 +1,7 @@
 import test from 'ava';
 import * as nock from 'nock';
 import Metrics from '../metrics';
+import type { CollectedMetric } from '../impact-metrics/metric-types';
 import { SUPPORTED_SPEC_VERSION } from '../repository';
 
 let counter = 1;
@@ -413,7 +414,7 @@ test('getMetricsData should return a bucket', (t) => {
   });
   metrics.start();
 
-  const result = metrics.createMetricsData();
+  const result = metrics.createMetricsData([]);
   t.true(typeof result === 'object');
   t.true(typeof result.bucket === 'object');
 });
@@ -601,9 +602,128 @@ test('createMetricsData should include extended metrics', (t) => {
   });
   metrics.start();
 
-  const result = metrics.createMetricsData();
+  const result = metrics.createMetricsData([]);
   t.truthy(result.platformName);
   t.truthy(result.platformVersion);
   t.true(result.yggdrasilVersion === null);
   t.true(result.specVersion === SUPPORTED_SPEC_VERSION);
+});
+
+test('createMetricsData should include impactMetrics if provided', (t) => {
+  const url = getUrl();
+  // @ts-expect-error
+  const metrics = new Metrics({ url });
+  metrics.start();
+
+  const impactMetrics: CollectedMetric[] = [
+    {
+      name: 'feature_toggle_used',
+      help: 'tracks toggle usage',
+      type: 'counter',
+      samples: [{ labels: { toggle: 'new-ui' }, value: 3 }],
+    },
+  ];
+
+  const result = metrics.createMetricsData(impactMetrics);
+
+  t.truthy(result.impactMetrics);
+  t.deepEqual(result.impactMetrics, impactMetrics);
+});
+
+test('sendMetrics should include impactMetrics in the payload', async (t) => {
+  const url = getUrl();
+  let capturedBody = null;
+
+  const impactMetricSample: CollectedMetric = {
+    name: 'feature_toggle_used',
+    help: 'tracks toggle usage',
+    type: 'counter',
+    samples: [{ labels: { toggle: 'some-feature' }, value: 5 }],
+  };
+
+  const fakeMetricRegistry = {
+    restore: (_metrics: CollectedMetric[]) => {},
+    collect: () => [impactMetricSample],
+  };
+
+  // @ts-expect-error
+  const metrics = new Metrics({
+    url,
+    metricsInterval: 0,
+    metricRegistry: fakeMetricRegistry,
+  });
+
+  const scope = nock(url)
+    .post('/client/metrics', (body) => {
+      capturedBody = body;
+      return true;
+    })
+    .reply(200);
+
+  await metrics.sendMetrics();
+  t.deepEqual(capturedBody!.impactMetrics, [impactMetricSample]);
+  t.true(scope.isDone());
+});
+
+test('sendMetrics should restore impactMetrics on failure', async (t) => {
+  const url = getUrl();
+
+  let restored = false;
+
+  const impactMetricSample: CollectedMetric = {
+    name: 'feature_toggle_used',
+    help: 'tracks toggle usage',
+    type: 'counter',
+    samples: [{ labels: { toggle: 'fail-case' }, value: 1 }],
+  };
+
+  const fakeMetricRegistry = {
+    collect: () => [impactMetricSample],
+    restore: (_data: CollectedMetric[]) => {
+      restored = true;
+    },
+  };
+
+  // @ts-expect-error
+  const metrics = new Metrics({
+    url,
+    metricsInterval: 0,
+    metricRegistry: fakeMetricRegistry,
+  });
+
+  nock(url).post('/client/metrics').reply(500);
+
+  await metrics.sendMetrics();
+  t.true(restored);
+});
+
+test('sendMetrics should not include impactMetrics field when empty', async (t) => {
+  const url = getUrl();
+  let capturedBody = null;
+
+  const fakeMetricRegistry = {
+    collect: () => [],
+    restore: (_: CollectedMetric[]) => {},
+  };
+
+  // @ts-expect-error
+  const metrics = new Metrics({
+    url,
+    metricsInterval: 0,
+    metricRegistry: fakeMetricRegistry,
+  });
+
+  // Inject a single toggle evaluation so that we force a metrics send but without impact metrics
+  metrics.count('toggle-x', true);
+
+  const scope = nock(url)
+    .post('/client/metrics', (body) => {
+      capturedBody = body;
+      return true;
+    })
+    .reply(200);
+
+  await metrics.sendMetrics();
+  t.false('impactMetrics' in capturedBody!);
+  t.true(scope.isDone());
 });

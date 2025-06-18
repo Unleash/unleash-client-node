@@ -53,6 +53,8 @@ class CounterImpl implements Counter {
       value,
     }));
 
+    this.values.clear();
+
     return {
       name: this.opts.name,
       help: this.opts.help,
@@ -92,6 +94,8 @@ class GaugeImpl implements Gauge {
       value,
     }));
 
+    this.values.clear();
+
     return {
       name: this.opts.name,
       help: this.opts.help,
@@ -113,7 +117,12 @@ export interface Gauge {
   set(value: number, labels?: MetricLabels): void;
 }
 
-export class ImpactMetricRegistry {
+export interface ImpactMetricRegistry {
+  collect(): CollectedMetric[];
+  restore(metrics: CollectedMetric[]): void;
+}
+
+export class InMemoryMetricRegistry implements ImpactMetricRegistry {
   private counters = new Map<string, Counter & CollectibleMetric>();
 
   private gauges = new Map<string, Gauge & CollectibleMetric>();
@@ -137,7 +146,32 @@ export class ImpactMetricRegistry {
   collect(): CollectedMetric[] {
     const allCounters = [...this.counters.values()].map((c) => c.collect());
     const allGauges = [...this.gauges.values()].map((g) => g.collect());
-    return [...allCounters, ...allGauges];
+    const allMetrics = [...allCounters, ...allGauges];
+
+    const nonEmpty = allMetrics.filter((metric) => metric.samples.length > 0);
+    return nonEmpty.length > 0 ? nonEmpty : [];
+  }
+
+  restore(metrics: CollectedMetric[]): void {
+    for (const metric of metrics) {
+      switch (metric.type) {
+        case 'counter': {
+          const counter = this.counter({ name: metric.name, help: metric.help });
+          for (const sample of metric.samples) {
+            counter.inc(sample.value, sample.labels);
+          }
+          break;
+        }
+
+        case 'gauge': {
+          const gauge = this.gauge({ name: metric.name, help: metric.help });
+          for (const sample of metric.samples) {
+            gauge.set(sample.value, sample.labels);
+          }
+          break;
+        }
+      }
+    }
   }
 }
 

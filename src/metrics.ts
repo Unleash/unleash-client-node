@@ -7,6 +7,7 @@ import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 import { SUPPORTED_SPEC_VERSION } from './repository';
+import { CollectedMetric, ImpactMetricRegistry } from './impact-metrics/metric-types';
 
 export interface MetricsOptions {
   appName: string;
@@ -21,6 +22,7 @@ export interface MetricsOptions {
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
   httpOptions?: HttpOptions;
+  metricRegistry?: ImpactMetricRegistry;
 }
 
 interface VariantBucket {
@@ -66,6 +68,7 @@ interface BaseMetricsData {
 
 interface MetricsData extends BaseMetricsData {
   bucket: Bucket;
+  impactMetrics?: CollectedMetric[];
 }
 
 interface RegistrationData extends BaseMetricsData {
@@ -112,6 +115,8 @@ export default class Metrics extends EventEmitter {
 
   private platformData: PlatformData;
 
+  private metricRegistry?: ImpactMetricRegistry;
+
   constructor({
     appName,
     instanceId,
@@ -125,6 +130,7 @@ export default class Metrics extends EventEmitter {
     customHeadersFunction,
     timeout,
     httpOptions,
+    metricRegistry,
   }: MetricsOptions) {
     super();
     this.disabled = disableMetrics;
@@ -143,6 +149,7 @@ export default class Metrics extends EventEmitter {
     this.bucket = this.createBucket();
     this.httpOptions = httpOptions;
     this.platformData = this.getPlatformData();
+    this.metricRegistry = metricRegistry;
   }
 
   private getAppliedJitter(): number {
@@ -241,13 +248,16 @@ export default class Metrics extends EventEmitter {
     if (this.disabled) {
       return;
     }
-    if (this.bucketIsEmpty()) {
+    const impactMetrics = this.metricRegistry?.collect() || [];
+
+    if (this.bucketIsEmpty() && impactMetrics.length === 0) {
       this.resetBucket();
       this.startTimer();
+      this.metricRegistry?.restore(impactMetrics);
       return;
     }
     const url = resolveUrl(suffixSlash(this.url), './client/metrics');
-    const payload = this.createMetricsData();
+    const payload = this.createMetricsData(impactMetrics);
 
     const headers = this.customHeadersFunction ? await this.customHeadersFunction() : this.headers;
 
@@ -277,12 +287,14 @@ export default class Metrics extends EventEmitter {
           this.backoff(url, res.status);
         }
         this.restoreBucket(payload.bucket);
+        this.metricRegistry?.restore(impactMetrics);
       } else {
         this.emit(UnleashEvents.Sent, payload);
         this.reduceBackoff();
       }
     } catch (err) {
       this.restoreBucket(payload.bucket);
+      this.metricRegistry?.restore(impactMetrics);
       this.emit(UnleashEvents.Warn, err);
       this.startTimer();
     }
@@ -356,10 +368,11 @@ export default class Metrics extends EventEmitter {
     this.bucket = this.createBucket();
   }
 
-  createMetricsData(): MetricsData {
+  createMetricsData(impactMetrics: CollectedMetric[]): MetricsData {
     const bucket = { ...this.bucket, stop: new Date() };
     this.resetBucket();
-    return {
+
+    const base: MetricsData = {
       appName: this.appName,
       instanceId: this.instanceId,
       connectionId: this.connectionId,
@@ -369,6 +382,12 @@ export default class Metrics extends EventEmitter {
       yggdrasilVersion: null,
       specVersion: SUPPORTED_SPEC_VERSION,
     };
+
+    if (impactMetrics.length > 0) {
+      base.impactMetrics = impactMetrics;
+    }
+
+    return base;
   }
 
   private restoreBucket(bucket: Bucket): void {
