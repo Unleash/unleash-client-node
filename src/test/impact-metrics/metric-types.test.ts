@@ -1,8 +1,8 @@
 import test from 'ava';
-import { ImpactMetricRegistryImpl } from '../../impact-metrics/metric-types';
+import { InMemoryMetricRegistry } from '../../impact-metrics/metric-types';
 
 test('Counter increments by default value', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const counter = registry.counter({ name: 'test_counter', help: 'testing' });
 
   counter.inc();
@@ -24,7 +24,7 @@ test('Counter increments by default value', (t) => {
 });
 
 test('Counter increments with custom value and labels', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const counter = registry.counter({ name: 'labeled_counter', help: 'with labels' });
 
   counter.inc(3, { foo: 'bar' });
@@ -47,7 +47,7 @@ test('Counter increments with custom value and labels', (t) => {
 });
 
 test('Gauge supports inc, dec, and set', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const gauge = registry.gauge({ name: 'test_gauge', help: 'gauge test' });
 
   gauge.inc(5, { env: 'prod' });
@@ -71,7 +71,7 @@ test('Gauge supports inc, dec, and set', (t) => {
 });
 
 test('Different label combinations are stored separately', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const counter = registry.counter({ name: 'multi_label', help: 'label test' });
 
   counter.inc(1, { a: 'x' });
@@ -94,7 +94,7 @@ test('Different label combinations are stored separately', (t) => {
 });
 
 test('Gauge tracks values separately per label set', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const gauge = registry.gauge({ name: 'multi_env_gauge', help: 'tracks multiple envs' });
 
   gauge.inc(5, { env: 'prod' });
@@ -117,7 +117,7 @@ test('Gauge tracks values separately per label set', (t) => {
 });
 
 test('collect returns empty array when all metrics are empty', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   registry.counter({ name: 'noop_counter', help: 'noop' });
   registry.gauge({ name: 'noop_gauge', help: 'noop' });
 
@@ -126,7 +126,7 @@ test('collect returns empty array when all metrics are empty', (t) => {
 });
 
 test('collect returns empty array after flushing previous values', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const counter = registry.counter({ name: 'flush_test', help: 'flush' });
 
   counter.inc(1);
@@ -139,7 +139,7 @@ test('collect returns empty array after flushing previous values', (t) => {
 });
 
 test('restore reinserts collected metrics into the registry', (t) => {
-  const registry = new ImpactMetricRegistryImpl();
+  const registry = new InMemoryMetricRegistry();
   const counter = registry.counter({ name: 'restore_test', help: 'testing restore' });
 
   counter.inc(5, { tag: 'a' });
