@@ -117,7 +117,7 @@ export interface Gauge {
   set(value: number, labels?: MetricLabels): void;
 }
 
-export interface ImpactMetricsDataSink {
+export interface ImpactMetricsDataSource {
   collect(): CollectedMetric[];
   restore(metrics: CollectedMetric[]): void;
 }
@@ -129,7 +129,7 @@ export interface ImpactMetricRegistry {
   gauge(opts: MetricOptions): Gauge;
 }
 
-export class InMemoryMetricRegistry implements ImpactMetricsDataSink, ImpactMetricRegistry {
+export class InMemoryMetricRegistry implements ImpactMetricsDataSource, ImpactMetricRegistry {
   private counters = new Map<string, Counter & CollectibleMetric>();
 
   private gauges = new Map<string, Gauge & CollectibleMetric>();
