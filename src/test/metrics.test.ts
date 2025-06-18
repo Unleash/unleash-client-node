@@ -632,6 +632,7 @@ test('createMetricsData should include impactMetrics if provided', (t) => {
 
 test('sendMetrics should include impactMetrics in the payload', async (t) => {
   const url = getUrl();
+  let capturedBody = null;
 
   const impactMetricSample: CollectedMetric = {
     name: 'feature_toggle_used',
@@ -654,12 +655,13 @@ test('sendMetrics should include impactMetrics in the payload', async (t) => {
 
   const scope = nock(url)
     .post('/client/metrics', (body) => {
-      t.deepEqual(body.impactMetrics, [impactMetricSample]);
+      capturedBody = body;
       return true;
     })
     .reply(200);
 
   await metrics.sendMetrics();
+  t.deepEqual(capturedBody!.impactMetrics, [impactMetricSample]);
   t.true(scope.isDone());
 });
 
@@ -697,6 +699,7 @@ test('sendMetrics should restore impactMetrics on failure', async (t) => {
 
 test('sendMetrics should not include impactMetrics field when empty', async (t) => {
   const url = getUrl();
+  let capturedBody = null;
 
   const fakeMetricRegistry = {
     collect: () => [],
@@ -715,11 +718,12 @@ test('sendMetrics should not include impactMetrics field when empty', async (t) 
 
   const scope = nock(url)
     .post('/client/metrics', (body) => {
-      t.false('impactMetrics' in body);
+      capturedBody = body;
       return true;
     })
     .reply(200);
 
   await metrics.sendMetrics();
+  t.false('impactMetrics' in capturedBody!);
   t.true(scope.isDone());
 });
