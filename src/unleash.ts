@@ -45,7 +45,7 @@ export class Unleash extends EventEmitter {
 
   private metrics: Metrics;
 
-  private staticContext: StaticContext;
+  protected staticContext: StaticContext;
 
   private synchronized: boolean = false;
 
@@ -53,7 +53,7 @@ export class Unleash extends EventEmitter {
 
   private started: boolean = false;
 
-  private metricRegistry = new InMemoryMetricRegistry();
+  protected metricRegistry = new InMemoryMetricRegistry();
 
   constructor({
     appName,

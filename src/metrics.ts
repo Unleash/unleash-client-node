@@ -7,7 +7,7 @@ import { suffixSlash, resolveUrl } from './url-utils';
 import { UnleashEvents } from './events';
 import { getAppliedJitter } from './helpers';
 import { SUPPORTED_SPEC_VERSION } from './repository';
-import { CollectedMetric, ImpactMetricRegistry } from './impact-metrics/metric-types';
+import { CollectedMetric, ImpactMetricsDataSource } from './impact-metrics/metric-types';
 
 export interface MetricsOptions {
   appName: string;
@@ -22,7 +22,7 @@ export interface MetricsOptions {
   customHeadersFunction?: CustomHeadersFunction;
   timeout?: number;
   httpOptions?: HttpOptions;
-  metricRegistry?: ImpactMetricRegistry;
+  metricRegistry?: ImpactMetricsDataSource;
 }
 
 interface VariantBucket {
@@ -115,7 +115,7 @@ export default class Metrics extends EventEmitter {
 
   private platformData: PlatformData;
 
-  private metricRegistry?: ImpactMetricRegistry;
+  private metricRegistry?: ImpactMetricsDataSource;
 
   constructor({
     appName,
