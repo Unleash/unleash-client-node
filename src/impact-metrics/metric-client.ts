@@ -21,7 +21,7 @@ export class MetricsAPI extends EventEmitter {
 
   defineGauge(name: string, help: string) {
     if (!name || !help) {
-      this.emit(UnleashEvents.Warn, `Counter name or help cannot be empty: ${name}, ${help}.`);
+      this.emit(UnleashEvents.Warn, `Gauge name or help cannot be empty: ${name}, ${help}.`);
       return;
     }
     const labelNames = ['featureName', 'appName', 'environment'];
