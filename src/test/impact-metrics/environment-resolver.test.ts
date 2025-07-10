@@ -3,7 +3,7 @@ import { extractEnvironmentFromCustomHeaders } from '../../impact-metrics/enviro
 
 test('valid headers', (t) => {
   const customHeaders = {
-    Authorization: 'project:environment:hash',
+    Authorization: 'project:environment.hash',
     'Content-Type': 'application/json',
   };
 
@@ -13,7 +13,7 @@ test('valid headers', (t) => {
 
 test('case-insensitive header keys', (t) => {
   const customHeaders = {
-    AUTHORIZATION: 'project:environment:hash',
+    AUTHORIZATION: 'project:environment.hash',
     'Content-Type': 'application/json',
   };
 
@@ -28,7 +28,7 @@ test('authorization header not present', (t) => {
 
 test('environment part is empty', (t) => {
   const customHeaders = {
-    Authorization: 'project::hash',
+    Authorization: 'project:.hash',
   };
 
   const result = extractEnvironmentFromCustomHeaders(customHeaders);
