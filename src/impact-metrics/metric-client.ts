@@ -1,6 +1,7 @@
 import { EventEmitter } from 'stream';
 import { StaticContext, Unleash, UnleashEvents } from '../unleash';
 import { ImpactMetricRegistry } from './metric-types';
+import { extractEnvironmentFromCustomHeaders } from './environment-resolver';
 
 export class MetricsAPI extends EventEmitter {
   constructor(
@@ -67,6 +68,17 @@ export class UnleashMetricClient extends Unleash {
 
   constructor(...args: ConstructorParameters<typeof Unleash>) {
     super(...args);
-    this.impactMetrics = new MetricsAPI(this.metricRegistry, this.staticContext);
+
+    const config = args[0];
+    const metricsContext: StaticContext = { ...this.staticContext };
+
+    if (config && config.customHeaders) {
+      const environment = extractEnvironmentFromCustomHeaders(config.customHeaders);
+      if (environment) {
+        metricsContext.environment = environment;
+      }
+    }
+
+    this.impactMetrics = new MetricsAPI(this.metricRegistry, metricsContext);
   }
 }
