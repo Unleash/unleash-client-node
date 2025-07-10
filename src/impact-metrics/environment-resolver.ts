@@ -25,7 +25,8 @@ const extractEnvironmentFromHeader = (authorizationHeader?: string): string | un
 
   const parts = authorizationHeader.split(':');
   if (parts.length >= 2 && parts[1]) {
-    return parts[1];
+    const envParts = parts[1].split('.');
+    return envParts[0] || undefined;
   }
 
   return undefined;
