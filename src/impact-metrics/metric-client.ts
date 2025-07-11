@@ -1,6 +1,6 @@
 import { EventEmitter } from 'stream';
 import { StaticContext, Unleash, UnleashEvents } from '../unleash';
-import { ImpactMetricRegistry, MetricFlagContext } from './metric-types';
+import { ImpactMetricRegistry, MetricFlagContext, MetricLabels } from './metric-types';
 import { extractEnvironmentFromCustomHeaders } from './environment-resolver';
 import Client from '../client';
 
@@ -31,6 +31,24 @@ export class MetricsAPI extends EventEmitter {
     this.metricRegistry.gauge({ name, help, labelNames });
   }
 
+  private getFlagLabels(flagContext?: MetricFlagContext): MetricLabels {
+    let flagLabels: MetricLabels = {};
+    if (flagContext) {
+      for (const flag of flagContext.flagNames) {
+        const variant = this.client.forceGetVariant(flag, flagContext.context);
+
+        if (variant.name !== 'disabled') {
+          flagLabels[flag] = variant.name;
+        } else if (variant.feature_enabled) {
+          flagLabels[flag] = 'enabled';
+        } else {
+          flagLabels[flag] = 'disabled';
+        }
+      }
+    }
+    return flagLabels;
+  }
+
   incrementCounter(name: string, value?: number, flagContext?: MetricFlagContext): void {
     const counter = this.metricRegistry.getCounter(name);
     if (!counter) {
@@ -41,18 +59,7 @@ export class MetricsAPI extends EventEmitter {
       return;
     }
 
-    let flagLabels: Record<string, string> = {};
-    if (flagContext) {
-      for (const flag of flagContext.flagNames) {
-        const variant = this.client.forceGetVariant(flag, flagContext.context);
-        flagLabels[flag] =
-          variant.name !== 'disabled'
-            ? variant.name
-            : variant.feature_enabled
-              ? 'enabled'
-              : 'disabled';
-      }
-    }
+    const flagLabels = this.getFlagLabels(flagContext);
 
     const labels = {
       ...flagLabels,
@@ -69,18 +76,7 @@ export class MetricsAPI extends EventEmitter {
       return;
     }
 
-    let flagLabels: Record<string, string> = {};
-    if (flagContext) {
-      for (const flag of flagContext.flagNames) {
-        const variant = this.client.forceGetVariant(flag, flagContext.context);
-        flagLabels[flag] =
-          variant.name !== 'disabled'
-            ? variant.name
-            : variant.feature_enabled
-              ? 'enabled'
-              : 'disabled';
-      }
-    }
+    const flagLabels = this.getFlagLabels(flagContext);
 
     const labels = {
       ...flagLabels,

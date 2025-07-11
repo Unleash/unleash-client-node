@@ -114,7 +114,7 @@ test('should set gauge with valid parameters', (t) => {
   let recordedLabels: MetricLabels = {};
 
   const fakeGauge = {
-    set: (value: number, labels: MetricLabels) => {
+    set: (_value: number, labels: MetricLabels) => {
       gaugeSet = true;
       recordedLabels = labels;
     },
