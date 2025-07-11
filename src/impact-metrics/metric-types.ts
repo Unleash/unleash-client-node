@@ -1,3 +1,5 @@
+import { Context } from '../context';
+
 type MetricType = 'counter' | 'gauge';
 type LabelValuesKey = string;
 
@@ -194,4 +196,9 @@ export interface MetricOptions {
   name: string;
   help: string;
   labelNames?: string[];
+}
+
+export interface MetricFlagContext {
+  flagNames: string[];
+  context: Context;
 }

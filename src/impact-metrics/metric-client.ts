@@ -1,11 +1,13 @@
 import { EventEmitter } from 'stream';
 import { StaticContext, Unleash, UnleashEvents } from '../unleash';
-import { ImpactMetricRegistry } from './metric-types';
+import { ImpactMetricRegistry, MetricFlagContext } from './metric-types';
 import { extractEnvironmentFromCustomHeaders } from './environment-resolver';
+import Client from '../client';
 
 export class MetricsAPI extends EventEmitter {
   constructor(
     private metricRegistry: ImpactMetricRegistry,
+    private client: Pick<Client, 'forceGetVariant'>,
     private staticContext: StaticContext,
   ) {
     super();
@@ -29,7 +31,7 @@ export class MetricsAPI extends EventEmitter {
     this.metricRegistry.gauge({ name, help, labelNames });
   }
 
-  incrementCounter(name: string, value?: number, featureName?: string): void {
+  incrementCounter(name: string, value?: number, flagContext?: MetricFlagContext): void {
     const counter = this.metricRegistry.getCounter(name);
     if (!counter) {
       this.emit(
@@ -39,23 +41,49 @@ export class MetricsAPI extends EventEmitter {
       return;
     }
 
+    let flagLabels: Record<string, string> = {};
+    if (flagContext) {
+      for (const flag of flagContext.flagNames) {
+        const variant = this.client.forceGetVariant(flag, flagContext.context);
+        flagLabels[flag] =
+          variant.name !== 'disabled'
+            ? variant.name
+            : variant.feature_enabled
+              ? 'enabled'
+              : 'disabled';
+      }
+    }
+
     const labels = {
-      ...(featureName ? { featureName } : {}),
+      ...flagLabels,
       ...this.staticContext,
     };
 
     counter.inc(value, labels);
   }
 
-  updateGauge(name: string, value: number, featureName?: string): void {
+  updateGauge(name: string, value: number, flagContext?: MetricFlagContext): void {
     const gauge = this.metricRegistry.getGauge(name);
     if (!gauge) {
       this.emit(UnleashEvents.Warn, `Gauge ${name} not defined, this gauge will not be updated.`);
       return;
     }
 
+    let flagLabels: Record<string, string> = {};
+    if (flagContext) {
+      for (const flag of flagContext.flagNames) {
+        const variant = this.client.forceGetVariant(flag, flagContext.context);
+        flagLabels[flag] =
+          variant.name !== 'disabled'
+            ? variant.name
+            : variant.feature_enabled
+              ? 'enabled'
+              : 'disabled';
+      }
+    }
+
     const labels = {
-      ...(featureName ? { featureName } : {}),
+      ...flagLabels,
       ...this.staticContext,
     };
 
@@ -79,6 +107,6 @@ export class UnleashMetricClient extends Unleash {
       }
     }
 
-    this.impactMetrics = new MetricsAPI(this.metricRegistry, metricsContext);
+    this.impactMetrics = new MetricsAPI(this.metricRegistry, this.client, metricsContext);
   }
 }

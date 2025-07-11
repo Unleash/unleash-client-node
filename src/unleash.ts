@@ -41,7 +41,7 @@ export class Unleash extends EventEmitter {
 
   private repository: RepositoryInterface;
 
-  private client: Client;
+  protected client: Client;
 
   private metrics: Metrics;
 
