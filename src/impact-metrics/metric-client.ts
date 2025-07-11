@@ -7,7 +7,7 @@ import Client from '../client';
 export class MetricsAPI extends EventEmitter {
   constructor(
     private metricRegistry: ImpactMetricRegistry,
-    private client: Pick<Client, 'forceGetVariant'>,
+    private variantResolver: Pick<Client, 'forceGetVariant'>,
     private staticContext: StaticContext,
   ) {
     super();
@@ -35,7 +35,7 @@ export class MetricsAPI extends EventEmitter {
     let flagLabels: MetricLabels = {};
     if (flagContext) {
       for (const flag of flagContext.flagNames) {
-        const variant = this.client.forceGetVariant(flag, flagContext.context);
+        const variant = this.variantResolver.forceGetVariant(flag, flagContext.context);
 
         if (variant.name !== 'disabled') {
           flagLabels[flag] = variant.name;
