@@ -37,7 +37,7 @@ export class MetricsAPI extends EventEmitter {
       for (const flag of flagContext.flagNames) {
         const variant = this.variantResolver.forceGetVariant(flag, flagContext.context);
 
-        if (variant.name !== 'disabled') {
+        if (variant.enabled) {
           flagLabels[flag] = variant.name;
         } else if (variant.feature_enabled) {
           flagLabels[flag] = 'enabled';

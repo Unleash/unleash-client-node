@@ -6,13 +6,13 @@ import { MetricLabels } from '../../impact-metrics/metric-types';
 
 const fakeVariantResolver = (
   variantName = 'disabled',
-  enabled = true,
+  feature_enabled = true,
 ): Pick<Client, 'forceGetVariant'> => ({
   forceGetVariant: () => ({
     name: variantName,
-    feature_enabled: enabled,
-    enabled: enabled,
-    featureEnabled: enabled,
+    feature_enabled,
+    enabled: variantName !== 'disabled',
+    featureEnabled: feature_enabled,
   }),
 });
 
