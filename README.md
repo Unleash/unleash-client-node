@@ -2,14 +2,18 @@
 
 [![Unleash node SDK on npm](https://img.shields.io/npm/v/unleash-client)](https://www.npmjs.com/package/unleash-client)
 ![npm downloads](https://img.shields.io/npm/dm/unleash-client)
-[![Build Status](https://github.com/Unleash/unleash-client-node/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/Unleash/unleash-client-node/actions)
-[![Code Climate](https://codeclimate.com/github/Unleash/unleash-client-node/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-client-node)
-[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-client-node/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-client-node?branch=main)
+[![Build Status](https://github.com/Unleash/unleash-node-sdk/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/Unleash/unleash-node-sdk/actions)
+[![Code Climate](https://codeclimate.com/github/Unleash/unleash-node-sdk/badges/gpa.svg)](https://codeclimate.com/github/Unleash/unleash-node-sdk)
+[![Coverage Status](https://coveralls.io/repos/github/Unleash/unleash-node-sdk/badge.svg?branch=main)](https://coveralls.io/github/Unleash/unleash-node-sdk?branch=main)
 
-Unleash is a private, secure, and scalable [feature management platform](https://www.getunleash.io/) built to reduce the risk of releasing new features and accelerate software development. This server-side Node.js SDK is designed to help you integrate with Unleash and evaluate feature flags inside your application.
+Unleash is a private, secure, and scalable [feature management platform](https://www.getunleash.io/)
+built to reduce the risk of releasing new features and accelerate software development. This
+server-side Node.js SDK is designed to help you integrate with Unleash and evaluate feature flags
+inside your application.
 
-You can use this client with [Unleash Enterprise](https://www.getunleash.io/pricing?utm_source=readme&utm_medium=nodejs) or [Unleash Open Source](https://github.com/Unleash/unleash).
-
+You can use this client with
+[Unleash Enterprise](https://www.getunleash.io/pricing?utm_source=readme&utm_medium=nodejs) or
+[Unleash Open Source](https://github.com/Unleash/unleash).
 
 ## Getting started
 
@@ -145,14 +149,14 @@ setInterval(() => {
 ```
 
 👀 **Note**: In this example, we've wrapped the `isEnabled` call inside a `setInterval` function. In
-the event that all your app does is start the SDK and check a feature status, this setup ensures that the
-node app keeps running until the SDK has synchronized with the Unleash API. It is **not** required in
-normal apps.
+the event that all your app does is start the SDK and check a feature status, this setup ensures
+that the node app keeps running until the SDK has synchronized with the Unleash API. It is **not**
+required in normal apps.
 
 #### Check variants
 
-You can use the `getVariant` method to retrieve the variant of a feature flag. If the flag is disabled or
-doesn't have any variants, the method returns the
+You can use the `getVariant` method to retrieve the variant of a feature flag. If the flag is
+disabled or doesn't have any variants, the method returns the
 [disabled variant](https://docs.getunleash.io/reference/feature-toggle-variants#the-disabled-variant).
 
 ```js
@@ -244,7 +248,8 @@ The initialize method takes the following arguments:
 - **httpOptions** - Provide custom HTTP options such as `rejectUnauthorized` - be careful with these
   options as they may compromise your application security.
 - **namePrefix** - Only fetch feature toggles with the provided name prefix.
-- **tags** - Only fetch feature toggles tagged with the list of tags, such as: `[{type: 'simple', value: 'proxy'}]`.
+- **tags** - Only fetch feature toggles tagged with the list of tags, such as:
+  `[{type: 'simple', value: 'proxy'}]`.
 
 ## Custom strategies
 
@@ -287,9 +292,9 @@ The unleash instance object implements the EventEmitter class and **emits** the 
 | sent         | `object` data                    | key/value pair of delivered metrics                                                                                                                                                                                                          |
 | count        | `string` name, `boolean` enabled | is emitted when a feature is evaluated                                                                                                                                                                                                       |
 | warn         | `string` msg                     | is emitted on a warning                                                                                                                                                                                                                      |
-| error        | `Error` err                      | is emitted on an error                                                                                                                                                                                                                        |
+| error        | `Error` err                      | is emitted on an error                                                                                                                                                                                                                       |
 | unchanged    | -                                | is emitted each time the client gets new toggle state from server, but nothing has changed                                                                                                                                                   |
-| changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes have been made                                                                                                                                                  |
+| changed      | `object` data                    | is emitted each time the client gets new toggle state from server and changes have been made                                                                                                                                                 |
 | impression   | `object` data                    | is emitted for every user impression (isEnabled / getVariant)                                                                                                                                                                                |
 
 Example usage:
