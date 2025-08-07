@@ -133,13 +133,13 @@ test('should send correct custom and unleash headers', (t) =>
     const metricsEP = nockMetrics(url)
       .matchHeader('randomKey', randomKey)
       .matchHeader('unleash-appname', 'appName')
-      .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
+      .matchHeader('unleash-sdk', /^unleash-node-sdk:\d+\.\d+\.\d+/)
       .matchHeader('unleash-connection-id', 'connectionId')
       .matchHeader('unleash-interval', '50');
     const regEP = nockRegister(url)
       .matchHeader('randomKey', randomKey)
       .matchHeader('unleash-appname', 'appName')
-      .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
+      .matchHeader('unleash-sdk', /^unleash-node-sdk:\d+\.\d+\.\d+/)
       .matchHeader('unleash-connection-id', 'connectionId');
 
     // @ts-expect-error
