@@ -31,5 +31,5 @@ test('Correct headers should be included', (t) => {
   t.is(headers['unleash-connection-id'], 'connectionId');
   t.is(headers['unleash-interval'], '10000');
   t.is(headers['unleash-appname'], 'myApp');
-  t.regex(headers['unleash-sdk'], /^unleash-client-node:\d+\.\d+\.\d+/);
+  t.regex(headers['unleash-sdk'], /^unleash-node-sdk:\d+\.\d+\.\d+/);
 });

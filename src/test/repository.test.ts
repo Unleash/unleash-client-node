@@ -198,7 +198,7 @@ test('should request with correct custom and unleash headers', (t) =>
       .matchHeader('unleash-appname', appName)
       .matchHeader('unleash-connection-id', connectionId)
       .matchHeader('unleash-interval', '10')
-      .matchHeader('unleash-sdk', /^unleash-client-node:\d+\.\d+\.\d+/)
+      .matchHeader('unleash-sdk', /^unleash-node-sdk:\d+\.\d+\.\d+/)
       .persist()
       .get('/client/features')
       .reply(200, { features: [] }, { Etag: '12345-3' });

@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const newUnleashVersion = process.argv[2];
 
-const name = 'unleash-client-node';
+const name = 'unleash-node-sdk';
 
 const details = {
   name,

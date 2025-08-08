@@ -102,7 +102,7 @@ export const buildHeaders = ({
   }
 
   const version = details.version;
-  head['unleash-sdk'] = `unleash-client-node:${version}`;
+  head['unleash-sdk'] = `unleash-node-sdk:${version}`;
 
   if (custom) {
     Object.assign(head, custom);
